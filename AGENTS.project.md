@@ -4,7 +4,7 @@ This file is the project instruction for this repository. The app-builder worksp
 
 ## Words
 
-[docs/DEFINITIONS.md](docs/DEFINITIONS.md) is the only glossary. If code and that page disagree, fix it on purpose. Do not add a second glossary.
+The published five-job shell in `public/live/` is the front door. The generic library at `/bench` is an internal test bench, not a substitute for those jobs.
 
 System defines a job. Store evaluates it. System does not price, and it does not invent a canonical hash other than the Store's `calculationHash`, used only to check a receipt or a demand the Store already hashed.
 

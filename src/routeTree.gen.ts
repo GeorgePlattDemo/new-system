@@ -10,11 +10,19 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BenchRouteImport } from './routes/bench'
 import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projectId'
+import { Route as ApiStoreZeroJobRouteImport } from './routes/api/store-zero/job'
+import { Route as ApiStoreZeroOfferingRouteImport } from './routes/api/store-zero/offering'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BenchRoute = BenchRouteImport.update({
+  id: '/bench',
+  path: '/bench',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
@@ -22,31 +30,69 @@ const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
   path: '/projects/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStoreZeroJobRoute = ApiStoreZeroJobRouteImport.update({
+  id: '/api/store-zero/job',
+  path: '/api/store-zero/job',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStoreZeroOfferingRoute = ApiStoreZeroOfferingRouteImport.update({
+  id: '/api/store-zero/offering',
+  path: '/api/store-zero/offering',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/api/store-zero/job': typeof ApiStoreZeroJobRoute
+  '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/api/store-zero/job': typeof ApiStoreZeroJobRoute
+  '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/bench': typeof BenchRoute
   '/projects/$projectId': typeof ProjectsProjectIdRoute
+  '/api/store-zero/job': typeof ApiStoreZeroJobRoute
+  '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/projects/$projectId'
+  fullPaths:
+    | '/'
+    | '/bench'
+    | '/projects/$projectId'
+    | '/api/store-zero/job'
+    | '/api/store-zero/offering'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/projects/$projectId'
-  id: '__root__' | '/' | '/projects/$projectId'
+  to:
+    | '/'
+    | '/bench'
+    | '/projects/$projectId'
+    | '/api/store-zero/job'
+    | '/api/store-zero/offering'
+  id:
+    | '__root__'
+    | '/'
+    | '/bench'
+    | '/projects/$projectId'
+    | '/api/store-zero/job'
+    | '/api/store-zero/offering'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BenchRoute: typeof BenchRoute
   ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
+  ApiStoreZeroJobRoute: typeof ApiStoreZeroJobRoute
+  ApiStoreZeroOfferingRoute: typeof ApiStoreZeroOfferingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bench': {
+      id: '/bench'
+      path: '/bench'
+      fullPath: '/bench'
+      preLoaderRoute: typeof BenchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/projects/$projectId': {
       id: '/projects/$projectId'
       path: '/projects/$projectId'
@@ -65,12 +118,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProjectsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/store-zero/job': {
+      id: '/api/store-zero/job'
+      path: '/api/store-zero/job'
+      fullPath: '/api/store-zero/job'
+      preLoaderRoute: typeof ApiStoreZeroJobRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/store-zero/offering': {
+      id: '/api/store-zero/offering'
+      path: '/api/store-zero/offering'
+      fullPath: '/api/store-zero/offering'
+      preLoaderRoute: typeof ApiStoreZeroOfferingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BenchRoute: BenchRoute,
   ProjectsProjectIdRoute: ProjectsProjectIdRoute,
+  ApiStoreZeroJobRoute: ApiStoreZeroJobRoute,
+  ApiStoreZeroOfferingRoute: ApiStoreZeroOfferingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
