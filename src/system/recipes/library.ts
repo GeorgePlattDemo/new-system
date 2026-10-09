@@ -4,13 +4,17 @@ import type { Recipe } from "../recipe.ts";
 const requirementsBoard = {
   endRelation: "parallel",
   lengthDatum: "long-long-outer-edge",
-  endIdentity: "miter-face-long-point",
+  endIdentity: null,
+  endExplanation:
+    "The length is the long point of the miter face on the outer edge. That is the length datum. The reference cell has no mapping for a separate endIdentity string, so this job does not send one. A supplied endIdentity is sent and comes back END_IDENTITY_NOT_REGISTERED_ON_MACHINE.",
 } as const;
 
 const requirementsSquare = {
   endRelation: "parallel",
   lengthDatum: "square-end-to-square-end",
   endIdentity: "square-end",
+  endExplanation:
+    "The ends are square. square-end stays on the job. The reference cell does not lower this request type, and this identity is not removed to avoid that refusal.",
 } as const;
 
 const woods = [
@@ -234,8 +238,8 @@ export const LIBRARY: Recipe[] = [
       { id: "upperClearIn", label: "Upper storage, clear (in)", kind: "number", required: true },
       { id: "upperBays", label: "Upper bays", kind: "integer", required: true },
       { id: "cubbies", label: "Cubbies under the seat", kind: "integer", required: true },
-      { id: "leftShelves", label: "Left tower shelves", kind: "integer", required: true },
-      { id: "rightShelves", label: "Right tower shelves", kind: "integer", required: true },
+      { id: "leftShelves", label: "Left tower shelves", kind: "integer", required: true, min: 0, allowZero: true, help: "Zero is a tower with no shelf. It is not a missing number." },
+      { id: "rightShelves", label: "Right tower shelves", kind: "integer", required: true, min: 0, allowZero: true },
       { id: "frontAdded", label: "Add a front board", kind: "boolean", required: true },
       { id: "sideSpot", label: "Side spots", kind: "choice", required: false, choices: [
         { value: "", label: "None" },
@@ -277,6 +281,8 @@ export const LIBRARY: Recipe[] = [
       endRelation: "as-published-on-the-plan",
       lengthDatum: "long-point-to-short-point",
       endIdentity: "plan-end",
+      endExplanation:
+        "Ends follow the published plan, long point to short point. plan-end stays on the job. Cut packages are not lowered by the reference cell.",
     },
     inputs: [
       { id: "planId", label: "Plan", kind: "choice", required: true, choices: [
@@ -305,6 +311,8 @@ export const LIBRARY: Recipe[] = [
       endRelation: "sheet-edges",
       lengthDatum: "sheet-left-end",
       endIdentity: "factory-edge",
+      endExplanation:
+        "The sheet is referenced from its factory edge. That is not a board end identity. The reference cell does not lower sheets.",
     },
     inputs: [
       { id: "widthIn", label: "Opening width (in)", kind: "number", required: true },

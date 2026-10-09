@@ -1,19 +1,30 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { compileRecipe } from "../compile.ts";
 import { recipeById } from "../recipes/library.ts";
+import { acceptOffer } from "../acceptance.ts";
 import { beginInquiry, emptyRecord, openRecipe } from "../session.ts";
-import { interpretStoreHttp, presentMoney } from "./interpret.ts";
+import { interpretMachineEvidence, interpretStoreHttp, presentMoney } from "./interpret.ts";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
+import { sha256Bytes } from "../hash.ts";
 
 const root = process.env.STORE_ZERO_ROOT;
 const release = STORE_CANDIDATE.inspectedCommit;
 
-async function withStore(fn: (base: string) => Promise<void>) {
-  if (!root) {
-    throw new Error("STORE_ZERO_ROOT is required. This test does not mock the Store.");
+function assertCheckout() {
+  if (!root) throw new Error("STORE_ZERO_ROOT is required. This test does not mock the Store and does not label an unverified checkout.");
+  let head = "";
+  try {
+    head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+  } catch (error) {
+    throw new Error(`Cannot read the git identity of ${root}. Refusing to call it ${release}. ${error instanceof Error ? error.message : ""}`);
   }
+  if (head !== release) throw new Error(`Store checkout ${head} is not the pinned commit ${release}.`);
+}
+
+async function withStore(fn: (base: string) => Promise<void>) {
+  assertCheckout();
   const child = spawn(process.execPath, ["src/service/server.mjs"], {
     cwd: root,
     env: { ...process.env, STORE_ZERO_RELEASE: release, HOST: "127.0.0.1", PORT: "0" },
@@ -181,5 +192,99 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
 
     const compiled = compileRecipe(recipeById("project-1")!, recipeById("project-1")!.defaults);
     assert.equal((compiled.demand as { definedWorkpieceLengthIn: number }).definedWorkpieceLengthIn, 60);
+  });
+});
+
+test("HTTP: machine evidence for a board, a supplied end identity, and a cut package", async () => {
+  await withStore(async (base) => {
+    const health = await (await fetch(base + "/health")).json();
+    assert.equal(health.machineEvidence.protocol, STORE_CANDIDATE.machineEvidenceProtocol);
+    assert.equal(health.machineEvidence.machineConfigId, STORE_CANDIDATE.inspectedMachine.machineConfigId);
+    assert.equal(health.machineEvidence.machineConfigHash, STORE_CANDIDATE.inspectedMachine.machineConfigHash);
+    assert.equal(health.machineEvidence.physicalAuthority, false);
+
+    const packetFor = async (recipeId: string) => {
+      const opened = openRecipe(emptyRecord(), recipeId);
+      if ("error" in opened) throw new Error(opened.error);
+      const started = beginInquiry(opened.record, opened.projectId);
+      if (!started.ok) throw new Error(started.code);
+      const res = await post(base, started.attempt.sentBody);
+      const read = interpretStoreHttp({
+        sentBody: started.attempt.sentBody,
+        sentDigest: started.attempt.sentDigest,
+        requestType: JSON.parse(started.attempt.sentBody).requestType,
+        requestId: started.attempt.requestId,
+        demand: JSON.parse(started.attempt.sentBody).demand,
+        httpStatus: res.status,
+        responseText: res.text,
+      });
+      assert.equal(read.outcome, "answer", res.text.slice(0, 500));
+      if (read.outcome !== "answer") throw new Error("unreachable");
+      const recipe = recipeById(recipeId)!;
+      const evaluatedAt = (read.answer.evaluationReceipt as { evaluatedAt: string }).evaluatedAt;
+      const accepted = acceptOffer({
+        decisions: [],
+        projectId: opened.projectId,
+        classId: recipe.classId ?? recipe.requestType,
+        title: recipe.title,
+        definitionId: opened.record.projects[0].definitionId,
+        revisionId: opened.record.projects[0].currentRevisionId ?? "rev",
+        requestType: recipe.requestType,
+        demand: JSON.parse(started.attempt.sentBody).demand,
+        requirements: recipe.requirements,
+        answer: read.answer,
+        now: new Date(Date.parse(evaluatedAt) + 1000).toISOString(),
+      });
+      if (!accepted.ok) throw new Error(accepted.code);
+      return accepted.packet;
+    };
+
+    const askEvidence = async (packet: unknown) => {
+      const body = JSON.stringify({
+        packet,
+        expectedMachineConfigId: health.machineEvidence.machineConfigId,
+        expectedMachineConfigHash: health.machineEvidence.machineConfigHash,
+      });
+      const res = await fetch(base + "/v1/machine-evidence", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body,
+      });
+      const text = await res.text();
+      const read = interpretMachineEvidence({
+        sentBody: body,
+        sentDigest: sha256Bytes(body),
+        httpStatus: res.status,
+        responseText: text,
+        expectedPacketId: (packet as { packetId: string }).packetId,
+      });
+      assert.equal(read.outcome, "answer", text.slice(0, 500));
+      return read.outcome === "answer" ? read.answer : {};
+    };
+
+    const board = await packetFor("project-1");
+    assert.equal(board.definition.requirements.endIdentity, undefined);
+    const ready = await askEvidence(board);
+    assert.equal(ready.status, "VIRTUAL_EVIDENCE_READY");
+    assert.equal(ready.physicalAuthority, false);
+    assert.equal((ready.admission as { status: string; motionCommands: number }).status, "BLOCKED");
+    assert.equal((ready.admission as { motionCommands: number }).motionCommands, 0);
+    assert.equal((ready.run as { timeSec: number }).timeSec, 86.46953628299116);
+    assert.notEqual((ready.run as { timeSec: number }).timeSec, 85.5001);
+
+    const named = structuredClone(board);
+    named.definition.requirements = { ...named.definition.requirements, endIdentity: "miter-face-long-point" };
+    const refusedEnd = await askEvidence(named);
+    assert.equal(refusedEnd.status, "REFUSED");
+    assert.ok((refusedEnd.reasonCodes as string[]).includes("END_IDENTITY_NOT_REGISTERED_ON_MACHINE"));
+    assert.equal(refusedEnd.localJob, undefined);
+    assert.equal(refusedEnd.records, undefined);
+
+    const cleats = await packetFor("closet-cleats");
+    assert.equal(cleats.definition.requirements.endIdentity, "square-end");
+    const refusedCut = await askEvidence(cleats);
+    assert.equal(refusedCut.status, "REFUSED");
+    assert.ok((refusedCut.reasonCodes as string[]).includes("LOWERING_NOT_REGISTERED_FOR:CUT_PACKAGE_V1"));
+    assert.equal(refusedCut.records, undefined);
   });
 });

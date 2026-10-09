@@ -32,3 +32,23 @@ export const forwardStoreRequest = createServerFn({ method: "POST" })
       return { httpStatus: 0, body: error instanceof Error ? error.message : "STORE_UNREACHABLE" };
     }
   });
+
+/** Posts the exact machine-evidence bytes. Does not build a local job or a motion record. */
+export const forwardMachineEvidence = createServerFn({ method: "POST" })
+  .validator((data: { body: string }) => {
+    if (!data || typeof data.body !== "string" || data.body.length > 256 * 1024) throw new Error("REQUEST_NOT_FORWARDABLE");
+    return data;
+  })
+  .handler(async ({ data }) => {
+    try {
+      const res = await fetch(origin() + STORE_CANDIDATE.machineEvidencePath, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: data.body,
+        signal: AbortSignal.timeout(20000),
+      });
+      return { httpStatus: res.status, body: await res.text() };
+    } catch (error) {
+      return { httpStatus: 0, body: error instanceof Error ? error.message : "STORE_UNREACHABLE" };
+    }
+  });

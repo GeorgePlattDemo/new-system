@@ -41,8 +41,15 @@ function boardDemand(rule: Record<string, unknown>, inputs: Inputs, recipe: Reci
   const nominalT = num(rule.nominalT, inputs, "nominalT", blockers, { min: 0 });
   const nominalW = num(rule.nominalW, inputs, "nominalW", blockers, { min: 0 });
   const spotsOn = bindingValue(rule.spots, inputs);
-  const spots = spotsOn.ok ? spotsOn.value === true || spotsOn.value === "true" : false;
-  if (!spotsOn.ok) blockers.push(block("MISSING_INPUT", "spots"));
+  if (!spotsOn.ok) {
+    blockers.push(block("MISSING_INPUT", "spots"));
+    return null;
+  }
+  if (typeof spotsOn.value !== "boolean") {
+    blockers.push(block("INPUT_TYPE", "spots"));
+    return null;
+  }
+  const spots = spotsOn.value;
   const version = text(rule.configurationVersion, inputs, "configurationVersion", blockers);
   const title = text(rule.title, inputs, "title", blockers);
   if (blockers.length || species == null || workpiece == null || partCount == null || partLength == null || angle == null || nominalT == null || nominalW == null || version == null || title == null) {
@@ -346,9 +353,86 @@ function sheetOpening(rule: Record<string, unknown>, inputs: Inputs, recipe: Rec
 
 const SUPPORTED_OPS = new Set(["board-workpiece", "part-groups", "depth-strips", "plan-groups", "sheet-opening"]);
 
+function checkInputs(recipe: Recipe, inputs: Inputs, blockers: CompileResult["blockers"]): boolean {
+  let ok = true;
+  for (const input of recipe.inputs) {
+    const value = inputs[input.id];
+    const blank = value === undefined || value === null || value === "";
+    if (blank) {
+      if (input.required) {
+        blockers.push(block("MISSING_INPUT", input.id));
+        ok = false;
+      }
+      continue;
+    }
+    if (input.kind === "boolean") {
+      if (typeof value !== "boolean") {
+        blockers.push(block("INPUT_TYPE", input.id));
+        ok = false;
+      }
+      continue;
+    }
+    if (input.kind === "text") {
+      if (typeof value !== "string") {
+        blockers.push(block("INPUT_TYPE", input.id));
+        ok = false;
+      }
+      continue;
+    }
+    if (input.kind === "choice") {
+      const allowed = new Set((input.choices ?? []).map((choice) => choice.value));
+      if (typeof value !== "string" || !allowed.has(value)) {
+        blockers.push(block("INPUT_VALUE", input.id));
+        ok = false;
+      }
+      continue;
+    }
+    if (typeof value !== "number" || !Number.isFinite(value)) {
+      blockers.push(block("INPUT_TYPE", input.id));
+      ok = false;
+      continue;
+    }
+    if (input.kind === "integer" && !Number.isInteger(value)) {
+      blockers.push(block("COUNT_MUST_BE_A_WHOLE_NUMBER", input.id));
+      ok = false;
+      continue;
+    }
+    if (input.min != null && value < input.min) {
+      blockers.push(block("VALUE_BELOW_MINIMUM", input.id));
+      ok = false;
+      continue;
+    }
+    if (!input.allowZero && input.min == null && !(value > 0)) {
+      blockers.push(block("VALUE_NOT_POSITIVE", input.id));
+      ok = false;
+    }
+  }
+  return ok;
+}
+
 export function compileRecipe(recipe: Recipe, inputs: Inputs): CompileResult {
   const trace: TraceStep[] = [];
   const blockers: CompileResult["blockers"] = [];
+  const finish = (demand: Record<string, unknown> | null, engine: CompileResult["engine"], extensionId?: string): CompileResult => {
+    if (demand) {
+      const shape = shapeProblems(demand, DEFINITION_SHAPES[recipe.requestType]);
+      for (const code of shape) blockers.push(block(code, "demand", "SYSTEM"));
+      if (shape.length) demand = null;
+    }
+    if (blockers.length) demand = null;
+    return {
+      recipeId: recipe.recipeId,
+      recipeVersion: recipe.version,
+      requestType: recipe.requestType,
+      demand,
+      requirements: recipe.requirements,
+      trace,
+      blockers,
+      engine,
+      extensionId,
+    };
+  };
+  if (!checkInputs(recipe, inputs, blockers)) return finish(null, recipe.engine, recipe.extensionId);
   const op = String(recipe.rule.op ?? "");
   let demand: Record<string, unknown> | null = null;
   if (op === "board-workpiece") demand = boardDemand(recipe.rule, inputs, recipe, trace, blockers);
@@ -364,23 +448,7 @@ export function compileRecipe(recipe: Recipe, inputs: Inputs): CompileResult {
   } else {
     blockers.push(block("ENGINE_EXTENSION_REQUIRED", op || "rule", "SYSTEM"));
   }
-  if (demand) {
-    const shape = shapeProblems(demand, DEFINITION_SHAPES[recipe.requestType]);
-    for (const code of shape) blockers.push(block(code, "demand", "SYSTEM"));
-    if (shape.length) demand = null;
-  }
-  if (blockers.length) demand = null;
-  return {
-    recipeId: recipe.recipeId,
-    recipeVersion: recipe.version,
-    requestType: recipe.requestType,
-    demand,
-    requirements: recipe.requirements,
-    trace,
-    blockers,
-    engine: SUPPORTED_OPS.has(op) ? "supported" : "extension",
-    extensionId: SUPPORTED_OPS.has(op) ? undefined : op,
-  };
+  return finish(demand, SUPPORTED_OPS.has(op) ? "supported" : "extension", SUPPORTED_OPS.has(op) ? undefined : op);
 }
 
 export function isSupportedOp(op: string): boolean {

@@ -12,6 +12,10 @@ export type RecipeInput = {
   required: boolean;
   help?: string;
   choices?: { value: string; label: string }[];
+  /** Inclusive lower bound for a number or count. */
+  min?: number;
+  /** Zero is a real count, not a missing fact. */
+  allowZero?: boolean;
 };
 
 export type TraceStep = {
@@ -25,7 +29,10 @@ export type TraceStep = {
 export type SystemRequirements = {
   endRelation: string;
   lengthDatum: string;
-  endIdentity: string;
+  /** Null when this fact is already the length datum. A string is sent; the reference cell refuses it. */
+  endIdentity: string | null;
+  /** Shown with the job. Never copied into the packet the machine reads. */
+  endExplanation?: string;
 };
 
 export type Recipe = {

@@ -4,9 +4,9 @@ import { readFileSync } from "node:fs";
 import { calculationHash, sha256Bytes } from "./hash.ts";
 import { compileRecipe, isSupportedOp } from "./compile.ts";
 import { LIBRARY, recipeById } from "./recipes/library.ts";
-import { presentMoney, interpretStoreHttp, serializeRequest } from "./store/interpret.ts";
-import { acceptOffer } from "./acceptance.ts";
-import { machineView } from "./machine.ts";
+import { presentMoney, interpretStoreHttp, interpretMachineEvidence, serializeRequest } from "./store/interpret.ts";
+import { acceptOffer, wireRequirements } from "./acceptance.ts";
+import { machineBoundary } from "./machine.ts";
 import {
   acceptCurrent,
   applyInquiryResult,
@@ -26,6 +26,44 @@ import { STORE_CANDIDATE } from "./store-candidate.ts";
 
 const publishedDemand = JSON.parse(readFileSync(new URL("../../reference/project-1/published/definition-and-demand.json", import.meta.url), "utf8")).demand;
 const publishedReview = JSON.parse(readFileSync(new URL("../../reference/project-1/published/review-summary.json", import.meta.url), "utf8"));
+
+function fixtureAnswer(args: {
+  requestType: string;
+  requestId: string;
+  demand: unknown;
+  status?: string;
+  release?: string;
+  evaluatedAt?: string;
+  receiptStatus?: string;
+  freshnessRule?: string;
+  extra?: Record<string, unknown>;
+}) {
+  const status = args.status ?? "SUPPORTABLE";
+  const identity = { fixture: "system-test" };
+  const core: Record<string, unknown> = {
+    freshnessRule: args.freshnessRule ?? "STB-STORE-FRESH-EVALUATION-0.1",
+    requestType: args.requestType,
+    requestId: args.requestId,
+    evaluatedAt: args.evaluatedAt ?? "2026-10-08T18:00:00.000Z",
+    authority: { storeRevision: args.release ?? STORE_CANDIDATE.inspectedCommit, catalogHash: "ab".repeat(32) },
+    demandHash: calculationHash(args.demand),
+    status: args.receiptStatus ?? status,
+    calculationIdentity: identity,
+  };
+  return {
+    requestType: args.requestType,
+    requestId: args.requestId,
+    status,
+    freshEvaluation: true,
+    calculationIdentity: identity,
+    ...args.extra,
+    evaluationReceipt: { ...core, receiptHash: calculationHash(core) },
+  };
+}
+
+function wrapperFor(sentDigest: string, answer: Record<string, unknown>, release = STORE_CANDIDATE.inspectedCommit) {
+  return { protocol: STORE_CANDIDATE.protocol, storeRelease: release, payloadDigest: sentDigest, respondedAt: "2026-10-08T18:00:01.000Z", answer };
+}
 
 test("project 1 and the second board job share one compiler", () => {
   const project1 = recipeById("project-1");
@@ -195,18 +233,11 @@ test("partial sum is not labeled as a full job Q", () => {
   if (view.kind === "partial") assert.match(view.label, /Not a full job Q/);
 });
 
-test("wrong release, bad digest and altered receipt are protocol failures", () => {
+test("wrong release, bad digest, altered receipt and a contradictory receipt are protocol failures", () => {
   const demand = { title: "x" };
   const sent = serializeRequest({ requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand });
-  const receiptCore = {
-    freshnessRule: "STB-STORE-FRESH-EVALUATION-0.1",
-    requestType: "USER_DEFINED_BOARD_V1",
-    requestId: "A",
-    demandHash: calculationHash(demand),
-    authority: { storeRevision: STORE_CANDIDATE.inspectedCommit },
-  };
-  const answer = { requestType: "USER_DEFINED_BOARD_V1", requestId: "A", status: "SUPPORTABLE", freshEvaluation: true, evaluationReceipt: { ...receiptCore, receiptHash: calculationHash(receiptCore) } };
-  const good = { protocol: STORE_CANDIDATE.protocol, storeRelease: STORE_CANDIDATE.inspectedCommit, payloadDigest: sent.digest, respondedAt: "t", answer };
+  const answer = fixtureAnswer({ requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand });
+  const good = wrapperFor(sent.digest, answer);
   const base = { sentBody: sent.body, sentDigest: sent.digest, requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand, httpStatus: 200 };
   assert.equal(interpretStoreHttp({ ...base, responseText: JSON.stringify(good) }).outcome, "answer");
   assert.equal(interpretStoreHttp({ ...base, responseText: JSON.stringify({ ...good, storeRelease: "other" }) }).outcome, "protocol");
@@ -214,6 +245,15 @@ test("wrong release, bad digest and altered receipt are protocol failures", () =
   const altered = structuredClone(good);
   (altered.answer.evaluationReceipt as { receiptHash: string }).receiptHash = "dead";
   assert.equal(interpretStoreHttp({ ...base, responseText: JSON.stringify(altered) }).outcome, "protocol");
+  const otherRelease = interpretStoreHttp({ ...base, responseText: JSON.stringify(wrapperFor(sent.digest, fixtureAnswer({ requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand, release: "not-this-store" }))) });
+  if (otherRelease.outcome !== "protocol") assert.fail(otherRelease.outcome);
+  assert.equal(otherRelease.code, "RECEIPT_RELEASE_MISMATCH");
+  const badTime = interpretStoreHttp({ ...base, responseText: JSON.stringify(wrapperFor(sent.digest, fixtureAnswer({ requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand, evaluatedAt: "2026-02-31T00:00:00.000Z" }))) });
+  if (badTime.outcome !== "protocol") assert.fail(badTime.outcome);
+  assert.equal(badTime.code, "RECEIPT_TIME_INVALID");
+  const contradictory = interpretStoreHttp({ ...base, responseText: JSON.stringify(wrapperFor(sent.digest, fixtureAnswer({ requestType: "USER_DEFINED_BOARD_V1", requestId: "A", demand, receiptStatus: "REFUSED", evaluatedAt: "yesterday", release: "other-store" }))) });
+  if (contradictory.outcome !== "protocol") assert.fail(contradictory.outcome);
+  assert.equal(contradictory.code, "RECEIPT_STATUS_CONTRADICTION");
   const switched = structuredClone(good);
   switched.answer.requestId = "B";
   (switched.answer.evaluationReceipt as { requestId: string; receiptHash: string }).requestId = "B";
@@ -230,21 +270,13 @@ test("reopen keeps history and requires a new inquiry before acceptance", () => 
   let started = beginInquiry(opened.record, id);
   if (!started.ok) throw new Error(started.code);
   const demand = JSON.parse(started.attempt.sentBody).demand;
-  const receiptCore = {
+  const answer = fixtureAnswer({
     requestType: "CUT_PACKAGE_V1",
     requestId: started.attempt.requestId,
-    demandHash: calculationHash(demand),
-    authority: { storeRevision: STORE_CANDIDATE.inspectedCommit },
-  };
-  const answer = {
-    requestType: "CUT_PACKAGE_V1",
-    requestId: started.attempt.requestId,
-    status: "SUPPORTABLE",
-    freshEvaluation: true,
-    totals: { sumOfSupportableLines: 10 },
-    evaluationReceipt: { ...receiptCore, receiptHash: calculationHash(receiptCore) },
-  };
-  const wrapper = { protocol: STORE_CANDIDATE.protocol, storeRelease: STORE_CANDIDATE.inspectedCommit, payloadDigest: started.attempt.sentDigest, respondedAt: "t", answer };
+    demand,
+    extra: { totals: { sumOfSupportableLines: 10 } },
+  });
+  const wrapper = wrapperFor(started.attempt.sentDigest, answer);
   let applied = applyInquiryResult(started.record, id, started.attempt.attemptId, 200, JSON.stringify(wrapper));
   assert.equal(visibleState(applied.record.projects[0]), "supportable");
   let accepted = acceptCurrent(applied.record, id, "2026-10-09T00:00:00.000Z");
@@ -259,10 +291,10 @@ test("reopen keeps history and requires a new inquiry before acceptance", () => 
   assert.equal(reopened.projects[0].revisions.length, 1);
   assert.equal(reopened.projects[0].decisions.length, 1);
   assert.equal(acceptCurrent(reopened, id).code, "ANSWER_NOT_CURRENT");
-  assert.equal(machineView("CUT_PACKAGE_V1").lowering, "UNSUPPORTED");
-  assert.equal(machineView("USER_DEFINED_BOARD_V1").lowering, "NOT_AGREED");
-  assert.equal(machineView("USER_DEFINED_BOARD_V1").physicalCommands.length, 0);
-  assert.equal(machineView("SHEET_PACKAGE_V1").physicalAuthority, false);
+  assert.equal(machineBoundary("CUT_PACKAGE_V1").loweringRegistered, false);
+  assert.equal(machineBoundary("USER_DEFINED_BOARD_V1").loweringRegistered, true);
+  assert.equal(machineBoundary("USER_DEFINED_BOARD_V1").physicalAuthority, false);
+  assert.equal(machineBoundary("SHEET_PACKAGE_V1").physicalAdmission, "BLOCKED");
 });
 
 test("a response after a project switch does not land on the other project", () => {
@@ -295,27 +327,13 @@ test("reopening a saved file keeps the decision and retires the price", () => {
   const started = beginInquiry(opened.record, id);
   if (!started.ok) throw new Error(started.code);
   const demand = JSON.parse(started.attempt.sentBody).demand;
-  const receiptCore = {
+  const answer = fixtureAnswer({
     requestType: "CUT_PACKAGE_V1",
     requestId: started.attempt.requestId,
-    demandHash: calculationHash(demand),
-    authority: { storeRevision: STORE_CANDIDATE.inspectedCommit },
-  };
-  const answer = {
-    requestType: "CUT_PACKAGE_V1",
-    requestId: started.attempt.requestId,
-    status: "SUPPORTABLE",
-    freshEvaluation: true,
-    totals: { sumOfSupportableLines: 23.4 },
-    evaluationReceipt: { ...receiptCore, receiptHash: calculationHash(receiptCore) },
-  };
-  const wrapper = {
-    protocol: STORE_CANDIDATE.protocol,
-    storeRelease: STORE_CANDIDATE.inspectedCommit,
-    payloadDigest: started.attempt.sentDigest,
-    respondedAt: "t",
-    answer,
-  };
+    demand,
+    extra: { totals: { sumOfSupportableLines: 23.4 } },
+  });
+  const wrapper = wrapperFor(started.attempt.sentDigest, answer);
   const applied = applyInquiryResult(started.record, id, started.attempt.attemptId, 200, JSON.stringify(wrapper));
   const accepted = acceptCurrent(applied.record, id, "2026-10-09T00:00:00.000Z");
   const parked = parkForReopen(accepted.record);
@@ -343,3 +361,119 @@ test("retired request types are not in the library", () => {
   assert.equal(blob.includes("ALCOVE_INSERT_V1"), false);
   assert.equal(LIBRARY.length, 7);
 });
+
+test("an invalid spot control is not turned into no spots", () => {
+  const start = recipeById("start-own")!;
+  const compiled = compileRecipe(start, { ...start.defaults, species: "spf", spots: "maybe" });
+  assert.equal(compiled.demand, null);
+  assert.ok(compiled.blockers.some((item) => item.code === "INPUT_TYPE" && item.fact === "spots"));
+  const off = compileRecipe(start, { ...start.defaults, species: "spf", spots: false });
+  assert.equal(off.blockers.length, 0);
+  assert.equal((off.demand as { declaredSpotCount: number }).declaredSpotCount, 0);
+});
+
+test("window seat zero shelves is a real count and emits no tower shelf", () => {
+  const recipe = recipeById("window-seat")!;
+  const compiled = compileRecipe(recipe, { ...recipe.defaults, leftShelves: 0, rightShelves: 0 });
+  assert.equal(compiled.blockers.length, 0);
+  assert.ok(compiled.demand);
+  const ids = (compiled.demand as { cutPackages: { parts: { partId: string }[] }[] }).cutPackages.flatMap((pkg) => pkg.parts.map((part) => part.partId));
+  assert.equal(ids.some((id) => id.startsWith("L-SHELF") || id.startsWith("R-SHELF")), false);
+  assert.ok(ids.some((id) => id.includes("UPPER-SHELF")));
+});
+
+test("a null project does not load, and a saved project round-trips", () => {
+  const broken = loadRecord({ schema: "STB-SYSTEM-RECORD-1", projects: [null] });
+  assert.equal(broken.ok, false);
+  if (!broken.ok) assert.equal(broken.code, "MALFORMED");
+  const opened = openRecipe(emptyRecord(), "closet-cleats");
+  if ("error" in opened) throw new Error(opened.error);
+  const again = loadRecord(JSON.parse(JSON.stringify(opened.record)));
+  assert.equal(again.ok, true);
+});
+
+test("a later refusal is not still shown as accepted, and the earlier acceptance stays", () => {
+  let opened = openRecipe(emptyRecord(), "closet-cleats");
+  if ("error" in opened) throw new Error(opened.error);
+  const id = opened.projectId;
+  const started = beginInquiry(opened.record, id);
+  if (!started.ok) throw new Error(started.code);
+  const demand = JSON.parse(started.attempt.sentBody).demand;
+  const answer = fixtureAnswer({ requestType: "CUT_PACKAGE_V1", requestId: started.attempt.requestId, demand, extra: { totals: { sumOfSupportableLines: 23.4 } } });
+  const applied = applyInquiryResult(started.record, id, started.attempt.attemptId, 200, JSON.stringify(wrapperFor(started.attempt.sentDigest, answer)));
+  const accepted = acceptCurrent(applied.record, id, "2026-10-09T00:00:00.000Z");
+  assert.equal(visibleState(accepted.record.projects[0]), "accepted_simulated");
+  const again = beginInquiry(accepted.record, id);
+  if (!again.ok) throw new Error(again.code);
+  const refused = fixtureAnswer({ requestType: "CUT_PACKAGE_V1", requestId: again.attempt.requestId, demand, status: "REFUSED", extra: { reasonCodes: ["FIXTURE_REFUSAL"] } });
+  const next = applyInquiryResult(again.record, id, again.attempt.attemptId, 200, JSON.stringify(wrapperFor(again.attempt.sentDigest, refused)));
+  assert.equal(visibleState(next.record.projects[0]), "refused");
+  assert.equal(next.record.projects[0].decisions.length, 1);
+  assert.equal(next.record.projects[0].packets.length, 1);
+  assert.equal(next.record.projects[0].packets[0].authority.physicalRelease, false);
+});
+
+test("a board packet omits a null end identity and does not strip a supplied one", () => {
+  const recipe = recipeById("project-1")!;
+  const compiled = compileRecipe(recipe, recipe.defaults);
+  assert.equal(compiled.requirements.endIdentity, null);
+  assert.match(compiled.requirements.endExplanation ?? "", /does not send one/);
+  const demand = compiled.demand as Record<string, unknown>;
+  const answer = fixtureAnswer({ requestType: "USER_DEFINED_BOARD_V1", requestId: "board-1", demand });
+  const omitted = acceptOffer({
+    decisions: [],
+    projectId: "p",
+    classId: recipe.classId ?? recipe.requestType,
+    title: recipe.title,
+    definitionId: "d",
+    revisionId: "r",
+    requestType: recipe.requestType,
+    demand,
+    requirements: compiled.requirements,
+    answer,
+    now: "2026-10-09T00:00:00.000Z",
+  });
+  assert.equal(omitted.ok, true);
+  if (!omitted.ok) return;
+  assert.equal(omitted.packet.definition.requirements.endIdentity, undefined);
+  assert.equal("endExplanation" in omitted.packet.definition.requirements, false);
+  assert.deepEqual(wireRequirements(compiled.requirements), { endRelation: "parallel", lengthDatum: "long-long-outer-edge" });
+  const supplied = acceptOffer({
+    decisions: [],
+    projectId: "p",
+    classId: "c",
+    title: "t",
+    definitionId: "d",
+    revisionId: "r2",
+    requestType: recipe.requestType,
+    demand,
+    requirements: { ...compiled.requirements, endIdentity: "miter-face-long-point" },
+    answer,
+    now: "2026-10-09T00:00:00.000Z",
+  });
+  assert.equal(supplied.ok, true);
+  if (supplied.ok) assert.equal(supplied.packet.definition.requirements.endIdentity, "miter-face-long-point");
+});
+
+test("physical authority on machine evidence is not success", () => {
+  const body = JSON.stringify({
+    packet: { packetId: "p" },
+    expectedMachineConfigId: STORE_CANDIDATE.inspectedMachine.machineConfigId,
+    expectedMachineConfigHash: STORE_CANDIDATE.inspectedMachine.machineConfigHash,
+  });
+  const digest = (awaitedDigest(body));
+  const claim = {
+    protocol: STORE_CANDIDATE.machineEvidenceProtocol,
+    storeRelease: STORE_CANDIDATE.inspectedCommit,
+    payloadDigest: digest,
+    respondedAt: "2026-10-08T18:00:01.000Z",
+    answer: { status: "VIRTUAL_EVIDENCE_READY", physicalAuthority: true, localJob: {}, records: {}, run: {}, admission: { status: "BLOCKED", physicalAuthority: false, motionCommands: 0 } },
+  };
+  const read = interpretMachineEvidence({ sentBody: body, sentDigest: digest, httpStatus: 200, responseText: JSON.stringify(claim), expectedPacketId: "p" });
+  assert.equal(read.outcome, "protocol");
+  if (read.outcome === "protocol") assert.equal(read.code, "PHYSICAL_AUTHORITY_CLAIMED");
+});
+
+function awaitedDigest(body: string) {
+  return sha256Bytes(body);
+}

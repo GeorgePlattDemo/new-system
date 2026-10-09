@@ -1,47 +1,39 @@
 import type { RequestType } from "./shape.ts";
+import { STORE_CANDIDATE } from "./store-candidate.ts";
 
-export type MachineView = {
-  lowering: "UNSUPPORTED" | "NOT_AGREED";
+export type MachineBoundary = {
+  requestType: RequestType | null;
+  evidencePath: typeof STORE_CANDIDATE.machineEvidencePath;
+  loweringRegistered: boolean;
   reason: string;
   physicalAdmission: "BLOCKED";
   physicalAuthority: false;
-  physicalCommands: [];
-  virtualEvidence: null;
 };
 
 /**
- * The current Store HTTP service does not return machine records.
- * System does not import the Store machine engine and does not invent motion.
- * Physical admission stays blocked. There is no physical command.
+ * What this candidate will ask the Store to lower. It does not lower anything itself
+ * and it does not turn a missing answer into records.
  */
-export function machineView(requestType: RequestType | null): MachineView {
-  if (requestType == null) {
+export function machineBoundary(requestType: RequestType | null): MachineBoundary {
+  if (requestType === "USER_DEFINED_BOARD_V1") {
     return {
-      lowering: "NOT_AGREED",
-      reason: "No definition is saved, so there is nothing to lower.",
+      requestType,
+      evidencePath: STORE_CANDIDATE.machineEvidencePath,
+      loweringRegistered: true,
+      reason:
+        "The reference cell registers parallel ends and length on the long-long outer edge. That datum is the long point of the miter face, so this job does not add a second end-identity string. Evidence is only what the Store returns for the accepted packet. A supplied end identity is sent, not stripped, and the cell refuses it.",
       physicalAdmission: "BLOCKED",
       physicalAuthority: false,
-      physicalCommands: [],
-      virtualEvidence: null,
-    };
-  }
-  if (requestType !== "USER_DEFINED_BOARD_V1") {
-    return {
-      lowering: "UNSUPPORTED",
-      reason: `Store lowering is registered for USER_DEFINED_BOARD_V1 only. ${requestType} stays unsupported until Store implements it and a System test verifies it. Commercially usable is not machine-ready.`,
-      physicalAdmission: "BLOCKED",
-      physicalAuthority: false,
-      physicalCommands: [],
-      virtualEvidence: null,
     };
   }
   return {
-    lowering: "NOT_AGREED",
-    reason:
-      "Store can lower a verified board packet inside its own module, but this candidate's HTTP service does not expose that interface. System will not clone it. Machine evidence waits for a versioned Store-owned endpoint and for Store's malformed-input fixes.",
+    requestType,
+    evidencePath: STORE_CANDIDATE.machineEvidencePath,
+    loweringRegistered: false,
+    reason: requestType
+      ? `The reference cell does not lower ${requestType}. A supportable price is not machine evidence. The Store's refusal is the finding. This page does not invent records to avoid it.`
+      : "No definition is saved, so there is nothing to lower.",
     physicalAdmission: "BLOCKED",
     physicalAuthority: false,
-    physicalCommands: [],
-    virtualEvidence: null,
   };
 }

@@ -61,8 +61,24 @@ export function compileWindowSeat(inputs: Inputs, configurationId: string): {
   const blockers: { code: string; fact: string; owner: "USER" | "PROJECT" | "SYSTEM" }[] = [];
   const need = (id: string) => {
     const got = numberBinding({ input: id }, inputs);
-    if (!got.ok || got.value <= 0) {
+    if (!got.ok || !(got.value > 0)) {
       blockers.push({ code: "MISSING_INPUT", fact: id, owner: "USER" });
+      return null;
+    }
+    return got.value;
+  };
+  const countAtLeast = (id: string, min: number) => {
+    const got = numberBinding({ input: id }, inputs);
+    if (!got.ok) {
+      blockers.push({ code: "MISSING_INPUT", fact: id, owner: "USER" });
+      return null;
+    }
+    if (!Number.isInteger(got.value)) {
+      blockers.push({ code: "COUNT_MUST_BE_A_WHOLE_NUMBER", fact: id, owner: "USER" });
+      return null;
+    }
+    if (got.value < min) {
+      blockers.push({ code: "VALUE_BELOW_MINIMUM", fact: id, owner: "USER" });
       return null;
     }
     return got.value;
@@ -74,17 +90,13 @@ export function compileWindowSeat(inputs: Inputs, configurationId: string): {
   const depth = need("depthIn");
   const seat = need("seatHeightIn");
   const upperH = need("upperClearIn");
-  const bays = need("upperBays");
-  const cub = need("cubbies");
-  const leftShelves = need("leftShelves");
-  const rightShelves = need("rightShelves");
+  const bays = countAtLeast("upperBays", 1);
+  const cub = countAtLeast("cubbies", 1);
+  const leftShelves = countAtLeast("leftShelves", 0);
+  const rightShelves = countAtLeast("rightShelves", 0);
   const species = inputs.species;
   if (typeof species !== "string" || !species.trim()) blockers.push({ code: "MISSING_INPUT", fact: "species", owner: "USER" });
   if (blockers.length || H == null || leftW == null || centerW == null || rightW == null || depth == null || seat == null || upperH == null || bays == null || cub == null || leftShelves == null || rightShelves == null) {
-    return { demand: null, trace, blockers };
-  }
-  if (!Number.isInteger(bays) || bays < 1 || !Number.isInteger(cub) || cub < 1 || !Number.isInteger(leftShelves) || leftShelves < 0 || !Number.isInteger(rightShelves) || rightShelves < 0) {
-    blockers.push({ code: "COUNT_MUST_BE_A_WHOLE_NUMBER", fact: "bays", owner: "USER" });
     return { demand: null, trace, blockers };
   }
 
