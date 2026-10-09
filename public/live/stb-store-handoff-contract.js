@@ -170,14 +170,11 @@
   }
 
   /*
-   * USER 1 STORE-ISSUED REFERENCE
+   * USER 1 SPECIMENS
    *
-   * The browser may preview only the exact Store answers already proven on the
-   * exact Store SHA below. Formal requests use the live admitted-job bridge.
-   * apps/stb/test/store/user1-reference-guard.test.mjs re-runs every demand, each with
-   * its stated wood, through the Store at System's STORE_PIN and fails if any value here differs.
-   * Any changed governing demand must go back through Store. No browser-side
-   * pricing, capability, motion, cycle-time, or refusal calculation is allowed.
+   * These four records are explanatory history. They are not a current price,
+   * not completeness, and not permission to accept or go downstream.
+   * A current answer is a fresh Store evaluation of this exact definition.
    */
   var USER1_STORE_REFERENCE = Object.freeze({
     status:'STORE_ISSUED_REFERENCE',
@@ -694,32 +691,39 @@
 
   function resolveUser1StoreReference(input){
     var reference=user1StoreReferenceForDemand(input);
+    var specimen=reference ? {
+      role:'EXPLANATORY_HISTORY',
+      suppliesCurrentAnswer:false,
+      partLengthIn:reference.demand.partLengthIn,
+      species:reference.demand.materialDemand.species,
+      q:reference.estimate.totals.Q
+    } : null;
     if(!reference){
       return unresolvedUser1StoreAnswer(
-        'STORE_REFRESH_REQUIRED',
-        ['STORE_REFRESH_REQUIRED'],
-        'This static build carries only the tested 16-in and 18-in Store references, for SPF and treated SYP. Another wood or intermediate geometry requires the live System Store endpoint.',
+        'STORE_ANSWER_REQUIRED',
+        ['STORE_ANSWER_REQUIRED'],
+        'No current answer is stored in the browser. Confirm asks the Store.',
         null
       );
     }
-    var estimate=reference.estimate;
     return Object.freeze({
-      status:'MATCHED_STORE_REFERENCE',
-      complete:true,
+      status:'HISTORICAL_SPECIMEN',
+      complete:false,
       freshEvaluation:false,
-      capabilityStatus:'SUPPORTABLE',
-      economicsStatus:estimate.status,
-      priceCompleteness:estimate.completeness,
-      material:estimate.totals.material,
-      machineService:estimate.totals.machine_service,
-      combinedValue:estimate.totals.Q,
-      estimate:estimate,
-      calculationIdentity:estimate.calculationIdentity,
-      materialResolution:reference.materialResolution,
+      capabilityStatus:'NOT_A_CURRENT_ANSWER',
+      economicsStatus:'HISTORICAL_ONLY',
+      priceCompleteness:'NOT_A_CURRENT_ANSWER',
+      material:null,
+      machineService:null,
+      combinedValue:null,
+      estimate:null,
+      calculationIdentity:null,
+      materialResolution:null,
       refusalConditions:Object.freeze([]),
-      unresolvedConditions:Object.freeze([]),
-      source:reference.source,
-      evaluationReceipt:null
+      unresolvedConditions:Object.freeze(['HISTORICAL_SPECIMEN_IS_NOT_A_CURRENT_ANSWER']),
+      source:null,
+      evaluationReceipt:null,
+      historicalSpecimen:Object.freeze(specimen)
     });
   }
 

@@ -101,11 +101,32 @@ async function postStore(origin: string, body: Json): Promise<{ httpStatus: numb
   return { httpStatus: response.status, wrapper };
 }
 
+function requirementReport(carriedNotAccepted: CarriedRequirement[]) {
+  const unevaluated = carriedNotAccepted.length > 0;
+  return {
+    requirementSatisfaction: {
+      status: unevaluated ? "UNEVALUATED" : "SATISFIED",
+      unevaluated: carriedNotAccepted,
+    },
+    machineAdmission: {
+      status: "BLOCKED",
+      physicalRelease: false,
+      evidenceClass: "SIMULATED",
+    },
+  } as const;
+}
+
 function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequirement[]): Json {
   const answer = asObject(wrapper.answer) ?? {};
   const estimate = asObject(answer.estimate);
   const receipt = asObject(answer.evaluationReceipt);
-  const complete = answer.status === "SUPPORTABLE" && estimate?.complete === true && receipt?.freshnessRule === FRESHNESS;
+  const quoteComplete = answer.status === "SUPPORTABLE" && estimate?.complete === true && receipt?.freshnessRule === FRESHNESS;
+  const requirements = requirementReport(carriedNotAccepted);
+  const jobStatus = !quoteComplete
+    ? "NOT_SUPPORTABLE"
+    : requirements.requirementSatisfaction.status === "SATISFIED"
+      ? "REQUIREMENTS_SATISFIED"
+      : "NOT_FULLY_SUPPORTABLE";
   const firstLine = asObject(Array.isArray(answer.lines) ? answer.lines[0] : null);
   const price = asObject(firstLine?.price);
   const resolution = asObject(answer.materialResolution) ?? {};
@@ -116,10 +137,19 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
     rawEstimate: estimate,
     evaluationReceipt: receipt,
     priceCompleteness: {
-      status: complete ? "COMPLETE_FOR_TRAVEL_STANDARD" : String(answer.status ?? "UNRESOLVED"),
+      status: quoteComplete ? "COMPLETE_FOR_TRAVEL_STANDARD" : String(answer.status ?? "UNRESOLVED"),
+      scope: "QUOTE_ONLY",
       refusalConditions: answer.status === "REFUSED" ? reasonCodes : [],
       unresolvedConditions: answer.status === "UNRESOLVED" || answer.status === "UNAVAILABLE" ? reasonCodes : [],
       carriedNotAccepted,
+    },
+    requirementSatisfaction: requirements.requirementSatisfaction,
+    machineAdmission: requirements.machineAdmission,
+    jobSupportability: {
+      status: jobStatus,
+      quoteComplete,
+      requirementsEvaluated: requirements.requirementSatisfaction.status === "SATISFIED",
+      machineAdmitted: false,
     },
     materialResolution: {
       ...resolution,

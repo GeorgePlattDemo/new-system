@@ -383,11 +383,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   finishedLengthIn <= DEMO_MAX_LENGTH_IN;
                 if (boundaryNote) boundaryNote.hidden = withinDemo;
                 if (resetDemoButton) resetDemoButton.hidden = withinDemo;
-                if (
-                  !storeHandoffContract ||
-                  typeof storeHandoffContract.resolveUser1StoreReference !== 'function' ||
-                  !withinDemo
-                ) {
+                if (!withinDemo) {
                   if (confirmButton) confirmButton.disabled = true;
                   return null;
                 }
@@ -434,10 +430,9 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 if (spotDemand) requiredOps.push('SPOT_ON_LOCATION');
 
                 /*
-                 * This is the project/configurator demand only. Store owns whether
-                 * it is supportable, how D-001 moves, modeled occupied time, and Q.
-                 * The static public Review build may present only exact Store-issued
-                 * references proven against promoted authority. Other values require a live Store answer.
+                 * This is the project demand only. The Store owns whether the board it is asked
+                 * about can be quoted. A matching specimen, if one is on file, is history.
+                 * It does not price this job, complete it, or open acceptance.
                  */
                 const configurationId = START_OWN_CONFIGURATION_ID;
                 const endpoint16 = Math.abs(finishedLengthIn - 16) < 1e-9;
@@ -460,18 +455,19 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   parts:parts,
                   materialDemand:statedMaterial()
                 };
-                const storeAnswer = storeHandoffContract.resolveUser1StoreReference(storeDemand);
-                const storeMaterialResolution = storeAnswer.materialResolution || null;
-                const storeEstimate = storeAnswer.estimate || null;
-                const effectiveWorkpieceLengthIn = Number.isFinite(Number(storeMaterialResolution?.workpieceLengthIn))
-                  ? Number(storeMaterialResolution.workpieceLengthIn)
-                  : definedWorkpieceLengthIn;
-                const unresolved = Array.isArray(storeAnswer.unresolvedConditions)
-                  ? storeAnswer.unresolvedConditions.slice()
-                  : [];
-                const refusals = Array.isArray(storeAnswer.refusalConditions)
-                  ? storeAnswer.refusalConditions.slice()
-                  : [];
+                const historicalMatch = typeof storeHandoffContract?.user1StoreReferenceForDemand === 'function'
+                  ? storeHandoffContract.user1StoreReferenceForDemand(storeDemand)
+                  : null;
+                const historicalSpecimen = historicalMatch ? {
+                  role:'EXPLANATORY_HISTORY',
+                  suppliesCurrentAnswer:false,
+                  partLengthIn:historicalMatch.demand?.partLengthIn ?? null,
+                  species:historicalMatch.demand?.materialDemand?.species ?? null,
+                  q:historicalMatch.estimate?.totals?.Q ?? null
+                } : null;
+                const effectiveWorkpieceLengthIn = definedWorkpieceLengthIn;
+                const unresolved = ['STORE_ANSWER_REQUIRED'];
+                const refusals = [];
 
                 const physicalDemand = {
                   stockClass:'2x4',
@@ -496,27 +492,18 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 };
                 if (spotDemand) physicalDemand.spotDemand = spotDemand;
 
-                const workpieceSequence = storeEstimate?.travel
-                  ? {
-                      status:'SEQUENCED',
-                      basis:'STORE_RETURNED_TRAVEL',
-                      finalRemainderIn:storeEstimate.travel.finalRemainderIn,
-                      holdIn:24,
-                      derivedSawCuts:storeEstimate.travel.derivedSawCuts,
-                      derivedSpotCount:storeEstimate.travel.derivedSpotCount
-                    }
-                  : {
+                const workpieceSequence = {
                       status:'UNRESOLVED',
                       basis:'STORE_ANSWER_REQUIRED',
-                      code:'STORE_REFRESH_REQUIRED',
+                      code:'STORE_ANSWER_REQUIRED',
                       finalRemainderIn:null,
                       holdIn:24
                     };
 
                 const capability = {
-                  status:storeAnswer.capabilityStatus || 'UNRESOLVED',
+                  status:'UNRESOLVED',
                   basis:startOwnAuthority?.capabilityBasis || 'STORE_ANSWER_REQUIRED',
-                  storePin:startOwnAuthority?.capabilityPin || null,
+                  storePin:null,
                   requiredOps:requiredOps,
                   refusalConditions:Array.from(new Set(refusals)),
                   unresolvedConditions:Array.from(new Set(unresolved))
@@ -532,28 +519,21 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     stockClass:'2x4',
                     stated:statedMaterial(),
                     stockClassAuthority:{
-                      repository:storeAnswer.source?.repository || catalogSource?.repository || null,
+                      repository:catalogSource?.repository || null,
                       file:'store-zero-catalog.json',
-                      pin:storeAnswer.source?.storePin || catalogSource?.pin || null,
-                      clock:storeMaterialResolution?.source?.clock || catalogSource?.clock || null
+                      pin:catalogSource?.pin || null,
+                      clock:catalogSource?.clock || null
                     },
-                    procurement:storeMaterialResolution?.status === 'MAPPED' ? {
-                      pricingReferenceSku:storeMaterialResolution.pricingReferenceSku || storeMaterialResolution.storeSku,
-                      pricingReferenceStockLengthIn:storeMaterialResolution.pricingReferenceStockLengthIn || storeMaterialResolution.stockLengthIn,
-                      quantity:storeMaterialResolution.quantity,
-                      unitPrice:storeMaterialResolution.unitPrice,
-                      materialTotal:storeMaterialResolution.materialTotal,
-                      allocationClaimed:false
-                    } : null,
+                    procurement:null,
                     definedWorkpieceLengthIn:{
                       value:definedWorkpieceLengthIn,
                       basis:'PROJECT_MINIMUM_REQUEST'
                     },
                     selectedStoreWorkpieceLengthIn:{
                       value:effectiveWorkpieceLengthIn,
-                      basis:storeMaterialResolution?.selectionPolicy || 'STORE_ANSWER_REQUIRED'
+                      basis:'STORE_ANSWER_REQUIRED'
                     },
-                    mappedStoreSkus:storeMaterialResolution?.storeSku ? [storeMaterialResolution.storeSku] : []
+                    mappedStoreSkus:[]
                   },
                   intent:{
                     partQty:{value:partQty,basis:'BOUNDED_DEMO_FIXED'},
@@ -587,31 +567,40 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   workpieceSequence:workpieceSequence,
                   capability:capability,
                   storeReference:{
-                    status:storeAnswer.status,
+                    status:'STORE_ANSWER_REQUIRED',
                     capabilityStatus:capability.status,
-                    economicsStatus:storeAnswer.economicsStatus || 'UNRESOLVED',
-                    priceCompleteness:storeAnswer.priceCompleteness || 'UNAVAILABLE',
-                    material:storeAnswer.material,
-                    machineService:storeAnswer.machineService,
-                    combinedValue:storeAnswer.combinedValue,
-                    complete:storeAnswer.complete === true,
-                    estimate:storeEstimate,
-                    calculationIdentity:storeAnswer.calculationIdentity || null,
+                    economicsStatus:'UNRESOLVED',
+                    priceCompleteness:'UNAVAILABLE',
+                    material:null,
+                    machineService:null,
+                    combinedValue:null,
+                    complete:false,
+                    freshEvaluation:false,
+                    estimate:null,
+                    calculationIdentity:null,
                     refusalConditions:Array.from(new Set(refusals)),
                     unresolvedConditions:Array.from(new Set(unresolved)),
-                    materialResolution:storeMaterialResolution,
-                    source:storeAnswer.source || null,
-                    authority:startOwnAuthority
+                    materialResolution:null,
+                    source:null,
+                    authority:null,
+                    requirementSatisfaction:{ status:'UNEVALUATED', unevaluated:[
+                      { field:'endIdentity', value:'both' },
+                      { field:'endRelation', value:'parallel' },
+                      { field:'lengthDatum', value:'long-long-outer-edge' }
+                    ] },
+                    machineAdmission:{ status:'BLOCKED', physicalRelease:false, evidenceClass:'SIMULATED' },
+                    jobSupportability:{ status:'NOT_SUPPORTABLE', quoteComplete:false, requirementsEvaluated:false, machineAdmitted:false }
                   },
+                  historicalSpecimen:historicalSpecimen,
                   lineage:{
                     reason:String(reason||'SYNC'),
-                    storeCatalogPin:storeMaterialResolution?.source?.pin || catalogSource?.pin || null,
-                    storeAnswerPin:storeAnswer.source?.storePin || null,
-                    storeCalculationInputHash:storeAnswer.calculationIdentity?.inputHash || null,
-                    storeCalculationResultHash:storeAnswer.calculationIdentity?.resultHash || null,
+                    storeCatalogPin:catalogSource?.pin || null,
+                    storeAnswerPin:null,
+                    storeCalculationInputHash:null,
+                    storeCalculationResultHash:null,
                     requestedDefinedWorkpieceLengthIn:definedWorkpieceLengthIn,
                     effectiveDefinedWorkpieceLengthIn:effectiveWorkpieceLengthIn,
-                    storeSelectionPolicy:storeMaterialResolution?.selectionPolicy || null,
+                    storeSelectionPolicy:null,
                     fixedHorizontalSpanIn:DEMO_HORIZONTAL_SPAN_IN,
                     achievedRiseIn:achievedRiseIn
                   },
@@ -661,7 +650,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 const totals = estimate?.totals || null;
                 const economics = definition.storeReference.economicsStatus;
                 const capabilityBasis = definition.capability?.basis || definition.capability?.status || 'UNRESOLVED';
-                const storeComplete = definition.storeReference.complete === true;
+                const freshQuote = definition.storeReference.freshEvaluation === true && definition.storeReference.complete === true;
 
                 renderBoardGeometry(definition);
                 setText('stb-config-parts-value',demand.quantity+' part'+(demand.quantity===1?'':'s'));
@@ -710,7 +699,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   : '<b>Drill it.</b> No spot on this version.';
                 const stubBold = childDoc.getElementById('stb-bench-stub-step');
                 if (stubBold) stubBold.innerHTML = '<b>Keep the stub.</b> Two matching braces'+(Number.isFinite(retained)?', and the other '+formatInches(retained)+' of the board comes back to you.':', and the rest of the board comes back to you.');
-                setText('stb-bench-workline','THAT’S THE WHOLE JOB · '+productionCuts+' CUT'+(productionCuts===1?'':'S')+' · '+spots+' SPOT'+(spots===1?'':'S')+' · '+(storeComplete?'HARDLY WORTH DRAGGING THE MITER SAW OUT':'ASK THE STORE'));
+                setText('stb-bench-workline','THAT’S THE WHOLE JOB · '+productionCuts+' CUT'+(productionCuts===1?'':'S')+' · '+spots+' SPOT'+(spots===1?'':'S')+' · '+(freshQuote?'QUOTE RETURNED':'ASK THE STORE'));
 
                 // Make the Store's board choice visible when it moves past the 5-foot board.
                 const swap = childDoc.getElementById('stb-bench-board-swap');
@@ -737,10 +726,11 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 const pickedFeet = pickedBoard / 12;
                 const boardWords = Number.isInteger(pickedFeet) ? pickedFeet+'-foot 2×4' : formatInches(pickedBoard)+' 2×4';
                 const woodWords = SPECIES_WORDS[definition.material?.stated?.species] || null;
+                if (woodWords) setText('stb-carry-wood', '2×4 ' + woodWords);
                 setText('stb-bench-price-line', formatInches(demand.finishedLength)+' braces · '+formatDegrees(demand.angleDegrees)+' ends · '
                   +(!woodWords ? 'no wood stated on Intent.'
-                    : storeComplete && totals?.Q != null
-                      ? woodWords+' · '+boardWords+' · $'+Number(totals.Q).toFixed(2)+' Store reference price ($'+Number(totals.material).toFixed(2)+' wood).'
+                    : freshQuote && totals?.Q != null
+                      ? woodWords+' · '+boardWords+' · $'+Number(totals.Q).toFixed(2)+' material and machine quote ($'+Number(totals.material).toFixed(2)+' wood).'
                       : woodWords+' · ask the Store.'));
 
                 const svg = childDoc.getElementById('stb-user1-bench-svg');
@@ -768,8 +758,8 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-basis-unit-price',materialMapped && Number.isFinite(Number(material.unitPrice)) ? '$'+Number(material.unitPrice).toFixed(2)+' / ea' : 'UNRESOLVED');
                 setText('stb-basis-cell-family',materialMapped && Array.isArray(material.cellFamily) ? material.cellFamily.join(' · ') : 'UNRESOLVED');
                 setText('stb-basis-supported-ops',materialMapped && Array.isArray(material.supportedOps) ? material.supportedOps.join(' · ') : 'UNRESOLVED');
-                setText('stb-basis-clock',String(material?.source?.clock || catalogSource?.clock || '—'));
-                setText('stb-basis-catalog-pin',String(material?.source?.pin || catalogSource?.pin || '—'));
+                setText('stb-basis-clock',String(material?.source?.clock || '—'));
+                setText('stb-basis-catalog-pin',String(material?.source?.pin || '—'));
                 setText('stb-basis-capability',String(capabilityBasis)+' · '+String(definition.capability.status));
                 setText('stb-basis-store-pin',String(definition.storeReference.source?.storePin || definition.storeReference.authority?.economicsPin || '—'));
                 setText('stb-basis-economics',estimate?.status
@@ -783,15 +773,22 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 const addedNote = addedControls.length
                   ? ' This job’s own controls — '+addedControls.map(control => control.label+' ('+control.value+')').join(', ')+' — are part of this version; the Store is not asked about them.'
                   : '';
+                const history = definition.historicalSpecimen;
+                const historyNote = history
+                  ? ' Explanatory history only: a specimen for '+history.partLengthIn+' in '+(SPECIES_WORDS[history.species] || history.species || 'the stated wood')
+                    +(history.q != null ? ' once carried $'+Number(history.q).toFixed(2) : '')
+                    +'. It is not this price, not completeness, and not permission to accept or go downstream.'
+                  : '';
                 setText('stb-before-send',(definition.storeReference.unresolvedConditions.length
-                  ? definition.storeReference.unresolvedConditions.join(' · ')+'. No browser-side Store answer is substituted. A fresh Store evaluation will run when you confirm this exact revision.'
-                  : 'The displayed Store reference is history/preview. Confirm requests a fresh Store Zero evaluation before the Store Answer step.')+addedNote);
+                  ? 'No current Store answer is held in this browser. Confirm asks the Store to evaluate this exact revision. Nothing already on file is reused.'
+                  : 'Confirm asks the Store to evaluate this exact revision.')+historyNote+addedNote);
 
                 const answerLine = childDoc.getElementById('stb-system-answer');
                 if (answerLine) {
-                  answerLine.innerHTML = storeComplete
-                    ? '<b>STORE</b> · exact promoted Store reference matched · '+String(material?.stockLengthIn || demand.definedWorkpieceLengthIn)+' in stock · '+Number(estimate.cycle.T_job_min).toFixed(4)+' modeled min · 3 saw operations · 2 spots · calculation '+String(estimate.calculationIdentity?.resultHash || '').slice(0,12)+'…'
-                    : '<b>STORE</b> · LIVE STORE EVALUATION REQUIRED · confirm sends this exact definition to Store Zero; no browser-side Store answer is substituted.';
+                  const requirementGap = definition.storeReference.jobSupportability?.status === 'NOT_FULLY_SUPPORTABLE';
+                  answerLine.innerHTML = freshQuote
+                    ? '<b>STORE</b> · fresh quote · '+(requirementGap ? 'not the whole job · ' : '')+String(material?.stockLengthIn || demand.definedWorkpieceLengthIn)+' in stock · '+Number(estimate.cycle.T_job_min).toFixed(4)+' modeled min · calculation '+String(estimate.calculationIdentity?.resultHash || '').slice(0,12)+'…'
+                    : '<b>STORE</b> · LIVE STORE EVALUATION REQUIRED · confirm sends this exact definition to Store Zero; no stored specimen is substituted.';
                 }
 
                 if (confirmButton) {
@@ -1039,23 +1036,29 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     freshEvaluation?.freshEvaluation === true &&
                     freshReceipt?.requestId === requestId &&
                     freshReceipt?.authority?.storeRevision === freshStoreBody?.storePin;
-                  const complete =
+                  const quoteComplete =
                     freshEvaluation?.status === 'SUPPORTABLE' &&
                     freshnessOk &&
                     freshEstimate?.complete === true &&
-                    freshStoreBody?.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD';
+                    freshStoreBody?.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD' &&
+                    freshStoreBody?.priceCompleteness?.scope === 'QUOTE_ONLY';
+                  const jobStatus = freshStoreBody?.jobSupportability?.status;
+                  const distinctionPresent = jobStatus === 'NOT_FULLY_SUPPORTABLE' || jobStatus === 'REQUIREMENTS_SATISFIED';
+                  const machineBlocked = freshStoreBody?.machineAdmission?.physicalRelease === false;
+                  const quoteReady = quoteComplete && distinctionPresent && machineBlocked;
 
-                  if (!complete) {
+                  if (!quoteReady) {
                     const reasons = []
                       .concat(freshStoreBody?.priceCompleteness?.refusalConditions || [])
                       .concat(freshStoreBody?.priceCompleteness?.unresolvedConditions || [])
                       .concat(freshEvaluation?.refusalConditions || [])
                       .concat(freshEvaluation?.unresolvedConditions || [])
+                      .concat(freshEvaluation?.reasonCodes || [])
                       .filter(Boolean);
                     const code = reasons.length
                       ? Array.from(new Set(reasons)).join(' · ')
-                      : String(freshEvaluation?.status || 'STORE_REFRESH_REQUIRED');
-                    setText('stb-before-send',code+' · Store Zero did not return a complete current answer for this definition. No prior Store answer was reused.');
+                      : String(freshEvaluation?.status || jobStatus || 'STORE_ANSWER_REQUIRED');
+                    setText('stb-before-send',code+' · The Store did not return a current quote for this definition. No specimen was reused, and nothing was sent downstream.');
                     confirmButton.disabled = false;
                     return;
                   }
@@ -1081,7 +1084,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     cellFamily:Array.isArray(rawOffering.cellFamily) ? rawOffering.cellFamily.slice() : [],
                     supportedOps:Array.isArray(rawOffering.supportedOps) ? rawOffering.supportedOps.slice() : [],
                     source:{
-                      repository:'GeorgePlattDemo/scan-to-build-store',
+                      repository:'replacement-store',
                       pin:freshStoreBody.storePin,
                       clock:rawOffering.catalogClock || null
                     }
@@ -1118,13 +1121,16 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     refusalConditions:refusalConditions,
                     unresolvedConditions:unresolvedConditions,
                     source:{
-                      repository:'GeorgePlattDemo/scan-to-build-store',
+                      repository:'replacement-store',
                       storePin:freshStoreBody.storePin,
                       protocolVersion:freshStoreBody.protocolVersion,
                       wrapperBuildId:freshStoreBody.wrapperBuildId,
                       mode:'LIVE_STORE_RUNTIME'
                     },
                     evaluationReceipt:freshReceipt,
+                    requirementSatisfaction:freshStoreBody.requirementSatisfaction || { status:'UNEVALUATED', unevaluated:freshStoreBody.carriedNotAccepted || [] },
+                    machineAdmission:freshStoreBody.machineAdmission || { status:'BLOCKED', physicalRelease:false, evidenceClass:'SIMULATED' },
+                    jobSupportability:freshStoreBody.jobSupportability || { status:'NOT_FULLY_SUPPORTABLE', quoteComplete:true, requirementsEvaluated:false, machineAdmitted:false },
                     wire:{
                       payloadDigest:freshStoreBody.payloadDigest || null,
                       demandSignature:freshStoreBody.demandSignature || null,
@@ -1140,7 +1146,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   const confirmedDefinition = Object.assign({}, definition, {
                     material:Object.assign({}, definition.material, {
                       stockClassAuthority:Object.assign({}, definition.material.stockClassAuthority, {
-                        repository:'GeorgePlattDemo/scan-to-build-store',
+                        repository:'replacement-store',
                         pin:freshStoreBody.storePin,
                         clock:rawOffering.catalogClock || definition.material.stockClassAuthority?.clock || null
                       }),
@@ -2656,7 +2662,13 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       }
     }
     function startOwnWithinEnvelope(answer) {
-      return answer.rawEvaluation?.status === 'SUPPORTABLE' && answer.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD';
+      const quote = answer.rawEvaluation?.status === 'SUPPORTABLE'
+        && answer.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD'
+        && answer.priceCompleteness?.scope === 'QUOTE_ONLY';
+      const job = answer.jobSupportability?.status;
+      return quote
+        && answer.machineAdmission?.physicalRelease === false
+        && (job === 'NOT_FULLY_SUPPORTABLE' || job === 'REQUIREMENTS_SATISFIED');
     }
     // The answer inquire() returned for the revision on the bench, while nothing newer is being asked and the
     // pages after the bench carry it; otherwise null. Only isCurrentAnswer() decides: a blocked, failed, saved or
@@ -2887,9 +2899,23 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       }
 
       const storeLead=doc.getElementById('proof-store-lead');
-      if(storeLead) storeLead.textContent=complete && Number.isFinite(Number(q))
-        ? 'The Store can support this version. Estimated total: $'+Number(q).toFixed(2)+'.'
-        : 'The Store answered this version; complete economics are not available.';
+      const requirementStatus=storeReference?.requirementSatisfaction?.status || null;
+      const jobStatus=storeReference?.jobSupportability?.status || null;
+      const quoteOnly=complete && Number.isFinite(Number(q)) && jobStatus==='NOT_FULLY_SUPPORTABLE';
+      const requirementsSatisfied=complete && Number.isFinite(Number(q)) && jobStatus==='REQUIREMENTS_SATISFIED' && requirementStatus==='SATISFIED';
+      if(storeLead){
+        if(quoteOnly){
+          const unevaluated=(storeReference.requirementSatisfaction?.unevaluated || storeReference.carriedNotAccepted || [])
+            .map(item=>item.field+' = '+item.value);
+          storeLead.textContent='Material and machine quote: $'+Number(q).toFixed(2)+'. That quote covers the board the Store evaluated. '
+            +(unevaluated.length ? 'Not evaluated, and still on this job: '+unevaluated.join('; ')+'. ' : '')
+            +'The whole job is not fully supportable. Machine admission is blocked.';
+        } else if(requirementsSatisfied){
+          storeLead.textContent='The Store evaluated the requirements on this version. Estimated total: $'+Number(q).toFixed(2)+'. Machine admission stays blocked.';
+        } else {
+          storeLead.textContent='The Store answered this version; complete economics are not available.';
+        }
+      }
 
       if(recoveryEl)recoveryEl.textContent=Number.isFinite(Number(machineService))
         ? '$'+Number(machineService).toFixed(2)
@@ -2911,13 +2937,19 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
         if (carried.length) {
           economicsNote.insertAdjacentHTML('beforeend', '<p>Kept on this job, not accepted as a field on this Store request: '+carried.map(item => item.field+' = '+item.value).join('; ')+'.</p>');
         }
+        if (quoteOnly) {
+          economicsNote.insertAdjacentHTML('beforeend', '<p>This quote being complete does not mean every requirement was satisfied, and it does not admit the job to a machine.</p>');
+        }
       }
-      if(acceptStatus)acceptStatus.textContent=complete?'RETURNED · BUDGETARY ESTIMATE':'RETURNED · ECONOMICS INCOMPLETE';
+      if(acceptStatus)acceptStatus.textContent=quoteOnly
+        ? 'QUOTE RETURNED · JOB NOT FULLY SUPPORTABLE · MACHINE ADMISSION BLOCKED'
+        : (complete?'RETURNED · BUDGETARY ESTIMATE':'RETURNED · ECONOMICS INCOMPLETE');
       if(termsQ)termsQ.textContent=Number.isFinite(Number(q))
         ? '$'+Number(q).toFixed(2)+' · budgetary only'
         : 'NOT COMPLETE';
       if(termsNote)termsNote.innerHTML=complete
         ? '<b>TERMS REMAIN REFERENCE-ONLY.</b>The Store Zero Q is a BudgetaryEstimate, not a commercial quote or seller-of-record offer. No acceptance, payment, allocation, release, or fabrication event is created from it.'
+          +(quoteOnly?'<p>Accepting the simulated offer accepts this quote. It does not mean every job requirement was evaluated, and it does not admit a machine.</p>':'')
         : '<b>TERMS REMAIN REFERENCE-ONLY.</b>Economics remain incomplete on this project answer. No acceptance, payment, allocation, release, or fabrication event is invented.';
       if(recordEconomics)recordEconomics.textContent=Number.isFinite(Number(q))
         ? 'BUDGETARY ESTIMATE · Q $'+Number(q).toFixed(2)+' · '+String(estimate?.engine?.id || 'Store Zero')+' · result '+String(estimate?.calculationIdentity?.resultHash || storeReference?.calculationIdentity?.resultHash || '').slice(0,12)+'…'

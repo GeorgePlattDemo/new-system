@@ -9,6 +9,7 @@ System defines a job. Store evaluates it. System does not price, and it does not
 - Physical release stays false. Physical admission stays blocked. No payment, reservation, or production release.
 - Do not convert an unknown or malformed saved-record version into the current schema.
 - Do not strip a supplied `endIdentity`. A board whose length datum is already `long-long-outer-edge` does not send a second end-identity string. That is a reconciliation, not a deletion.
+- A material and machine quote is not the whole job. A required end fact the Store did not evaluate stays on the job, and the job is not presented as fully supportable. Machine admission stays blocked. A recorded specimen is history: it does not price the job, complete it, or open acceptance.
 - Do not clone the Store machine engine. Virtual evidence comes from `POST /v1/machine-evidence` on the pinned Store commit, or it is not evidence.
 - Space utilization keeps the extra spot on a part the person picks. That job is not answered until its own Store question is.
 

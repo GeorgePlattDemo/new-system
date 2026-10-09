@@ -91,7 +91,21 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
   assert.equal(evaluation.freshEvaluation, true);
   assert.equal(estimate.complete, true);
   assert.equal(estimate.totals?.Q, 8.54);
-  assert.equal(body.priceCompleteness && (body.priceCompleteness as { status?: string }).status, "COMPLETE_FOR_TRAVEL_STANDARD");
+  const price = body.priceCompleteness as { status?: string; scope?: string };
+  assert.equal(price.status, "COMPLETE_FOR_TRAVEL_STANDARD");
+  assert.equal(price.scope, "QUOTE_ONLY");
+  const job = body.jobSupportability as { status?: string; machineAdmitted?: boolean; quoteComplete?: boolean };
+  assert.equal(job.status, "NOT_FULLY_SUPPORTABLE");
+  assert.equal(job.quoteComplete, true);
+  assert.equal(job.machineAdmitted, false);
+  const requirements = body.requirementSatisfaction as { status?: string };
+  assert.equal(requirements.status, "UNEVALUATED");
+  const machine = body.machineAdmission as { status?: string; physicalRelease?: boolean };
+  assert.equal(machine.status, "BLOCKED");
+  assert.equal(machine.physicalRelease, false);
+  const resolution = body.materialResolution as { storeSku?: string; workpieceLengthIn?: number };
+  assert.equal(resolution.storeSku, "STB-ZERO-SPF-2X4-60-001");
+  assert.equal(resolution.workpieceLengthIn, 60);
   assert.equal(receipt.requestId, wire.requestId);
   assert.equal(receipt.freshnessRule, "STB-STORE-FRESH-EVALUATION-0.1");
   assert.equal(receipt.authority?.storeRevision, body.storePin);
@@ -133,6 +147,11 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
   assert.notEqual(estimate.totals?.Q, 8.54);
   assert.equal(resolution.storeSku, "STB-ZERO-SPF-2X4-72-001");
   assert.equal(resolution.workpieceLengthIn, 72);
+  const job = body.jobSupportability as { status?: string; machineAdmitted?: boolean };
+  assert.equal(job.status, "NOT_FULLY_SUPPORTABLE");
+  assert.equal(job.machineAdmitted, false);
+  assert.equal((body.requirementSatisfaction as { status?: string }).status, "UNEVALUATED");
+  assert.equal((body.machineAdmission as { physicalRelease?: boolean }).physicalRelease, false);
   assert.equal(receipt.requestId, wire.requestId);
   assert.equal(receipt.freshnessRule, "STB-STORE-FRESH-EVALUATION-0.1");
   assert.equal(receipt.authority?.storeRevision, "4cb0c625ac00c62390129b55a52596b52f10decd");
@@ -144,6 +163,49 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
   ]);
 });
 
+test("a board the Store refuses is not a complete quote and not a supportable job", async () => {
+  const line = braceLineAt(84);
+  const wire = {
+    protocolVersion: "stb-store-zero-http/1",
+    requestId: "start-own-live-refused",
+    projectId: "start-own",
+    candidateRevisionId: "SYO-USER1-XBRACE-0.1-v84",
+    requestType: "USER_DEFINED_BOARD_V1",
+    scope: "USER_DEFINED_BOARD_V1",
+    demandSignature: "demand-84",
+    querySignature: null,
+    payloadDigest: "digest-84",
+    expectedStorePin: "4cb0c625ac00c62390129b55a52596b52f10decd",
+    attemptId: "attempt-84",
+    attemptNumber: 1,
+    sentAt: "2026-10-09T04:00:00.000Z",
+    payload: { line, definitionKind: "user_defined_board.v1", ruleVersion: "0.1" },
+  };
+  const answered = await answerPublishedWire(wire, origin);
+  assert.equal(answered.httpStatus, 200);
+  const body = answered.body;
+  const evaluation = body.rawEvaluation as { status?: string; freshEvaluation?: boolean };
+  const price = body.priceCompleteness as { status?: string };
+  const job = body.jobSupportability as { status?: string; quoteComplete?: boolean; machineAdmitted?: boolean };
+  assert.equal(evaluation.status, "REFUSED");
+  assert.equal(evaluation.freshEvaluation, true);
+  assert.notEqual(price.status, "COMPLETE_FOR_TRAVEL_STANDARD");
+  assert.equal(job.status, "NOT_SUPPORTABLE");
+  assert.equal(job.quoteComplete, false);
+  assert.equal(job.machineAdmitted, false);
+  assert.equal((body.requirementSatisfaction as { status?: string }).status, "UNEVALUATED");
+  assert.equal((body.machineAdmission as { physicalRelease?: boolean }).physicalRelease, false);
+});
+
+test("the bench does not ask the specimen function for the current answer", () => {
+  const page = readFileSync(new URL("../../../public/live/system-build-current.html", import.meta.url), "utf8");
+  const handoff = readFileSync(new URL("../../../public/live/stb-store-handoff-contract.js", import.meta.url), "utf8");
+  assert.equal(page.includes("resolveUser1StoreReference"), false);
+  assert.equal(page.includes("exact promoted Store reference matched"), false);
+  assert.equal(handoff.includes("MATCHED_STORE_REFERENCE"), false);
+  assert.equal(handoff.includes("status:'HISTORICAL_SPECIMEN'"), true);
+  assert.equal(page.includes("Build guide · developer notes"), true);
+});
 test("a job that is not Start your own is not given a successful answer", async () => {
   const answered = await answerPublishedWire({
     protocolVersion: "stb-store-zero-http/1",
