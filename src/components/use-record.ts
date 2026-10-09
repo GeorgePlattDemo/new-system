@@ -5,35 +5,53 @@ const KEY = "stb-new-system-record-1";
 
 export type BenchState =
   | { ready: false }
-  | { ready: true; problem: "MALFORMED" | "UNSUPPORTED_VERSION"; raw: string }
-  | { ready: true; problem: null; record: RecordFile };
+  | { ready: true; problem: "MALFORMED" | "UNSUPPORTED_VERSION"; raw: string; storageError: string | null }
+  | { ready: true; problem: null; record: RecordFile; storageError: string | null };
+
+function storageMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "The saved file could not be written.";
+}
 
 export function useRecord() {
   const [state, setState] = useState<BenchState>({ ready: false });
   const recordRef = useRef<RecordFile | null>(null);
+  const rawRef = useRef<string>("");
 
   useEffect(() => {
-    const raw = localStorage.getItem(KEY);
+    let raw: string | null = null;
+    try {
+      raw = localStorage.getItem(KEY);
+    } catch (error) {
+      rawRef.current = "";
+      setState({ ready: true, problem: "MALFORMED", raw: "", storageError: storageMessage(error) });
+      return;
+    }
     if (!raw) {
       const record = emptyRecord();
       recordRef.current = record;
-      setState({ ready: true, problem: null, record });
+      setState({ ready: true, problem: null, record, storageError: null });
       return;
     }
+    rawRef.current = raw;
     try {
       const loaded = loadRecord(JSON.parse(raw));
       if (!loaded.ok) {
         recordRef.current = null;
-        setState({ ready: true, problem: loaded.code, raw });
+        setState({ ready: true, problem: loaded.code, raw, storageError: null });
         return;
       }
       const record = parkForReopen(loaded.record);
       recordRef.current = record;
-      localStorage.setItem(KEY, JSON.stringify(record));
-      setState({ ready: true, problem: null, record });
+      let storageError: string | null = null;
+      try {
+        localStorage.setItem(KEY, JSON.stringify(record));
+      } catch (error) {
+        storageError = storageMessage(error);
+      }
+      setState({ ready: true, problem: null, record, storageError });
     } catch {
       recordRef.current = null;
-      setState({ ready: true, problem: "MALFORMED", raw });
+      setState({ ready: true, problem: "MALFORMED", raw, storageError: null });
     }
   }, []);
 
@@ -42,9 +60,33 @@ export function useRecord() {
     if (!prev) return;
     const record = typeof next === "function" ? next(prev) : next;
     recordRef.current = record;
-    localStorage.setItem(KEY, JSON.stringify(record));
-    setState({ ready: true, problem: null, record });
+    let storageError: string | null = null;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(record));
+    } catch (error) {
+      storageError = storageMessage(error);
+    }
+    setState({ ready: true, problem: null, record, storageError });
   }, []);
 
-  return { state, update };
+  const replaceWithEmpty = useCallback(() => {
+    const record = emptyRecord();
+    try {
+      localStorage.setItem(KEY, JSON.stringify(record));
+    } catch (error) {
+      setState((current) => (current.ready ? { ...current, storageError: storageMessage(error) } : current));
+      return;
+    }
+    recordRef.current = record;
+    rawRef.current = "";
+    setState({ ready: true, problem: null, record, storageError: null });
+  }, []);
+
+  const savedText = useCallback(() => {
+    if (state.ready && state.problem) return state.raw;
+    if (recordRef.current) return JSON.stringify(recordRef.current, null, 2);
+    return rawRef.current;
+  }, [state]);
+
+  return { state, update, replaceWithEmpty, savedText };
 }

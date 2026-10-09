@@ -11,7 +11,7 @@ export const Route = createFileRoute("/")({ component: Home });
 
 function Home() {
   const navigate = useNavigate();
-  const { state, update } = useRecord();
+  const { state, update, replaceWithEmpty, savedText } = useRecord();
   const [health, setHealth] = useState("Checking the Store candidate…");
   const [search, setSearch] = useState("2x4 treated 72");
   const [lookup, setLookup] = useState<string>("Ask the catalog. This is not a price.");
@@ -23,12 +23,22 @@ function Home() {
           setHealth("Store candidate is not reachable. Jobs can still be defined. An inquiry will be a transport failure, not a refusal.");
           return;
         }
-        const body = JSON.parse(res.body) as { release?: string; protocol?: string; catalog?: { offerings?: number } };
+        const body = JSON.parse(res.body) as {
+          release?: string;
+          protocol?: string;
+          catalog?: { offerings?: number };
+          machineEvidence?: { protocol?: string; machineConfigId?: string; physicalAuthority?: boolean };
+        };
         if (body.release !== STORE_CANDIDATE.inspectedCommit) {
           setHealth(`Wrong Store release ${body.release ?? "unknown"}. This candidate expected ${STORE_CANDIDATE.inspectedCommit}.`);
           return;
         }
-        setHealth(`Store Zero ${body.release.slice(0, 12)} · ${body.protocol} · ${body.catalog?.offerings ?? "?"} offerings. Inspected baseline, not a production release.`);
+        const machine = body.machineEvidence;
+        const machineLine =
+          machine?.protocol === STORE_CANDIDATE.machineEvidenceProtocol && machine.physicalAuthority === false
+            ? ` Virtual evidence ${machine.machineConfigId ?? "unidentified"}, physical authority false.`
+            : " Machine evidence was not advertised as blocked virtual evidence.";
+        setHealth(`Store Zero ${body.release.slice(0, 12)} · ${body.protocol} · ${body.catalog?.offerings ?? "?"} offerings.${machineLine} Inspected baseline, not a production release.`);
       })
       .catch(() => setHealth("Store candidate is not reachable."));
   }, []);
@@ -78,14 +88,26 @@ function Home() {
         <p className="rounded-card border border-line bg-surface px-4 py-3 text-sm">{health}</p>
       </section>
 
+      {state.ready && state.storageError && (
+        <section className="rounded-card border border-bad bg-surface p-4">
+          <h2 className="text-xl text-bad">The file on this device could not be written</h2>
+          <p className="mt-2 text-sm">{state.storageError} What you see is still in this tab. It was not replaced with an empty file.</p>
+          <button type="button" className="tap mt-3 rounded-card border border-line px-4" onClick={() => downloadJson("scan-to-build-record.json", savedText())}>Download the file</button>
+        </section>
+      )}
+
       {state.ready && state.problem && (
         <section className="rounded-card border border-bad bg-surface p-4">
           <h2 className="text-xl text-bad">Saved file not opened</h2>
           <p className="mt-2 text-sm">
             {state.problem === "UNSUPPORTED_VERSION"
               ? "This file is a version this candidate does not know. It was not converted and it was not overwritten."
-              : "This file is not a readable project record. It was not repaired."}
+              : "This file is not a readable project record. A nested hole, such as an empty project, is not repaired."}
           </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className="tap rounded-card border border-line px-4" onClick={() => downloadJson("scan-to-build-unreadable.json", state.raw)}>Download the unreadable file</button>
+            <button type="button" className="tap rounded-card border border-bad px-4 text-bad" onClick={replaceWithEmpty}>Replace with an empty file</button>
+          </div>
         </section>
       )}
 
@@ -132,4 +154,13 @@ function Home() {
       </section>
     </main>
   );
+}
+
+function downloadJson(name: string, text: string) {
+  const url = URL.createObjectURL(new Blob([text], { type: "application/json" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  link.click();
+  URL.revokeObjectURL(url);
 }
