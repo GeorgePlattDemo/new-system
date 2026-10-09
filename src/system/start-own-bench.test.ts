@@ -5,7 +5,7 @@ import { acceptAnswer, benchView, isChangeWoodTool, spotAlongPart } from "../../
 function answer(status: string, stock: number, q: number) {
   return {
     rawEvaluation: { status, materialResolution: status === "UNRESOLVED" ? { reason: "GRADE_CHOICE_REQUIRED", offeredGrades: ["above-ground", "ground-contact"] } : {} },
-    rawEstimate: status === "SUPPORTABLE" ? { complete: true, totals: { Q: q, material: 4 } } : null,
+    rawEstimate: status === "SUPPORTABLE" ? { complete: true, totals: { Q: q, material: 3.13, machine_service: 5.94 }, cycle: { T_job_min: 1.425 } } : null,
     materialResolution: { storeSku: stock === 72 ? "STB-ZERO-SPF-2X4-72-001" : "STB-ZERO-SPF-2X4-60-001", workpieceLengthIn: stock, stockLengthIn: stock },
     priceCompleteness: { status: status === "SUPPORTABLE" ? "COMPLETE_FOR_TRAVEL_STANDARD" : status },
   };
@@ -24,13 +24,27 @@ test("a 60 in Store selection does not show the longer-board frame", () => {
   assert.equal(view.sku, "STB-ZERO-SPF-2X4-60-001");
 });
 
-test("an 18 in job shows the Store 72 in board and not a locally priced 60", () => {
-  const view = benchView({ finishedLengthIn: 18, species: "spf", spotIn: 9, answer: answer("SUPPORTABLE", 72, 9.07) });
+test("null price data stays missing and is not treated as zero", () => {
+  const missing = answer("SUPPORTABLE", 72, null as unknown as number);
+  missing.rawEstimate.totals.Q = null;
+  missing.rawEstimate.totals.machine_service = null;
+  const view = benchView({ finishedLengthIn: 18, species: "spf", spotIn: 9, answer: missing });
+  assert.equal(view.selection.quote, false);
+  assert.equal(view.selection.q, null);
+  assert.equal(view.swap.visible, false);
+});
+
+test("the longer-board frame uses the Store refusal, not a generic longer-SKU sentence", () => {
+  const body = answer("SUPPORTABLE", 72, 9.07);
+  body.materialResolution.consideredCandidates = [
+    { storeSku: "STB-ZERO-SPF-2X4-60-001", stockLengthIn: 60, candidateStatus: "REFUSED", reason: "LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL" },
+  ];
+  body.rawEstimate.travel = { finalRemainderIn: 35.625 };
+  const view = benchView({ finishedLengthIn: 18, species: "spf", spotIn: 9, answer: body });
   assert.equal(view.swap.visible, true);
-  assert.equal(view.swap.html.includes("STB-ZERO-SPF-2X4-72-001"), true);
-  assert.equal(view.swap.html.includes("72"), true);
-  assert.equal(view.priceLine.includes("9.07"), true);
-  assert.equal(view.stockLine.includes("72"), true);
+  assert.equal(view.swap.html.includes("LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL"), true);
+  assert.equal(view.swap.html.includes("35.625"), true);
+  assert.equal(view.selection.machineService, 5.94);
 });
 
 test("a refusal does not claim the Store grabbed a longer board", () => {

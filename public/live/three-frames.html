@@ -380,8 +380,8 @@
           </g>
 
           <!-- control-surface band, last 24in = x532..860 -->
-          <rect x="532" y="101" width="328" height="78" fill="url(#obHatch)"/>
-          <rect x="532" y="101" width="328" height="78" fill="none" stroke="#2f6f9e" stroke-width="1.5" stroke-dasharray="6 4" opacity=".8"/>
+          <rect id="stb-bench-hold-band" x="532" y="101" width="328" height="78" fill="url(#obHatch)"/>
+          <rect id="stb-bench-hold-outline" x="532" y="101" width="328" height="78" fill="none" stroke="#2f6f9e" stroke-width="1.5" stroke-dasharray="6 4" opacity=".8"/>
 
           <!-- three 30deg cuts: x40, x259, x477 -->
           <g id="stb-bench-static-cuts" stroke="#a85a2a" stroke-width="5" stroke-linecap="round">
@@ -565,7 +565,10 @@
     const overlay = document.getElementById('stb-bench-dynamic-geometry');
     if (!overlay || !demand) return;
     const x0=40, xMax=860, topY=100, bottomY=180;
-    const workpieceLength=Math.max(1,Number(demand.definedWorkpieceLengthIn)||60);
+    const requested=Math.max(1,Number(demand.requestedMinimumIn)||Number(demand.definedWorkpieceLengthIn)||60);
+    const selected=Number(demand.selectedBoardLengthIn);
+    const storeSelected=demand.storeSelected===true && Number.isFinite(selected) && selected>0;
+    const workpieceLength=storeSelected ? selected : requested;
     const scale=(xMax-x0)/workpieceLength;
     const qty=Math.max(1,Math.min(2,Number(demand.quantity)||1));
     const len=Math.max(0,Number(demand.finishedLength)||0);
@@ -593,12 +596,26 @@
       svg+='<circle cx="'+mx+'" cy="74" r="13" fill="#a85a2a"/><text x="'+mx+'" y="79" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+(index+1)+'</text>';
     });
     overlay.innerHTML=svg;
+    const remainderIn=Number(demand.remainderIn);
+    const bandIn=Number.isFinite(remainderIn) && remainderIn>0 ? remainderIn : Number(demand.holdIn);
+    if (Number.isFinite(bandIn) && bandIn>0 && bandIn<workpieceLength) {
+      const holdX=x0+(workpieceLength-bandIn)*scale;
+      const holdWidth=bandIn*scale;
+      ['stb-bench-hold-band','stb-bench-hold-outline'].forEach(id => {
+        const band=document.getElementById(id);
+        if (!band) return;
+        band.setAttribute('x', String(holdX));
+        band.setAttribute('width', String(holdWidth));
+      });
+    }
   };
   // The spare and remain labels sit past the last part, wherever the demand ends it.
   const placeBenchLabels = demand => {
     if (!demand) return;
     const x0=40, xMax=860;
-    const workpieceLength=Math.max(1,Number(demand.definedWorkpieceLengthIn)||60);
+    const requested=Math.max(1,Number(demand.requestedMinimumIn)||Number(demand.definedWorkpieceLengthIn)||60);
+    const selected=Number(demand.selectedBoardLengthIn);
+    const workpieceLength=demand.storeSelected===true && Number.isFinite(selected) && selected>0 ? selected : requested;
     const scale=(xMax-x0)/workpieceLength;
     const qty=Math.max(1,Math.min(2,Number(demand.quantity)||1));
     const len=Math.max(0,Number(demand.finishedLength)||0);

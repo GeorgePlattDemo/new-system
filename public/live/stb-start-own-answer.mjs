@@ -40,14 +40,24 @@ export function readStoreSelection(answer) {
   const offering = answer?.rawOffering || {};
   const stockLengthIn = numberOrNull(resolution.stockLengthIn ?? resolution.workpieceLengthIn ?? offering.stockL_in);
   const status = evaluation?.status || null;
-  const quote = status === "SUPPORTABLE" && estimate?.complete === true && numberOrNull(estimate?.totals?.Q) != null;
+  const q = numberOrNull(estimate?.totals?.Q);
+  const material = numberOrNull(estimate?.totals?.material);
+  const machineService = numberOrNull(estimate?.totals?.machine_service);
+  const quote = status === "SUPPORTABLE" && estimate?.complete === true && q != null && material != null && machineService != null;
   return {
     status,
     quote,
-    q: quote ? estimate.totals.Q : null,
-    material: quote ? numberOrNull(estimate.totals.material) : null,
+    q: quote ? q : null,
+    material: quote ? material : null,
+    machineService: quote ? machineService : null,
+    modeledMinutes: quote ? numberOrNull(estimate?.cycle?.T_job_min) : null,
     sku: resolution.storeSku || offering.storeSku || null,
-    stockLengthIn,
+    stockLengthIn: quote ? stockLengthIn : null,
+    finalRemainderIn: numberOrNull(estimate?.travel?.finalRemainderIn),
+    candidates: Array.isArray(resolution.consideredCandidates) ? resolution.consideredCandidates : [],
+    calculationHash: estimate?.calculationIdentity?.resultHash || answer?.calculationIdentity?.resultHash || null,
+    storePin: answer?.storePin || null,
+    requestId: answer?.evaluationReceipt?.requestId || answer?.requestId || null,
     reason: firstReason(answer, evaluation),
     offeredGrades: Array.isArray(resolution.offeredGrades) ? resolution.offeredGrades.map(String) : [],
   };
@@ -78,12 +88,7 @@ export function benchView({ finishedLengthIn, species, spotIn, answer, requested
       : `ONE 5-FOOT 2×4 · 60 IN requested minimum · Store has not selected a board`,
     total: selection.quote ? `$${selection.q.toFixed(2)}` : "NOT COMPLETE",
     sku: selection.sku || "NOT MAPPED",
-    swap: {
-      visible: longer,
-      html: longer
-        ? `<b>The Store grabbed a longer board.</b> The ${requestedMinimumIn / 12}-foot board is not the one it selected. It selected ${selection.sku} at ${selection.stockLengthIn} in.`
-        : "",
-    },
+    swap: longerBoardFrame({ finishedLengthIn, requestedMinimumIn, selection }),
   };
 }
 
@@ -99,8 +104,23 @@ export function acceptAnswer(expectedRevisionId, answerRevisionId) {
  * @param {unknown} value
  */
 function numberOrNull(value) {
+  if (value == null || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function longerBoardFrame({ finishedLengthIn, requestedMinimumIn, selection }) {
+  const longer = selection.quote && selection.stockLengthIn != null && selection.stockLengthIn > requestedMinimumIn;
+  if (!longer) return { visible: false, html: "" };
+  const refused = selection.candidates.find((candidate) => candidate?.candidateStatus === "REFUSED" && Number(candidate.stockLengthIn) === requestedMinimumIn);
+  const why = refused
+    ? `Store considered ${refused.storeSku} at ${refused.stockLengthIn} in and refused it: ${refused.reason || "not supportable"}.`
+    : `Store did not offer a ${requestedMinimumIn} in board for this job.`;
+  const remainder = selection.finalRemainderIn == null ? "" : ` Store returned ${selection.finalRemainderIn} in remaining on the selected board.`;
+  return {
+    visible: true,
+    html: `<b>The Store grabbed a longer board.</b> Two ${finishedLengthIn} in braces were still requested. ${why} It selected ${selection.sku} at ${selection.stockLengthIn} in.${remainder} The modeled price is the Store's Q for that board, not a local price for the ${requestedMinimumIn} in minimum.`,
+  };
 }
 
 /**

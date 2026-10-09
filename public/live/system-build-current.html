@@ -194,7 +194,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=2aa52818"
+                  src="three-frames.html?v=project1-board"
                 ></iframe>
               </div>
             `;
@@ -203,7 +203,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=2aa52818';
+            liveFrame.src = 'three-frames.html?v=project1-board';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -643,10 +643,22 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   if(el) el.style.display='none';
                 });
                 // The bench page draws its own parts, cuts and spots, and places its spare and remain labels, from this demand.
+                const view = window.STBStartOwnAnswer && currentBenchAnswer && currentBenchAnswer.versionId === definition.versionId
+                  ? window.STBStartOwnAnswer.benchView({
+                      finishedLengthIn: demand.finishedLength,
+                      species: definition.material?.stated?.species,
+                      spotIn: definition.derived?.centerSpotAlongLengthIn?.value,
+                      answer: currentBenchAnswer.body,
+                    })
+                  : null;
                 proofFrame.contentWindow?.postMessage({
                   type:'STB_BENCH_GEOMETRY',
                   demand:{
                     definedWorkpieceLengthIn:demand.definedWorkpieceLengthIn,
+                    requestedMinimumIn:60,
+                    selectedBoardLengthIn:view?.selection.quote ? view.selection.stockLengthIn : null,
+                    storeSelected:view?.selection.quote === true,
+                    remainderIn:view?.selection.quote ? view.selection.finalRemainderIn : null,
                     quantity:demand.quantity,
                     finishedLength:demand.finishedLength,
                     angleDegrees:demand.angleDegrees,
@@ -687,7 +699,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-bench-length-spec',formatInches(demand.finishedLength));
                 setText('stb-bench-angle-spec',formatDegrees(demand.angleDegrees));
                 // The drawing names the board the Store actually picked, never a stale default.
-                setText('stb-bench-stock-line','ONE '+boardName(demand.definedWorkpieceLengthIn)+' · one board, marked left to right · schematic');
+                setText('stb-bench-stock-line','60 IN requested minimum · Store has not selected a board');
                 setText('stb-bench-parts-spec',String(demand.quantity));
                 setText('stb-carry-cut',demand.quantity+' part'+(demand.quantity===1?'':'s')+' · '+formatInches(demand.finishedLength)+' each');
                 setText('stb-carry-angle',formatDegrees(demand.angleDegrees)+' ends');
@@ -778,14 +790,23 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   ? material.quantity+' × '+material.stockLengthIn+' in 2×4 Store stock/pricing reference · Store-selected workpiece '+formatInches(demand.definedWorkpieceLengthIn)
                   : 'FRESH STORE ANSWER REQUIRED');
                 if (view?.selection.quote) {
+                  const money = value => value == null ? 'NOT ESTABLISHED' : '$'+Number(value).toFixed(2);
                   setText('stb-bench-stock-line','ONE '+view.selection.stockLengthIn+'-IN 2×4 · Store selected '+view.sku+' · schematic');
+                  setText('stb-bench-workpiece-spec','2×4 · '+view.selection.stockLengthIn+' in Store selected');
                   setText('stb-bench-price-line', view.priceLine);
                   setText('stb-price-total', view.total);
-                  setText('stb-price-material', view.selection.material == null ? 'NOT ESTABLISHED' : '$'+Number(view.selection.material).toFixed(2));
+                  setText('stb-price-material', money(view.selection.material));
+                  setText('stb-price-processing', money(view.selection.machineService));
+                  setText('stb-price-basis', 'Store-issued BudgetaryEstimate · material '+money(view.selection.material)+' + modeled machine service '+money(view.selection.machineService)+' · not acceptance or machine release.');
                   setText('stb-basis-sku', view.sku);
-                  setText('stb-basis-source-stock', '1 × '+view.selection.stockLengthIn+' in · '+view.sku+' · Store selected');
+                  setText('stb-basis-source-stock', '1 × '+view.selection.stockLengthIn+' in · '+view.sku+' · Store selected · requested minimum remains 60 in');
                   setText('stb-def-workpiece', view.selection.stockLengthIn+' in · Store selected');
-                  setText('stb-before-send', 'Store selected '+view.sku+' at '+view.selection.stockLengthIn+' in. Budgetary inquiry only. Machine admission stays blocked.');
+                  setText('stb-material-required', '1 × 2×4 × '+view.selection.stockLengthIn+' in Store-selected workpiece · '+demand.quantity+' finished parts at '+demand.finishedLength+' in · project minimum remains 60 in');
+                  setText('stb-basis-job-time', view.selection.modeledMinutes == null ? 'UNRESOLVED' : Number(view.selection.modeledMinutes).toFixed(4)+' min · modeled · Store returned');
+                  setText('stb-basis-store-pin', view.selection.storePin || '—');
+                  setText('stb-bench-remain-label', view.selection.finalRemainderIn == null ? 'Store remainder unresolved' : view.selection.finalRemainderIn+' in remains · Store returned');
+                  setText('stb-bench-control-copy', 'Store selected '+view.selection.stockLengthIn+' in and returned '+String(view.selection.finalRemainderIn)+' in remaining. The 60 in figure is the requested minimum, not the selected board.');
+                  setText('stb-before-send', 'Store selected '+view.sku+' at '+view.selection.stockLengthIn+' in. Calculation '+(view.selection.calculationHash || 'unresolved')+'. Budgetary inquiry only. Machine admission stays blocked.');
                 }
                 setText('stb-basis-unit-price',materialMapped && Number.isFinite(Number(material.unitPrice)) ? '$'+Number(material.unitPrice).toFixed(2)+' / ea' : 'UNRESOLVED');
                 setText('stb-basis-cell-family',materialMapped && Array.isArray(material.cellFamily) ? material.cellFamily.join(' · ') : 'UNRESOLVED');
@@ -793,13 +814,13 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-basis-clock',String(material?.source?.clock || '—'));
                 setText('stb-basis-catalog-pin',String(material?.source?.pin || '—'));
                 setText('stb-basis-capability',String(capabilityBasis)+' · '+String(definition.capability.status));
-                setText('stb-basis-store-pin',String(definition.storeReference.source?.storePin || definition.storeReference.authority?.economicsPin || '—'));
+                setText('stb-basis-store-pin', view?.selection.quote ? (view.selection.storePin || '—') : String(definition.storeReference.source?.storePin || definition.storeReference.authority?.economicsPin || '—'));
                 setText('stb-basis-economics',estimate?.status
                   ? estimate.status+' · '+String(estimate.completeness || 'UNRESOLVED')+' · STORE-ISSUED REFERENCE'
                   : String(economics));
                 setText('stb-basis-pricing-engine',estimate?.engine ? estimate.engine.id+' · v'+estimate.engine.version : 'UNRESOLVED');
                 setText('stb-basis-cycle-model',estimate?.cycle?.model || 'UNRESOLVED');
-                setText('stb-basis-job-time',Number.isFinite(Number(estimate?.cycle?.T_job_min))
+                if (!view?.selection.quote) setText('stb-basis-job-time',Number.isFinite(Number(estimate?.cycle?.T_job_min))
                   ? Number(estimate.cycle.T_job_min).toFixed(4)+' min · modeled · Store returned '+totalModeledCuts+' saw operations'
                   : 'UNRESOLVED');
                 const addedNote = addedControls.length
