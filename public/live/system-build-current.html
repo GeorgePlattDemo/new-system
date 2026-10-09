@@ -16,6 +16,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 <script src="stb-store-handoff-contract.js?v=ebd2c856"></script>
 <script src="stb-store-client.js?v=f1897ecc"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=db611717"></script>
+<script type="module">
+import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-bench";
+window.STBStartOwnAnswer = startOwnAnswer;
+</script>
 <script src="stb-terms-flow.js?v=365d795c"></script>
 <script src="store-zero-canonical-doctrine.js?v=65366367"></script>
 <script src="stb-build-guide-spec.js?v=b291bfe4"></script>
@@ -242,6 +246,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               // This job's wood is stated on Intent, never chosen on the bench. It starts as SPF, shown in Intent's
               // handoff frame ("2×4 SPF"); ITEM LOOKUP can state the other wood. The bench carries it as stated.
               let jobSpecies = 'spf';
+              let jobGrade = null;
               // Controls typed on Intent for this job ("Add a tool this job needs"). Each is this job's own; the bench
               // turns it on or off. The Store is not asked about it.
               const addedControls = [];
@@ -255,6 +260,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 if (control.dataset.materialForm) stated.form = control.dataset.materialForm;
                 if (control.dataset.materialNominalT) stated.nominalT = Number(control.dataset.materialNominalT);
                 if (control.dataset.materialNominalW) stated.nominalW = Number(control.dataset.materialNominalW);
+                if (jobGrade) stated.grade = jobGrade;
                 return stated;
               };
               const startOwnAuthority = storeHandoffContract?.storeAuthorities?.startOwn || null;
@@ -266,6 +272,8 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               const DEMO_MAX_LENGTH_IN = 18;
               const DEMO_HORIZONTAL_SPAN_IN = 8;
               let currentUser1Definition = null;
+              let currentBenchAnswer = null;
+              let benchAskToken = 0;
               let storeRequestSequence = 0;
 
               const nextStoreRequestId = definition => {
@@ -716,25 +724,22 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 if (stubBold) stubBold.innerHTML = '<b>Keep the stub.</b> Two matching braces'+(Number.isFinite(retained)?', and the other '+formatInches(retained)+' of the board comes back to you.':', and the rest of the board comes back to you.');
                 setText('stb-bench-workline','THAT’S THE WHOLE JOB · '+productionCuts+' CUT'+(productionCuts===1?'':'S')+' · '+spots+' SPOT'+(spots===1?'':'S')+' · '+(freshQuote?'QUOTE RETURNED':'ASK THE STORE'));
 
-                // Make the Store's board choice visible when it moves past the 5-foot board.
+                // Make the Store's board choice visible when it selects longer than the requested minimum.
                 const swap = childDoc.getElementById('stb-bench-board-swap');
+                const view = window.STBStartOwnAnswer && currentBenchAnswer && currentBenchAnswer.versionId === definition.versionId
+                  ? window.STBStartOwnAnswer.benchView({
+                      finishedLengthIn: demand.finishedLength,
+                      species: definition.material?.stated?.species,
+                      spotIn: definition.derived?.centerSpotAlongLengthIn?.value,
+                      answer: currentBenchAnswer.body,
+                    })
+                  : null;
                 if (swap) {
-                  const picked = Number(demand.definedWorkpieceLengthIn);
-                  const minimum = Number(definition.lineage?.requestedDefinedWorkpieceLengthIn) || 60;
-                  const moved = Number.isFinite(picked) && picked > minimum;
-                  swap.hidden = !moved;
-                  if (!moved) swap.textContent = '';
-                  if (moved) {
-                    const feet = picked / 12;
-                    const pickedPhrase = (Number.isInteger(feet) ? feet+'-foot 2×4 ('+picked+' in)' : picked+' in 2×4');
-                    const candidates = Array.isArray(material?.consideredCandidates) ? material.consideredCandidates : [];
-                    const minimumRefused = candidates.some(c => Number(c.stockLengthIn) === minimum && c.candidateStatus === 'REFUSED');
-                    const wood = SPECIES_WORDS[definition.material?.stated?.species] || '';
-                    swap.innerHTML = '<b>The Store grabbed a longer board.</b> '+(minimumRefused
-                      ? 'At '+formatInches(demand.finishedLength)+' a brace, a '+(minimum/12)+'-foot 2×4 wouldn’t leave the '+formatInches(holdIn)+' the machine needs to hold for the last cut — so it moved up to a '+pickedPhrase+'.'
-                      : 'The Store has no '+(minimum/12)+'-foot '+(wood ? wood+' ' : '')+'2×4; the shortest it offers for this job is a '+pickedPhrase+'.')
-                      +(Number.isFinite(retained) ? ' The extra comes back with your stub: '+formatInches(retained)+'.' : '');
-                  }
+                  swap.hidden = !view?.swap.visible;
+                  swap.innerHTML = view?.swap.visible ? view.swap.html : '';
+                }
+                if (view && !view.selection.quote) {
+                  setText('stb-before-send', view.priceLine+' No longer-board claim was made.');
                 }
                 // One line right under the choice: size, angle, board, price.
                 const pickedBoard = Number(demand.definedWorkpieceLengthIn);
@@ -742,11 +747,13 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 const boardWords = Number.isInteger(pickedFeet) ? pickedFeet+'-foot 2×4' : formatInches(pickedBoard)+' 2×4';
                 const woodWords = SPECIES_WORDS[definition.material?.stated?.species] || null;
                 if (woodWords) setText('stb-carry-wood', '2×4 ' + woodWords);
-                setText('stb-bench-price-line', formatInches(demand.finishedLength)+' braces · '+formatDegrees(demand.angleDegrees)+' ends · '
-                  +(!woodWords ? 'no wood stated on Intent.'
-                    : freshQuote && totals?.Q != null
-                      ? woodWords+' · '+boardWords+' · $'+Number(totals.Q).toFixed(2)+' material and machine quote ($'+Number(totals.material).toFixed(2)+' wood).'
-                      : woodWords+' · ask the Store.'));
+                if (!view?.selection.quote) {
+                  setText('stb-bench-price-line', formatInches(demand.finishedLength)+' braces · '+formatDegrees(demand.angleDegrees)+' ends · '
+                    +(!woodWords ? 'no wood stated on Intent.'
+                      : freshQuote && totals?.Q != null
+                        ? woodWords+' · '+boardWords+' · $'+Number(totals.Q).toFixed(2)+' material and machine quote ($'+Number(totals.material).toFixed(2)+' wood).'
+                        : woodWords+' · ask the Store.'));
+                }
 
                 const svg = childDoc.getElementById('stb-user1-bench-svg');
                 if (svg) {
@@ -770,6 +777,16 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-basis-source-stock',materialMapped
                   ? material.quantity+' × '+material.stockLengthIn+' in 2×4 Store stock/pricing reference · Store-selected workpiece '+formatInches(demand.definedWorkpieceLengthIn)
                   : 'FRESH STORE ANSWER REQUIRED');
+                if (view?.selection.quote) {
+                  setText('stb-bench-stock-line','ONE '+view.selection.stockLengthIn+'-IN 2×4 · Store selected '+view.sku+' · schematic');
+                  setText('stb-bench-price-line', view.priceLine);
+                  setText('stb-price-total', view.total);
+                  setText('stb-price-material', view.selection.material == null ? 'NOT ESTABLISHED' : '$'+Number(view.selection.material).toFixed(2));
+                  setText('stb-basis-sku', view.sku);
+                  setText('stb-basis-source-stock', '1 × '+view.selection.stockLengthIn+' in · '+view.sku+' · Store selected');
+                  setText('stb-def-workpiece', view.selection.stockLengthIn+' in · Store selected');
+                  setText('stb-before-send', 'Store selected '+view.sku+' at '+view.selection.stockLengthIn+' in. Budgetary inquiry only. Machine admission stays blocked.');
+                }
                 setText('stb-basis-unit-price',materialMapped && Number.isFinite(Number(material.unitPrice)) ? '$'+Number(material.unitPrice).toFixed(2)+' / ea' : 'UNRESOLVED');
                 setText('stb-basis-cell-family',materialMapped && Array.isArray(material.cellFamily) ? material.cellFamily.join(' · ') : 'UNRESOLVED');
                 setText('stb-basis-supported-ops',materialMapped && Array.isArray(material.supportedOps) ? material.supportedOps.join(' · ') : 'UNRESOLVED');
@@ -794,7 +811,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     +(history.q != null ? ' once carried $'+Number(history.q).toFixed(2) : '')
                     +'. It is not this price, not completeness, and not permission to accept or go downstream.'
                   : '';
-                setText('stb-before-send',(definition.storeReference.unresolvedConditions.length
+                if (!view?.selection.quote) setText('stb-before-send',(definition.storeReference.unresolvedConditions.length
                   ? 'No current Store answer is held in this browser. Confirm asks the Store to evaluate this exact revision. Nothing already on file is reused.'
                   : 'Confirm asks the Store to evaluate this exact revision.')+historyNote+addedNote);
 
@@ -836,8 +853,9 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               showStage(pendingStartOwnStage, pendingStartOwnFocus);
 
               benchButton?.addEventListener('click', () => {
-                syncAndRender('BENCH_HANDOFF');
+                const definition = syncAndRender('BENCH_HANDOFF');
                 showStage('bench');
+                askBench(definition);
               });
               benchBack?.addEventListener('click', () => {
                 showStage('intent');
@@ -856,10 +874,29 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               childDoc.querySelectorAll('[data-length]').forEach(button => {
                 button.addEventListener('click', () => {
                   if (lengthInput) lengthInput.value = button.dataset.length;
+                  currentBenchAnswer = null;
                   markRevision();
-                  syncAndRender('CUSTOMER_INPUT');
+                  const definition = syncAndRender('CUSTOMER_INPUT');
+                  askBench(definition);
                 });
               });
+              const askBench = async definition => {
+                if (!definition || !user1RuntimeBridge) return;
+                const versionId = definition.versionId;
+                const token = ++benchAskToken;
+                setText('stb-before-send', 'ASKING STORE ZERO · budgetary inquiry for this revision. Not acceptance and not a physical release.');
+                try {
+                  const inquiry = await startOwnInquire(startOwnRevision(definition));
+                  if (token !== benchAskToken || !inquiry?.reachedStore || !inquiry.answer) return;
+                  if (!window.STBStartOwnAnswer?.acceptAnswer(versionId, definition.versionId)) return;
+                  currentBenchAnswer = { versionId, body: inquiry.answer };
+                  const live = syncAndRender('STORE_ANSWER');
+                  if (live && live.versionId !== versionId) currentBenchAnswer = null;
+                } catch (error) {
+                  if (token !== benchAskToken) return;
+                  setText('stb-before-send', String(error?.message || 'STORE_ZERO_UNAVAILABLE')+' · no quote was kept.');
+                }
+              };
               // One wood for this job, stated on Intent: its handoff frame shows it, ITEM LOOKUP changes it. The bench
               // has no wood choice.
               const chooseSpecies = species => {
@@ -976,21 +1013,48 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   title.textContent = control.label+'?';
                   const choices = childDoc.createElement('div');
                   choices.className = 'choice-row';
-                  ['on','off'].forEach(value => {
-                    const button = childDoc.createElement('button');
-                    button.type = 'button';
-                    button.dataset.addedControlValue = value;
-                    button.textContent = value.toUpperCase();
-                    button.classList.toggle('on', control.value === value);
-                    button.addEventListener('click', () => {
-                      if (control.value === value) return;
-                      control.value = value;
-                      renderAddedControls();
-                      markRevision();
-                      syncAndRender('CUSTOMER_INPUT');
+                  if (window.STBStartOwnAnswer?.isChangeWoodTool(control.label)) {
+                    const select = childDoc.createElement('select');
+                    select.setAttribute('aria-label', 'Store-backed wood for this job');
+                    const current = childDoc.createElement('option');
+                    current.value = jobSpecies;
+                    current.textContent = SPECIES_WORDS[jobSpecies] || jobSpecies;
+                    select.append(current);
+                    (control.speciesChoices || []).forEach(species => {
+                      if (species === jobSpecies) return;
+                      const option = childDoc.createElement('option');
+                      option.value = species;
+                      option.textContent = SPECIES_WORDS[species] || species;
+                      select.append(option);
                     });
-                    choices.append(button);
-                  });
+                    select.value = jobSpecies;
+                    select.addEventListener('change', () => {
+                      if (!SPECIES_WORDS[select.value] && !control.speciesChoices?.includes(select.value)) return;
+                      jobSpecies = select.value;
+                      jobGrade = null;
+                      markRevision();
+                      currentBenchAnswer = null;
+                      const definition = syncAndRender('CUSTOMER_INPUT');
+                      askBench(definition);
+                    });
+                    choices.append(select);
+                  } else {
+                    ['on','off'].forEach(value => {
+                      const button = childDoc.createElement('button');
+                      button.type = 'button';
+                      button.dataset.addedControlValue = value;
+                      button.textContent = value.toUpperCase();
+                      button.classList.toggle('on', control.value === value);
+                      button.addEventListener('click', () => {
+                        if (control.value === value) return;
+                        control.value = value;
+                        renderAddedControls();
+                        markRevision();
+                        syncAndRender('CUSTOMER_INPUT');
+                      });
+                      choices.append(button);
+                    });
+                  }
                   row.append(title, choices);
                   return row;
                 }));
@@ -999,7 +1063,17 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 const label = String(toolInput?.value || '').replace(/\s+/g,' ').trim().slice(0,40);
                 if (!label) return;
                 if (!addedControls.some(control => control.label.toLowerCase() === label.toLowerCase())) {
-                  addedControls.push({ label, value:'on' });
+                  const control = { label, value:'on', speciesChoices:[] };
+                  addedControls.push(control);
+                  if (window.STBStartOwnAnswer?.isChangeWoodTool(label) && window.STBStoreClient?.lookupOfferings) {
+                    window.STBStoreClient.lookupOfferings({ projectId:'start-own', candidateRevisionId:'change-wood', searchText:'2x4' })
+                      .then(answer => {
+                        const species = [...new Set((answer.rawOfferings || []).filter(item => item.form === 'board' && item.nominalT === 2 && item.nominalW === 4 && item.species).map(item => item.species))];
+                        control.speciesChoices = species;
+                        renderAddedControls();
+                      })
+                      .catch(() => {});
+                  }
                   renderAddedControls();
                   markRevision();
                   syncAndRender('INTENT_CONTROL');
@@ -1211,6 +1285,8 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     })
                   });
                   currentUser1Definition = confirmedDefinition;
+                  currentBenchAnswer = { versionId: confirmedDefinition.versionId, body: freshStoreBody };
+                  renderBench(confirmedDefinition);
 
                   const handoff = createComparisonStoreHandoff('start-own',{
                     id:confirmedDefinition.definitionId,
