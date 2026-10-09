@@ -271,6 +271,26 @@ function wireFor(projectId: string, requestType: string, revision: string, paylo
   };
 }
 
+test("a missing angle, spot, or item line is not sent as a smaller job", async () => {
+  const origin = await storeOrigin();
+  const missingAngle = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", "no-angle", {
+    definition: { configurationId: "OUTDOOR", configurationVersion: "x", cutPackages: [{ packageId: "LEGS", material: { species: "spf", form: "board", nominalT: 2, nominalW: 4, grade: "construction" }, parts: [{ partId: "LEG-01", lengthIn: 30 }] }] },
+  }), origin);
+  assert.equal(missingAngle.httpStatus, 422);
+  assert.equal(missingAngle.body.code, "PUBLISHED_DEFINITION_INCOMPLETE");
+  assert.equal(missingAngle.body.rawEvaluation, undefined);
+  const missingSpot = await answerPublishedWire(wireFor("window-seat", "CUT_PACKAGE_V1", "no-spot", {
+    definition: { configurationId: "WINDOW-SEAT", configurationVersion: "x", cutPackages: [{ packageId: "SIDES", material: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" }, endCut: { angleDeg: 0 }, parts: [{ partId: "UPRIGHT-1", lengthIn: 36, spots: [{ featureId: "SPOT-1" }] }] }] },
+  }), origin);
+  assert.equal(missingSpot.body.code, "PUBLISHED_DEFINITION_INCOMPLETE");
+  const down = await answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", "down", {
+    definition: { configurationId: "PLAYHOUSE-ARCHED-WINDOW", configurationVersion: "down", sheet: { thicknessIn: 0.5, lengthIn: 96, widthIn: 48 }, features: [], returnAllPieces: true },
+  }), "http://127.0.0.1:9");
+  assert.equal(down.httpStatus, 502);
+  assert.equal(down.body.code, "REPLACEMENT_STORE_UNAVAILABLE");
+  assert.equal(down.body.rawEstimate, undefined);
+});
+
 test("an empty published definition is not migrated by invention", async () => {
   const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "empty", {}), await storeOrigin());
   assert.equal(answered.httpStatus, 422);
@@ -282,6 +302,10 @@ test("the four published jobs reach the pinned Store and a changed input changes
   const alcove = {
     configurationId: "ALCOVE-USER1",
     configurationVersion: "alcove-a",
+    boardRequirements: [
+      { requirementId: "ALCOVE-UPRIGHT-PARENTS", requiredOps: ["CROSSCUT"] },
+      { requirementId: "ALCOVE-SHELF-PARENTS", requiredOps: ["CROSSCUT"] },
+    ],
     materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
     componentPrograms: [
       { componentId: "ALCOVE-UPRIGHT-01", requirementId: "ALCOVE-UPRIGHT-PARENTS", finishedLengthIn: 36, finishedWidthIn: 5.5, features: [{ featureId: "SPOT-1", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "CENTERED_ON_WIDE_FACE", insetFromEdgeIn: 0.75 }] },

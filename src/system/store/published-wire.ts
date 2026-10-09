@@ -92,13 +92,17 @@ function echo(wire: Json, extra: Json): Json {
 }
 
 async function postStore(origin: string, body: Json): Promise<{ httpStatus: number; wrapper: Json | null }> {
-  const response = await fetch(new URL("/v1/requests", origin), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const wrapper = asObject(await response.json().catch(() => null));
-  return { httpStatus: response.status, wrapper };
+  try {
+    const response = await fetch(new URL("/v1/requests", origin), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const wrapper = asObject(await response.json().catch(() => null));
+    return { httpStatus: response.status, wrapper };
+  } catch {
+    return { httpStatus: 0, wrapper: null };
+  }
 }
 
 function requirementReport(carriedNotAccepted: CarriedRequirement[]) {
@@ -191,67 +195,84 @@ function pick(source: Json, keys: string[]): Json {
   return out;
 }
 
-function spotFrom(feature: Json, index: number, partId: string): Json | null {
+type Translation = { demand: Json; carriedNotAccepted: CarriedRequirement[] } | { blocked: CarriedRequirement[] };
+
+function blocked(field: string, value: string): Translation {
+  return { blocked: [{ field, value, reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" }] };
+}
+
+function spotFrom(feature: Json, index: number, partId: string, problems: CarriedRequirement[]): Json | null {
   const xIn = finite(feature.xIn);
-  if (xIn == null) return null;
-  const spot: Json = {
-    featureId: String(feature.featureId || `${partId}-SPOT-${index + 1}`),
-    xIn,
-  };
+  if (xIn == null) {
+    problems.push({ field: `spot:${String(feature.featureId || partId)}`, value: "location missing", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+    return null;
+  }
+  if (feature.featureId == null) {
+    problems.push({ field: `spot:${partId}[${index}]`, value: "feature id missing", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+    return null;
+  }
+  const spot: Json = { featureId: String(feature.featureId), xIn };
   if (feature.acrossWidthRule != null) spot.acrossWidthRule = String(feature.acrossWidthRule);
   const inset = finite(feature.insetFromEdgeIn);
   if (inset != null) spot.insetFromEdgeIn = inset;
   return spot;
 }
 
-function partsFrom(raw: unknown): Json[] {
+function partsFrom(raw: unknown, problems: CarriedRequirement[]): Json[] {
   if (!Array.isArray(raw)) return [];
   return raw.map((part) => {
     const row = asObject(part) ?? {};
     const partId = String(row.partId ?? row.componentId ?? "");
     const features = Array.isArray(row.spots) ? row.spots : Array.isArray(row.features) ? row.features : [];
     const spots = features
-      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId))
+      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId, problems))
       .filter((spot): spot is Json => spot != null);
     const lengthIn = finite(row.lengthIn ?? row.finishedLengthIn);
     return { partId, ...(lengthIn != null ? { lengthIn } : {}), ...(spots.length ? { spots } : {}) };
   });
 }
 
-function itemFrom(line: Json): Json | null {
+function itemFrom(line: Json, problems: CarriedRequirement[]): Json | null {
   const requirement = asObject(line.requirement);
   const qty = finite(line.qty);
   const lineId = String(line.lineId || line.requirementId || "");
-  if (!lineId) return null;
-  const item: Json = { lineId, ...(qty != null ? { qty } : {}) };
+  if (!lineId || qty == null) {
+    problems.push({ field: "itemLine", value: lineId || "missing id or quantity", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+    return null;
+  }
+  const item: Json = { lineId, qty };
   if (line.storeSku != null) item.storeSku = String(line.storeSku);
   else if (line.requirementId != null && !requirement) item.requirementId = String(line.requirementId);
   else if (requirement) item.requirement = pick(requirement, ["kind", "gauge", "diameterIn", "lengthIn", "finish", "unit"]);
+  else problems.push({ field: `itemLine:${lineId}`, value: "no sku, requirement id, or requirement", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
   return item;
 }
 
 /** Published cut-package definition, without a tile name, in the Store's cut-package contract. */
-export function cutDemandFromPublishedDefinition(definition: Json): { demand: Json; carriedNotAccepted: CarriedRequirement[] } {
-  const carriedNotAccepted: CarriedRequirement[] = [];
+export function cutDemandFromPublishedDefinition(definition: Json): Translation {
+  const problems: CarriedRequirement[] = [];
   const packages = Array.isArray(definition.cutPackages) ? definition.cutPackages : [];
   const cutPackages = packages.map((pkg) => {
     const row = asObject(pkg) ?? {};
     const material = asObject(row.material) ?? {};
     const endCut = asObject(row.endCut) ?? {};
+    const angle = finite(endCut.angleDeg);
+    if (angle == null) problems.push({ field: `endCut:${String(row.packageId ?? "")}`, value: "angle missing", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     const finished = finite(row.finishedWidthIn);
     return {
       packageId: String(row.packageId ?? ""),
       material: pick(material, ["species", "form", "nominalT", "nominalW", "grade"]),
-      endCut: { angleDeg: finite(endCut.angleDeg) ?? 0 },
+      ...(angle != null ? { endCut: { angleDeg: angle } } : {}),
       ...(finished != null ? { finishedWidthIn: finished } : {}),
-      parts: partsFrom(row.parts),
+      parts: partsFrom(row.parts, problems),
     };
   });
   const itemLines = (Array.isArray(definition.itemLines) ? definition.itemLines : [])
-    .map((line) => itemFrom(asObject(line) ?? {}))
+    .map((line) => itemFrom(asObject(line) ?? {}, problems))
     .filter((line): line is Json => line != null);
+  if (problems.length) return { blocked: problems };
   return {
-    carriedNotAccepted,
+    carriedNotAccepted: [],
     demand: {
       ...(definition.classId != null ? { classId: String(definition.classId) } : {}),
       configurationId: String(definition.configurationId ?? ""),
@@ -263,38 +284,45 @@ export function cutDemandFromPublishedDefinition(definition: Json): { demand: Js
 }
 
 /** Alcove's published insert, expressed as the cut packages and requirement the Store already accepts. */
-export function cutDemandFromAlcoveInsert(definition: Json): { demand: Json; carriedNotAccepted: CarriedRequirement[] } {
+export function cutDemandFromAlcoveInsert(definition: Json): Translation {
   const carriedNotAccepted: CarriedRequirement[] = [];
+  const problems: CarriedRequirement[] = [];
   const material = asObject(definition.materialDemand) ?? {};
   const programs = Array.isArray(definition.componentPrograms) ? definition.componentPrograms : [];
   const groups = new Map<string, Json>();
   for (const program of programs) {
     const row = asObject(program) ?? {};
     const features = Array.isArray(row.features) ? row.features : [];
-    const mill = features.some((feature) => asObject(feature)?.kind === "MILL_LONGITUDINAL_PROFILE");
+    const mills = features.map((feature) => asObject(feature)).filter((feature) => feature?.kind === "MILL_LONGITUDINAL_PROFILE");
     const finished = finite(row.finishedWidthIn);
-    for (const feature of features) {
-      const kind = asObject(feature)?.kind;
-      if (kind && kind !== "SPOT_ON_LOCATION") {
-        carriedNotAccepted.push({
-          field: `feature:${String(asObject(feature)?.featureId ?? kind)}`,
-          value: String(kind),
-          reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD",
-        });
+    for (const mill of mills) {
+      const yIn = finite(mill?.yIn);
+      if (yIn == null || finished == null || yIn !== finished) {
+        problems.push({ field: `mill:${String(mill?.featureId ?? "")}`, value: "finished width does not equal the mill y", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
       }
+      carriedNotAccepted.push({
+        field: `mill:${String(mill?.featureId ?? "")}`,
+        value: `pathLengthIn=${String(mill?.pathLengthIn ?? "")};totalDepthIn=${String(mill?.totalDepthIn ?? "")}`,
+        reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD",
+      });
     }
-    const key = `${String(row.requirementId ?? "PARTS")}|${mill && finished != null ? finished : "full"}`;
+    const key = `${String(row.requirementId ?? "PARTS")}|${mills.length && finished != null ? finished : "full"}`;
+    const requirements = Array.isArray(definition.boardRequirements) ? definition.boardRequirements : [];
+    const parent = requirements.find((item) => asObject(item)?.requirementId === row.requirementId);
+    const ops = Array.isArray(asObject(parent)?.requiredOps) ? asObject(parent)?.requiredOps as unknown[] : [];
+    const square = ops.includes("CROSSCUT");
+    if (!square) problems.push({ field: `endCut:${String(row.requirementId ?? "")}`, value: "published operation does not state a square crosscut", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     const existing = groups.get(key) ?? {
-      packageId: mill && finished != null ? `${String(row.requirementId ?? "PARTS")}-TO-${finished}` : String(row.requirementId ?? "PARTS"),
+      packageId: mills.length && finished != null ? `${String(row.requirementId ?? "PARTS")}-TO-${finished}` : String(row.requirementId ?? "PARTS"),
       material: pick(material, ["species", "form", "nominalT", "nominalW", "grade"]),
-      endCut: { angleDeg: 0 },
-      ...(mill && finished != null ? { finishedWidthIn: finished } : {}),
+      ...(square ? { endCut: { angleDeg: 0 } } : {}),
+      ...(mills.length && finished != null ? { finishedWidthIn: finished } : {}),
       parts: [] as Json[],
     };
     const partId = String(row.componentId ?? "");
     const spots = features
-      .filter((feature) => asObject(feature)?.kind !== "MILL_LONGITUDINAL_PROFILE")
-      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId))
+      .filter((feature) => asObject(feature)?.kind === "SPOT_ON_LOCATION")
+      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId, problems))
       .filter((spot): spot is Json => spot != null);
     (existing.parts as Json[]).push({
       partId,
@@ -304,12 +332,11 @@ export function cutDemandFromAlcoveInsert(definition: Json): { demand: Json; car
     groups.set(key, existing);
   }
   const hardware = asObject(definition.hardwareDemand);
-  const itemLines = hardware?.requirementId
-    ? [{ lineId: String(hardware.requirementId), requirementId: String(hardware.requirementId), qty: finite(hardware.qty) ?? 1 }]
-    : [];
+  const itemLines = hardware ? [itemFrom({ lineId: hardware.requirementId, requirementId: hardware.requirementId, qty: hardware.qty }, problems)].filter((line): line is Json => line != null) : [];
   if (definition.spotDemand != null) {
     carriedNotAccepted.push({ field: "spotDemand", value: "present", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
   }
+  if (problems.length) return { blocked: problems };
   return {
     carriedNotAccepted,
     demand: {
@@ -341,7 +368,7 @@ export function sheetDemandFromPublishedDefinition(definition: Json): { demand: 
   };
 }
 
-function translatePublished(wire: Json): { storeRequestType: string; demand: Json; carriedNotAccepted: CarriedRequirement[] } | { error: string } {
+function translatePublished(wire: Json): { storeRequestType: string; demand: Json; carriedNotAccepted: CarriedRequirement[] } | { error: string; blocked?: CarriedRequirement[] } {
   const payload = asObject(wire.payload);
   if (wire.requestType === "USER_DEFINED_BOARD_V1") {
     const line = asObject(payload?.line);
@@ -351,16 +378,16 @@ function translatePublished(wire: Json): { storeRequestType: string; demand: Jso
   }
   const definition = asObject(payload?.definition);
   if (!definition) return { error: "PUBLISHED_DEFINITION_REQUIRED" };
-  if (wire.requestType === "CUT_PACKAGE_V1") {
-    return { storeRequestType: "CUT_PACKAGE_V1", ...cutDemandFromPublishedDefinition(definition) };
-  }
-  if (wire.requestType === "SHEET_PACKAGE_V1") {
-    return { storeRequestType: "SHEET_PACKAGE_V1", ...sheetDemandFromPublishedDefinition(definition) };
-  }
-  if (wire.requestType === "ALCOVE_INSERT_V1") {
-    return { storeRequestType: "CUT_PACKAGE_V1", ...cutDemandFromAlcoveInsert(definition) };
-  }
-  return { error: "LIVE_JOB_NOT_MIGRATED_YET" };
+  const translated = wire.requestType === "CUT_PACKAGE_V1"
+    ? cutDemandFromPublishedDefinition(definition)
+    : wire.requestType === "SHEET_PACKAGE_V1"
+      ? sheetDemandFromPublishedDefinition(definition)
+      : wire.requestType === "ALCOVE_INSERT_V1"
+        ? cutDemandFromAlcoveInsert(definition)
+        : null;
+  if (!translated) return { error: "LIVE_JOB_NOT_MIGRATED_YET" };
+  if ("blocked" in translated) return { error: "PUBLISHED_DEFINITION_INCOMPLETE", blocked: translated.blocked };
+  return { storeRequestType: wire.requestType === "ALCOVE_INSERT_V1" ? "CUT_PACKAGE_V1" : wire.requestType, ...translated };
 }
 
 /** Answer one published wire. Does not call any host except the replacement Store. */
@@ -388,7 +415,7 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   }
   const translated = translatePublished(wire);
   if ("error" in translated) {
-    return { httpStatus: 422, body: echo(wire, { adapterError: true, code: translated.error, requestType: wire.requestType }) };
+    return { httpStatus: 422, body: echo(wire, { adapterError: true, code: translated.error, requestType: wire.requestType, carriedNotAccepted: translated.blocked ?? [] }) };
   }
   const sent = await postStore(origin, {
     requestType: translated.storeRequestType,
@@ -397,7 +424,14 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   });
   const answer = asObject(sent.wrapper?.answer);
   if (!sent.wrapper || sent.wrapper.protocol !== STORE_PROTOCOL || !answer) {
-    return { httpStatus: 502, body: { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" } };
+    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" }) };
+  }
+  if (wire.expectedStorePin && sent.wrapper.storeRelease !== wire.expectedStorePin) {
+    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "STORE_RELEASE_MISMATCH", storePin: sent.wrapper.storeRelease }) };
+  }
+  const receipt = asObject(answer.evaluationReceipt);
+  if (receipt && (receipt.requestId !== wire.requestId || receipt.freshnessRule !== FRESHNESS)) {
+    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "STORE_RECEIPT_NOT_FOR_THIS_REQUEST" }) };
   }
   const body = pageAnswer(wire, sent.wrapper, translated.carriedNotAccepted);
   body.mappedCallInputs = { requestType: translated.storeRequestType, demand: translated.demand };
