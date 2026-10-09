@@ -16,7 +16,7 @@
     "preview:stop": "node scripts/preview.mjs stop",
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
-    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts && node --experimental-strip-types --test src/system/system.test.ts && STORE_ZERO_ROOT=${STORE_ZERO_ROOT:-/tmp/store-zero-main} node --experimental-strip-types --test src/system/store/published-wire.test.ts src/system/store/http.integration.test.ts",
+    "test": "node --test 'scripts/**/*.test.mjs' && node --experimental-strip-types --test src/lib/app-data/app-data.test.ts src/lib/app-data/readiness-schedule.test.ts src/lib/auth/gate-identity.test.ts src/lib/auth/sign-in-gate.test.ts && node --experimental-strip-types --test src/system/system.test.ts src/system/start-own-bench.test.ts && STORE_ZERO_ROOT=${STORE_ZERO_ROOT:-/tmp/store-zero-main} node --experimental-strip-types --test src/system/store/published-wire.test.ts src/system/store/http.integration.test.ts",
     "test:system": "node --experimental-strip-types --test src/system/system.test.ts && STORE_ZERO_ROOT=${STORE_ZERO_ROOT:-/tmp/store-zero-main} node --experimental-strip-types --test src/system/store/http.integration.test.ts",
     "lint": "eslint .",
     "format": "prettier --write ."
