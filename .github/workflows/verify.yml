@@ -1,0 +1,25 @@
+name: verify
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/checkout@v4
+        with:
+          repository: GeorgePlattDemo/store-zero
+          ref: 4cb0c625ac00c62390129b55a52596b52f10decd
+          path: .store-zero
+      - name: System behavior and the pinned Store
+        run: npm test
+        env:
+          STORE_ZERO_ROOT: ${{ github.workspace }}/.store-zero
