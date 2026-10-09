@@ -1,0 +1,56 @@
+{
+  "definitionId": "SYO-USER1-XBRACE-0.1",
+  "definitionRevision": "SYO-USER1-XBRACE-0.1-v5",
+  "confirmationClass": "SOURCE_DRAFT_IDENTIFIES_CONFIRMED_REVISION_NOT_NEW_USER_CONFIRMATION",
+  "demand": {
+    "title": "Project 1 reference specimen",
+    "configurationId": "SYO-USER1-XBRACE",
+    "configurationVersion": "0.2",
+    "classId": "app.user-defined-board.v1",
+    "materialDemand": {
+      "species": "syp-treated",
+      "form": "board",
+      "nominalT": 2,
+      "nominalW": 4
+    },
+    "definedWorkpieceLengthIn": 60,
+    "requiredOps": [
+      "MITER_LIMITED",
+      "SPOT_ON_LOCATION"
+    ],
+    "sawAngleDeg": 26.387799961243,
+    "cutPlane": "miter-face",
+    "datumCMethod": "REFERENCE_CUT",
+    "declaredSawCuts": 3,
+    "declaredSpotCount": 2,
+    "unresolvedConditions": [],
+    "parts": [
+      {
+        "partId": "PART-1",
+        "lengthIn": 18,
+        "features": [
+          {
+            "featureId": "SPOT-1",
+            "kind": "SPOT_ON_LOCATION",
+            "xIn": 9,
+            "locationRule": "CENTERED_ON_PART",
+            "acrossWidthRule": "CENTERED_ON_WIDE_FACE"
+          }
+        ]
+      },
+      {
+        "partId": "PART-2",
+        "lengthIn": 18,
+        "features": [
+          {
+            "featureId": "SPOT-2",
+            "kind": "SPOT_ON_LOCATION",
+            "xIn": 9,
+            "locationRule": "CENTERED_ON_PART",
+            "acrossWidthRule": "CENTERED_ON_WIDE_FACE"
+          }
+        ]
+      }
+    ]
+  }
+}

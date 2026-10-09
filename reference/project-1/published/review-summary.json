@@ -1,0 +1,66 @@
+{
+  "storeStatus": "SUPPORTABLE",
+  "storeSku": "STB-ZERO-PTAG-2X4-72-001",
+  "storeIdentity": {
+    "inputHash": "30b6c02b11db30cf100be72ea4696c03b8ed7d2f217979c53cdae6ce73325e91",
+    "resultHash": "de1e0e0bdf0f77a6c5ea205191765ba0b846472fc0813fe71d9ddf28fd176333"
+  },
+  "legacyReportedIdentity": {
+    "inputHash": "30b6c02b11db30cf100be72ea4696c03b8ed7d2f217979c53cdae6ce73325e91",
+    "resultHash": "de1e0e0bdf0f77a6c5ea205191765ba0b846472fc0813fe71d9ddf28fd176333"
+  },
+  "legacyIdentityMatches": true,
+  "storeTimeSec": 85.5001,
+  "storeTotals": {
+    "material": 5.15,
+    "hardware": 0,
+    "machine_service": 5.94,
+    "Q": 11.09,
+    "Q_basis": "CALCULATED_FROM_DECLARED_STAGE2_MODEL"
+  },
+  "virtualTimeSec": 86.46953628299116,
+  "deltaVirtualVsStoreSec": 0.969436282991154,
+  "priorDraftReportedTimeSec": 86.419536,
+  "deltaVirtualVsPriorDraftSec": 0.05000028299116366,
+  "physicalAdmission": "BLOCKED",
+  "costPool": {
+    "id": "STB-D001-STORE-ECONOMICS-S2-0.1",
+    "version": "0.1.0",
+    "basis": "DECLARED_STAGE2_MODEL",
+    "measured": false,
+    "annualCostPoolUsd": 120000,
+    "forecastProductiveHours": 600,
+    "targetGrossMargin": 0.2,
+    "costPoolComponentsUsd": {
+      "operatorBurden": 50000,
+      "capitalRecovery": 25000,
+      "facilityInsuranceAdmin": 20000,
+      "maintenanceTooling": 15000,
+      "energyDustIt": 10000
+    },
+    "note": "Explicit Stage-2 scenario economics. Replace with measured Store evidence later; do not rewrite historical results."
+  },
+  "sensitivities": [
+    {
+      "productiveHours": 300,
+      "sellRatePerHour": 500,
+      "serviceUsd": 11.88
+    },
+    {
+      "productiveHours": 600,
+      "sellRatePerHour": 250,
+      "serviceUsd": 5.94
+    },
+    {
+      "productiveHours": 900,
+      "sellRatePerHour": 166.66666666666666,
+      "serviceUsd": 3.96
+    },
+    {
+      "productiveHours": 1200,
+      "sellRatePerHour": 125,
+      "serviceUsd": 2.97
+    }
+  ],
+  "evidenceClass": "EXECUTED_REFERENCE_SOFTWARE_AND_VIRTUAL_KINEMATIC_MODEL_NOT_TWINCAT_RUNTIME"
+}

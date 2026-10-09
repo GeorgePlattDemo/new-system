@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f3eee6;
+  --color-surface: #faf7f2;
+  --color-ink: #24180f;
+  --color-muted: #6d5c4c;
+  --color-line: #e3d5c4;
+  --color-brand: #6f4424;
+  --color-brand-ink: #faf7f2;
+  --color-ok: #245c34;
+  --color-warn: #8a4e10;
+  --color-bad: #8c2e24;
+  --font-sans: "Source Sans 3", ui-sans-serif, sans-serif;
+  --font-display: "Fraunces", ui-serif, serif;
+  --radius-card: 0.75rem;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+}
+
+@utility tap {
+  min-height: 2.75rem;
+}
