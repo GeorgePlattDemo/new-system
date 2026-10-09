@@ -20,7 +20,9 @@ The seam matters. Your idea should not lose its meaning when it leaves the scree
 
 ## Start with the Bench
 
-[Open the application](https://georgeplattdemo.github.io/scan-to-build-system/system-build-current.html) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
+This repository is the replacement candidate. It is not the promoted publication. The live demonstration remains the published application until that promotion is made on purpose.
+
+[Open the published demonstration](https://georgeplattdemo.github.io/scan-to-build-system/system-build-current.html) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
 
 One meaningful change, with its consequences visible. The Store evaluates the resulting request and supplies its own answer.
 
@@ -44,7 +46,7 @@ Each keeps its own project facts while using the same journey.
 
 Known information travels with the job. A changed definition gets a fresh Store evaluation. The identified revision, its answer, your next decision, and the consequential record remain together.
 
-The [trail contract](apps/stb/public-build/stb-trail-contract.js) declares the shared journey. Start your own opens on Intent with Idea one back control away; Window Seat can also offer a full-scroll presentation from its Idea line. [Shared definitions](docs/definitions/README.md#the-trail) explain the terms and rules.
+The [trail contract](public/live/stb-trail-contract.js) declares the shared journey. Start your own opens on Intent with Idea one back control away; Window Seat can also offer a full-scroll presentation from its Idea line. [Shared definitions](docs/DEFINITIONS.md) explain the terms used here.
 
 ## How the definition reaches the work
 
@@ -54,36 +56,30 @@ The confirmed definition supplies the required result. Store adds identified mat
 
 That is the connection this work investigates: the customer defines the result, and software carries it toward cut, mill, and drill without a second design entry.
 
-The [**Project 1 digital manufacturing trail**](https://github.com/GeorgePlattDemo/scan-to-build-store/blob/main/docs/project-1-digital-trail/D001_Project1_Review.md) makes one such path inspectable. It reproduces the Store answer and generates explicit virtual commands and controller-oriented source from one identified definition. You can follow the information handoffs and reproduce the calculation.
+Project 1 evidence stays with this candidate as fixtures and the joint Store test. It is evidence of one board path, not a second application.
 
 ## Three connected homes
 
 | Repository | Contribution |
 | --- | --- |
 | [**Program**](https://github.com/GeorgePlattDemo/3d-solutions-program) | The economic opportunity, research, candidate engineering, and questions worth testing. |
-| **System** | The working application, shared job meaning, definitions, and records that carry the project forward. |
-| [**Store**](https://github.com/GeorgePlattDemo/scan-to-build-store) | Its catalog, capability, modeled work, economics, and answers for the requested job. |
+| **This candidate** | The five published job screens, their definitions, and the request each one sends. |
+| [**Store**](https://github.com/GeorgePlattDemo/store-zero) | Material, capability, modeled work, economics, and machine evidence for a bounded request. |
 
-System calls the Store at the exact version owned by [`STORE_PIN`](apps/stb/shared/contracts.mjs). The Store evaluates the request; the application presents that answer and preserves its identity. Details are in the [Store foundation](docs/store/CURRENT-STORE-FOUNDATION.md).
+System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate.ts). That record is an inspected commit, not a production release. The Store evaluates the request; the application presents that answer and preserves its identity.
 
-## What you can inspect today
+## What this candidate actually contains
 
-The public application demonstrates the five project paths, Store requests and answers, versioned definitions, and shared simulated terms and yard events. The [verification register](docs/project/VERIFICATION-REGISTER.md) ties the individual software claims to their tests and exact versions; the [current-state record](docs/project/CURRENT-SYSTEM-STATE.md) explains publication and runtime ownership.
+The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for Start your own, and what has not.
 
-Store Zero is a modeled reference yard. Its prices are budgetary estimates, and machine time is modeled from indexing, tool motion, feeds, passes, and handling. Commercial and yard events are simulated. Physical D-001/S-001 production is not commissioned; the Project 1 controller source is uncompiled. The detailed records identify the remaining engineering and release requirements.
-
-## Follow the part that interests you
-
-| Question | Read |
+| Question | Where the answer is |
 | --- | --- |
-| What has been proved, and under which versions? | [Verification register](docs/project/VERIFICATION-REGISTER.md) |
-| What is published now? | [Current System state](docs/project/CURRENT-SYSTEM-STATE.md) |
-| How do people enter and resume their work? | [Common entry](docs/application/COMMON-ENTRY-ARCHITECTURE.md) |
-| What happens to photos, source material, and records? | [Information custody](docs/application/INFORMATION-CUSTODY-BOUNDARY.md) |
-| What crosses between System and Store? | [Store foundation](docs/store/CURRENT-STORE-FOUNDATION.md) |
-| How does one definition reach commands and a modeled price? | [Project 1 digital trail](https://github.com/GeorgePlattDemo/scan-to-build-store/blob/main/docs/project-1-digital-trail/D001_Project1_Review.md) |
-| Why could this matter to a local business or community? | [3D Solutions Program](https://github.com/GeorgePlattDemo/3d-solutions-program) |
+| What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
+| Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
+| What has been shown for Start your own? | [Verification note](docs/verification/start-your-own.md) |
+
+The other four jobs still have their published screens. They are not yet answered by this Store. That is unfinished work, not a hidden success.
+
+Store prices are budgetary estimates. Machine time is modeled. Commercial and yard events are simulated. Physical production is not commissioned. A quote is not machine admission.
 
 **NO BLOOD ON WOOD.**
-
-<sub>Maintainers and agents: [START-HERE.md](START-HERE.md) · [Historical accepted baseline](STB-CURRENT-BASELINE.md) · [Branch and PR genealogy](docs/project/BRANCH-PR-GENEALOGY.md)</sub>

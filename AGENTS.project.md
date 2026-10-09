@@ -17,6 +17,8 @@ System defines a job. Store evaluates it. System does not price, and it does not
 
 `STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts` is the only Store commit this application asks. Change it only by recording the new commit and rerunning the joint test against a checkout whose `git rev-parse HEAD` is that commit. Do not label whichever process happens to be running.
 
-## Required check
+## Verification
 
 `npm test` is the required verification. It runs the repository checks, the System tests, and the HTTP joint test. The joint test refuses to start unless `STORE_ZERO_ROOT` is a git checkout of the pinned commit. CI checks that Store out at the pin and sets `STORE_ZERO_ROOT`.
+
+Do not restore a brand skill, an untracked env file, or a retired folder to make a test pass. Accounts stay off when no env file is present. A Store process may advertise a commit only after that checkout's HEAD was read and matched. A local process is not a deployed Store.

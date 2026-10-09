@@ -29,10 +29,12 @@ export const APP_ENV_REL_PATH = ".grok/app-env.json";
 
 const VITE_PREFIX = "VITE_";
 
+/** This application does not use accounts. A missing file must not turn sign-in on. */
+const APPLICATION_DEFAULTS = Object.freeze({ VITE_AUTH_ENABLED: "false" });
+
 /**
  * Parse an app-env document, keeping only `VITE_`-prefixed string entries.
- * Anything unparseable is an empty environment — a workspace without the file
- * must behave exactly like today (auth on, no overrides).
+ * Anything unparseable contributes no overrides. The application default remains.
  */
 export function parseAppEnv(text) {
   let parsed;
@@ -51,12 +53,12 @@ export function parseAppEnv(text) {
   return env;
 }
 
-/** The app env recorded under `root`, or `{}` when the file is absent. */
+/** The app env recorded under `root`. Accounts stay off when the file is absent. */
 export function readAppEnv(root) {
   try {
-    return parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8"));
+    return { ...APPLICATION_DEFAULTS, ...parseAppEnv(readFileSync(join(root, APP_ENV_REL_PATH), "utf8")) };
   } catch {
-    return {};
+    return { ...APPLICATION_DEFAULTS };
   }
 }
 
