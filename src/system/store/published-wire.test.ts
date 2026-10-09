@@ -246,7 +246,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
 test("the bench does not ask the specimen function for the current answer", () => {
   const page = readFileSync(new URL("../../../public/live/system-build-current.html", import.meta.url), "utf8");
   const handoff = readFileSync(new URL("../../../public/live/stb-store-handoff-contract.js", import.meta.url), "utf8");
-  assert.equal(page.includes("resolveUser1StoreReference"), false);
+  assert.equal(page.includes("startOwnOfferings"), false);
   assert.equal(page.includes("exact promoted Store reference matched"), false);
   assert.equal(handoff.includes("MATCHED_STORE_REFERENCE"), false);
   assert.equal(handoff.includes("status:'HISTORICAL_SPECIMEN'"), true);

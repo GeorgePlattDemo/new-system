@@ -308,26 +308,41 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   button.classList.toggle('on',String(button.getAttribute(attr))===String(value));
                 });
               };
-              const syncStoreGlossary = () => {
-                if (!storeHandoffContract || typeof storeHandoffContract.startOwnOfferings !== 'function') {
+              const syncStoreGlossary = async () => {
+                const client = win.STBStoreClient;
+                if (!client || typeof client.lookupOfferings !== 'function') {
                   if (glossaryStatus) {
                     glossaryStatus.textContent = 'Current Store material truth is unavailable. No material choice is being promoted.';
                     glossaryStatus.hidden = false;
                   }
+                  glossaryChoices.forEach(choice => { choice.hidden = true; choice.dataset.storeBacked = 'false'; });
                   if (benchButton) benchButton.disabled = true;
                   return false;
                 }
                 let backed = 0;
-                glossaryChoices.forEach(choice => {
-                  const sizeKey = String(choice.dataset.storeSizeKey || '');
-                  const offerings = storeHandoffContract.startOwnOfferings(sizeKey);
-                  const available = Array.isArray(offerings) && offerings.some(offering => offering.offered === true);
+                for (const choice of glossaryChoices) {
+                  const label = choice.querySelector('p')?.textContent || '';
+                  const nominal = choice.dataset.materialNominalT && choice.dataset.materialNominalW
+                    ? choice.dataset.materialNominalT + 'x' + choice.dataset.materialNominalW
+                    : '';
+                  const searchText = nominal || label.replace(/×/g, 'x');
+                  let available = false;
+                  try {
+                    const answer = await client.lookupOfferings({
+                      projectId: 'start-own',
+                      candidateRevisionId: 'intent-material',
+                      searchText
+                    });
+                    available = Array.isArray(answer.rawOfferings) && answer.rawOfferings.some(row => row.offered === true);
+                    choice.dataset.storeCatalogPin = String(answer.storePin || '');
+                    choice.dataset.storeOfferingCount = String(answer.totalMatches || 0);
+                  } catch {
+                    available = false;
+                  }
                   choice.dataset.storeBacked = available ? 'true' : 'false';
-                  choice.dataset.storeCatalogPin = String(catalogSource?.pin || '');
-                  choice.dataset.storeOfferingCount = String(offerings?.length || 0);
                   choice.hidden = !available;
                   if (available) backed += 1;
-                });
+                }
                 if (glossaryStatus) {
                   glossaryStatus.textContent = backed === glossaryChoices.length
                     ? 'These material choices come from the current Store catalog.'

@@ -3,6 +3,8 @@
  * The page keeps its words. This file does not price anything itself.
  */
 
+import { calculationHash, sha256Bytes } from "../hash.ts";
+
 const STORE_PROTOCOL = "STORE-ZERO-REQUEST-1";
 const FRESHNESS = "STB-STORE-FRESH-EVALUATION-0.1";
 
@@ -21,7 +23,9 @@ function asObject(value: unknown): Json | null {
 }
 
 function finite(value: unknown): number | null {
-  const number = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  if (typeof value === "string" && value.trim() === "") return null;
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  const number = typeof value === "number" ? value : Number(value);
   return Number.isFinite(number) ? number : null;
 }
 
@@ -66,7 +70,7 @@ export function boardDemandFromPublishedLine(line: Json): { demand: Json; carrie
       cutPlane: line.cutPlane == null ? null : String(line.cutPlane),
       datumCMethod: String(line.datumCMethod ?? ""),
       declaredSawCuts: finite(line.sawCuts),
-      declaredSpotCount: finite(spot?.totalCount) ?? 0,
+      declaredSpotCount: finite(spot?.totalCount),
       unresolvedConditions: [],
       parts,
     },
@@ -91,18 +95,30 @@ function echo(wire: Json, extra: Json): Json {
   };
 }
 
-async function postStore(origin: string, body: Json): Promise<{ httpStatus: number; wrapper: Json | null }> {
+async function postStore(origin: string, body: Json): Promise<{ httpStatus: number; wrapper: Json | null; sent: string }> {
+  const sent = JSON.stringify(body);
   try {
     const response = await fetch(new URL("/v1/requests", origin), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: sent,
     });
     const wrapper = asObject(await response.json().catch(() => null));
-    return { httpStatus: response.status, wrapper };
+    return { httpStatus: response.status, wrapper, sent };
   } catch {
-    return { httpStatus: 0, wrapper: null };
+    return { httpStatus: 0, wrapper: null, sent };
   }
+}
+
+function responseAgrees(sent: string, demand: Json, requestId: string, expectedPin: unknown, wrapper: Json, answer: Json): string | null {
+  if (wrapper.payloadDigest !== sha256Bytes(sent)) return "STORE_PAYLOAD_DIGEST_MISMATCH";
+  if (expectedPin && wrapper.storeRelease !== expectedPin) return "STORE_RELEASE_MISMATCH";
+  const receipt = asObject(answer.evaluationReceipt);
+  if (!receipt) return null;
+  if (receipt.requestId !== requestId || receipt.freshnessRule !== FRESHNESS) return "STORE_RECEIPT_NOT_FOR_THIS_REQUEST";
+  if (receipt.demandHash !== calculationHash(demand)) return "STORE_DEMAND_HASH_MISMATCH";
+  if (asObject(receipt.authority)?.storeRevision !== wrapper.storeRelease) return "STORE_RELEASE_MISMATCH";
+  return null;
 }
 
 function requirementReport(carriedNotAccepted: CarriedRequirement[]) {
@@ -402,6 +418,8 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
     if (!sent.wrapper || sent.wrapper.protocol !== STORE_PROTOCOL || !answer) {
       return { httpStatus: 502, body: { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" } };
     }
+    const mismatch = responseAgrees(sent.sent, { searchText: payload.searchText }, String(wire.requestId), wire.expectedStorePin, sent.wrapper, answer);
+    if (mismatch) return { httpStatus: 502, body: echo(wire, { adapterError: true, code: mismatch }) };
     const rows = Array.isArray(answer.offerings) ? answer.offerings : [];
     return {
       httpStatus: 200,
@@ -426,13 +444,8 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   if (!sent.wrapper || sent.wrapper.protocol !== STORE_PROTOCOL || !answer) {
     return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" }) };
   }
-  if (wire.expectedStorePin && sent.wrapper.storeRelease !== wire.expectedStorePin) {
-    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "STORE_RELEASE_MISMATCH", storePin: sent.wrapper.storeRelease }) };
-  }
-  const receipt = asObject(answer.evaluationReceipt);
-  if (receipt && (receipt.requestId !== wire.requestId || receipt.freshnessRule !== FRESHNESS)) {
-    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "STORE_RECEIPT_NOT_FOR_THIS_REQUEST" }) };
-  }
+  const mismatch = responseAgrees(sent.sent, translated.demand, String(wire.requestId), wire.expectedStorePin, sent.wrapper, answer);
+  if (mismatch) return { httpStatus: 502, body: echo(wire, { adapterError: true, code: mismatch }) };
   const body = pageAnswer(wire, sent.wrapper, translated.carriedNotAccepted);
   body.mappedCallInputs = { requestType: translated.storeRequestType, demand: translated.demand };
   const packages = Array.isArray(answer.packages) ? answer.packages : [];
