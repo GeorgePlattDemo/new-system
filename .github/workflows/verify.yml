@@ -24,9 +24,9 @@ jobs:
         env:
           STORE_ZERO_ROOT: ${{ github.workspace }}/.store-zero
 
-      - name: TypeScript acceptance
-        run: npm run typecheck
       - name: Vercel production build
         run: npm run build
+      - name: TypeScript acceptance (after generated route tree)
+        run: npm run typecheck
       - name: Railway Node production build
         run: NITRO_PRESET=node-server npm run build && test -f .output/server/index.mjs
