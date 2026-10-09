@@ -91,20 +91,38 @@ test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
-  assert.equal(runtime.includes("4cb0c625ac00c62390129b55a52596b52f10decd"), true);
+  assert.equal(runtime.includes("1cea72c8223b2c738180b230c584c4ab557267ca"), true);
 });
 
-test("end names stay on the job and are reported when the board shape cannot carry them", () => {
+test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
   const translated = boardDemandFromPublishedLine(braceLine());
-  assert.equal("endIdentity" in translated.demand, false);
+  assert.equal(translated.demand.endRelation, "parallel");
+  assert.equal(translated.demand.lengthDatum, "long-long-outer-edge");
+  assert.equal(translated.demand.endIdentity, null);
   assert.equal(translated.demand.cutPlane, "miter-face");
   const parts = translated.demand.parts as { lengthIn: number }[];
   assert.equal(parts[0].lengthIn, 16);
-  assert.deepEqual(
-    translated.carriedNotAccepted.map((item) => item.field),
-    ["endIdentity", "endRelation", "lengthDatum"],
-  );
-  assert.equal(translated.carriedNotAccepted[0].value, "both");
+  assert.deepEqual(translated.carriedNotAccepted, []);
+  assert.equal(translated.endIdentityCanonicalization?.suppliedEndIdentity, "both");
+  assert.equal(translated.endIdentityCanonicalization?.sentEndIdentity, null);
+  assert.equal(translated.endIdentityCanonicalization?.rule, "REDUNDANT_WITH_PRICED_LENGTH_DATUM");
+});
+
+test("a declared spot with no feature id gets a stable id, and a missing location is not zero", () => {
+  const line = braceLine();
+  delete (line.parts[0].features[0] as { featureId?: string }).featureId;
+  (line.parts[0].features[0] as { xIn: number | null }).xIn = null;
+  const translated = boardDemandFromPublishedLine(line);
+  const features = (translated.demand.parts as { features: { featureId: string; xIn: number | null }[] }[])[0].features;
+  assert.equal(features[0].featureId, "declared:PART-1:feature:0");
+  assert.equal(features[0].xIn, null);
+  assert.equal(translated.assignedFeatureIdentities[0].featureId, "declared:PART-1:feature:0");
+  const other = braceLine();
+  other.endRelation = "splayed";
+  other.endIdentity = "short-point";
+  const kept = boardDemandFromPublishedLine(other);
+  assert.equal(kept.demand.endIdentity, "short-point");
+  assert.equal(kept.endIdentityCanonicalization, null);
 });
 
 test("Start your own confirm path gets a fresh replacement-Store answer, not a copied price", async () => {
@@ -118,7 +136,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
     demandSignature: "demand",
     querySignature: null,
     payloadDigest: "digest",
-    expectedStorePin: "4cb0c625ac00c62390129b55a52596b52f10decd",
+    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
     attemptId: "attempt-1",
     attemptNumber: 1,
     sentAt: "2026-10-09T02:00:00.000Z",
@@ -129,7 +147,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
   const body = answered.body;
   assert.equal(body.adapterError, undefined);
   assert.equal(body.requestId, wire.requestId);
-  assert.equal(body.storePin, "4cb0c625ac00c62390129b55a52596b52f10decd");
+  assert.equal(body.storePin, release);
   const evaluation = body.rawEvaluation as { status?: string; freshEvaluation?: boolean };
   const estimate = body.rawEstimate as { complete?: boolean; totals?: { Q?: number } };
   const receipt = body.evaluationReceipt as { requestId?: string; freshnessRule?: string; authority?: { storeRevision?: string } };
@@ -141,11 +159,11 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
   assert.equal(price.status, "COMPLETE_FOR_TRAVEL_STANDARD");
   assert.equal(price.scope, "QUOTE_ONLY");
   const job = body.jobSupportability as { status?: string; machineAdmitted?: boolean; quoteComplete?: boolean };
-  assert.equal(job.status, "NOT_FULLY_SUPPORTABLE");
+  assert.equal(job.status, "REQUIREMENTS_SATISFIED");
   assert.equal(job.quoteComplete, true);
   assert.equal(job.machineAdmitted, false);
   const requirements = body.requirementSatisfaction as { status?: string };
-  assert.equal(requirements.status, "UNEVALUATED");
+  assert.equal(requirements.status, "SATISFIED");
   const machine = body.machineAdmission as { status?: string; physicalRelease?: boolean };
   assert.equal(machine.status, "BLOCKED");
   assert.equal(machine.physicalRelease, false);
@@ -155,8 +173,9 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
   assert.equal(receipt.requestId, wire.requestId);
   assert.equal(receipt.freshnessRule, "STB-STORE-FRESH-EVALUATION-0.1");
   assert.equal(receipt.authority?.storeRevision, body.storePin);
-  const carried = body.carriedNotAccepted as { field: string }[];
-  assert.ok(carried.some((item) => item.field === "endIdentity"));
+  const canonical = body.endIdentityCanonicalization as { suppliedEndIdentity?: string };
+  assert.equal(canonical.suppliedEndIdentity, "both");
+  assert.deepEqual(body.carriedNotAccepted, []);
 });
 
 test("the 18 in brace is a different fresh answer, and the Store advances off the 60 in board", async () => {
@@ -173,7 +192,7 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
     demandSignature: "demand-18",
     querySignature: null,
     payloadDigest: "digest-18",
-    expectedStorePin: "4cb0c625ac00c62390129b55a52596b52f10decd",
+    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
     attemptId: "attempt-18",
     attemptNumber: 1,
     sentAt: "2026-10-09T03:00:00.000Z",
@@ -194,19 +213,20 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
   assert.equal(resolution.storeSku, "STB-ZERO-SPF-2X4-72-001");
   assert.equal(resolution.workpieceLengthIn, 72);
   const job = body.jobSupportability as { status?: string; machineAdmitted?: boolean };
-  assert.equal(job.status, "NOT_FULLY_SUPPORTABLE");
+  assert.equal(job.status, "REQUIREMENTS_SATISFIED");
   assert.equal(job.machineAdmitted, false);
-  assert.equal((body.requirementSatisfaction as { status?: string }).status, "UNEVALUATED");
+  assert.equal((body.requirementSatisfaction as { status?: string }).status, "SATISFIED");
   assert.equal((body.machineAdmission as { physicalRelease?: boolean }).physicalRelease, false);
   assert.equal(receipt.requestId, wire.requestId);
   assert.equal(receipt.freshnessRule, "STB-STORE-FRESH-EVALUATION-0.1");
-  assert.equal(receipt.authority?.storeRevision, "4cb0c625ac00c62390129b55a52596b52f10decd");
-  const carried = body.carriedNotAccepted as { field: string; value: string }[];
-  assert.deepEqual(carried.map((item) => `${item.field}=${item.value}`), [
-    "endIdentity=both",
-    "endRelation=parallel",
-    "lengthDatum=long-long-outer-edge",
-  ]);
+  assert.equal(receipt.authority?.storeRevision, release);
+  const canonical = body.endIdentityCanonicalization as { suppliedEndIdentity?: string; sentEndIdentity?: null };
+  assert.equal(canonical.suppliedEndIdentity, "both");
+  assert.equal(canonical.sentEndIdentity, null);
+  const offering = body.rawOffering as { supportedOps?: unknown; cellFamily?: unknown; capabilityAttribution?: string };
+  assert.equal(offering.supportedOps, null);
+  assert.equal(offering.cellFamily, null);
+  assert.equal(offering.capabilityAttribution, "NOT_SUPPLIED_BY_STORE");
 });
 
 test("a board the Store refuses is not a complete quote and not a supportable job", async () => {
@@ -221,7 +241,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
     demandSignature: "demand-84",
     querySignature: null,
     payloadDigest: "digest-84",
-    expectedStorePin: "4cb0c625ac00c62390129b55a52596b52f10decd",
+    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
     attemptId: "attempt-84",
     attemptNumber: 1,
     sentAt: "2026-10-09T04:00:00.000Z",
@@ -239,7 +259,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
   assert.equal(job.status, "NOT_SUPPORTABLE");
   assert.equal(job.quoteComplete, false);
   assert.equal(job.machineAdmitted, false);
-  assert.equal((body.requirementSatisfaction as { status?: string }).status, "UNEVALUATED");
+  assert.equal((body.requirementSatisfaction as { status?: string }).status, "SATISFIED");
   assert.equal((body.machineAdmission as { physicalRelease?: boolean }).physicalRelease, false);
 });
 
@@ -287,7 +307,7 @@ test("a missing angle, spot, or item line is not sent as a smaller job", async (
     definition: { configurationId: "PLAYHOUSE-ARCHED-WINDOW", configurationVersion: "down", sheet: { thicknessIn: 0.5, lengthIn: 96, widthIn: 48 }, features: [], returnAllPieces: true },
   }), "http://127.0.0.1:9");
   assert.equal(down.httpStatus, 502);
-  assert.equal(down.body.code, "REPLACEMENT_STORE_UNAVAILABLE");
+  assert.equal(down.body.code, "STORE_UNREACHABLE");
   assert.equal(down.body.rawEstimate, undefined);
 });
 
@@ -372,5 +392,96 @@ test("the four published jobs reach the pinned Store and a changed input changes
   const refused = await answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", "playhouse-b", { definition: highRise, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
   assert.equal((refused.body.rawEvaluation as { status?: string }).status, "REFUSED");
   assert.notEqual((refused.body.priceCompleteness as { status?: string }).status, "COMPLETE_FOR_TRAVEL_STANDARD");
+});
+
+test("alcove milling path and depth stay unevaluated and block a full-job claim", async () => {
+  const origin = await storeOrigin();
+  const definition = {
+    configurationId: "ALCOVE-USER1",
+    configurationVersion: "alcove-mill",
+    boardRequirements: [{ requirementId: "ALCOVE-SHELF-PARENTS", requiredOps: ["CROSSCUT"] }],
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    componentPrograms: [{
+      componentId: "ALCOVE-SHELF-01",
+      requirementId: "ALCOVE-SHELF-PARENTS",
+      finishedLengthIn: 30,
+      finishedWidthIn: 5.5,
+      features: [{ featureId: "MILL-1", kind: "MILL_LONGITUDINAL_PROFILE", yIn: 5.5, pathLengthIn: 30, totalDepthIn: 0.25 }],
+    }],
+  };
+  const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-mill", { definition }), origin);
+  assert.equal(answered.httpStatus, 200);
+  const carried = answered.body.carriedNotAccepted as { field: string; value: string }[];
+  assert.ok(carried.some((item) => item.field === "mill:MILL-1" && item.value.includes("pathLengthIn=30") && item.value.includes("totalDepthIn=0.25")));
+  const job = answered.body.jobSupportability as { status?: string };
+  assert.notEqual(job.status, "REQUIREMENTS_SATISFIED");
+});
+
+test("a caller pin cannot govern, and a supportable-looking failure is not a quote", async () => {
+  const origin = await storeOrigin();
+  const wire = wireFor("start-own", "USER_DEFINED_BOARD_V1", "pin-override", { line: braceLine() });
+  const overridden = await answerPublishedWire({ ...wire, expectedStorePin: "4cb0c625ac00c62390129b55a52596b52f10decd" }, origin);
+  assert.equal(overridden.httpStatus, 422);
+  assert.equal(overridden.body.code, "CALLER_PIN_DOES_NOT_GOVERN");
+  assert.equal(overridden.body.rawEstimate, undefined);
+
+  const { createServer } = await import("node:http");
+  const { sha256Bytes } = await import("../hash.ts");
+  const adversarial = await new Promise<{ url: string; close: () => void }>((resolve) => {
+    const server = createServer((req, res) => {
+      let raw = "";
+      req.on("data", (chunk) => { raw += chunk; });
+      req.on("end", () => {
+        const sent = JSON.parse(raw) as { requestId?: string; requestType?: string };
+        const digest = sha256Bytes(raw);
+        const base = { protocol: "STORE-ZERO-REQUEST-1", storeRelease: release, payloadDigest: digest };
+        if (sent.requestId?.endsWith("http-500")) {
+          res.writeHead(500, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ...base, answer: { status: "SUPPORTABLE", requestId: sent.requestId, requestType: sent.requestType, freshEvaluation: true, Q: 1 } }));
+          return;
+        }
+        if (sent.requestId?.endsWith("no-receipt")) {
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ...base, answer: { status: "SUPPORTABLE", requestId: sent.requestId, requestType: sent.requestType, Q: 1 } }));
+          return;
+        }
+        if (sent.requestId?.endsWith("wrong-id")) {
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ...base, answer: { status: "SUPPORTABLE", requestId: "other", requestType: sent.requestType, freshEvaluation: true } }));
+          return;
+        }
+        if (sent.requestId?.endsWith("wrong-release")) {
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ...base, storeRelease: "not-the-server-pin", answer: { status: "SUPPORTABLE", requestId: sent.requestId, requestType: sent.requestType, freshEvaluation: true } }));
+          return;
+        }
+        res.writeHead(200, { "content-type": "text/plain" });
+        res.end("not-json");
+      });
+    });
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : 0;
+      resolve({ url: `http://127.0.0.1:${port}`, close: () => server.close() });
+    });
+  });
+  try {
+    const http500 = await answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", "http-500", { line: braceLine() }), adversarial.url);
+    assert.equal(http500.httpStatus, 502);
+    assert.equal(http500.body.code, "HTTP_500");
+    assert.equal(http500.body.rawEstimate, undefined);
+    const missingReceipt = await answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", "no-receipt", { line: braceLine() }), adversarial.url);
+    assert.equal(missingReceipt.httpStatus, 502);
+    assert.equal(missingReceipt.body.code, "QUOTE_REQUIRES_FRESH_EVALUATION");
+    assert.equal(missingReceipt.body.rawEstimate, undefined);
+    const wrongId = await answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", "wrong-id", { line: braceLine() }), adversarial.url);
+    assert.equal(wrongId.body.code, "ANSWER_IDENTITY_MISMATCH");
+    const wrongRelease = await answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", "wrong-release", { line: braceLine() }), adversarial.url);
+    assert.equal(wrongRelease.body.code, "WRONG_RELEASE");
+    const malformed = await answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", "malformed", { line: braceLine() }), adversarial.url);
+    assert.equal(malformed.body.code, "RESPONSE_NOT_JSON");
+  } finally {
+    adversarial.close();
+  }
 });
 

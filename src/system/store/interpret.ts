@@ -35,6 +35,9 @@ function receiptProblems(answer: Record<string, unknown>, demand: unknown, expec
     if (receipt) return "DISCOVERY_MUST_NOT_CARRY_A_RECEIPT";
     return null;
   }
+  // A priced status is a quotation. It cannot pass as a receipt-free pre-evaluation.
+  const quoted = answer.status === "SUPPORTABLE" || answer.status === "NOT_ALL_LINES_SUPPORTABLE";
+  if (quoted && answer.freshEvaluation !== true) return "QUOTE_REQUIRES_FRESH_EVALUATION";
   if (answer.freshEvaluation !== true) {
     if (receipt) return "UNEVALUATED_ANSWER_MUST_NOT_CARRY_A_RECEIPT";
     return null;

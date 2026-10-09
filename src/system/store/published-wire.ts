@@ -3,10 +3,11 @@
  * The page keeps its words. This file does not price anything itself.
  */
 
-import { calculationHash, sha256Bytes } from "../hash.ts";
+import { sha256Bytes } from "../hash.ts";
+import { STORE_CANDIDATE } from "../store-candidate.ts";
+import { interpretStoreHttp } from "./interpret.ts";
 
-const STORE_PROTOCOL = "STORE-ZERO-REQUEST-1";
-const FRESHNESS = "STB-STORE-FRESH-EVALUATION-0.1";
+const PRICED_BOARD_ENDS = { endRelation: "parallel", lengthDatum: "long-long-outer-edge" } as const;
 
 export type CarriedRequirement = {
   field: string;
@@ -14,9 +15,21 @@ export type CarriedRequirement = {
   reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD";
 };
 
-type Json = Record<string, unknown>;
+export type EndIdentityCanonicalization = {
+  suppliedEndIdentity: string;
+  sentEndIdentity: null;
+  rule: "REDUNDANT_WITH_PRICED_LENGTH_DATUM";
+  meaning: "parallel ends, length on the long-long outer edge; Store prices that geometry with no second end-identity string";
+};
 
-const KEPT_OFF_THE_BOARD_SHAPE = ["endIdentity", "endRelation", "lengthDatum"] as const;
+export type AssignedFeatureIdentity = {
+  featureId: string;
+  partId: string;
+  index: number;
+  kind: string;
+};
+
+type Json = Record<string, unknown>;
 
 function asObject(value: unknown): Json | null {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Json) : null;
@@ -29,23 +42,63 @@ function finite(value: unknown): number | null {
   return Number.isFinite(number) ? number : null;
 }
 
-/** The published brace line, turned into the board demand the replacement Store accepts. */
-export function boardDemandFromPublishedLine(line: Json): { demand: Json; carriedNotAccepted: CarriedRequirement[] } {
+function statedText(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  return text.length ? text : null;
+}
+
+/**
+ * The published brace line, turned into the board demand the replacement Store accepts.
+ * End relation and length datum are sent. A second end-identity string is not sent when
+ * that datum is already the priced long-long outer edge: the supplied string stays on the
+ * canonicalization record. A missing feature id on a declared spot gets a stable technical
+ * id. A missing coordinate stays missing. Grade is sent only when the line already names one.
+ */
+export function boardDemandFromPublishedLine(line: Json): {
+  demand: Json;
+  carriedNotAccepted: CarriedRequirement[];
+  endIdentityCanonicalization: EndIdentityCanonicalization | null;
+  assignedFeatureIdentities: AssignedFeatureIdentity[];
+  materialFormEstablished: boolean;
+} {
   const carriedNotAccepted: CarriedRequirement[] = [];
-  for (const field of KEPT_OFF_THE_BOARD_SHAPE) {
-    const value = line[field];
-    if (value != null && String(value).length) {
-      carriedNotAccepted.push({ field, value: String(value), reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
-    }
-  }
+  const assignedFeatureIdentities: AssignedFeatureIdentity[] = [];
+  const material = asObject(line.materialDemand) ?? {};
+  const formStated = statedText(material.form);
+  const boardSelected = statedText(material.species) != null && finite(material.nominalT) != null && finite(material.nominalW) != null;
+  const materialFormEstablished = formStated == null && boardSelected;
+  const grade = statedText(material.grade);
+  const materialDemand: Json = {
+    ...material,
+    ...(formStated != null ? { form: formStated } : materialFormEstablished ? { form: "board" } : {}),
+    ...(grade != null ? { grade } : {}),
+  };
+  if (materialFormEstablished) materialDemand.form = "board";
+  const endRelation = statedText(line.endRelation);
+  const lengthDatum = statedText(line.lengthDatum);
+  const suppliedEndIdentity = statedText(line.endIdentity);
+  const redundantIdentity = suppliedEndIdentity != null && endRelation === PRICED_BOARD_ENDS.endRelation && lengthDatum === PRICED_BOARD_ENDS.lengthDatum;
+  const endIdentityCanonicalization: EndIdentityCanonicalization | null = redundantIdentity
+    ? {
+        suppliedEndIdentity,
+        sentEndIdentity: null,
+        rule: "REDUNDANT_WITH_PRICED_LENGTH_DATUM",
+        meaning: "parallel ends, length on the long-long outer edge; Store prices that geometry with no second end-identity string",
+      }
+    : null;
   const lengthObject = asObject(line.definedWorkpieceLength);
   const definedWorkpieceLengthIn = finite(lengthObject?.value ?? line.definedWorkpieceLengthIn);
   const parts = Array.isArray(line.parts) ? line.parts.map((part) => {
     const row = asObject(part) ?? {};
-    const features = Array.isArray(row.features) ? row.features.map((feature) => {
+    const partId = String(row.partId ?? "");
+    const features = Array.isArray(row.features) ? row.features.map((feature, index) => {
       const spot = asObject(feature) ?? {};
+      const declared = statedText(spot.featureId);
+      const featureId = declared ?? `declared:${partId || "part"}:feature:${index}`;
+      if (!declared) assignedFeatureIdentities.push({ featureId, partId, index, kind: String(spot.kind ?? "") });
       return {
-        featureId: String(spot.featureId ?? ""),
+        featureId,
         kind: String(spot.kind ?? ""),
         xIn: finite(spot.xIn),
         locationRule: spot.locationRule == null ? null : String(spot.locationRule),
@@ -53,22 +106,28 @@ export function boardDemandFromPublishedLine(line: Json): { demand: Json; carrie
         insetFromEdgeIn: finite(spot.insetFromEdgeIn),
       };
     }) : [];
-    return { partId: String(row.partId ?? ""), lengthIn: finite(row.lengthIn), features };
+    return { partId, lengthIn: finite(row.lengthIn), features };
   }) : [];
   const spot = asObject(line.spotDemand);
   return {
     carriedNotAccepted,
+    endIdentityCanonicalization,
+    assignedFeatureIdentities,
+    materialFormEstablished,
     demand: {
       title: "Start your own",
       configurationId: String(line.configurationId ?? ""),
       configurationVersion: String(line.configurationVersion ?? ""),
       classId: "user_defined_board",
-      materialDemand: line.materialDemand ?? null,
+      materialDemand,
       definedWorkpieceLengthIn,
       requiredOps: Array.isArray(line.requiredOps) ? line.requiredOps : [],
       sawAngleDeg: finite(line.sawAngleDeg),
       cutPlane: line.cutPlane == null ? null : String(line.cutPlane),
       datumCMethod: String(line.datumCMethod ?? ""),
+      ...(endRelation != null ? { endRelation } : {}),
+      ...(lengthDatum != null ? { lengthDatum } : {}),
+      ...(redundantIdentity ? { endIdentity: null } : suppliedEndIdentity != null ? { endIdentity: suppliedEndIdentity } : {}),
       declaredSawCuts: finite(line.sawCuts),
       declaredSpotCount: finite(spot?.totalCount),
       unresolvedConditions: [],
@@ -95,29 +154,39 @@ function echo(wire: Json, extra: Json): Json {
   };
 }
 
-async function postStore(origin: string, body: Json): Promise<{ httpStatus: number; wrapper: Json | null; sent: string }> {
+async function postStore(origin: string, body: Json): Promise<{ httpStatus: number; responseText: string; sent: string }> {
   const sent = JSON.stringify(body);
   try {
     const response = await fetch(new URL("/v1/requests", origin), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: sent,
+      signal: AbortSignal.timeout(15000),
     });
-    const wrapper = asObject(await response.json().catch(() => null));
-    return { httpStatus: response.status, wrapper, sent };
+    return { httpStatus: response.status, responseText: await response.text(), sent };
   } catch {
-    return { httpStatus: 0, wrapper: null, sent };
+    return { httpStatus: 0, responseText: "", sent };
   }
 }
 
-function responseAgrees(sent: string, demand: Json, requestId: string, expectedPin: unknown, wrapper: Json, answer: Json): string | null {
-  if (wrapper.payloadDigest !== sha256Bytes(sent)) return "STORE_PAYLOAD_DIGEST_MISMATCH";
-  if (expectedPin && wrapper.storeRelease !== expectedPin) return "STORE_RELEASE_MISMATCH";
-  const receipt = asObject(answer.evaluationReceipt);
-  if (!receipt) return null;
-  if (receipt.requestId !== requestId || receipt.freshnessRule !== FRESHNESS) return "STORE_RECEIPT_NOT_FOR_THIS_REQUEST";
-  if (receipt.demandHash !== calculationHash(demand)) return "STORE_DEMAND_HASH_MISMATCH";
-  if (asObject(receipt.authority)?.storeRevision !== wrapper.storeRelease) return "STORE_RELEASE_MISMATCH";
+/** One rule for every published answer: the server pin governs, and a quotation needs its receipt. */
+function readStoreReply(sent: { httpStatus: number; responseText: string; sent: string }, demand: Json, requestId: string, requestType: string) {
+  return interpretStoreHttp({
+    sentBody: sent.sent,
+    sentDigest: sha256Bytes(sent.sent),
+    requestType,
+    requestId,
+    demand,
+    httpStatus: sent.httpStatus,
+    responseText: sent.responseText,
+    expectedRelease: STORE_CANDIDATE.inspectedCommit,
+  });
+}
+
+function callerPinProblem(wire: Json): string | null {
+  const pin = wire.expectedStorePin;
+  if (pin == null || pin === "") return null;
+  if (pin !== STORE_CANDIDATE.inspectedCommit) return "CALLER_PIN_DOES_NOT_GOVERN";
   return null;
 }
 
@@ -136,7 +205,7 @@ function requirementReport(carriedNotAccepted: CarriedRequirement[]) {
   } as const;
 }
 
-function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequirement[]): Json {
+function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequirement[], notes: Json = {}): Json {
   const answer = asObject(wrapper.answer) ?? {};
   const estimate = asObject(answer.estimate);
   const receipt = asObject(answer.evaluationReceipt);
@@ -151,7 +220,10 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
   const firstLine = asObject(Array.isArray(answer.lines) ? answer.lines[0] : null);
   const price = asObject(firstLine?.price);
   const resolution = asObject(answer.materialResolution) ?? {};
+  const capability = asObject(answer.capability) ?? asObject(resolution.capability);
   const reasonCodes = Array.isArray(answer.reasonCodes) ? answer.reasonCodes.map(String) : [];
+  const cellFamily = Array.isArray(capability?.cellFamily) ? capability.cellFamily : null;
+  const supportedOps = Array.isArray(capability?.supportedOps) ? capability.supportedOps : null;
   return echo(wire, {
     storePin: wrapper.storeRelease,
     rawEvaluation: { ...answer, freshEvaluation: answer.freshEvaluation === true, evaluationReceipt: receipt },
@@ -181,11 +253,13 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
       storeSku: resolution.storeSku ?? null,
       stockL_in: resolution.workpieceLengthIn ?? null,
       sellingPrice: price?.sellingPrice ?? null,
-      cellFamily: [],
-      supportedOps: [],
+      cellFamily,
+      supportedOps,
+      capabilityAttribution: cellFamily || supportedOps ? "STORE_ANSWER" : "NOT_SUPPLIED_BY_STORE",
     },
     calculationIdentity: answer.calculationIdentity ?? estimate?.calculationIdentity ?? null,
     carriedNotAccepted,
+    ...notes,
     wrapperRespondedAt: wrapper.respondedAt ?? null,
     storeProtocol: wrapper.protocol,
   });
@@ -384,26 +458,45 @@ export function sheetDemandFromPublishedDefinition(definition: Json): { demand: 
   };
 }
 
-function translatePublished(wire: Json): { storeRequestType: string; demand: Json; carriedNotAccepted: CarriedRequirement[] } | { error: string; blocked?: CarriedRequirement[] } {
+function translatePublished(wire: Json): { storeRequestType: string; demand: Json; carriedNotAccepted: CarriedRequirement[]; notes: Json } | { error: string; blocked?: CarriedRequirement[] } {
   const payload = asObject(wire.payload);
   if (wire.requestType === "USER_DEFINED_BOARD_V1") {
     const line = asObject(payload?.line);
     if (!line) return { error: "PUBLISHED_LINE_REQUIRED" };
     const translated = boardDemandFromPublishedLine(line);
-    return { storeRequestType: "USER_DEFINED_BOARD_V1", ...translated };
+    return {
+      storeRequestType: "USER_DEFINED_BOARD_V1",
+      demand: translated.demand,
+      carriedNotAccepted: translated.carriedNotAccepted,
+      notes: {
+        endIdentityCanonicalization: translated.endIdentityCanonicalization,
+        assignedFeatureIdentities: translated.assignedFeatureIdentities,
+        materialFormEstablished: translated.materialFormEstablished,
+      },
+    };
   }
   const definition = asObject(payload?.definition);
   if (!definition) return { error: "PUBLISHED_DEFINITION_REQUIRED" };
-  const translated = wire.requestType === "CUT_PACKAGE_V1"
+  const requestType = wire.requestType;
+  if (requestType !== "CUT_PACKAGE_V1" && requestType !== "SHEET_PACKAGE_V1" && requestType !== "ALCOVE_INSERT_V1") {
+    return { error: "LIVE_JOB_NOT_MIGRATED_YET" };
+  }
+  const translated = requestType === "CUT_PACKAGE_V1"
     ? cutDemandFromPublishedDefinition(definition)
-    : wire.requestType === "SHEET_PACKAGE_V1"
+    : requestType === "SHEET_PACKAGE_V1"
       ? sheetDemandFromPublishedDefinition(definition)
-      : wire.requestType === "ALCOVE_INSERT_V1"
-        ? cutDemandFromAlcoveInsert(definition)
-        : null;
-  if (!translated) return { error: "LIVE_JOB_NOT_MIGRATED_YET" };
+      : cutDemandFromAlcoveInsert(definition);
   if ("blocked" in translated) return { error: "PUBLISHED_DEFINITION_INCOMPLETE", blocked: translated.blocked };
-  return { storeRequestType: wire.requestType === "ALCOVE_INSERT_V1" ? "CUT_PACKAGE_V1" : wire.requestType, ...translated };
+  return {
+    storeRequestType: requestType === "ALCOVE_INSERT_V1" ? "CUT_PACKAGE_V1" : requestType,
+    demand: translated.demand,
+    carriedNotAccepted: translated.carriedNotAccepted,
+    notes: {},
+  };
+}
+
+function rejected(wire: Json, code: string, extra: Json = {}): { httpStatus: number; body: Json } {
+  return { httpStatus: code === "CALLER_PIN_DOES_NOT_GOVERN" ? 422 : 502, body: echo(wire, { adapterError: true, code, ...extra }) };
 }
 
 /** Answer one published wire. Does not call any host except the replacement Store. */
@@ -411,20 +504,20 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   if (wire.protocolVersion !== "stb-store-zero-http/1") {
     return { httpStatus: 422, body: { adapterError: true, code: "PUBLISHED_WIRE_NOT_RECOGNIZED" } };
   }
+  const pinProblem = callerPinProblem(wire);
+  if (pinProblem) return rejected(wire, pinProblem, { serverRelease: STORE_CANDIDATE.inspectedCommit });
   if (wire.requestType === "OFFERING_LOOKUP") {
     const payload = asObject(wire.payload) ?? {};
-    const sent = await postStore(origin, { requestType: "OFFERING_LOOKUP", requestId: String(wire.requestId), demand: { searchText: payload.searchText } });
-    const answer = asObject(sent.wrapper?.answer);
-    if (!sent.wrapper || sent.wrapper.protocol !== STORE_PROTOCOL || !answer) {
-      return { httpStatus: 502, body: { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" } };
-    }
-    const mismatch = responseAgrees(sent.sent, { searchText: payload.searchText }, String(wire.requestId), wire.expectedStorePin, sent.wrapper, answer);
-    if (mismatch) return { httpStatus: 502, body: echo(wire, { adapterError: true, code: mismatch }) };
+    const demand = { searchText: payload.searchText };
+    const sent = await postStore(origin, { requestType: "OFFERING_LOOKUP", requestId: String(wire.requestId), demand });
+    const read = readStoreReply(sent, demand, String(wire.requestId), "OFFERING_LOOKUP");
+    if (read.outcome !== "answer") return rejected(wire, read.code, { detail: read.detail });
+    const answer = read.answer;
     const rows = Array.isArray(answer.offerings) ? answer.offerings : [];
     return {
       httpStatus: 200,
       body: echo(wire, {
-        storePin: sent.wrapper.storeRelease,
+        storePin: read.wrapper.storeRelease,
         rawOfferings: rows,
         totalMatches: answer.totalMatches,
         truncated: answer.truncated === true,
@@ -440,14 +533,11 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
     requestId: String(wire.requestId),
     demand: translated.demand,
   });
-  const answer = asObject(sent.wrapper?.answer);
-  if (!sent.wrapper || sent.wrapper.protocol !== STORE_PROTOCOL || !answer) {
-    return { httpStatus: 502, body: echo(wire, { adapterError: true, code: "REPLACEMENT_STORE_UNAVAILABLE" }) };
-  }
-  const mismatch = responseAgrees(sent.sent, translated.demand, String(wire.requestId), wire.expectedStorePin, sent.wrapper, answer);
-  if (mismatch) return { httpStatus: 502, body: echo(wire, { adapterError: true, code: mismatch }) };
-  const body = pageAnswer(wire, sent.wrapper, translated.carriedNotAccepted);
+  const read = readStoreReply(sent, translated.demand, String(wire.requestId), translated.storeRequestType);
+  if (read.outcome !== "answer") return rejected(wire, read.code);
+  const body = pageAnswer(wire, read.wrapper, translated.carriedNotAccepted, translated.notes);
   body.mappedCallInputs = { requestType: translated.storeRequestType, demand: translated.demand };
+  const answer = read.answer;
   const packages = Array.isArray(answer.packages) ? answer.packages : [];
   const items = Array.isArray(answer.items) ? answer.items : [];
   if (packages.length || items.length) {

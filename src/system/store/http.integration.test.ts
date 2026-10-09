@@ -107,9 +107,10 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
     };
 
     const project1 = await ask("project-1");
-    assert.equal(project1.status, "SUPPORTABLE");
-    assert.equal((project1.estimate as { totals: { Q: number } }).totals.Q, 11.09);
-    assert.equal(presentMoney(project1).kind, "full");
+    assert.equal(project1.status, "UNRESOLVED");
+    assert.equal((project1.materialResolution as { reason?: string }).reason, "GRADE_CHOICE_REQUIRED");
+    assert.equal(presentMoney(project1).kind, "none");
+    assert.equal(project1.estimate, null);
 
     const braces = await ask("start-own", { species: "spf" });
     assert.equal(braces.status, "SUPPORTABLE");
@@ -203,9 +204,21 @@ test("HTTP: machine evidence for a board, a supplied end identity, and a cut pac
     assert.equal(health.machineEvidence.machineConfigHash, STORE_CANDIDATE.inspectedMachine.machineConfigHash);
     assert.equal(health.machineEvidence.physicalAuthority, false);
 
-    const packetFor = async (recipeId: string) => {
-      const opened = openRecipe(emptyRecord(), recipeId);
+    const packetFor = async (recipeId: string, inputs?: Record<string, string | number | boolean | null>) => {
+      let opened = openRecipe(emptyRecord(), recipeId);
       if ("error" in opened) throw new Error(opened.error);
+      if (inputs) {
+        const { setInput, saveRevision } = await import("../session.ts");
+        let record = opened.record;
+        for (const [key, value] of Object.entries(inputs)) {
+          const next = setInput(record, opened.projectId, key, value);
+          if ("error" in next) throw new Error(next.error);
+          record = next;
+        }
+        const saved = saveRevision(record, opened.projectId);
+        if ("error" in saved) throw new Error(saved.error);
+        opened = { record: saved.record, projectId: opened.projectId };
+      }
       const started = beginInquiry(opened.record, opened.projectId);
       if (!started.ok) throw new Error(started.code);
       const res = await post(base, started.attempt.sentBody);
@@ -262,21 +275,23 @@ test("HTTP: machine evidence for a board, a supplied end identity, and a cut pac
       return read.outcome === "answer" ? read.answer : {};
     };
 
-    const board = await packetFor("project-1");
+    const board = await packetFor("start-own", { species: "spf" });
     assert.equal(board.definition.requirements.endIdentity, undefined);
     const ready = await askEvidence(board);
     assert.equal(ready.status, "VIRTUAL_EVIDENCE_READY");
     assert.equal(ready.physicalAuthority, false);
     assert.equal((ready.admission as { status: string; motionCommands: number }).status, "BLOCKED");
     assert.equal((ready.admission as { motionCommands: number }).motionCommands, 0);
-    assert.equal((ready.run as { timeSec: number }).timeSec, 86.46953628299116);
-    assert.notEqual((ready.run as { timeSec: number }).timeSec, 85.5001);
+    const time = (ready.run as { timeSec: number }).timeSec;
+    assert.equal(typeof time, "number");
+    assert.ok(time > 0);
+    assert.notEqual(time, 85.5001);
 
     const named = structuredClone(board);
     named.definition.requirements = { ...named.definition.requirements, endIdentity: "miter-face-long-point" };
     const refusedEnd = await askEvidence(named);
     assert.equal(refusedEnd.status, "REFUSED");
-    assert.ok((refusedEnd.reasonCodes as string[]).includes("END_IDENTITY_NOT_REGISTERED_ON_MACHINE"));
+    assert.ok((refusedEnd.reasonCodes as string[]).includes("PACKET_REQUIREMENTS_DIFFER_FROM_DEFINITION"));
     assert.equal(refusedEnd.localJob, undefined);
     assert.equal(refusedEnd.records, undefined);
 

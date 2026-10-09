@@ -86,13 +86,17 @@ export const DEFINITION_SHAPES = {
       configurationVersion: "string",
       classId: "string",
       materialDemand: {
-        object: { species: "string", form: "string", nominalT: "number", nominalW: "number" },
+        object: { species: "string", form: "string", nominalT: "number", nominalW: "number", grade: "string" },
       },
       definedWorkpieceLengthIn: "number",
       requiredOps: strings,
       sawAngleDeg: "number",
       cutPlane: "string",
       datumCMethod: "string",
+      // Store prices parallel ends on the long-long outer edge. A redundant end-identity string is null on that geometry.
+      endRelation: "string",
+      lengthDatum: "string",
+      endIdentity: "string",
       declaredSawCuts: "integer",
       declaredSpotCount: "integer",
       unresolvedConditions: strings,

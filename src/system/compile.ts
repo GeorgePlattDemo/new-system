@@ -104,6 +104,10 @@ function boardDemand(rule: Record<string, unknown>, inputs: Inputs, recipe: Reci
     sawAngleDeg: angle,
     cutPlane: "miter-face",
     datumCMethod: "REFERENCE_CUT",
+    endRelation: recipe.requirements.endRelation,
+    lengthDatum: recipe.requirements.lengthDatum,
+    // The priced datum already states the ends. A null identity is that reconciliation, not a deleted fact.
+    endIdentity: recipe.requirements.endIdentity,
     declaredSawCuts,
     declaredSpotCount: spots ? partCount : 0,
     unresolvedConditions: [],
