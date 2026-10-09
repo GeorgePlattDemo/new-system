@@ -17,7 +17,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 <script src="stb-store-client.js?v=f1897ecc"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=db611717"></script>
 <script type="module">
-import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-bench";
+import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-answer";
 window.STBStartOwnAnswer = startOwnAnswer;
 </script>
 <script src="stb-terms-flow.js?v=365d795c"></script>
@@ -144,7 +144,11 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
     const START_OWN_PROJECT_ID = 'start-own';
     const START_OWN_INQUIRY_SCOPE = 'USER_DEFINED_BOARD_V1';
     const START_OWN_CONFIGURATION_ID = 'SYO-USER1-XBRACE';
-    const startOwnLive = { token:0, revision:null, admission:null, asking:false, answer:null, blocking:[] };
+    // The one record of Start your own's Store inquiry: the revision admitted, the revision being asked (askedRevisionId,
+    // while asking), the answer inquire() returned, and the failure if the ask did not come back. The bench reads it
+    // only through STBStartOwnAnswer.benchAnswer(); renderStartOwnBench redraws the bench whenever it changes.
+    const startOwnLive = { token:0, revision:null, admission:null, asking:false, askedRevisionId:null, answer:null, failure:null, blocking:[] };
+    let renderStartOwnBench = () => {};
 
     const home = doc.getElementById('projects');
     if (home) {
@@ -194,7 +198,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=project1-board"
+                  src="three-frames.html?v=project1-answer"
                 ></iframe>
               </div>
             `;
@@ -203,7 +207,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=project1-board';
+            liveFrame.src = 'three-frames.html?v=project1-answer';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -272,8 +276,6 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               const DEMO_MAX_LENGTH_IN = 18;
               const DEMO_HORIZONTAL_SPAN_IN = 8;
               let currentUser1Definition = null;
-              let currentBenchAnswer = null;
-              let benchAskToken = 0;
               let storeRequestSequence = 0;
 
               const nextStoreRequestId = definition => {
@@ -377,7 +379,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     benchIntentSlot.append(clone);
                   }
                 }
-                if (bench) syncAndRender('BENCH_VIEW');
+                if (bench) { syncAndRender('BENCH_VIEW'); askBench(); }
                 if (bench && focus === 'definition-boundary') {
                   const confirmBlock = childDoc.querySelector('.confirm-block');
                   if (confirmBlock) {
@@ -408,6 +410,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 if (resetDemoButton) resetDemoButton.hidden = withinDemo;
                 if (!withinDemo) {
                   if (confirmButton) confirmButton.disabled = true;
+                  currentUser1Definition = null;
                   return null;
                 }
 
@@ -519,8 +522,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                       status:'UNRESOLVED',
                       basis:'STORE_ANSWER_REQUIRED',
                       code:'STORE_ANSWER_REQUIRED',
-                      finalRemainderIn:null,
-                      holdIn:24
+                      finalRemainderIn:null
                     };
 
                 const capability = {
@@ -635,59 +637,89 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 return currentUser1Definition;
               };
 
-              const renderBoardGeometry = definition => {
+              // The one reading of the Store for the revision on the bench (STBStartOwnAnswer.benchAnswer): the inquiry
+              // record, matched to this revision by the tile-host contract, plus the confirmed record when it names this
+              // revision. null only when that module has not loaded, and then nothing Store-owned is shown.
+              const benchViewOf = definition => {
+                const project = window.STBStartOwnAnswer?.benchAnswer;
+                if (!project || !definition) return null;
+                const confirmed = proofHandoff?.source === START_OWN_PROJECT_ID && proofHandoff.payload?.versionId === definition.versionId
+                  ? proofHandoff.payload.storeReference?.evaluationReceipt?.requestId || null
+                  : null;
+                return project({
+                  revisionId:definition.versionId,
+                  ...startOwnJob(definition),
+                  inquiry:startOwnLive,
+                  isCurrentAnswer:tileHostContract.isCurrentAnswer,
+                  confirmedRequestId:confirmed
+                });
+              };
+              const money = value => '$'+Number(value).toFixed(2);
+
+              const renderBoardGeometry = (definition, view) => {
                 const demand = definition?.physicalDemand;
                 if (!demand) return;
                 ['stb-bench-static-parts','stb-bench-static-cuts','stb-bench-static-cut-markers','stb-bench-static-joint-note','stb-bench-static-spots','stb-bench-static-part1-label','stb-bench-static-part2-label','stb-bench-static-dims','stb-bench-part1-dim','stb-bench-part2-dim'].forEach(id => {
                   const el=childDoc.getElementById(id);
                   if(el) el.style.display='none';
                 });
-                // The bench page draws its own parts, cuts and spots, and places its spare and remain labels, from this demand.
-                const view = window.STBStartOwnAnswer && currentBenchAnswer && currentBenchAnswer.versionId === definition.versionId
-                  ? window.STBStartOwnAnswer.benchView({
-                      finishedLengthIn: demand.finishedLength,
-                      species: definition.material?.stated?.species,
-                      spotIn: definition.derived?.centerSpotAlongLengthIn?.value,
-                      answer: currentBenchAnswer.body,
-                    })
-                  : null;
+                // The bench page draws its own parts, cuts and spots, and places its labels, from this message. The board
+                // is drawn at the Store-selected length only with a current Store answer; otherwise at the requested
+                // minimum, labeled as such. Spots sit at the definition's own feature coordinates.
                 proofFrame.contentWindow?.postMessage({
                   type:'STB_BENCH_GEOMETRY',
                   demand:{
-                    definedWorkpieceLengthIn:demand.definedWorkpieceLengthIn,
-                    requestedMinimumIn:60,
-                    selectedBoardLengthIn:view?.selection.quote ? view.selection.stockLengthIn : null,
-                    storeSelected:view?.selection.quote === true,
-                    remainderIn:view?.selection.quote ? view.selection.finalRemainderIn : null,
+                    requestedMinimumIn:definition.material.definedWorkpieceLengthIn.value,
+                    selectedBoardLengthIn:view?.quote ? view.selection.stockLengthIn : null,
+                    storeSelected:view?.quote === true,
+                    remainderIn:view?.quote ? view.work.finalRemainderIn : null,
                     quantity:demand.quantity,
                     finishedLength:demand.finishedLength,
                     angleDegrees:demand.angleDegrees,
-                    spotDemand:!!demand.spotDemand
+                    spotDemand:!!demand.spotDemand,
+                    spotsAlongPartIn:demand.parts.map(part => part.features?.[0]?.xIn ?? null)
                   }
                 }, win.location.origin);
               };
 
+              // What each status says, in one place. Every Store-dependent field below reads `view`, never the
+              // definition's placeholder storeReference.
+              const STATUS_WORDS = Object.freeze({
+                VIEW_UNAVAILABLE:'STORE VIEW NOT LOADED',
+                NOT_ADMITTED:'NOT SENT · A REQUIRED FACT IS MISSING',
+                NOT_ASKED:'ASK THE STORE',
+                ASKING:'ASKING THE STORE',
+                FAILED:'STORE NOT REACHED',
+                REFUSED:'STORE REFUSED',
+                UNRESOLVED:'STORE: UNRESOLVED',
+                INVALID:'STORE ANSWER NOT ACCEPTED',
+                BUDGETARY:'STORE ANSWERED · BUDGETARY',
+                CONFIRMED:'STORE ANSWERED · CONFIRMED'
+              });
               const renderBench = definition => {
                 if (!definition) return;
                 const demand = definition.physicalDemand;
-                const sequence = definition.workpieceSequence;
-                const retained = sequence?.status === 'SEQUENCED'
-                  ? Number(sequence.finalRemainderIn)
-                  : null;
-                const holdIn = Number(sequence?.holdIn || 24);
-                const spare = Number.isFinite(retained) ? Number((retained-holdIn).toFixed(6)) : null;
+                const view = benchViewOf(definition);
+                const status = view ? view.status : 'VIEW_UNAVAILABLE';
+                const quote = view?.quote === true;
+                const selection = quote ? view.selection : null;
+                const economics = quote ? view.economics : null;
+                const work = quote ? view.work : null;
+                const capability = quote ? view.capability : null;
+                const identity = view?.identity || null;
+                const remainder = work?.finalRemainderIn ?? null;
+                const requestedMinimum = definition.material.definedWorkpieceLengthIn.value;
+                const statusWords = STATUS_WORDS[status];
+                const reasons = (view?.reasons || []).join(' · ');
+                const reasonText = (view?.reasons || []).map(code => {
+                  const words = window.STBStartOwnAnswer?.reasonWords(code);
+                  return words ? words+' ('+code+')' : code;
+                }).join('; ');
                 const productionCuts = Number(demand.declaredSawCuts) || 0;
-                const totalModeledCuts = Number(definition.storeReference.estimate?.travel?.derivedSawCuts) || productionCuts;
                 const spots = Number(demand.declaredSpotCount) || 0;
-                const material = definition.storeReference.materialResolution;
-                const materialMapped = material?.status === 'MAPPED';
-                const estimate = definition.storeReference.estimate || null;
-                const totals = estimate?.totals || null;
-                const economics = definition.storeReference.economicsStatus;
-                const capabilityBasis = definition.capability?.basis || definition.capability?.status || 'UNRESOLVED';
-                const freshQuote = definition.storeReference.freshEvaluation === true && definition.storeReference.complete === true;
 
-                renderBoardGeometry(definition);
+                // System facts: what the job defines.
+                renderBoardGeometry(definition, view);
                 setText('stb-config-parts-value',demand.quantity+' part'+(demand.quantity===1?'':'s'));
                 setText('stb-config-length-value',
                   formatInches(demand.finishedLength)+' braces · stands about '+
@@ -695,11 +727,8 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   formatDegrees(demand.angleDegrees)+' ends');
                 setText('stb-config-angle-value',demand.angleDegrees+'° · both ends · parallel');
                 setText('stb-config-spot-value',demand.spotDemand?'1 centered spot / part':'no spot');
-                setText('stb-bench-workpiece-spec','2×4 · '+formatInches(demand.definedWorkpieceLengthIn));
                 setText('stb-bench-length-spec',formatInches(demand.finishedLength));
                 setText('stb-bench-angle-spec',formatDegrees(demand.angleDegrees));
-                // The drawing names the board the Store actually picked, never a stale default.
-                setText('stb-bench-stock-line','60 IN requested minimum · Store has not selected a board');
                 setText('stb-bench-parts-spec',String(demand.quantity));
                 setText('stb-carry-cut',demand.quantity+' part'+(demand.quantity===1?'':'s')+' · '+formatInches(demand.finishedLength)+' each');
                 setText('stb-carry-angle',formatDegrees(demand.angleDegrees)+' ends');
@@ -707,7 +736,6 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-user1-lineage',demand.spotDemand
                   ? 'Spot drill = '+Number(demand.finishedLength)+' ÷ 2 = '+formatInches(definition.derived.centerSpotAlongLengthIn.value)+' from either finished end.'
                   : 'No spot on this version.');
-                setText('stb-def-workpiece',formatInches(demand.definedWorkpieceLengthIn));
                 setText('stb-def-parts',String(demand.quantity));
                 setText('stb-def-length',demand.finishedLength+' in each');
                 setText('stb-def-angle',Number(demand.angleDegrees).toFixed(3)+'° · derived to preserve 8.000 in span · both · parallel');
@@ -715,16 +743,6 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 setText('stb-def-spot-location',demand.spotDemand
                   ? definition.derived.centerSpotAlongLengthIn.value+' in · derived from '+demand.finishedLength+' ÷ 2 · 3/16 in SPOT_ON_LOCATION demand'
                   : 'not requested');
-                setText('stb-def-retained',Number.isFinite(retained)
-                  ? formatInches(retained)+' · Store-returned travel result'
-                  : 'STORE ANSWER REQUIRED FOR THIS REVISION');
-                setText('stb-bench-spare-label',Number.isFinite(spare)?formatInches(spare)+' spare':'Store refresh required');
-                setText('stb-bench-remain-label',Number.isFinite(retained)
-                  ? formatInches(retained)+' remains · '+formatInches(holdIn)+' retained-control minimum · '+formatInches(spare)+' spare · Store returned'
-                  : 'This changed definition has no Store-issued travel result in the static Review build.');
-                setText('stb-bench-control-copy',Number.isFinite(retained)
-                  ? 'Store returned '+formatInches(retained)+' remaining on the '+formatInches(demand.definedWorkpieceLengthIn)+' defined workpiece; '+formatInches(holdIn)+' is the Store travel model retained-control minimum.'
-                  : 'The project definition changed. This browser does not decide Store capability or retained-control validity; a fresh Store answer is required.');
                 setText('stb-bench-cut-copy','cut demand — '+formatDegrees(demand.angleDegrees)+' ends · '+productionCuts+' declared saw operation'+(productionCuts===1?'':'s')+' · '+demand.quantity+' part'+(demand.quantity===1?'':'s'));
                 const cutsBold = childDoc.getElementById('stb-bench-cut-step');
                 if (cutsBold) cutsBold.innerHTML = '<b>Cut it.</b> '+productionCuts+' cut'+(productionCuts===1?'':'s')+' along the one board — '+formatDegrees(demand.angleDegrees)+' each — make the '+demand.quantity+' part'+(demand.quantity===1?'':'s')+'.';
@@ -732,40 +750,54 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 if (drillBold) drillBold.innerHTML = demand.spotDemand
                   ? '<b>Drill it.</b> One 3/16 in spot right in the middle of each part — '+formatInches(definition.derived.centerSpotAlongLengthIn.value)+' from either end.'
                   : '<b>Drill it.</b> No spot on this version.';
-                const stubBold = childDoc.getElementById('stb-bench-stub-step');
-                if (stubBold) stubBold.innerHTML = '<b>Keep the stub.</b> Two matching braces'+(Number.isFinite(retained)?', and the other '+formatInches(retained)+' of the board comes back to you.':', and the rest of the board comes back to you.');
-                setText('stb-bench-workline','THAT’S THE WHOLE JOB · '+productionCuts+' CUT'+(productionCuts===1?'':'S')+' · '+spots+' SPOT'+(spots===1?'':'S')+' · '+(freshQuote?'QUOTE RETURNED':'ASK THE STORE'));
+                const woodWords = SPECIES_WORDS[definition.material?.stated?.species] || null;
+                if (woodWords) setText('stb-carry-wood', '2×4 ' + woodWords);
 
-                // Make the Store's board choice visible when it selects longer than the requested minimum.
+                // The board: the requested minimum is the job's; the selected board and what remains are the Store's.
+                setText('stb-bench-workpiece-spec','2×4 · '+formatInches(requestedMinimum)+' minimum'+(selection ? ' · Store: '+formatInches(selection.stockLengthIn) : ''));
+                setText('stb-bench-stock-line', selection
+                  ? 'ONE '+boardName(selection.stockLengthIn)+' · Store selected '+selection.sku+' · schematic'
+                  : String(requestedMinimum)+' IN REQUESTED MINIMUM · Store has not selected a board · schematic');
+                setText('stb-def-workpiece', selection
+                  ? formatInches(selection.stockLengthIn)+' · '+selection.sku+' · Store selected · '+formatInches(requestedMinimum)+' requested minimum'
+                  : 'NOT SELECTED · '+formatInches(requestedMinimum)+' requested minimum · '+statusWords);
+                setText('stb-def-retained', remainder != null
+                  ? formatInches(remainder)+' · Store-returned final remainder'
+                  : quote ? 'NOT RETURNED BY THE STORE' : 'STORE ANSWER REQUIRED FOR THIS REVISION · '+statusWords);
+                // The Store's answer reports what remains, not its retained-control minimum, so no spare is computed here.
+                setText('stb-bench-spare-label','');
+                setText('stb-bench-remain-label', remainder != null ? formatInches(remainder)+' remains · Store returned' : '');
+                setText('stb-bench-control-copy', selection
+                  ? 'Store selected '+formatInches(selection.stockLengthIn)+' for the '+formatInches(requestedMinimum)+' requested minimum'
+                    +(remainder != null ? ' and returned '+formatInches(remainder)+' remaining after the cuts.' : '; it returned no remainder.')
+                  : status === 'REFUSED' || status === 'UNRESOLVED' || status === 'INVALID'
+                    ? statusWords+' · '+reasons
+                    : 'The project definition changed. This browser does not decide Store capability or retained-control validity; a fresh Store answer is required.');
+                const stubBold = childDoc.getElementById('stb-bench-stub-step');
+                if (stubBold) stubBold.innerHTML = '<b>Keep the stub.</b> Two matching braces'+(remainder != null ? ', and the other '+formatInches(remainder)+' of the board comes back to you.' : ', and the rest of the board comes back to you.');
+                setText('stb-bench-workline','THAT’S THE WHOLE JOB · '+productionCuts+' CUT'+(productionCuts===1?'':'S')+' · '+spots+' SPOT'+(spots===1?'':'S')+' · '+statusWords);
                 const swap = childDoc.getElementById('stb-bench-board-swap');
-                const view = window.STBStartOwnAnswer && currentBenchAnswer && currentBenchAnswer.versionId === definition.versionId
-                  ? window.STBStartOwnAnswer.benchView({
-                      finishedLengthIn: demand.finishedLength,
-                      species: definition.material?.stated?.species,
-                      spotIn: definition.derived?.centerSpotAlongLengthIn?.value,
-                      answer: currentBenchAnswer.body,
-                    })
-                  : null;
                 if (swap) {
                   swap.hidden = !view?.swap.visible;
                   swap.innerHTML = view?.swap.visible ? view.swap.html : '';
                 }
-                if (view && !view.selection.quote) {
-                  setText('stb-before-send', view.priceLine+' No longer-board claim was made.');
-                }
-                // One line right under the choice: size, angle, board, price.
-                const pickedBoard = Number(demand.definedWorkpieceLengthIn);
-                const pickedFeet = pickedBoard / 12;
-                const boardWords = Number.isInteger(pickedFeet) ? pickedFeet+'-foot 2×4' : formatInches(pickedBoard)+' 2×4';
-                const woodWords = SPECIES_WORDS[definition.material?.stated?.species] || null;
-                if (woodWords) setText('stb-carry-wood', '2×4 ' + woodWords);
-                if (!view?.selection.quote) {
-                  setText('stb-bench-price-line', formatInches(demand.finishedLength)+' braces · '+formatDegrees(demand.angleDegrees)+' ends · '
-                    +(!woodWords ? 'no wood stated on Intent.'
-                      : freshQuote && totals?.Q != null
-                        ? woodWords+' · '+boardWords+' · $'+Number(totals.Q).toFixed(2)+' material and machine quote ($'+Number(totals.material).toFixed(2)+' wood).'
-                        : woodWords+' · ask the Store.'));
-                }
+
+                // One line right under the choice: size, angle, board, price, or why there is none.
+                const notQuoted = {
+                  VIEW_UNAVAILABLE:'the Store answer view did not load.',
+                  NOT_ADMITTED:'not sent to the Store: '+(view?.blocking || []).map(b => b.title).join('; ')+'.',
+                  NOT_ASKED:'ask the Store.',
+                  ASKING:'asking the Store…',
+                  FAILED:'Store not reached ('+String(view?.failureCode || '')+').',
+                  REFUSED:'the Store refused this revision: '+reasonText+'.',
+                  UNRESOLVED:'the Store left this revision unresolved: '+reasonText+(view?.offeredGrades?.length ? ' · offered grades: '+view.offeredGrades.join(', ') : '')+'.',
+                  INVALID:'the Store answer was not accepted: '+reasons+'.'
+                };
+                setText('stb-bench-price-line', formatInches(demand.finishedLength)+' braces · '+formatDegrees(demand.angleDegrees)+' ends · '
+                  +(!woodWords ? 'no wood stated on Intent.'
+                    : quote
+                      ? woodWords+' · '+boardName(selection.stockLengthIn).toLowerCase()+' · '+money(economics.q)+' Store budgetary estimate ('+money(economics.material)+' wood + '+money(economics.machineService)+' machine).'
+                      : woodWords+' · '+notQuoted[status]));
 
                 const svg = childDoc.getElementById('stb-user1-bench-svg');
                 if (svg) {
@@ -773,56 +805,47 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     'aria-label',
                     'This version calls for '+demand.quantity+' part'+(demand.quantity===1?'':'s')+' at '+Number(demand.finishedLength).toFixed(3)+' inches with '+Number(demand.angleDegrees).toFixed(3)+' degree ends, derived to preserve the same 8.000 inch horizontal span. '
                     +(demand.spotDemand?'One centered 3/16 in spot demand per part is derived at '+definition.derived.centerSpotAlongLengthIn.value+' inches. ':'No spot is requested. ')
-                    +(Number.isFinite(retained)?'Store returned '+formatInches(retained)+' remaining.':'A fresh Store answer is required for this revision.')
+                    +(selection
+                      ? 'The Store selected a '+selection.stockLengthIn+' inch board'+(remainder != null ? ' and returned '+formatInches(remainder)+' remaining.' : '.')
+                      : 'The board is drawn at the '+requestedMinimum+' inch requested minimum; the Store has not selected one for this revision.')
                   );
                 }
 
-                setText('stb-material-required',
-                  '1 × 2×4 × '+formatInches(demand.definedWorkpieceLengthIn)+' Store-selected workpiece · '+demand.quantity+' finished parts · project minimum remains 60 in');
-                setText('stb-price-material',totals?.material==null?'NOT ESTABLISHED':'$'+Number(totals.material).toFixed(2));
-                setText('stb-price-processing',totals?.machine_service==null?'NOT ESTABLISHED':'$'+Number(totals.machine_service).toFixed(2));
-                setText('stb-price-total',totals?.Q==null ? 'NOT COMPLETE' : '$'+Number(totals.Q).toFixed(2));
-                setText('stb-price-basis',estimate
-                  ? 'Store-issued BudgetaryEstimate · material + modeled D-001 machine service · DECLARED_STAGE2_MODEL · not a commercial quote.'
-                  : 'LIVE STORE EVALUATION REQUIRED · Store Zero will calculate capability, modeled time, economics, and Q for this exact definition when you confirm.');
-                setText('stb-basis-sku',materialMapped?material.storeSku:'NOT MAPPED');
-                setText('stb-basis-source-stock',materialMapped
-                  ? material.quantity+' × '+material.stockLengthIn+' in 2×4 Store stock/pricing reference · Store-selected workpiece '+formatInches(demand.definedWorkpieceLengthIn)
+                setText('stb-material-required', selection
+                  ? '1 × 2×4 × '+formatInches(selection.stockLengthIn)+' Store-selected workpiece · '+selection.sku+' · '+demand.quantity+' finished parts at '+formatInches(demand.finishedLength)+' · project minimum remains '+formatInches(requestedMinimum)
+                  : '1 × 2×4 · '+formatInches(requestedMinimum)+' requested minimum · Store has not selected a board · '+demand.quantity+' finished parts at '+formatInches(demand.finishedLength));
+                setText('stb-price-material', economics ? money(economics.material) : 'NOT ESTABLISHED');
+                setText('stb-price-processing', economics ? money(economics.machineService) : 'NOT ESTABLISHED');
+                setText('stb-price-total', economics ? money(economics.q) : 'NOT COMPLETE');
+                setText('stb-price-basis', economics
+                  ? 'Store-issued '+(economics.documentKind || 'BudgetaryEstimate')+' · material '+money(economics.material)
+                    +(economics.hardware ? ' + items '+money(economics.hardware) : '')+' + modeled machine service '+money(economics.machineService)
+                    +' = Q '+money(economics.q)+' · '+(economics.qBasis || 'basis not stated')+' · not a commercial quote, acceptance or machine release.'
+                  : status === 'NOT_ASKED' || status === 'ASKING'
+                    ? 'LIVE STORE EVALUATION REQUIRED · Store Zero calculates capability, modeled time, economics, and Q for this exact definition.'
+                    : statusWords+' · no Store price for this revision.');
+                setText('stb-basis-sku', selection ? selection.sku : 'NOT MAPPED');
+                setText('stb-basis-source-stock', selection
+                  ? '1 × '+selection.stockLengthIn+' in 2×4 · '+selection.sku+' · Store selected · requested minimum remains '+requestedMinimum+' in'
                   : 'FRESH STORE ANSWER REQUIRED');
-                if (view?.selection.quote) {
-                  const money = value => value == null ? 'NOT ESTABLISHED' : '$'+Number(value).toFixed(2);
-                  setText('stb-bench-stock-line','ONE '+view.selection.stockLengthIn+'-IN 2×4 · Store selected '+view.sku+' · schematic');
-                  setText('stb-bench-workpiece-spec','2×4 · '+view.selection.stockLengthIn+' in Store selected');
-                  setText('stb-bench-price-line', view.priceLine);
-                  setText('stb-price-total', view.total);
-                  setText('stb-price-material', money(view.selection.material));
-                  setText('stb-price-processing', money(view.selection.machineService));
-                  setText('stb-price-basis', 'Store-issued BudgetaryEstimate · material '+money(view.selection.material)+' + modeled machine service '+money(view.selection.machineService)+' · not acceptance or machine release.');
-                  setText('stb-basis-sku', view.sku);
-                  setText('stb-basis-source-stock', '1 × '+view.selection.stockLengthIn+' in · '+view.sku+' · Store selected · requested minimum remains 60 in');
-                  setText('stb-def-workpiece', view.selection.stockLengthIn+' in · Store selected');
-                  setText('stb-material-required', '1 × 2×4 × '+view.selection.stockLengthIn+' in Store-selected workpiece · '+demand.quantity+' finished parts at '+demand.finishedLength+' in · project minimum remains 60 in');
-                  setText('stb-basis-job-time', view.selection.modeledMinutes == null ? 'UNRESOLVED' : Number(view.selection.modeledMinutes).toFixed(4)+' min · modeled · Store returned');
-                  setText('stb-basis-store-pin', view.selection.storePin || '—');
-                  setText('stb-bench-remain-label', view.selection.finalRemainderIn == null ? 'Store remainder unresolved' : view.selection.finalRemainderIn+' in remains · Store returned');
-                  setText('stb-bench-control-copy', 'Store selected '+view.selection.stockLengthIn+' in and returned '+String(view.selection.finalRemainderIn)+' in remaining. The 60 in figure is the requested minimum, not the selected board.');
-                  setText('stb-before-send', 'Store selected '+view.sku+' at '+view.selection.stockLengthIn+' in. Calculation '+(view.selection.calculationHash || 'unresolved')+'. Budgetary inquiry only. Machine admission stays blocked.');
-                }
-                setText('stb-basis-unit-price',materialMapped && Number.isFinite(Number(material.unitPrice)) ? '$'+Number(material.unitPrice).toFixed(2)+' / ea' : 'UNRESOLVED');
-                setText('stb-basis-cell-family',materialMapped && Array.isArray(material.cellFamily) ? material.cellFamily.join(' · ') : 'UNRESOLVED');
-                setText('stb-basis-supported-ops',materialMapped && Array.isArray(material.supportedOps) ? material.supportedOps.join(' · ') : 'UNRESOLVED');
-                setText('stb-basis-clock',String(material?.source?.clock || '—'));
-                setText('stb-basis-catalog-pin',String(material?.source?.pin || '—'));
-                setText('stb-basis-capability',String(capabilityBasis)+' · '+String(definition.capability.status));
-                setText('stb-basis-store-pin', view?.selection.quote ? (view.selection.storePin || '—') : String(definition.storeReference.source?.storePin || definition.storeReference.authority?.economicsPin || '—'));
-                setText('stb-basis-economics',estimate?.status
-                  ? estimate.status+' · '+String(estimate.completeness || 'UNRESOLVED')+' · STORE-ISSUED REFERENCE'
-                  : String(economics));
-                setText('stb-basis-pricing-engine',estimate?.engine ? estimate.engine.id+' · v'+estimate.engine.version : 'UNRESOLVED');
-                setText('stb-basis-cycle-model',estimate?.cycle?.model || 'UNRESOLVED');
-                if (!view?.selection.quote) setText('stb-basis-job-time',Number.isFinite(Number(estimate?.cycle?.T_job_min))
-                  ? Number(estimate.cycle.T_job_min).toFixed(4)+' min · modeled · Store returned '+totalModeledCuts+' saw operations'
+                setText('stb-basis-unit-price', selection?.unitPrice != null ? money(selection.unitPrice)+' / ea' : 'UNRESOLVED');
+                setText('stb-basis-cell-family', capability ? (capability.cellFamily ? capability.cellFamily.join(' · ') : 'NOT SUPPLIED BY STORE') : 'UNRESOLVED');
+                setText('stb-basis-supported-ops', capability ? (capability.supportedOps ? capability.supportedOps.join(' · ') : 'NOT SUPPLIED BY STORE') : 'UNRESOLVED');
+                setText('stb-basis-clock', capability ? (capability.catalogClock || 'NOT SUPPLIED BY STORE') : '—');
+                setText('stb-basis-catalog-pin', capability ? (capability.catalogPin || 'NOT SUPPLIED BY STORE') : '—');
+                setText('stb-basis-capability', capability
+                  ? (capability.envelope || 'ENVELOPE NOT NAMED')+' · '+(capability.jobSupportability || 'SUPPORTABILITY NOT STATED')
+                  : String(definition.capability?.basis || 'UNRESOLVED')+' · '+statusWords);
+                setText('stb-basis-store-pin', identity?.storePin || '—');
+                setText('stb-basis-economics', economics
+                  ? String(economics.status || 'UNRESOLVED')+' · '+String(economics.completeness || 'UNRESOLVED')+' · '+String(economics.economicsId || 'economics not named')
+                  : statusWords);
+                setText('stb-basis-pricing-engine', economics?.engine || 'UNRESOLVED');
+                setText('stb-basis-cycle-model', work?.cycleModel || 'UNRESOLVED');
+                setText('stb-basis-job-time', work?.modeledMinutes != null
+                  ? work.modeledMinutes.toFixed(4)+' min · modeled · Store returned '+String(work.derivedSawCuts ?? 'no')+' saw operations'
                   : 'UNRESOLVED');
+
                 const addedNote = addedControls.length
                   ? ' This job’s own controls — '+addedControls.map(control => control.label+' ('+control.value+')').join(', ')+' — are part of this version; the Store is not asked about them.'
                   : '';
@@ -832,21 +855,36 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     +(history.q != null ? ' once carried $'+Number(history.q).toFixed(2) : '')
                     +'. It is not this price, not completeness, and not permission to accept or go downstream.'
                   : '';
-                if (!view?.selection.quote) setText('stb-before-send',(definition.storeReference.unresolvedConditions.length
-                  ? 'No current Store answer is held in this browser. Confirm asks the Store to evaluate this exact revision. Nothing already on file is reused.'
-                  : 'Confirm asks the Store to evaluate this exact revision.')+historyNote+addedNote);
+                const beforeSend = {
+                  VIEW_UNAVAILABLE:'The Store answer view did not load. No Store answer is shown, and nothing is reused.',
+                  NOT_ADMITTED:'NOT SENT TO THE STORE · MISSING: '+(view?.blocking || []).map(b => b.title+' · owner '+b.owner).join('; ')+'. Nothing was sent and no prior Store answer was reused.',
+                  NOT_ASKED:'No current Store answer is held in this browser for this revision. Confirm asks the Store to evaluate this exact revision. Nothing already on file is reused.',
+                  ASKING:'ASKING STORE ZERO · budgetary inquiry for '+definition.versionId+'. Not acceptance and not a physical release.',
+                  FAILED:String(view?.failureCode || 'STORE_ZERO_UNAVAILABLE')+' · Store Zero could not evaluate '+definition.versionId+'. No quote was kept and no prior Store answer was reused.',
+                  REFUSED:reasons+' · The Store refused '+definition.versionId+'. There is no price, and nothing goes downstream.',
+                  UNRESOLVED:reasons+(view?.offeredGrades?.length ? ' · offered grades: '+view.offeredGrades.join(', ') : '')+' · The Store did not return a current quote for '+definition.versionId+'. Nothing was sent downstream.',
+                  INVALID:reasons+' · The Store answer for '+definition.versionId+' did not pass System checks, so it is not shown as a price.',
+                  BUDGETARY:'Store selected '+(selection?.sku || '')+' at '+(selection?.stockLengthIn ?? '')+' in for '+definition.versionId+' · request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Budgetary inquiry only: not a quote, acceptance or physical release. Confirm records this exact revision with a fresh Store answer. Machine admission stays blocked.',
+                  CONFIRMED:'Confirmed: '+definition.versionId+' carries Store request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Confirming is not payment, allocation, release or machine authorization. Machine admission stays blocked.'
+                };
+                setText('stb-before-send', beforeSend[status]+historyNote+addedNote);
 
                 const answerLine = childDoc.getElementById('stb-system-answer');
                 if (answerLine) {
-                  const requirementGap = definition.storeReference.jobSupportability?.status === 'NOT_FULLY_SUPPORTABLE';
-                  answerLine.innerHTML = freshQuote
-                    ? '<b>STORE</b> · fresh quote · '+(requirementGap ? 'not the whole job · ' : '')+String(material?.stockLengthIn || demand.definedWorkpieceLengthIn)+' in stock · '+Number(estimate.cycle.T_job_min).toFixed(4)+' modeled min · calculation '+String(estimate.calculationIdentity?.resultHash || '').slice(0,12)+'…'
-                    : '<b>STORE</b> · LIVE STORE EVALUATION REQUIRED · confirm sends this exact definition to Store Zero; no stored specimen is substituted.';
+                  const head = childDoc.createElement('b');
+                  head.textContent = 'STORE';
+                  answerLine.replaceChildren(head, ' · '+(quote
+                    ? (view.confirmed ? 'confirmed' : 'budgetary inquiry')+' · '+(capability.jobSupportability === 'NOT_FULLY_SUPPORTABLE' ? 'not the whole job · ' : '')
+                      +selection.stockLengthIn+' in stock · '+(work.modeledMinutes != null ? work.modeledMinutes.toFixed(4)+' modeled min · ' : '')
+                      +'calculation '+String(identity?.resultHash || '').slice(0,12)+'…'
+                    : status === 'NOT_ASKED'
+                      ? 'LIVE STORE EVALUATION REQUIRED · this exact definition goes to Store Zero; no stored specimen is substituted.'
+                      : statusWords+(reasons ? ' · '+reasons : '')));
                 }
 
                 if (confirmButton) {
                   const runtimeAvailable = !!user1RuntimeBridge && typeof user1RuntimeBridge.request === 'function';
-                  confirmButton.disabled = !runtimeAvailable;
+                  confirmButton.disabled = !runtimeAvailable || status === 'ASKING';
                   confirmButton.title = runtimeAvailable
                     ? 'Confirm this exact definition and request a fresh Store Zero evaluation.'
                     : 'The deployed Store runtime connection is unavailable.';
@@ -854,13 +892,33 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                 activate('[data-length]','data-length',demand.finishedLength);
               };
 
+              // Admit first, then draw: the bench reads the admission of the revision it is drawing, never the last one.
               const syncAndRender = reason => {
                 const definition = syncDefinition(reason);
-                renderBench(definition);
                 startOwnAdmitBench(definition);
+                renderBench(definition);
                 return definition;
               };
               const markRevision = () => { definitionRevision += 1; };
+              // Ask the Store about the revision on the bench, once per revision: not while that revision is being asked,
+              // and not when it already has its answer or a blocked admission. A failed ask is asked again next time.
+              // Every result, from any caller of startOwnInquire, redraws the bench through renderStartOwnBench.
+              const askBench = () => {
+                if (!benchScreen || benchScreen.hidden) return;
+                const definition = currentUser1Definition;
+                if (!definition || !user1RuntimeBridge) return;
+                const status = benchViewOf(definition)?.status;
+                if (status && status !== 'NOT_ASKED' && status !== 'FAILED') return;
+                startOwnInquire(startOwnRevision(definition)).catch(() => {});
+              };
+              // Every change to the job is a new revision, drawn at once and, on the bench, asked about at once.
+              const revise = reason => {
+                markRevision();
+                const definition = syncAndRender(reason);
+                askBench();
+                return definition;
+              };
+              renderStartOwnBench = () => renderBench(currentUser1Definition);
 
               syncStoreGlossary();
               try {
@@ -874,9 +932,8 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               showStage(pendingStartOwnStage, pendingStartOwnFocus);
 
               benchButton?.addEventListener('click', () => {
-                const definition = syncAndRender('BENCH_HANDOFF');
+                syncAndRender('BENCH_HANDOFF');
                 showStage('bench');
-                askBench(definition);
               });
               benchBack?.addEventListener('click', () => {
                 showStage('intent');
@@ -889,43 +946,21 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               lengthInput?.addEventListener('input', () => {
                 const next=Number(lengthInput.value);
                 if (!Number.isFinite(next)) return;
-                markRevision();
-                syncAndRender('CUSTOMER_INPUT');
+                revise('CUSTOMER_INPUT');
               });
               childDoc.querySelectorAll('[data-length]').forEach(button => {
                 button.addEventListener('click', () => {
                   if (lengthInput) lengthInput.value = button.dataset.length;
-                  currentBenchAnswer = null;
-                  markRevision();
-                  const definition = syncAndRender('CUSTOMER_INPUT');
-                  askBench(definition);
+                  revise('CUSTOMER_INPUT');
                 });
               });
-              const askBench = async definition => {
-                if (!definition || !user1RuntimeBridge) return;
-                const versionId = definition.versionId;
-                const token = ++benchAskToken;
-                setText('stb-before-send', 'ASKING STORE ZERO · budgetary inquiry for this revision. Not acceptance and not a physical release.');
-                try {
-                  const inquiry = await startOwnInquire(startOwnRevision(definition));
-                  if (token !== benchAskToken || !inquiry?.reachedStore || !inquiry.answer) return;
-                  if (!window.STBStartOwnAnswer?.acceptAnswer(versionId, definition.versionId)) return;
-                  currentBenchAnswer = { versionId, body: inquiry.answer };
-                  const live = syncAndRender('STORE_ANSWER');
-                  if (live && live.versionId !== versionId) currentBenchAnswer = null;
-                } catch (error) {
-                  if (token !== benchAskToken) return;
-                  setText('stb-before-send', String(error?.message || 'STORE_ZERO_UNAVAILABLE')+' · no quote was kept.');
-                }
-              };
               // One wood for this job, stated on Intent: its handoff frame shows it, ITEM LOOKUP changes it. The bench
               // has no wood choice.
               const chooseSpecies = species => {
                 if (!SPECIES_WORDS[species] || species === jobSpecies) return;
                 jobSpecies = species;
                 setText('stb-carry-wood', '2×4 ' + SPECIES_WORDS[species]);
-                markRevision();
-                syncAndRender('INTENT_CONTROL');
+                revise('INTENT_CONTROL');
               };
               // ITEM LOOKUP asks the live Store Zero offering service, once per LOOK UP or Enter. The Store matches its
               // own catalog at the pin; this page holds no copy and has no answer of its own. Showing results changes
@@ -1050,13 +1085,10 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     });
                     select.value = jobSpecies;
                     select.addEventListener('change', () => {
-                      if (!SPECIES_WORDS[select.value] && !control.speciesChoices?.includes(select.value)) return;
+                      if (!SPECIES_WORDS[select.value] || !control.speciesChoices?.includes(select.value)) return;
                       jobSpecies = select.value;
                       jobGrade = null;
-                      markRevision();
-                      currentBenchAnswer = null;
-                      const definition = syncAndRender('CUSTOMER_INPUT');
-                      askBench(definition);
+                      revise('CUSTOMER_INPUT');
                     });
                     choices.append(select);
                   } else {
@@ -1070,8 +1102,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                         if (control.value === value) return;
                         control.value = value;
                         renderAddedControls();
-                        markRevision();
-                        syncAndRender('CUSTOMER_INPUT');
+                        revise('CUSTOMER_INPUT');
                       });
                       choices.append(button);
                     });
@@ -1089,15 +1120,16 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                   if (window.STBStartOwnAnswer?.isChangeWoodTool(label) && window.STBStoreClient?.lookupOfferings) {
                     window.STBStoreClient.lookupOfferings({ projectId:'start-own', candidateRevisionId:'change-wood', searchText:'2x4' })
                       .then(answer => {
-                        const species = [...new Set((answer.rawOfferings || []).filter(item => item.form === 'board' && item.nominalT === 2 && item.nominalW === 4 && item.species).map(item => item.species))];
+                        // Woods the Store offers as this job's 2×4 board, and only this job's woods: a wood the job
+                        // cannot state would leave the definition with no species.
+                        const species = [...new Set((answer.rawOfferings || []).filter(item => item.form === 'board' && item.nominalT === 2 && item.nominalW === 4 && SPECIES_WORDS[item.species]).map(item => item.species))];
                         control.speciesChoices = species;
                         renderAddedControls();
                       })
                       .catch(() => {});
                   }
                   renderAddedControls();
-                  markRevision();
-                  syncAndRender('INTENT_CONTROL');
+                  revise('INTENT_CONTROL');
                 }
                 toolInput.value = '';
               };
@@ -1106,8 +1138,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
               toolButton?.addEventListener('click', addTool);
               resetDemoButton?.addEventListener('click', () => {
                 if (lengthInput) lengthInput.value = '16';
-                markRevision();
-                syncAndRender('RESET_DEMO');
+                revise('RESET_DEMO');
               });
 
               if (confirmButton && confirmButton.dataset.stbHostConfirmBound !== 'true') {
@@ -1122,56 +1153,28 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
 
                   const requestId = nextStoreRequestId(definition);
                   confirmButton.disabled = true;
-                  setText('stb-before-send','ASKING STORE ZERO · this exact definition is being freshly evaluated. The displayed prior reference is not being reused.');
 
-                  // The one Store handoff: this exact definition as one revision, through admit() then inquire().
-                  let freshStoreBody = null;
+                  // The one Store handoff: this exact definition as one revision, through admit() then inquire(). The
+                  // bench shows the asking, a blocked admission, a failure or the answer from startOwnLive as it changes.
+                  let inquiry = null;
                   try {
-                    const inquiry = await startOwnInquire(startOwnRevision(definition), requestId);
-                    if (!inquiry.reachedStore) {
-                      confirmButton.disabled = false;
-                      return;
-                    }
-                    freshStoreBody = inquiry.answer;
-                  } catch (error) {
-                    setText('stb-before-send',String(error?.message || 'STORE_ZERO_UNAVAILABLE')+' · Store Zero could not evaluate this definition. Nothing was sent downstream and no prior Store answer was reused.');
+                    inquiry = await startOwnInquire(startOwnRevision(definition), requestId);
+                  } catch (_) {
                     confirmButton.disabled = false;
                     return;
                   }
-
-                  const freshEvaluation = freshStoreBody?.rawEvaluation || null;
-                  const freshEstimate = freshStoreBody?.rawEstimate || null;
-                  const freshReceipt = freshStoreBody?.evaluationReceipt || freshEvaluation?.evaluationReceipt || null;
-                  const freshnessOk =
-                    freshEvaluation?.freshEvaluation === true &&
-                    freshReceipt?.requestId === requestId &&
-                    freshReceipt?.authority?.storeRevision === freshStoreBody?.storePin;
-                  const quoteComplete =
-                    freshEvaluation?.status === 'SUPPORTABLE' &&
-                    freshnessOk &&
-                    freshEstimate?.complete === true &&
-                    freshStoreBody?.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD' &&
-                    freshStoreBody?.priceCompleteness?.scope === 'QUOTE_ONLY';
-                  const jobStatus = freshStoreBody?.jobSupportability?.status;
-                  const distinctionPresent = jobStatus === 'NOT_FULLY_SUPPORTABLE' || jobStatus === 'REQUIREMENTS_SATISFIED';
-                  const machineBlocked = freshStoreBody?.machineAdmission?.physicalRelease === false;
-                  const quoteReady = quoteComplete && distinctionPresent && machineBlocked;
-
-                  if (!quoteReady) {
-                    const reasons = []
-                      .concat(freshStoreBody?.priceCompleteness?.refusalConditions || [])
-                      .concat(freshStoreBody?.priceCompleteness?.unresolvedConditions || [])
-                      .concat(freshEvaluation?.refusalConditions || [])
-                      .concat(freshEvaluation?.unresolvedConditions || [])
-                      .concat(freshEvaluation?.reasonCodes || [])
-                      .filter(Boolean);
-                    const code = reasons.length
-                      ? Array.from(new Set(reasons)).join(' · ')
-                      : String(freshEvaluation?.status || jobStatus || 'STORE_ANSWER_REQUIRED');
-                    setText('stb-before-send',code+' · The Store did not return a current quote for this definition. No specimen was reused, and nothing was sent downstream.');
-                    confirmButton.disabled = false;
-                    return;
-                  }
+                  confirmButton.disabled = false;
+                  if (!inquiry.reachedStore) return;
+                  // Record only the answer that is still current for the revision still on the bench, and only when it
+                  // is the complete budgetary answer to this Confirm's own request. Anything else stays on the bench as
+                  // what it is (refused, unresolved, not accepted, or superseded) and nothing goes downstream.
+                  if (currentUser1Definition?.versionId !== definition.versionId || startOwnLive.answer !== inquiry.answer) return;
+                  const view = benchViewOf(definition);
+                  if (!view?.quote || view.identity?.requestId !== requestId) return;
+                  const freshStoreBody = inquiry.answer;
+                  const freshEvaluation = freshStoreBody.rawEvaluation;
+                  const freshEstimate = freshStoreBody.rawEstimate;
+                  const freshReceipt = freshStoreBody.evaluationReceipt || freshEvaluation?.evaluationReceipt || null;
 
                   const rawMaterial = freshStoreBody.materialResolution || {};
                   const rawOffering = freshStoreBody.rawOffering || {};
@@ -1274,15 +1277,14 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                       },
                       mappedStoreSkus:storeSku ? [storeSku] : []
                     }),
+                    // The confirmed parent is the Store's selection; the defined workpiece stays the job's requested minimum.
                     physicalDemand:Object.assign({}, definition.physicalDemand, {
-                      parentLengthIn:selectedWorkpieceLengthIn,
-                      definedWorkpieceLengthIn:selectedWorkpieceLengthIn
+                      parentLengthIn:selectedWorkpieceLengthIn
                     }),
                     workpieceSequence:freshEstimate?.travel ? {
                       status:'SEQUENCED',
                       basis:'STORE_RETURNED_TRAVEL',
                       finalRemainderIn:freshEstimate.travel.finalRemainderIn,
-                      holdIn:freshEstimate.travel.holdIn ?? 24,
                       derivedSawCuts:freshEstimate.travel.derivedSawCuts,
                       derivedSpotCount:freshEstimate.travel.derivedSpotCount
                     } : definition.workpieceSequence,
@@ -1306,8 +1308,6 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     })
                   });
                   currentUser1Definition = confirmedDefinition;
-                  currentBenchAnswer = { versionId: confirmedDefinition.versionId, body: freshStoreBody };
-                  renderBench(confirmedDefinition);
 
                   const handoff = createComparisonStoreHandoff('start-own',{
                     id:confirmedDefinition.definitionId,
@@ -1343,6 +1343,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
                     boardEvaluation:confirmedDefinition.capability
                   };
                   retainComparisonStoreHandoff('start-own',handoff);
+                  renderBench(confirmedDefinition);
                   try {
                     win.localStorage.setItem('stb-start-own-user1-definition',JSON.stringify(confirmedDefinition));
                     win.localStorage.setItem('stb-start-own-user1-bench',JSON.stringify({
@@ -2754,14 +2755,12 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       const token = ++startOwnLive.token;
       startOwnLive.admission = admission;
       startOwnLive.answer = null;
+      startOwnLive.failure = null;
       startOwnLive.blocking = admission.admission.blocking.map(b => ({ ...b }));
       startOwnLive.asking = startOwnAdmitted();
+      startOwnLive.askedRevisionId = startOwnLive.asking ? admission.definitionRevisionId : null;
       renderStartOwnTerms();
-      if (!startOwnLive.asking) {
-        // Not sent: the bench names each missing fact and its owner.
-        const line = doc.getElementById('start-own-proof-frame')?.contentDocument?.getElementById('stb-before-send');
-        if (line) line.textContent = 'NOT SENT TO THE STORE · MISSING: '+startOwnLive.blocking.map(b => b.title+' · owner '+b.owner).join('; ')+'. Nothing was sent and no prior Store answer was reused.';
-      }
+      renderStartOwnBench();
       try {
         const result = await tileHostContract.inquire(admission, request => {
           if (!user1RuntimeBridge || typeof user1RuntimeBridge.request !== 'function') throw new Error('STORE_RUNTIME_UNAVAILABLE');
@@ -2769,18 +2768,33 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
         });
         if (token === startOwnLive.token) startOwnLive.answer = result.answer;
         return result;
+      } catch (error) {
+        // A failed ask is this revision's outcome, kept until the next ask. It never leaves an older answer standing.
+        if (token === startOwnLive.token) {
+          startOwnLive.failure = { definitionRevisionId:admission.definitionRevisionId, code:String(error?.message || 'STORE_ZERO_UNAVAILABLE') };
+        }
+        throw error;
       } finally {
-        if (token === startOwnLive.token) { startOwnLive.asking = false; renderStartOwnTerms(); }
+        if (token === startOwnLive.token) {
+          startOwnLive.asking = false;
+          startOwnLive.askedRevisionId = null;
+          renderStartOwnTerms();
+          renderStartOwnBench();
+        }
       }
     }
+    // What the job asks the Store to hold to: the requested minimum and the identified parts with their features.
+    function startOwnJob(definition) {
+      return {
+        requestedMinimumIn:Number(definition?.material?.definedWorkpieceLengthIn?.value),
+        parts:Array.isArray(definition?.storeDemand?.parts) ? definition.storeDemand.parts : []
+      };
+    }
+    // Within the envelope means the same complete budgetary answer the bench and Confirm accept: one gate.
     function startOwnWithinEnvelope(answer) {
-      const quote = answer.rawEvaluation?.status === 'SUPPORTABLE'
-        && answer.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD'
-        && answer.priceCompleteness?.scope === 'QUOTE_ONLY';
-      const job = answer.jobSupportability?.status;
-      return quote
-        && answer.machineAdmission?.physicalRelease === false
-        && (job === 'NOT_FULLY_SUPPORTABLE' || job === 'REQUIREMENTS_SATISFIED');
+      const definition = proofHandoff?.payload?.definition;
+      if (!window.STBStartOwnAnswer || !definition) return false;
+      return window.STBStartOwnAnswer.budgetaryGaps(answer, startOwnJob(definition)).length === 0;
     }
     // The answer inquire() returned for the revision on the bench, while nothing newer is being asked and the
     // pages after the bench carry it; otherwise null. Only isCurrentAnswer() decides: a blocked, failed, saved or

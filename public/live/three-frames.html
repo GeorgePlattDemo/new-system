@@ -405,8 +405,8 @@
           <text id="stb-bench-static-part2-label" x="368" y="124" text-anchor="middle" font-size="11" font-weight="700" fill="#584533">PART 2</text>
           <!-- true spare 32..36in = x477..532 (only 55px wide; small label above) -->
           <text id="stb-bench-spare-label" x="504" y="96" text-anchor="middle" font-size="8.5" fill="#9a8a72">3⅝ in spare</text>
-          <text x="696" y="136" text-anchor="middle" font-size="11" font-weight="700" fill="#2f6f9e">CONTROL SURFACE</text>
-          <text x="696" y="151" text-anchor="middle" font-size="9.5" fill="#2f6f9e">machine grips this · 24 in</text>
+          <text id="stb-bench-hold-title" x="696" y="136" text-anchor="middle" font-size="11" font-weight="700" fill="#2f6f9e">CONTROL SURFACE</text>
+          <text id="stb-bench-hold-note" x="696" y="151" text-anchor="middle" font-size="9.5" fill="#2f6f9e">machine grips this · 24 in</text>
 
           <!-- dims -->
           <g id="stb-bench-static-dims" stroke="#7a4f22" stroke-width="1.1" fill="none" opacity=".8">
@@ -572,6 +572,7 @@
     const scale=(xMax-x0)/workpieceLength;
     const qty=Math.max(1,Math.min(2,Number(demand.quantity)||1));
     const len=Math.max(0,Number(demand.finishedLength)||0);
+    const spotsAt=Array.isArray(demand.spotsAlongPartIn) ? demand.spotsAlongPartIn : [];
     const angle=Math.max(0,Math.min(89,Number(demand.angleDegrees)||0));
     const delta=80*Math.tan(angle*Math.PI/180);
     const boundaries=Array.from({length:qty+1},(_,i)=>x0+i*len*scale);
@@ -583,8 +584,11 @@
       svg+='<path d="M'+(left+delta)+' 101 L'+(right+delta)+' 101 L'+right+' 179 L'+left+' 179 Z" fill="'+fill+'" opacity=".06"/>';
       const cx=left+(right-left)/2;
       svg+='<text x="'+cx+'" y="124" text-anchor="middle" font-size="11" font-weight="700" fill="#584533">PART '+(i+1)+'</text>';
-      if(demand.spotDemand){
-        svg+='<circle cx="'+cx+'" cy="140" r="12" fill="none" stroke="#2f6f9e" stroke-width="2.4"/><circle cx="'+cx+'" cy="140" r="4" fill="#2f6f9e"/>';
+      // The spot is drawn where the definition puts it; this page does not work out a spot location of its own.
+      const spotIn=Number(spotsAt[i]);
+      if(demand.spotDemand && spotsAt[i]!=null && Number.isFinite(spotIn)){
+        const sx=left+spotIn*scale;
+        svg+='<circle cx="'+sx+'" cy="140" r="12" fill="none" stroke="#2f6f9e" stroke-width="2.4"/><circle cx="'+sx+'" cy="140" r="4" fill="#2f6f9e"/>';
       }
       svg+='<g stroke="#7a4f22" stroke-width="1.1" fill="none" opacity=".8"><line x1="'+left+'" y1="200" x2="'+right+'" y2="200"/><path d="M'+left+' 195v10M'+right+' 195v10"/></g>';
       svg+='<text x="'+cx+'" y="217" text-anchor="middle" font-size="11" font-weight="700" fill="#7a4f22">'+len+' in</text>';
@@ -595,19 +599,35 @@
       const mx=bottomX+delta*.65;
       svg+='<circle cx="'+mx+'" cy="74" r="13" fill="#a85a2a"/><text x="'+mx+'" y="79" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+(index+1)+'</text>';
     });
-    overlay.innerHTML=svg;
-    const remainderIn=Number(demand.remainderIn);
-    const bandIn=Number.isFinite(remainderIn) && remainderIn>0 ? remainderIn : Number(demand.holdIn);
-    if (Number.isFinite(bandIn) && bandIn>0 && bandIn<workpieceLength) {
-      const holdX=x0+(workpieceLength-bandIn)*scale;
-      const holdWidth=bandIn*scale;
-      ['stb-bench-hold-band','stb-bench-hold-outline'].forEach(id => {
-        const band=document.getElementById(id);
-        if (!band) return;
-        band.setAttribute('x', String(holdX));
-        band.setAttribute('width', String(holdWidth));
-      });
+    // When the Store selected a board longer than the job's requested minimum, mark where that minimum ends.
+    if(storeSelected && selected>requested){
+      const mx=x0+requested*scale;
+      svg+='<g><line x1="'+mx+'" y1="92" x2="'+mx+'" y2="188" stroke="#8a8580" stroke-width="1.4" stroke-dasharray="4 4"/>'
+        +'<text x="'+mx+'" y="88" text-anchor="middle" font-size="9.5" fill="#8a8580">'+requested+' in requested minimum</text></g>';
     }
+    overlay.innerHTML=svg;
+    // The hatched band is the board the Store says remains after the cuts. With no current Store remainder there is
+    // no band: the page does not draw a remainder, or a retained-control length, the Store has not returned.
+    const remainderIn=Number(demand.remainderIn);
+    const hasRemainder=storeSelected && demand.remainderIn!=null && Number.isFinite(remainderIn) && remainderIn>0 && remainderIn<workpieceLength;
+    const holdX=hasRemainder ? x0+(workpieceLength-remainderIn)*scale : 0;
+    const holdWidth=hasRemainder ? remainderIn*scale : 0;
+    ['stb-bench-hold-band','stb-bench-hold-outline'].forEach(id => {
+      const band=document.getElementById(id);
+      if (!band) return;
+      band.style.display=hasRemainder ? '' : 'none';
+      if (!hasRemainder) return;
+      band.setAttribute('x', String(holdX));
+      band.setAttribute('width', String(holdWidth));
+    });
+    ['stb-bench-hold-title','stb-bench-hold-note'].forEach(id => {
+      const label=document.getElementById(id);
+      if (!label) return;
+      label.style.display=hasRemainder ? '' : 'none';
+      if (hasRemainder) label.setAttribute('x', String(holdX+holdWidth/2));
+    });
+    const holdNote=document.getElementById('stb-bench-hold-note');
+    if (holdNote && hasRemainder) holdNote.textContent='machine grips this end';
   };
   // The spare and remain labels sit past the last part, wherever the demand ends it.
   const placeBenchLabels = demand => {

@@ -35,7 +35,7 @@ The screen states the quote, names the unevaluated end facts, and says the whole
 
 ## What was exercised
 
-- 16 in SPF, 18 in SPF, 18 in treated, and 16 in treated, each by a fresh confirm. The price on the bench stays “ask the Store” until that confirm. After a confirm, the Store-answers page shows the quote above.
+- 16 in SPF, 18 in SPF, 18 in treated, and 16 in treated, each by a fresh confirm. After a confirm, the Store-answers page shows the quote above.
 - Store stopped. Confirm stayed on the bench: `STORE_ZERO_UNAVAILABLE`. Total stayed `NOT COMPLETE`. The specimen was not substituted.
 - An 84 in brace, through the same admit-and-inquire path the bench uses. The Store returned `REFUSED`. The page stayed on the bench. Store answers and Your call stayed closed.
 - Save and reopen. 18 in and treated SYP came back. The price did not. Store answers, Your call, and the yard stayed closed. The pin on the Store-answers page was “—” and Q was `NOT COMPLETE`.
@@ -56,5 +56,20 @@ The screen states the quote, names the unevaluated end facts, and says the whole
 | Playhouse arched window | Kept | Not migrated. Same refusal. |
 
 Closet cleats is not a tile.
+
+## The bench reads one answer
+
+Entering the bench, and every change to the job while on it, makes a revision and asks the Store about that revision through the same admit-and-inquire path. `benchAnswer()` in `public/live/stb-start-own-answer.mjs` is the bench's one reading of that inquiry: one status (not sent, asking, Store not reached, refused, unresolved, not accepted, budgetary, confirmed) and, only for a complete budgetary answer, the Store's board, remainder, Q and its parts. Every Store field on the bench, the Confirm gate and the trail's within-envelope decision read it. An answer counts only when the tile-host contract's `isCurrentAnswer()` matches it to the revision on the bench, its receipt names its own request and the Store pin, its Q equals the Store's listed components to the cent, and the Store's travel echoes the definition's parts and spots unchanged. Confirmed means the confirmed record names that answer's request.
+
+Observed in a browser against Store `1cea72c8223b2c738180b230c584c4ab557267ca`, on 2026-10-09:
+
+- 16 in SPF: `STB-ZERO-SPF-2X4-60-001`, 60 in, $2.61 + $5.93 = $8.54, 27⅝ in remains, spots at 8 in. No longer-board frame.
+- 18 in SPF: `STB-ZERO-SPF-2X4-72-001`, 72 in, $3.13 + $5.94 = $9.07, 35⅝ in remains, spots at 9 in. The drawing is at 72 in with the 60 in requested minimum marked. The longer-board frame names the refused 60 in board and `LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL`.
+- 18 then 16 with the 18 in reply held back until after the 16 in reply: the bench stayed at 60 in and $8.54.
+- Store unreachable, a reply naming another Store pin, and a reply whose receipt names another request: each showed “Store not reached” with its code, no board, no price and no remainder band.
+- Change Wood is offered only after Intent adds it. Treated SYP came back unresolved (`GRADE_CHOICE_REQUIRED`, with the offered grades) and showed no price.
+- Confirm at 18 in, then back to the bench: confirmed, same $9.07. Changing the length after that is a new budgetary revision, and Store answers and Your call close.
+
+The Store's answer reports the remainder, not its retained-control minimum, so the bench no longer prints a “spare” figure or calls 24 in a Store-returned value.
 
 Nothing here was published.
