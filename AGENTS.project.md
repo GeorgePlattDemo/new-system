@@ -1,26 +1,20 @@
-# New System candidate
+# Scan-to-Build
 
-This file is the project instruction for this repository. The app-builder workspace rules still apply to the preview.
-
-## Words
-
-The published five-job shell in `public/live/` is the front door. The generic library at `/bench` is an internal test bench, not a substitute for those jobs.
+The five-job shell in `public/live/` is the front door. The generic library at `/bench` is an internal test bench, not a substitute for those jobs.
 
 System defines a job. Store evaluates it. System does not price, and it does not invent a canonical hash other than the Store's `calculationHash`, used only to check a receipt or a demand the Store already hashed.
 
 ## Boundaries
 
-- Do not connect this candidate to the live System, the old Store, or Program.
-- Do not import those codebases at runtime.
 - Physical release stays false. Physical admission stays blocked. No payment, reservation, or production release.
 - Do not convert an unknown or malformed saved-record version into the current schema.
 - Do not strip a supplied `endIdentity`. A board whose length datum is already `long-long-outer-edge` does not send a second end-identity string. That is a reconciliation, not a deletion.
 - Do not clone the Store machine engine. Virtual evidence comes from `POST /v1/machine-evidence` on the pinned Store commit, or it is not evidence.
-- Window seat's extra hand-placed spot from the old page is not a control here.
+- Space utilization keeps the extra spot on a part the person picks. That job is not answered until its own Store question is.
 
 ## Store pin
 
-`STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts` is the only Store commit this candidate asks. Change it only by recording the new commit and rerunning the joint test against a checkout whose `git rev-parse HEAD` is that commit. Do not label whichever process happens to be running.
+`STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts` is the only Store commit this application asks. Change it only by recording the new commit and rerunning the joint test against a checkout whose `git rev-parse HEAD` is that commit. Do not label whichever process happens to be running.
 
 ## Required check
 

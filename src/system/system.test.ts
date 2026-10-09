@@ -24,8 +24,8 @@ import {
 import { shapeProblems, DEFINITION_SHAPES } from "./shape.ts";
 import { STORE_CANDIDATE } from "./store-candidate.ts";
 
-const publishedDemand = JSON.parse(readFileSync(new URL("../../reference/project-1/published/definition-and-demand.json", import.meta.url), "utf8")).demand;
-const publishedReview = JSON.parse(readFileSync(new URL("../../reference/project-1/published/review-summary.json", import.meta.url), "utf8"));
+const publishedDemand = JSON.parse(readFileSync(new URL("./fixtures/definition-and-demand.json", import.meta.url), "utf8")).demand;
+const publishedReview = JSON.parse(readFileSync(new URL("./fixtures/review-summary.json", import.meta.url), "utf8"));
 
 function fixtureAnswer(args: {
   requestType: string;
@@ -352,7 +352,7 @@ test("published project 1 evidence is unchanged and is not a live Q", () => {
   assert.equal(publishedReview.storeTimeSec, 85.5001);
   assert.notEqual(publishedReview.virtualTimeSec, publishedReview.storeTimeSec);
   assert.equal(publishedReview.physicalAdmission, "BLOCKED");
-  assert.equal(sha256Bytes(readFileSync(new URL("../../reference/project-1/published/review-summary.json", import.meta.url), "utf8")).length, 64);
+  assert.equal(sha256Bytes(readFileSync(new URL("./fixtures/review-summary.json", import.meta.url), "utf8")).length, 64);
 });
 
 test("retired request types are not in the library", () => {

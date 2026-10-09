@@ -41,7 +41,7 @@ function braceLine() {
   return braceLineAt(16);
 }
 
-test("the served Start your own runtime does not name the old Store host", () => {
+test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);

@@ -1,19 +1,12 @@
 # Definitions
 
-This file is the only place in this candidate that says what a shared word means.
+This file is the only place here that says what a shared word means.
 
 If the code and this page disagree, that is a defect to fix on purpose. Neither one wins by being quieter.
 
-**Owner of this page:** this New System candidate. It is not a pointer back at the live application, and it is not a second glossary that can drift beside the code.
+Store Zero answers the job. This page does not price, and it does not redefine a Store word.
 
-Words were read, not imported, from:
-
-- Live System `docs/definitions/README.md` at `bbcfd1a2c391d8a8121d02c9d5e6db14623a9541`
-- Live Store `docs/DEFINITIONS.md` at `96a671d8c11301663723118a251d5d798ada5b9e`
-
-Store Zero `4cb0c625ac00c62390129b55a52596b52f10decd` is the Store this candidate asks. It is not wired to a live yard. Yard, price, stock and capability words below are **Store-owned**. They are copied here so a person has one page. This candidate does not redefine them.
-
-Do not add a word just to make the page longer. Add one when two trades would otherwise use it differently, or when this candidate's records expose it.
+Do not add a word just to make the page longer. Add one when two trades would otherwise use it differently, or when a record exposes it.
 
 ## What this candidate adds
 
@@ -47,7 +40,7 @@ A face-miter board in this library does **not** send `endIdentity: "miter-face-l
 
 Square cuts, plan ends and the sheet's factory edge keep their own end identity. Those jobs are not boards. The reference cell answers `LOWERING_NOT_REGISTERED_FOR` for their request type. Their identity is not removed to avoid that refusal, and a supportable price is not machine evidence.
 
-## Terms from the live System glossary
+## Shared terms
 
 
 **Trail** — The one six-step path every project follows: **Intent → The bench → The Store answers → Your call → We cut it → Pick up & build.** Idea comes before it, unnumbered. Declared in `apps/stb/public-build/stb-trail-contract.js` (`STB-TRAIL-CONTRACT-0.2`); the rules are AGENTS.md "Trail rules"; enforced by the trail scoreboard test.
@@ -76,7 +69,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Dev guide** — The right-hand rail: short developer notes, rules and admitted gaps for reviewers. Not customer copy.
 
-**Store request type** — The kind of question System asks the Store. The live glossary named `OFFERING_LOOKUP`, `BOARD_SQUARE_V1`, `USER_DEFINED_BOARD_V1`, `ALCOVE_INSERT_V1`, `CUT_PACKAGE_V1`, and `SHEET_PACKAGE_V1`. In this candidate, `BOARD_SQUARE_V1` and `ALCOVE_INSERT_V1` are retired names. The Store refuses them. They are not library jobs. The accepted types are `USER_DEFINED_BOARD_V1`, `CUT_PACKAGE_V1`, `SHEET_PACKAGE_V1`, and `OFFERING_LOOKUP`.
+**Store request type** — The kind of question System asks the Store. The names are `OFFERING_LOOKUP`, `BOARD_SQUARE_V1`, `USER_DEFINED_BOARD_V1`, `ALCOVE_INSERT_V1`, `CUT_PACKAGE_V1`, and `SHEET_PACKAGE_V1`. `BOARD_SQUARE_V1` and `ALCOVE_INSERT_V1` are retired names. The Store refuses them. They are not library jobs. The accepted types are `USER_DEFINED_BOARD_V1`, `CUT_PACKAGE_V1`, `SHEET_PACKAGE_V1`, and `OFFERING_LOOKUP`.
 
 **Store answer status** — `STORE_JOB_STATUSES`:
 
@@ -94,7 +87,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Store pin** — The exact Store commit the app calls. Its current operational owner is `STORE_PIN` in [`apps/stb/shared/contracts.mjs`](../../apps/stb/shared/contracts.mjs). Changing it is a deliberate, separate act (see the protected path in [AGENTS.md](../../AGENTS.md)).
 
-**Stages 1–4** — Store/cell evidence levels: one board; Store Zero and the D-001 reference cell; a physical cell; an evidence-informed system. Owned by Store: [stage guide](https://github.com/GeorgePlattDemo/scan-to-build-store/blob/main/docs/standards/STB-STORE-CELL-STAGES-0.1.md).
+**Stages 1–4** — Store/cell evidence levels: one board; Store Zero and the D-001 reference cell; a physical cell; an evidence-informed system. Store owns these levels.
 
 **Stub** — The part of the Store's board left after the parts are cut. It goes back to the customer with the parts.
 
@@ -549,7 +542,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 **A saved answer ≠ a current answer** — a saved Store answer is history, not current authority.
 
 
-## Terms from the live Store glossary
+## Store terms
 
 These are Store-owned. A change in a yard word does not rewrite a job.
 
