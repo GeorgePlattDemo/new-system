@@ -2,11 +2,14 @@ import assert from "node:assert/strict";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
+import { webcrypto } from "node:crypto";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { answerPublishedWire, boardDemandFromPublishedLine } from "./published-wire.ts";
 
 const root = process.env.STORE_ZERO_ROOT;
 const release = STORE_CANDIDATE.inspectedCommit;
+const tileHostContract = await import(new URL("../../../public/live/shared/tile-host-admission-contract.mjs", import.meta.url).href);
 let child: ChildProcess | null = null;
 let origin = "";
 
@@ -290,6 +293,125 @@ function wireFor(projectId: string, requestType: string, revision: string, paylo
     payload,
   };
 }
+
+function publishedFunction(file: string, name: string, context: Record<string, unknown> = {}) {
+  const source = readFileSync(new URL(`../../../public/live/${file}`, import.meta.url), "utf8");
+  const match = source.match(new RegExp(`(^[ \\t]*)function ${name}\\([^]*?^\\1}`, "m"));
+  assert.ok(match, `${file} must define ${name}`);
+  return runInNewContext(`(${match[0]})`, context);
+}
+
+function publishedTerms(projectId: string) {
+  const window = { crypto: webcrypto } as Record<string, any>;
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-terms-flow.js", import.meta.url), "utf8"), { window, TextEncoder });
+  return window.STBTermsFlow.create({ projectId });
+}
+
+test("Alcove's published gate opens Your call for a fully evaluated current Store answer", async () => {
+  const definition = {
+    configurationId: "ALCOVE-USER1", configurationVersion: "alcove-call",
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    boardRequirements: [{ requirementId: "SHELVES", requiredOps: ["CROSSCUT"] }],
+    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] }],
+  };
+  const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-call", { definition }), await storeOrigin());
+  const body = answered.body as Record<string, any>;
+  assert.equal(body.jobSupportability.status, "REQUIREMENTS_SATISFIED");
+  const gate = publishedFunction("system-build-current.html", "alcoveSupportable");
+  assert.equal(gate(body), true);
+  assert.equal(gate({ ...body, rawEvaluation: { ...body.rawEvaluation, status: "REFUSED" } }), false);
+  const terms = publishedTerms("alcove");
+  terms.setAnswer({ version: "alcove-call", status: "SUPPORTABLE", total: body.rawEstimate.totals.Q, body });
+  assert.equal(terms.state().callOpen, true);
+  await terms.accept();
+  assert.equal(terms.state().yardOpen, true);
+  await terms.runYard();
+  await terms.pickup();
+  assert.equal(terms.state().stage, "HANDED_OFF");
+});
+
+test("Alcove's scoped estimate opens only budgetary review, discloses the unevaluated mill, and cannot create downstream events", async () => {
+  const definition = {
+    configurationId: "ALCOVE-USER1", configurationVersion: "alcove-review",
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 8, grade: "select" },
+    boardRequirements: [{ requirementId: "SHELVES", requiredOps: ["CROSSCUT", "MILL_LONGITUDINAL_PROFILE"] }],
+    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", finishedLengthIn: 30, finishedWidthIn: 5.5,
+      features: [{ featureId: "MILL-1", kind: "MILL_LONGITUDINAL_PROFILE", yIn: 5.5, pathLengthIn: 30, totalDepthIn: 0.25 }] }],
+  };
+  const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-review", { definition }), await storeOrigin());
+  assert.equal(answered.httpStatus, 200);
+  const body = answered.body as Record<string, any>;
+  const gate = publishedFunction("system-build-current.html", "alcoveSupportable");
+  const review = publishedFunction("system-build-current.html", "alcoveBudgetaryReview", { tileHostContract });
+  assert.equal(gate(body), false);
+  assert.equal(review(body), true);
+  const admission = { admission: { result: tileHostContract.ADMISSION_RESULT.ADMITTED }, definitionRevisionId: "alcove-review",
+    inquiryScope: "ALCOVE_INSERT_V1", request: { tileId: "alcove" } };
+  const trail = { steps: ["Intent", "The bench", "The Store answers", "Your call", "We cut it", "Pick up & build"] };
+  const current: Record<string, any> = { ...body, authority: tileHostContract.ANSWER_AUTHORITY.CURRENT, definitionRevisionId: "alcove-review", inquiryScope: "ALCOVE_INSERT_V1", withinEnvelope: false };
+  assert.ok(tileHostContract.availableSteps({ trail, admission, freshAnswer: current }).includes("Your call"));
+  for (const invalid of [
+    { ...current, definitionRevisionId: "older" },
+    { ...current, authority: tileHostContract.ANSWER_AUTHORITY.HISTORY },
+    { ...current, rawEvaluation: { ...current.rawEvaluation, status: "REFUSED" } },
+    { ...current, rawEstimate: { ...current.rawEstimate, complete: false } },
+    { ...current, rawEstimate: { complete: true, totals: { Q: null } } },
+  ]) assert.equal(tileHostContract.availableSteps({ trail, admission, freshAnswer: invalid }).includes("Your call"), false);
+  const terms = publishedTerms("alcove");
+  terms.setAnswer({ version: "alcove-review", status: "BUDGETARY_REVIEW", total: current.rawEstimate.totals.Q, body: current,
+    reasons: current.requirementSatisfaction.unevaluated.map((item: any) => ({ code: "REQUIREMENT_UNEVALUATED", text: `${item.field} = ${item.value}` })) });
+  assert.equal(terms.state().callOpen, true);
+  assert.equal(terms.state().canAccept, false);
+  assert.match(terms.renderControls("call"), /mill:MILL-1 = pathLengthIn=30;totalDepthIn=0.25/);
+  for (const action of ["accept", "decline", "runYard", "pickup"]) await terms[action]();
+  assert.equal(terms.state().events.length, 3);
+  assert.equal(terms.state().yardOpen, false);
+  assert.equal(terms.state().recordOpen, false);
+  assert.equal(current.machineAdmission.physicalRelease, false);
+  terms.invalidate();
+  assert.equal(terms.state().callOpen, false);
+});
+
+test("Outdoor's published generator identifies every selected spot before translation and Store evaluation", async () => {
+  const file = "stb-outdoor-picnic-0.4.html";
+  const spotsFor = publishedFunction(file, "spotsFor", {
+    num: Number, SPOT_PLACES: [{ k: "CENTER", rule: "CENTERED_ON_WIDE_FACE" }],
+  });
+  const packagesFor = publishedFunction(file, "packagesFor", {
+    WOODS: [{ key: "treated", species: "syp-treated", grade: "above-ground" }],
+    kindsOf: () => [{ kind: "LEG", n: 2, len: 31.375, g: { id: "LEGS", board: [2, 6], angle: 25 } }],
+    decoAngle: () => null, spotsFor,
+  });
+  const packages = packagesFor({ parts: { LEG: { spots: { on: true, fromEndIn: 6, place: "CENTER", middle: true } } } }, ["treated"]);
+  const spots = packages.flatMap((pkg: any) => pkg.parts.flatMap((part: any) => part.spots));
+  assert.equal(spots.length, 6);
+  assert.equal(new Set(spots.map((spot: any) => spot.featureId)).size, 6);
+  assert.ok(spots.every((spot: any) => typeof spot.featureId === "string" && spot.featureId.length > 0));
+  assert.deepEqual(Array.from(packages[0].parts[0].spots, (spot: any) => spot.xIn), [6, 15.688, 25.375]);
+  const ask = async (version: string, cutPackages: unknown) => {
+    const answered = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", version, {
+      definition: { configurationId: "OUTDOOR", configurationVersion: version, cutPackages },
+    }), await storeOrigin());
+    return { ...answered, body: answered.body as Record<string, any> };
+  };
+  const plain = await ask("outdoor-plain", packagesFor({ parts: {} }, ["treated"]));
+  const marked = await ask("outdoor-spots", packages);
+  assert.equal(marked.httpStatus, 200);
+  assert.equal(marked.body.rawEvaluation.status, "SUPPORTABLE");
+  assert.equal(marked.body.rawEvaluation.packages[0].spotCount, 6);
+  assert.ok(marked.body.rawEstimate.totals.Q > plain.body.rawEstimate.totals.Q);
+  assert.deepEqual(JSON.parse(JSON.stringify(marked.body.mappedCallInputs.demand.cutPackages)), JSON.parse(JSON.stringify(packages)));
+  const missing = JSON.parse(JSON.stringify(packages));
+  delete missing[0].parts[0].spots[0].featureId;
+  const incomplete = await ask("outdoor-missing-id", missing);
+  assert.equal(incomplete.httpStatus, 422);
+  assert.equal(incomplete.body.code, "PUBLISHED_DEFINITION_INCOMPLETE");
+  const unsupported = JSON.parse(JSON.stringify(packages));
+  unsupported[0].parts[0].spots[0].xIn = 40;
+  const refused = await ask("outdoor-spot-outside", unsupported);
+  assert.notEqual(refused.body.rawEvaluation.status, "SUPPORTABLE");
+  assert.equal(refused.body.rawEstimate.complete, false);
+});
 
 test("a cut-package field the translator does not read reaches the Store, which refuses it by name; it is not dropped", async () => {
   const origin = await storeOrigin();

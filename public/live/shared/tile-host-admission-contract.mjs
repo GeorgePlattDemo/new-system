@@ -468,16 +468,39 @@ export function isCurrentAnswer({ admission, answer }) {
 // ---------------------------------------------------------------------------------------------
 // Available steps and reopening a job record
 
+// A complete Store estimate may be reviewed without declaring its unevaluated requirements supportable.
+// This is a terminal review: stb-terms-flow.js cannot accept it, pay, queue it or run the yard.
+export function isBudgetaryReviewAnswer(answer) {
+  return answer?.rawEvaluation?.status === 'SUPPORTABLE'
+    && answer.rawEvaluation.freshEvaluation === true
+    && answer.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD'
+    && answer.priceCompleteness.scope === 'QUOTE_ONLY'
+    && answer.rawEstimate?.complete === true
+    && Number.isFinite(answer.rawEstimate.totals?.Q)
+    && answer.jobSupportability?.status === 'NOT_FULLY_SUPPORTABLE'
+    && answer.jobSupportability.quoteComplete === true
+    && answer.jobSupportability.requirementsEvaluated === false
+    && answer.jobSupportability.machineAdmitted === false
+    && answer.requirementSatisfaction?.status === 'UNEVALUATED'
+    && Array.isArray(answer.requirementSatisfaction.unevaluated)
+    && answer.requirementSatisfaction.unevaluated.length > 0
+    && answer.machineAdmission?.status === 'BLOCKED'
+    && answer.machineAdmission.physicalRelease === false;
+}
+
 // Recalculated, never restored. Intent and the bench are always usable. "The Store answers" is usable
 // when the current revision is admitted. "Your call" needs an answer isCurrentAnswer() accepts for this
 // admission (fresh, this exact revision, this inquiry scope) that is within the envelope; a refusal leaves
-// it inert (rule 5). The later steps are gated by stb-terms-flow.js and stay inert in this contract.
+// it inert (rule 5). Alcove may also open Your call to review a complete scoped estimate with its
+// unevaluated requirements disclosed; that review cannot open acceptance or the later steps.
+// The later steps are gated by stb-terms-flow.js and stay inert in this contract.
 export function availableSteps({ trail, admission, freshAnswer = null }) {
   const [intent, bench, storeAnswers, yourCall] = trail.steps;
   const usable = [intent, bench];
   const admitted = admission?.admission?.result === ADMISSION_RESULT.ADMITTED;
   if (admitted) usable.push(storeAnswers);
-  if (isCurrentAnswer({ admission, answer: freshAnswer }) && freshAnswer.withinEnvelope === true) {
+  if (isCurrentAnswer({ admission, answer: freshAnswer })
+      && (freshAnswer.withinEnvelope === true || (admission.request?.tileId === 'alcove' && isBudgetaryReviewAnswer(freshAnswer)))) {
     usable.push(yourCall);
   }
   return Object.freeze(usable);

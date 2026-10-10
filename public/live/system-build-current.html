@@ -1680,6 +1680,15 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       const vLabel = 'v' + version.n;
       const status = receipt.status || answer.priceCompleteness?.status || '—';
       const price = textOf('p-price');
+      const unevaluated = answer.requirementSatisfaction?.unevaluated || [];
+      const disclosure = doc.createElement('p');
+      if (unevaluated.length) {
+        disclosure.className = 'band warn';
+        disclosure.dataset.budgetaryReview = '';
+        disclosure.textContent = 'Scoped Store budgetary estimate only. The whole job is not fully supportable. Not evaluated: '
+          + unevaluated.map(item => item.field+' = '+item.value).join('; ')
+          + '. Your call may review this estimate. Acceptance, payment and the yard remain blocked. Physical admission remains blocked.';
+      }
       const decision = alcoveChainState.decision;
       const order = alcoveChainState.order;
       const pair = pageId === 'store'
@@ -1690,6 +1699,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
         '<li><b>v' + v.n + '</b> · sent ' + (v.exchange.payloadDigest || '—').slice(0, 16) + '… · receipt ' + (v.exchange.receiptHash || '—').slice(0, 16) + '… · ' + (v.exchange.status || '—') + (v.n === version.n ? ' · current' : ' · kept, not edited') + '</li>').join('');
       return '<div class="alcove-chain" data-alcove-chain="' + pageId + '">'
         + '<p class="chainhd">VERSION CHAIN · ALCOVE ' + vLabel + '</p>' + pair
+        + (unevaluated.length ? disclosure.outerHTML : '')
         + '<ol class="chainlinks">'
         + '<li><p class="chainstep">1 · SENT</p>' + alcoveHashLine('Version', vLabel + ' · ' + (answer.candidateRevisionId || '—')) + alcoveHashLine('Sent', win.STBAlcoveLastSentAt || version.confirmedAt) + alcoveHashLine('Sent hash', answer.payloadDigest) + alcoveHashLine('Demand signature', answer.demandSignature) + '</li>'
         + '<li><p class="chainstep">2 · ARRIVED AT STORE ZERO</p>' + alcoveHashLine('Receipt hash', receipt.receiptHash) + alcoveHashLine('Request', receipt.requestId) + alcoveHashLine('Received', receipt.evaluatedAt) + alcoveHashLine('Store revision', authority.storeRevision) + alcoveHashLine('Catalog', authority.catalogHash) + alcoveHashLine('Machine envelope', (authority.machineEnvelope?.id || '') + ' · ' + (authority.machineEnvelope?.hash || '—')) + alcoveHashLine('Economics', (authority.economics?.id || '') + ' · ' + (authority.economics?.hash || '—')) + '</li>'
@@ -1715,7 +1725,14 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
     }
     function alcoveSupportable(answer) {
       const status = answer.rawEvaluation?.status || answer.priceCompleteness?.status || 'UNRESOLVED';
-      return status === 'SUPPORTABLE' && answer.priceCompleteness?.status === 'COMPLETE_FOR_DECLARED_COMPONENT_TRAVEL';
+      return status === 'SUPPORTABLE' && answer.rawEvaluation?.freshEvaluation === true
+        && answer.priceCompleteness?.status === 'COMPLETE_FOR_TRAVEL_STANDARD'
+        && answer.rawEstimate?.complete === true && Number.isFinite(answer.rawEstimate?.totals?.Q)
+        && answer.jobSupportability?.status === 'REQUIREMENTS_SATISFIED'
+        && answer.requirementSatisfaction?.status === 'SATISFIED';
+    }
+    function alcoveBudgetaryReview(answer) {
+      return tileHostContract.isBudgetaryReviewAnswer(answer);
     }
     function feedAlcoveTerms() {
       if (!alcoveTerms) return;
@@ -1729,7 +1746,9 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       (answer.priceCompleteness?.unresolvedConditions || []).forEach(code => { if (!reasons.some(r => r.code === code)) reasons.push({ code, text:'' }); });
       const total = answer.rawEstimate?.totals?.Q ?? ev.estimate?.totals?.Q ?? null;
       const supportable = alcoveSupportable(answer);
-      alcoveTerms.setAnswer({ version:'alcove-v' + version.n + '-' + (answer.candidateRevisionId || ''), status: supportable ? 'SUPPORTABLE' : (status === 'SUPPORTABLE' ? 'UNRESOLVED' : status),
+      const reviewOnly = alcoveBudgetaryReview(answer);
+      (answer.requirementSatisfaction?.unevaluated || []).forEach(item => reasons.push({ code:'REQUIREMENT_UNEVALUATED', text:item.field+' = '+item.value }));
+      alcoveTerms.setAnswer({ version:'alcove-v' + version.n + '-' + (answer.candidateRevisionId || ''), status: supportable ? 'SUPPORTABLE' : (reviewOnly ? 'BUDGETARY_REVIEW' : (status === 'SUPPORTABLE' ? 'UNRESOLVED' : status)),
         total, reasons, body:answer, sentAt: win.STBAlcoveLastSentAt || version.confirmedAt || null });
     }
     function renderAlcoveTerms() {
@@ -1752,7 +1771,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       const steps = trailContract.steps;
       const admission = win.STBAlcoveLive?.admission() || null;
       const answer = alcoveCurrentAnswer();
-      const freshAnswer = answer ? { authority:answer.authority, definitionRevisionId:answer.definitionRevisionId, inquiryScope:answer.inquiryScope, withinEnvelope:alcoveSupportable(answer) } : null;
+      const freshAnswer = answer ? { ...answer, withinEnvelope:alcoveSupportable(answer) } : null;
       const t = alcoveTerms?.state() || null;
       const usable = tileHostContract.availableSteps({ trail:trailContract, admission, freshAnswer })
         .filter(step => step !== steps[3] || !t || t.callOpen);

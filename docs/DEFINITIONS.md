@@ -22,7 +22,7 @@ Do not add a word just to make the page longer. Add one when two trades would ot
 
 **Budgetary total (Q)** — The number the Store returned for a supportable job. Not a quote. A partial sum of supportable lines is not a full job Q. Discovery has no Q.
 
-**Your call** — Accepting the current supportable answer for this revision and this receipt. Simulated. One acceptance per revision and receipt. An older acceptance stays in the file and does not become the state of a later refusal.
+**Your call** — Reviewing the current Store answer for this revision and receipt. A fully evaluated supportable answer permits simulated acceptance, once per revision and receipt. Alcove may also show a complete scoped budgetary estimate with every unevaluated requirement disclosed; that review cannot create an offer, acceptance, payment, yard entry, production or pickup. An older acceptance stays in the file and does not become the state of a later refusal.
 
 **Virtual evidence** — What `POST /v1/machine-evidence` returns for an accepted packet against the advertised machine configuration. System does not invent the records. Physical authority on that answer is false.
 

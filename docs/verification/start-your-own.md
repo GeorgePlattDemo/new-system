@@ -51,10 +51,13 @@ In a browser, on a local build of this commit asking a local Store process start
 
 The deployed application was not reachable from the session that made these checks. Browser acceptance of the deployed application is not verified here.
 
-## Open items
+## Corrections verified on 2026-10-10
 
-- Alcove's Your call gate waits for a price-completeness status (`COMPLETE_FOR_DECLARED_COMPONENT_TRAVEL`) the adapter never returns, so Alcove never reaches Your call. It fails closed. The Store answers page shows the Store's figure without saying that the milled work is unevaluated.
-- Outdoor spots carry no feature id, and the cut-package path blocks a spot without one (`PUBLISHED_DEFINITION_INCOMPLETE`), so an Outdoor table with added spots is not asked.
+The Alcove gate now reads `COMPLETE_FOR_TRAVEL_STANDARD` and requires `REQUIREMENTS_SATISFIED` for simulated acceptance. A complete scoped estimate with unevaluated requirements may reach Your call for budgetary review only. Those requirements are displayed on Store answers and Your call; offer creation, acceptance, payment, yard and pickup remain blocked for that review. A stale, refused or incomplete answer cannot open it.
+
+Outdoor assigns stable part-and-spot identifiers when it generates the customer's selected spots. The coordinates and placements remain as selected. The actual Store evaluates all six spots in the regression case and returns increased machine service and Q; a missing identifier still blocks submission, and an off-board spot receives no complete estimate.
+
+All 325 System tests pass against a checkout of the unchanged Store pin, including the five published request paths, the fully evaluated Alcove simulated handoff, terminal Alcove budgetary review, Outdoor spot generation and refusal, and the unresolved Playhouse custom split. The Railway Node production build and TypeScript check pass. Browser verification of the deployed repair is recorded separately from these automated results.
 
 ## History
 

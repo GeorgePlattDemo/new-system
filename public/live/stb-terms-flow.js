@@ -19,6 +19,8 @@
   // Events after the Store answer are hash-linked (each carries the previous hash). A new Store answer for a
   // changed version starts a new chain; the old one is kept in history, never edited.
   // Commerce and the yard are SIMULATED. Nothing here moves money, starts a machine, or claims a physical cut.
+  // BUDGETARY_REVIEW opens Your call only to inspect a scoped estimate and its unevaluated requirements.
+  // It cannot create an offer, acceptance, payment, queue entry, yard event or pickup.
 
   const VERSION = 'STB-TERMS-FLOW-0.2';
   const EVENTS = Object.freeze([
@@ -213,6 +215,7 @@
 
     function stage(){
       if (!chain) return 'NO_ANSWER';
+      if (chain.status === 'BUDGETARY_REVIEW') return 'REVIEW_REQUIRED';
       if (chain.status !== 'SUPPORTABLE') return 'REFUSED_BY_STORE';
       const d = event('decision');
       if (!d) return 'ANSWERED';
@@ -280,6 +283,9 @@
       const s = stage();
       if (step === 'call') {
         if (s === 'NO_ANSWER') return '<p class="stb-terms-wait">Waiting on a current Store answer for this version.</p>';
+        if (s === 'REVIEW_REQUIRED') return '<p class="stb-terms-wait" data-budgetary-review>Scoped Store budgetary estimate: ' + esc(money(chain.total))
+          + '. The whole job is not fully supportable. Not evaluated: ' + chain.reasons.map(r => esc(r.text || r.code)).join('; ')
+          + '. Return to the Bench to revise the definition. Acceptance, payment, the yard and pickup remain blocked. Physical admission remains blocked.</p>';
         if (s === 'REFUSED_BY_STORE') return '<p class="stb-terms-refused" data-terms-refused>The Store did not support this version (' + esc(chain.status) + '). The refusal is the result. Change the definition to ask again.</p>';
         if (s === 'DECLINED') return '<p class="stb-terms-declined">You declined the simulated offer for this answer. Change the definition to ask again.</p>';
         if (s !== 'ANSWERED') return '<p class="stb-terms-done">Simulated offer accepted and sent to the Store · ' + esc(chain.orderId) + '.</p>';

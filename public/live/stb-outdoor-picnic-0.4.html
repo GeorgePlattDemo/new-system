@@ -529,7 +529,7 @@ function packagesFor(cfg,woodKeys){
       const id=wood.key+'|'+g.id+(da==null?'':'|A'+angle);
       if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle},parts:[]};out.push(byId[id])}
       const spots=spotsFor(p,len);
-      for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots;byId[id].parts.push(part)}
+      for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots.map((spot,index)=>({...spot,featureId:part.partId+'-SPOT-'+String(index+1).padStart(2,'0')}));byId[id].parts.push(part)}
     }
   }
   return out;
