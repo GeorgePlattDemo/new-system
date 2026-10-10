@@ -291,6 +291,26 @@ function wireFor(projectId: string, requestType: string, revision: string, paylo
   };
 }
 
+test("a cut-package field the translator does not read reaches the Store, which refuses it by name; it is not dropped", async () => {
+  const origin = await storeOrigin();
+  const legs = { packageId: "LEGS", material: { species: "syp-treated", form: "board", nominalT: 2, nominalW: 6, grade: "above-ground" }, endCut: { angleDeg: 25 }, parts: [{ partId: "LEG-01", lengthIn: 31.375 }] };
+  const ask = (version: string, cutPackages: Record<string, unknown>[]) => answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", version, {
+    definition: { configurationId: "OUTDOOR", configurationVersion: version, cutPackages }, definitionKind: "cut_package.v1", ruleVersion: "0.1",
+  }), origin);
+  const plain = await ask("cut-plain", [legs]);
+  assert.equal((plain.body.rawEvaluation as { status?: string }).status, "SUPPORTABLE");
+  for (const [version, cutPackages, code] of [
+    ["cut-bore", [{ ...legs, parts: [{ partId: "LEG-01", lengthIn: 31.375, bore: { diameterIn: 0.5 } }] }], "DEFINITION_FIELD_NOT_DECLARED:cutPackages[0].parts[0].bore"],
+    ["cut-bevel", [{ ...legs, endCut: { angleDeg: 25, bevelDeg: 10 } }], "DEFINITION_FIELD_NOT_DECLARED:cutPackages[0].endCut.bevelDeg"],
+  ] as const) {
+    const answered = await ask(version, [...cutPackages]);
+    const raw = answered.body.rawEvaluation as { status?: string; reasonCodes?: string[] };
+    assert.equal(raw.status, "REFUSED", version);
+    assert.deepEqual(raw.reasonCodes, [code]);
+    assert.equal((answered.body.jobSupportability as { status: string }).status, "NOT_SUPPORTABLE");
+  }
+});
+
 test("a missing angle, spot, or item line is not sent as a smaller job", async () => {
   const origin = await storeOrigin();
   const missingAngle = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", "no-angle", {
@@ -495,16 +515,48 @@ test("the same Store supports standalone manual full-length rips; unsafe mixed-a
   assert.deepEqual(onPlayhouse.body.carriedNotAccepted,[]);
 });
 
-test("a sheet or feature field the translator does not carry is reported, not silently dropped", async () => {
+test("a sheet or feature field the job states reaches the Store, which refuses an undeclared one by name", async () => {
   const origin = await storeOrigin();
   const definition = playhouseSheet("ph-extra", [{ featureId: "X", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 26, colour: "red" }], { storeSku: "STB-ZERO-PLY-050-48X96-001" });
   const answered = await answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", "ph-extra", { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
-  const carried = answered.body.carriedNotAccepted as { field: string; reported: string }[];
-  assert.deepEqual(carried.map((item) => item.field).sort(), ["features[4].colour", "sheet.storeSku"]);
-  assert.ok(carried.every((item) => item.reported === "NOT_A_STORE_SHEET_FIELD"));
   const demand = (answered.body.mappedCallInputs as { demand: { sheet: Record<string, unknown>; features: Record<string, unknown>[] } }).demand;
-  assert.equal(demand.sheet.storeSku, undefined);
-  assert.equal(demand.features[4].colour, undefined);
+  assert.equal(demand.sheet.storeSku, "STB-ZERO-PLY-050-48X96-001");
+  assert.equal(demand.features[4].colour, "red");
+  const raw = answered.body.rawEvaluation as Record<string, any>;
+  assert.equal(raw.status, "REFUSED");
+  assert.deepEqual([...raw.reasonCodes].sort(), ["DEFINITION_FIELD_NOT_DECLARED:features[4].colour", "DEFINITION_FIELD_NOT_DECLARED:sheet.storeSku"]);
+  assert.equal(raw.Q ?? null, null);
+  assert.equal((answered.body.jobSupportability as { status: string }).status, "NOT_SUPPORTABLE");
+});
+
+test("Playhouse custom split: absent tab positions stay required; the split and the job are unresolved and no Q is complete", async () => {
+  const origin = await storeOrigin();
+  const ask = (version: string, split: Record<string, unknown>) => {
+    const definition: Record<string, any> = playhouseSheet(version);
+    definition.features = definition.features.map((feature: Record<string, unknown>) => feature.featureId === "CENTER-SPLIT" ? { ...feature, ...split } : feature);
+    return answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version, { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
+  };
+  for (const [name, split] of [["omitted", { splitTabMode: "CUSTOM" }], ["null", { splitTabMode: "CUSTOM", splitTabPositionsIn: null }], ["empty", { splitTabMode: "CUSTOM", splitTabPositionsIn: [] }]] as const) {
+    const answered = await ask(`ph-split-${name}`, split);
+    const raw = answered.body.rawEvaluation as Record<string, any>;
+    const sentSplit = (answered.body.mappedCallInputs as { demand: { features: Record<string, unknown>[] } }).demand.features.find((feature) => feature.featureId === "CENTER-SPLIT");
+    assert.equal(sentSplit?.splitTabMode, "CUSTOM", `${name}: the custom mode reached the Store`);
+    assert.equal(raw.status, "UNRESOLVED", name);
+    assert.equal(raw.freshEvaluation, true);
+    assert.deepEqual(raw.featureAnswers.find((feature: { featureId: string }) => feature.featureId === "CENTER-SPLIT"),
+      { featureId: "CENTER-SPLIT", kind: "STRAIGHT_SPLIT", status: "UNRESOLVED", reasonCodes: ["SPLIT_TAB_POSITIONS_REQUIRED"] });
+    assert.deepEqual(raw.unresolvedConditions, ["SPLIT_TAB_POSITIONS_REQUIRED"]);
+    assert.equal(raw.Q, null);
+    assert.equal(raw.totals, null);
+    assert.notEqual((answered.body.priceCompleteness as { status: string }).status, "COMPLETE_FOR_TRAVEL_STANDARD");
+    assert.equal((answered.body.jobSupportability as { status: string; quoteComplete: boolean }).status, "NOT_SUPPORTABLE");
+    assert.equal((answered.body.jobSupportability as { quoteComplete: boolean }).quoteComplete, false);
+  }
+  const placed = await ask("ph-split-placed", { splitTabMode: "CUSTOM", splitTabPositionsIn: [6, 20] });
+  const raw = placed.body.rawEvaluation as Record<string, any>;
+  assert.equal(raw.status, "SUPPORTABLE");
+  assert.equal(raw.featureAnswers.find((feature: { featureId: string }) => feature.featureId === "CENTER-SPLIT").status, "ANSWERED");
+  assert.equal(typeof raw.totals.Q, "number");
 });
 
 test("alcove milling path and depth stay unevaluated and block a full-job claim", async () => {

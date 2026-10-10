@@ -12,7 +12,7 @@ const PRICED_BOARD_ENDS = { endRelation: "parallel", lengthDatum: "long-long-out
 export type CarriedRequirement = {
   field: string;
   value: string;
-  reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" | "NOT_A_STORE_SHEET_FIELD";
+  reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD";
 };
 
 export type EndIdentityCanonicalization = {
@@ -279,9 +279,13 @@ function presentedEstimate(answer: Json): Json {
   };
 }
 
-function pick(source: Json, keys: string[]): Json {
+/**
+ * What a published object states beyond the fields this translator reads. It travels to the Store unchanged, so the
+ * Store's contract refuses an undeclared field by name; it is never dropped here and the rest answered as the whole job.
+ */
+function unconsumed(source: Json, consumed: string[]): Json {
   const out: Json = {};
-  for (const key of keys) if (source[key] != null) out[key] = source[key];
+  for (const key of Object.keys(source)) if (!consumed.includes(key)) out[key] = source[key];
   return out;
 }
 
@@ -315,10 +319,19 @@ function partsFrom(raw: unknown, problems: CarriedRequirement[]): Json[] {
     const partId = String(row.partId ?? row.componentId ?? "");
     const features = Array.isArray(row.spots) ? row.spots : Array.isArray(row.features) ? row.features : [];
     const spots = features
-      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId, problems))
+      .map((feature, index) => {
+        const stated = asObject(feature) ?? {};
+        const spot = spotFrom(stated, index, partId, problems);
+        return spot && { ...unconsumed(stated, ["featureId", "xIn", "acrossWidthRule", "insetFromEdgeIn"]), ...spot };
+      })
       .filter((spot): spot is Json => spot != null);
     const lengthIn = finite(row.lengthIn ?? row.finishedLengthIn);
-    return { partId, ...(lengthIn != null ? { lengthIn } : {}), ...(spots.length ? { spots } : {}) };
+    return {
+      ...unconsumed(row, ["partId", "componentId", "lengthIn", "finishedLengthIn", "spots", "features"]),
+      partId,
+      ...(lengthIn != null ? { lengthIn } : {}),
+      ...(spots.length ? { spots } : {}),
+    };
   });
 }
 
@@ -330,15 +343,18 @@ function itemFrom(line: Json, problems: CarriedRequirement[]): Json | null {
     problems.push({ field: "itemLine", value: lineId || "missing id or quantity", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     return null;
   }
-  const item: Json = { lineId, qty };
+  const item: Json = { ...unconsumed(line, ["lineId", "requirementId", "qty", "storeSku", "requirement"]), lineId, qty };
   if (line.storeSku != null) item.storeSku = String(line.storeSku);
   else if (line.requirementId != null && !requirement) item.requirementId = String(line.requirementId);
-  else if (requirement) item.requirement = pick(requirement, ["kind", "gauge", "diameterIn", "lengthIn", "finish", "unit"]);
+  else if (requirement) item.requirement = { ...requirement };
   else problems.push({ field: `itemLine:${lineId}`, value: "no sku, requirement id, or requirement", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
   return item;
 }
 
-/** Published cut-package definition, without a tile name, in the Store's cut-package contract. */
+/**
+ * Published cut-package definition, without a tile name, in the Store's cut-package contract. A missing angle, spot
+ * location or item identity blocks before the Store. Anything else the definition states travels as stated.
+ */
 export function cutDemandFromPublishedDefinition(definition: Json): Translation {
   const problems: CarriedRequirement[] = [];
   const packages = Array.isArray(definition.cutPackages) ? definition.cutPackages : [];
@@ -350,9 +366,10 @@ export function cutDemandFromPublishedDefinition(definition: Json): Translation 
     if (angle == null) problems.push({ field: `endCut:${String(row.packageId ?? "")}`, value: "angle missing", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     const finished = finite(row.finishedWidthIn);
     return {
+      ...unconsumed(row, ["packageId", "material", "endCut", "finishedWidthIn", "parts"]),
       packageId: String(row.packageId ?? ""),
-      material: pick(material, ["species", "form", "nominalT", "nominalW", "grade"]),
-      ...(angle != null ? { endCut: { angleDeg: angle } } : {}),
+      material: { ...material },
+      ...(angle != null ? { endCut: { ...endCut, angleDeg: angle } } : {}),
       ...(finished != null ? { finishedWidthIn: finished } : {}),
       parts: partsFrom(row.parts, problems),
     };
@@ -364,6 +381,7 @@ export function cutDemandFromPublishedDefinition(definition: Json): Translation 
   return {
     carriedNotAccepted: [],
     demand: {
+      ...unconsumed(definition, ["classId", "configurationId", "configurationVersion", "cutPackages", "itemLines"]),
       ...(definition.classId != null ? { classId: String(definition.classId) } : {}),
       configurationId: String(definition.configurationId ?? ""),
       configurationVersion: String(definition.configurationVersion ?? ""),
@@ -404,7 +422,7 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
     if (!square) problems.push({ field: `endCut:${String(row.requirementId ?? "")}`, value: "published operation does not state a square crosscut", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     const existing = groups.get(key) ?? {
       packageId: mills.length && finished != null ? `${String(row.requirementId ?? "PARTS")}-TO-${finished}` : String(row.requirementId ?? "PARTS"),
-      material: pick(material, ["species", "form", "nominalT", "nominalW", "grade"]),
+      material: { ...material },
       ...(square ? { endCut: { angleDeg: 0 } } : {}),
       ...(mills.length && finished != null ? { finishedWidthIn: finished } : {}),
       parts: [] as Json[],
@@ -438,38 +456,19 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
   };
 }
 
-const SHEET_FIELDS = ["thicknessIn", "lengthIn", "widthIn", "species", "grade"];
-// The feature fields a sheet job can carry: the Store's declared ones, and the fields the manual-cut and pattern tools
-// state (fromEdge, offsetXIn, offsetYIn). The Store's contract refuses a field it does not declare, by name, so a tool the
-// Store cannot yet evaluate is refused by the Store, not dropped here.
-const SHEET_FEATURE_FIELDS = ["featureId", "kind", "placement", "widthIn", "straightHeightIn", "riseIn", "retain", "requestedTabCount", "within", "line", "fromEnd", "fromEdge", "distanceIn", "offsetXIn", "offsetYIn"];
-
-/** What a published object states that the allowed list does not carry. Reported, never silently dropped. */
-function droppedFields(source: Json, allowed: string[], at: string): CarriedRequirement[] {
-  return Object.keys(source)
-    .filter((key) => !allowed.includes(key))
-    .map((key) => ({ field: `${at}.${key}`, value: "present", reported: "NOT_A_STORE_SHEET_FIELD" }));
-}
-
-/** Published sheet definition, in the Store's sheet-package contract. Species is not invented. */
+/**
+ * Published sheet definition, in the Store's sheet-package contract. Every field the job states is sent as stated:
+ * the Store's contract is the one list of sheet fields, and it refuses a field it does not declare, by name. System
+ * keeps no copy of that list, so a stated requirement (a custom split's tab positions, for one) is never dropped
+ * here and answered as a different job. Species is not invented.
+ */
 export function sheetDemandFromPublishedDefinition(definition: Json): { demand: Json; carriedNotAccepted: CarriedRequirement[] } {
-  const sheet = asObject(definition.sheet) ?? {};
-  const carriedNotAccepted: CarriedRequirement[] = droppedFields(sheet, SHEET_FIELDS, "sheet");
-  const rawFeatures = Array.isArray(definition.features) ? definition.features : [];
-  const features = rawFeatures.map((feature, index) => {
-    const object = asObject(feature) ?? {};
-    carriedNotAccepted.push(...droppedFields(object, SHEET_FEATURE_FIELDS, `features[${index}]`));
-    return pick(object, SHEET_FEATURE_FIELDS);
-  });
   return {
-    carriedNotAccepted,
+    carriedNotAccepted: [],
     demand: {
+      ...definition,
       configurationId: String(definition.configurationId ?? ""),
       configurationVersion: String(definition.configurationVersion ?? ""),
-      sheet: pick(sheet, SHEET_FIELDS),
-      features,
-      ...(definition.returnAllPieces != null ? { returnAllPieces: definition.returnAllPieces === true } : {}),
-      ...(definition.exteriorRatingRequested != null ? { exteriorRatingRequested: definition.exteriorRatingRequested === true } : {}),
     },
   };
 }

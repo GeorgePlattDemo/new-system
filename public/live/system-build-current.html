@@ -1284,9 +1284,10 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                       mode:'LIVE_STORE_RUNTIME'
                     },
                     evaluationReceipt:freshReceipt,
-                    requirementSatisfaction:freshStoreBody.requirementSatisfaction || { status:'UNEVALUATED', unevaluated:freshStoreBody.carriedNotAccepted || [] },
+                    // The adapter's statement, or nothing: the page never writes a supportability or requirement status of its own.
+                    requirementSatisfaction:freshStoreBody.requirementSatisfaction || null,
                     machineAdmission:freshStoreBody.machineAdmission || { status:'BLOCKED', physicalRelease:false, evidenceClass:'SIMULATED' },
-                    jobSupportability:freshStoreBody.jobSupportability || { status:'NOT_FULLY_SUPPORTABLE', quoteComplete:true, requirementsEvaluated:false, machineAdmitted:false },
+                    jobSupportability:freshStoreBody.jobSupportability || null,
                     wire:{
                       payloadDigest:freshStoreBody.payloadDigest || null,
                       demandSignature:freshStoreBody.demandSignature || null,
