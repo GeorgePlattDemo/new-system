@@ -4,7 +4,7 @@
 
 Define it once. Nobody downstream should have to redraw it.
 
-<a href="https://georgeplattdemo.github.io/scan-to-build-system/system-build-current.html"><kbd>▶ OPEN THE APP</kbd></a>
+<a href="https://system-candidate-production.up.railway.app/"><kbd>▶ OPEN THE APP</kbd></a>
 
 3D Solutions LLC · Greensboro, North Carolina
 
@@ -20,9 +20,9 @@ The seam matters. Your idea should not lose its meaning when it leaves the scree
 
 ## Start with the Bench
 
-This repository is the replacement candidate. It is not the promoted publication. The live demonstration remains the published application until that promotion is made on purpose.
+This repository is the replacement candidate. Its working application is deployed on Railway, while the original GitHub Pages demonstration remains separately available until formal promotion.
 
-[Open the published demonstration](https://georgeplattdemo.github.io/scan-to-build-system/system-build-current.html) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
+[Open the currently deployed application](https://system-candidate-production.up.railway.app/) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
 
 One meaningful change, with its consequences visible. The Store evaluates the resulting request and supplies its own answer.
 
