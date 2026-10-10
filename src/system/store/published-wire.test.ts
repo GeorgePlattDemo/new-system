@@ -91,7 +91,7 @@ test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
-  assert.equal(runtime.includes("c1c044d14485a2c0e66e121543e4e887dcd54e29"), true);
+  assert.equal(runtime.includes("9df038f371e59913a4f4f5a31645c3cb6d58ed8b"), true);
 });
 
 test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
@@ -136,7 +136,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
     demandSignature: "demand",
     querySignature: null,
     payloadDigest: "digest",
-    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
+    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
     attemptId: "attempt-1",
     attemptNumber: 1,
     sentAt: "2026-10-09T02:00:00.000Z",
@@ -192,7 +192,7 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
     demandSignature: "demand-18",
     querySignature: null,
     payloadDigest: "digest-18",
-    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
+    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
     attemptId: "attempt-18",
     attemptNumber: 1,
     sentAt: "2026-10-09T03:00:00.000Z",
@@ -241,7 +241,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
     demandSignature: "demand-84",
     querySignature: null,
     payloadDigest: "digest-84",
-    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
+    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
     attemptId: "attempt-84",
     attemptNumber: 1,
     sentAt: "2026-10-09T04:00:00.000Z",

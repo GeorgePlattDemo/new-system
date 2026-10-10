@@ -281,7 +281,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Process** — Organized manufacturing activity used to transform or handle material.
 
-**Operation** — Bounded manufacturing action such as crosscut, bore, trim, rout, or dado.
+**Operation** — Bounded manufacturing action such as crosscut, bore, trim, rout, or spot.
 
 **Process plan** — Structured description of the operations and resources required to produce the result.
 
