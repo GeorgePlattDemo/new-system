@@ -10,7 +10,7 @@ import vm from "node:vm";
  * only when the caller opts in, and only as exactly that. Nothing else without a matching receipt is ever accepted.
  */
 
-const PIN = "1cea72c8223b2c738180b230c584c4ab557267ca";
+const PIN = "c1c044d14485a2c0e66e121543e4e887dcd54e29";
 const source = readFileSync(new URL("../../public/live/stb-store-client.js", import.meta.url), "utf8");
 
 type Json = Record<string, any>;

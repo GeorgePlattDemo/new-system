@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: GeorgePlattDemo/store-zero
-          ref: 1cea72c8223b2c738180b230c584c4ab557267ca
+          ref: c1c044d14485a2c0e66e121543e4e887dcd54e29
           path: .store-zero
       - name: System behavior and the pinned Store
         run: npm test

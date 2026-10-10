@@ -2412,6 +2412,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
           <div><b>STORE STATUS</b><span id="s001-live-status-2">—</span></div>
           <div><b>MATERIAL</b><span id="s001-live-material-price">—</span></div>
           <div><b>MODELED MACHINE SERVICE</b><span id="s001-live-machine">—</span></div>
+          <div><b>MANUAL YARD CUTS</b><span id="s001-live-yard-cuts">—</span></div>
           <div><b>BUDGETARY TOTAL</b><span id="s001-live-q">—</span></div>
           <div><b>MODELED TIME</b><span id="s001-live-time">—</span></div>
           <div><b>TABS</b><span id="s001-live-tabs">—</span></div>
@@ -3868,7 +3869,8 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
         ? `Route the center split · ${fmt(op.lengthIn)} in`
         : `Route the arched opening · ${fmt(op.lengthIn)} in · ${op.tabs} tabs kept`,
       RELEASE:() => 'Release the sheet from the cell',
-      CROSSCUT:op => `Panel-saw crosscut at ${fmt(op.xIn)} in`,
+      CROSSCUT:op => `Panel-saw crosscut at ${fmt(op.xIn)} in · ±¼ in`,
+      RIP:op => `Panel-saw full-length rip at ${fmt(op.yIn)} in · ±¼ in`,
       LABEL:() => 'Label every piece'
     };
     function s001Render() {
@@ -3907,6 +3909,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       text('s001-live-material', material);
       text('s001-live-material-price', ok ? s001Money(ev.totals.material) : '—');
       text('s001-live-machine', ok ? s001Money(ev.totals.machine_service) : '—');
+      text('s001-live-yard-cuts', ok ? `${s001Money(ev.totals.manual_cut_service)} · ${ev.totals.manualCutCount} × $10.00` : '—');
       text('s001-live-q', ok ? s001Money(ev.totals.Q) + ' budgetary · not a quote' : '—');
       text('s001-live-time', ok ? fmt(ev.time.T_MACHINE_min) + ' min · modeled, not measured' : '—');
       text('s001-live-tabs', tabs);
@@ -4008,7 +4011,8 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       // The default wood is found in the Store the first time the job is open; until then nothing is sent.
       if (!s001Job.sheet && s001Job.wood.state === 'idle') s001LookUp(s001Job.wantSku, true);
       const revision = s001Revision(g);
-      // A settled failure is this revision's result too: returning to the page shows it, not a new asking line.
+      // Same-revision edits do not cause duplicate inquiries; explicit Bench/Store page entry invalidates
+      // this cached version and makes a new inquiry, including after a prior refusal or transport failure.
       if (revision.definitionRevisionId === s001Live.version && (s001Live.asking || s001Live.answer || s001Live.error || s001Live.blocking.length)) { s001Render(); return; }
       s001Inquire(revision);
     }
@@ -4036,9 +4040,9 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       } else {
         html += `<table><tbody>
 <tr><td>Material<small>${s001Esc(String(ev.material.storeSku).replace(/^STB-ZERO-/, ''))}</small></td><td>${s001Money(ev.totals.material)}</td></tr>
-<tr><td>Modeled machine service<small>Time is modeled, not measured: ${fmt(ev.time.T_MACHINE_min)} min.</small></td><td>${s001Money(ev.totals.machine_service)}</td></tr>
-<tr><td>Yard cuts<small>The end cuts and any crosscuts at the yard panel saw</small></td><td class="na">inside the machine service today; not a separate Store line yet</td></tr>
-<tr class="total"><td>Total Q<small>Budgetary, not a quote</small></td><td>${s001Money(ev.totals.Q)}</td></tr></tbody></table>`;
+<tr><td>Modeled machine service<small>${fmt(ev.time.T_MACHINE_min)} min total modeled time, including separately billed saw time.</small></td><td>${s001Money(ev.totals.machine_service)}</td></tr>
+<tr><td>Manual yard cuts<small>${ev.totals.manualCutCount} full cut(s) × $10.00 · declared ±¼ in cut-position tolerance; saw time not double-billed.</small></td><td>${s001Money(ev.totals.manual_cut_service)}</td></tr>
+<tr class="total"><td>Total Q<small>Fresh Store budgetary estimate · not a commercial quote</small></td><td>${s001Money(ev.totals.Q)}</td></tr></tbody></table>`;
       }
       box.innerHTML = html;
     }
@@ -4188,7 +4192,15 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
     const S001_IDEA_PAGE = 'playhouse-idea';
     registerTileHost(S001_PROJECT_ID, {
       report:s001HostMessage,
-      shown:() => setTimeout(sync, 0),
+      shown:pageId => {
+        // Every new visit to the Bench or the Store answer requests fresh Store authority.
+        // Keep Intent/read-only page visits cheap and do not re-ask merely because a control re-renders.
+        if(pageId === 'playhouse-machine' || pageId === 'playhouse-store') {
+          s001Live.version = null;
+          s001Live.answer = null;
+        }
+        setTimeout(sync, 0);
+      },
       idea:true,
       go:target => {
         const pageId = target === trailContract.idea.label ? S001_IDEA_PAGE

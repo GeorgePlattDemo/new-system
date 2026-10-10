@@ -123,7 +123,8 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
 
     const playhouse = await ask("playhouse");
     assert.equal(playhouse.status, "SUPPORTABLE");
-    assert.equal((playhouse.totals as { Q: number }).Q, 65.04);
+    assert.equal((playhouse.totals as { Q: number }).Q, 76.57);
+    assert.equal((playhouse.totals as { manual_cut_service:number }).manual_cut_service, 20);
 
     const windowSeat = await ask("window-seat");
     assert.equal(windowSeat.status, "SUPPORTABLE");

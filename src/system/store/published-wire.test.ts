@@ -91,7 +91,7 @@ test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
-  assert.equal(runtime.includes("1cea72c8223b2c738180b230c584c4ab557267ca"), true);
+  assert.equal(runtime.includes("c1c044d14485a2c0e66e121543e4e887dcd54e29"), true);
 });
 
 test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
@@ -136,7 +136,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
     demandSignature: "demand",
     querySignature: null,
     payloadDigest: "digest",
-    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
+    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
     attemptId: "attempt-1",
     attemptNumber: 1,
     sentAt: "2026-10-09T02:00:00.000Z",
@@ -192,7 +192,7 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
     demandSignature: "demand-18",
     querySignature: null,
     payloadDigest: "digest-18",
-    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
+    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
     attemptId: "attempt-18",
     attemptNumber: 1,
     sentAt: "2026-10-09T03:00:00.000Z",
@@ -241,7 +241,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
     demandSignature: "demand-84",
     querySignature: null,
     payloadDigest: "digest-84",
-    expectedStorePin: "1cea72c8223b2c738180b230c584c4ab557267ca",
+    expectedStorePin: "c1c044d14485a2c0e66e121543e4e887dcd54e29",
     attemptId: "attempt-84",
     attemptNumber: 1,
     sentAt: "2026-10-09T04:00:00.000Z",
@@ -415,7 +415,11 @@ test("Playhouse tools: an added crosscut is evaluated by the Store, never droppe
   const base = await ask("ph-base", playhouseSheet("ph-base"));
   const raw = (answer: { body: Record<string, unknown> }) => answer.body.rawEvaluation as Record<string, any>;
   assert.equal(raw(base).status, "SUPPORTABLE");
-  assert.equal(raw(base).totals.Q, 65.04);
+  assert.equal(raw(base).totals.Q, 76.57);
+  assert.equal(raw(base).totals.material, 26.55);
+  assert.equal(raw(base).totals.machine_service, 30.02);
+  assert.equal(raw(base).totals.manual_cut_service, 20);
+  assert.equal(raw(base).totals.manualCutCount, 2);
   assert.equal(raw(base).material.storeSku, "STB-ZERO-PLY-050-48X96-001");
   const cut = await ask("ph-cut", playhouseSheet("ph-cut", [{ featureId: "CUT-M1", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 26 }]));
   assert.equal(raw(cut).status, "SUPPORTABLE");
@@ -433,30 +437,62 @@ test("Playhouse tools: an added crosscut is evaluated by the Store, never droppe
   const fir = await ask("ph-fir", playhouseSheet("ph-fir", [], { thicknessIn: 0.625, species: "fir", grade: "BCX-sanded" }));
   assert.equal(raw(fir).status, "SUPPORTABLE");
   assert.equal(raw(fir).material.storeSku, "STB-ZERO-PLY-063-48X96-001");
-  assert.equal(raw(fir).totals.Q, 102.37);
+  assert.equal(raw(fir).totals.manual_cut_service, 20);
+  assert.ok(raw(fir).totals.Q > raw(base).totals.Q, "the different Store sheet and machine passes produce a different Q");
 });
 
-test("Playhouse tools the Store cannot evaluate yet are refused by the Store with the field named, never dropped", async () => {
+test("Playhouse pattern within the centered 48 x 36 field is freshly evaluated; outside field is refused with no Q", async () => {
   const origin = await storeOrigin();
   const ask = (version: string, definition: Record<string, unknown>) =>
-    answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version, { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
-  for (const [version, feature, field] of [
-    ["ph-rip", { featureId: "CUT-M1", kind: "RIP", fromEdge: "TOP", distanceIn: 4 }, "features[4].fromEdge"],
-    ["ph-pattern", { featureId: "PATTERN", kind: "PATTERN", within: "OPENING", offsetXIn: 2, offsetYIn: 0 }, "features[4].offsetXIn"],
-  ] as const) {
-    const answered = await ask(version, playhouseSheet(version, [feature]));
-    const refusal = answered.body.rawEvaluation as Record<string, any>;
-    assert.equal(answered.httpStatus, 200);
-    assert.equal(refusal.status, "REFUSED");
-    assert.equal(refusal.freshEvaluation, false, "a contract refusal is not an evaluation");
-    assert.equal(refusal.evaluationReceipt, null);
-    assert.ok(refusal.reasonCodes.includes(`DEFINITION_FIELD_NOT_DECLARED:${field}`), `${field} is named`);
-    assert.equal(refusal.totals, undefined, "no price on a refusal");
-    assert.equal(answered.body.candidateRevisionId, version, "the refusal names the revision it answers");
-    const mapped = (answered.body.mappedCallInputs as { demand: { features: Record<string, unknown>[] } }).demand;
-    assert.deepEqual(mapped.features[4], feature, "the tool reached the Store whole");
-    assert.deepEqual(answered.body.carriedNotAccepted, []);
-  }
+    answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version,
+      { definition, definitionKind:"sheet_package.v1", ruleVersion:"0.1" }), origin);
+  const pattern = { featureId:"PATTERN", kind:"PATTERN", within:"OPENING", offsetXIn:2, offsetYIn:0 };
+  const within = await ask("ph-pattern-in", playhouseSheet("ph-pattern-in",[pattern]));
+  const accepted = within.body.rawEvaluation as Record<string, any>;
+  assert.equal(accepted.status, "SUPPORTABLE");
+  assert.equal(accepted.freshEvaluation, true);
+  assert.equal(accepted.totals.Q, 76.57);
+  assert.equal(accepted.features.apertures[0].box.x0, 32);
+  assert.equal(accepted.featureAnswers.find((f: { featureId: string }) => f.featureId === "PATTERN").status, "ANSWERED");
+  assert.deepEqual(within.body.carriedNotAccepted, []);
+  assert.ok(accepted.evaluationReceipt);
+  const moved = await ask("ph-pattern-out", playhouseSheet("ph-pattern-out",[{...pattern,offsetXIn:7}]));
+  const refused = moved.body.rawEvaluation as Record<string, any>;
+  assert.equal(refused.status, "REFUSED");
+  assert.equal(refused.freshEvaluation, true);
+  assert.ok(refused.reasonCodes.includes("CENTER_WORK_FIELD_EXCEEDED"));
+  assert.equal(refused.totals, null);
+  assert.equal(refused.Q, null);
+  assert.deepEqual(moved.body.carriedNotAccepted, []);
+  const tooTall = playhouseSheet("ph-height-out");
+  (tooTall.features[0] as { straightHeightIn:number }).straightHeightIn=25;
+  const heightRefusal = await ask("ph-height-out",tooTall);
+  assert.equal((heightRefusal.body.rawEvaluation as Record<string, any>).status,"REFUSED");
+  assert.ok((heightRefusal.body.rawEvaluation as Record<string, any>).reasonCodes.includes("CENTER_WORK_FIELD_EXCEEDED"));
+});
+
+test("the same Store supports standalone manual full-length rips; unsafe mixed-axis Playhouse saw plans are refused", async () => {
+  const origin = await storeOrigin();
+  const ask = (version: string, definition: Record<string, unknown>) =>
+    answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version,
+      { definition, definitionKind:"sheet_package.v1", ruleVersion:"0.1" }), origin);
+  const rip = {featureId:"CUT-M1",kind:"RIP",fromEdge:"BOTTOM",distanceIn:12};
+  const alone={...playhouseSheet("ph-rip-only"),features:[rip]};
+  const done=await ask("ph-rip-only",alone);
+  const evaluated=done.body.rawEvaluation as Record<string, any>;
+  assert.equal(evaluated.status,"SUPPORTABLE");
+  assert.equal(evaluated.freshEvaluation,true);
+  assert.equal(evaluated.totals.manual_cut_service,10);
+  assert.equal(evaluated.totals.Q,37.94);
+  assert.ok(evaluated.operations.some((op:{opId:string,lengthIn?:number})=>op.opId==="RIP"&&op.lengthIn===96));
+  assert.deepEqual(done.body.carriedNotAccepted,[]);
+  const onPlayhouse=await ask("ph-rip-mixed",playhouseSheet("ph-rip-mixed",[rip]));
+  const refusal=onPlayhouse.body.rawEvaluation as Record<string, any>;
+  assert.equal(refusal.status,"REFUSED");
+  assert.equal(refusal.freshEvaluation,true);
+  assert.ok(refusal.reasonCodes.includes("ORTHOGONAL_SAW_STAGING_NOT_DEFINED"));
+  assert.equal(refusal.Q,null);
+  assert.deepEqual(onPlayhouse.body.carriedNotAccepted,[]);
 });
 
 test("a sheet or feature field the translator does not carry is reported, not silently dropped", async () => {
