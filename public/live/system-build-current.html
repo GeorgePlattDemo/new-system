@@ -13,17 +13,16 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 <body>
 <iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=0be68681"></iframe>
 <script src="stb-canonical-journey.js?v=e0619841"></script>
-<script src="stb-store-handoff-contract.js?v=ebd2c856"></script>
 <script src="stb-store-client.js?v=5b07e926"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=db611717"></script>
 <script type="module">
 import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-answer";
 window.STBStartOwnAnswer = startOwnAnswer;
 </script>
-<script src="stb-terms-flow.js?v=365d795c"></script>
+<script src="stb-terms-flow.js?v=store-81d9584"></script>
 <script src="store-zero-canonical-doctrine.js?v=65366367"></script>
-<script src="stb-build-guide-spec.js?v=e642d09a"></script>
-<script src="stb-trail-contract.js?v=e8ca7b23"></script>
+<script src="stb-build-guide-spec.js?v=store-81d9584"></script>
+<script src="stb-trail-contract.js?v=store-81d9584"></script>
 <script>
 // The shared tile host reads the one System contract (apps/stb/shared/tile-host-admission-contract.mjs, deployed byte for byte).
 import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => {
@@ -197,7 +196,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
     let activeJourneyProject = null;
     let proofHandoff = null;
     let proofSimulation = null;
-    const storeHandoffContract = window.STBStoreHandoffContract || null;
     const user1RuntimeBridge = window.STBUserDefinedBoardRuntimeBridge || null;
     // Opens a Start-your-own screen ('idea', 'intent' or 'bench') from anywhere in the shell.
     // The real switcher is scoped inside the Shared Home block below and assigns itself here.
@@ -262,7 +260,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=store-9df038f"
+                  src="three-frames.html?v=store-81d9584"
                 ></iframe>
               </div>
             `;
@@ -271,7 +269,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=store-9df038f';
+            liveFrame.src = 'three-frames.html?v=store-81d9584';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -331,8 +329,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                 if (jobGrade) stated.grade = jobGrade;
                 return stated;
               };
-              const startOwnAuthority = storeHandoffContract?.storeAuthorities?.startOwn || null;
-              const catalogSource = storeHandoffContract?.startOwnStoreCatalog || null;
               let definitionRevision = 1;
               const partQty = 2;
               const spotMode = 'centered';
@@ -545,16 +541,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   parts:parts,
                   materialDemand:statedMaterial()
                 };
-                const historicalMatch = typeof storeHandoffContract?.user1StoreReferenceForDemand === 'function'
-                  ? storeHandoffContract.user1StoreReferenceForDemand(storeDemand)
-                  : null;
-                const historicalSpecimen = historicalMatch ? {
-                  role:'EXPLANATORY_HISTORY',
-                  suppliesCurrentAnswer:false,
-                  partLengthIn:historicalMatch.demand?.partLengthIn ?? null,
-                  species:historicalMatch.demand?.materialDemand?.species ?? null,
-                  q:historicalMatch.estimate?.totals?.Q ?? null
-                } : null;
                 const effectiveWorkpieceLengthIn = definedWorkpieceLengthIn;
                 const unresolved = ['STORE_ANSWER_REQUIRED'];
                 const refusals = [];
@@ -591,7 +577,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
 
                 const capability = {
                   status:'UNRESOLVED',
-                  basis:startOwnAuthority?.capabilityBasis || 'STORE_ANSWER_REQUIRED',
+                  basis:'STORE_ANSWER_REQUIRED',
                   storePin:null,
                   requiredOps:requiredOps,
                   refusalConditions:Array.from(new Set(refusals)),
@@ -608,10 +594,10 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                     stockClass:'2x4',
                     stated:statedMaterial(),
                     stockClassAuthority:{
-                      repository:catalogSource?.repository || null,
+                      repository:null,
                       file:'store-zero-catalog.json',
-                      pin:catalogSource?.pin || null,
-                      clock:catalogSource?.clock || null
+                      pin:null,
+                      clock:null
                     },
                     procurement:null,
                     definedWorkpieceLengthIn:{
@@ -680,10 +666,9 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                     machineAdmission:{ status:'BLOCKED', physicalRelease:false, evidenceClass:'SIMULATED' },
                     jobSupportability:{ status:'NOT_SUPPORTABLE', quoteComplete:false, requirementsEvaluated:false, machineAdmitted:false }
                   },
-                  historicalSpecimen:historicalSpecimen,
                   lineage:{
                     reason:String(reason||'SYNC'),
-                    storeCatalogPin:catalogSource?.pin || null,
+                    storeCatalogPin:null,
                     storeAnswerPin:null,
                     storeCalculationInputHash:null,
                     storeCalculationResultHash:null,
@@ -913,12 +898,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                 const addedNote = addedControls.length
                   ? ' This job’s own controls — '+addedControls.map(control => control.label+' ('+control.value+')').join(', ')+' — are part of this version; the Store is not asked about them.'
                   : '';
-                const history = definition.historicalSpecimen;
-                const historyNote = history
-                  ? ' Explanatory history only: a specimen for '+history.partLengthIn+' in '+(SPECIES_WORDS[history.species] || history.species || 'the stated wood')
-                    +(history.q != null ? ' once carried $'+Number(history.q).toFixed(2) : '')
-                    +'. It is not this price, not completeness, and not permission to accept or go downstream.'
-                  : '';
                 const beforeSend = {
                   VIEW_UNAVAILABLE:'The Store answer view did not load. No Store answer is shown, and nothing is reused.',
                   NOT_ADMITTED:'NOT SENT TO THE STORE · MISSING: '+(view?.blocking || []).map(b => b.title+' · owner '+b.owner).join('; ')+'. Nothing was sent and no prior Store answer was reused.',
@@ -931,7 +910,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   BUDGETARY:'Store selected '+(selection?.sku || '')+' at '+(selection?.stockLengthIn ?? '')+' in for '+definition.versionId+' · request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Budgetary inquiry only: not a quote, acceptance or physical release. Confirm records this exact revision with a fresh Store answer. Machine admission stays blocked.',
                   CONFIRMED:'Confirmed: '+definition.versionId+' carries Store request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Confirming is not payment, allocation, release or machine authorization. Machine admission stays blocked.'
                 };
-                setText('stb-before-send', beforeSend[status]+historyNote+addedNote);
+                setText('stb-before-send', beforeSend[status]+addedNote);
 
                 const answerLine = childDoc.getElementById('stb-system-answer');
                 if (answerLine) {
@@ -1314,8 +1293,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                       requestId:freshStoreBody.requestId || null,
                       storePin:freshStoreBody.storePin || null,
                       sentAt:freshStoreBody.sentAt || null
-                    },
-                    authority:startOwnAuthority
+                    }
                   };
                   const selectedWorkpieceLengthIn = Number.isFinite(workpieceLengthIn)
                     ? workpieceLengthIn
@@ -1373,19 +1351,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   });
                   currentUser1Definition = confirmedDefinition;
 
-                  const handoff = createComparisonStoreHandoff('start-own',{
-                    id:confirmedDefinition.definitionId,
-                    versionId:confirmedDefinition.versionId,
-                    physicalDemand:confirmedDefinition.physicalDemand,
-                    sourceAuthority:{
-                      kind:'STORE-ORIGIN USER-DEFINED WORK',
-                      artifact:'three-frames.html',
-                      storeCatalog:confirmedDefinition.material.stockClassAuthority,
-                      procurement:confirmedDefinition.material.procurement,
-                      definedWorkpieceLengthIn:confirmedDefinition.material.definedWorkpieceLengthIn
-                    },
-                    storeReference:freshStoreReference
-                  });
                   proofHandoff = {
                     job:'JOB 1 · START YOUR OWN',
                     source:'start-own',
@@ -1403,16 +1368,13 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                       },
                       storeReference:freshStoreReference
                     },
-                    storeHandoff:handoff,
                     boardEvaluation:confirmedDefinition.capability
                   };
-                  retainComparisonStoreHandoff('start-own',handoff);
                   renderBench(confirmedDefinition);
                   try {
                     win.localStorage.setItem('stb-start-own-user1-definition',JSON.stringify(confirmedDefinition));
                     win.localStorage.setItem('stb-start-own-user1-bench',JSON.stringify({
                       definition:confirmedDefinition,
-                      handoff:handoff,
                       physicalExecutionAuthorized:false
                     }));
                     win.localStorage.setItem('stb-proof-handoff-job1',JSON.stringify(proofHandoff));
@@ -1457,7 +1419,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=9c1c817e"
+                  src="stb-outdoor-picnic-0.4.html?v=store-81d9584"
                 ></iframe>
               </div>
             `;
@@ -1490,7 +1452,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=67b3b818"
+                  src="stb-window-seat-0.9.html?v=store-81d9584"
                 ></iframe>
               </div>
             `;
@@ -1506,71 +1468,6 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
             tileHostGo('window-seat', trailContract.idea.label);
           }, true);
         }
-      }
-
-      function createComparisonStoreHandoff(source,payload){
-        if(!storeHandoffContract || !payload) return null;
-        var physicalDemand = null;
-        var projectId = source === 'start-own' ? 'start-own' : 'outdoor-build';
-        var projectClass = source === 'start-own' ? 'USER_DEFINED_BOARD' : 'BOUNDED_SOURCE_BACKED';
-        var sourceAuthority = source === 'start-own'
-          ? (payload.sourceAuthority || {kind:'USER-DEFINED',artifact:'three-frames.html'})
-          : {kind:'BOUNDED SOURCE-BACKED',artifact:'stb-outdoor-picnic-0.4.html',detail:payload.sourceAuthority||null};
-        if(payload.physicalDemand){
-          physicalDemand = payload.physicalDemand;
-        } else if(source === 'start-own'){
-          try { physicalDemand = JSON.parse(win.localStorage.getItem('stb-proof-ladder-job1')||'null')?.semanticOutput || null; } catch (_) {}
-        } else {
-          physicalDemand = payload.normalizedPart || null;
-        }
-        if(!physicalDemand && payload.definition){
-          var def = payload.definition;
-          var part0 = payload.request && Array.isArray(payload.request.parts) ? payload.request.parts[0] : null;
-          physicalDemand = {
-            stockClass: def.stockClass || (def.stock && def.stock.nominal) || '',
-            finishedLength: Number(def.finishedLength != null ? def.finishedLength : (part0 && part0.len)),
-            quantity: Number(def.qty != null ? def.qty : (def.quantity != null ? def.quantity : (part0 && part0.qty) || 1)),
-            endCondition: def.endCondition || 'square',
-            straightCut: def.endCondition !== 'angled',
-            holeRequirement: def.holeRequirement || 'NONE'
-          };
-        }
-        if(!physicalDemand) return null;
-        var definitionId = payload.id || (source === 'start-own' ? 'SYO-IDENTIFIED' : 'OB-SAW-IDENTIFIED');
-        try {
-          return storeHandoffContract.createComparisonHandoff({
-            projectId:projectId,
-            projectClass:projectClass,
-            definitionId:definitionId,
-            versionId:payload.versionId || definitionId,
-            physicalDemand:physicalDemand,
-            sourceAuthority:sourceAuthority,
-            unresolvedConditions:source === 'start-own'
-              ? (Array.isArray(payload.storeReference?.unresolvedConditions)
-                  ? payload.storeReference.unresolvedConditions
-                  : [])
-              : ['STORE-PRICING-BRIDGE-GAP']
-          });
-        } catch (_) {
-          return null;
-        }
-      }
-
-      function retainComparisonStoreHandoff(source,handoff){
-        if(!handoff) return;
-        try {
-          win.localStorage.setItem('stb-common-store-handoff-'+(source==='start-own'?'job1':'job2'),JSON.stringify(handoff));
-          var job1=JSON.parse(win.localStorage.getItem('stb-common-store-handoff-job1')||'null');
-          var job2=JSON.parse(win.localStorage.getItem('stb-common-store-handoff-job2')||'null');
-          if(job1&&job2&&storeHandoffContract){
-            win.localStorage.setItem('stb-proof-store-demand-equality',JSON.stringify({
-              sameStoreDemand:storeHandoffContract.sameStoreDemand(job1,job2),
-              job1ProjectId:job1.projectId,
-              job2ProjectId:job2.projectId,
-              provenanceDifferent:JSON.stringify(job1.sourceAuthority)!==JSON.stringify(job2.sourceAuthority)
-            }));
-          }
-        } catch (_) {}
       }
 
       if (!win.__stbPostStartOwnPreview) {
@@ -4326,7 +4223,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       });
     }
 
-    // Trail rules (AGENTS.md): every rule-bound tile gets the same six-step nav from its own stage map.
+    // Trail (docs/DEFINITIONS.md): every rule-bound tile gets the same six-step nav from its own stage map.
     const TRAIL_NAV_CONTEXT = Object.freeze({
       'start-own':'JOB 1 · START YOUR OWN',
       alcove:'ALCOVE · CRITICAL FIT',

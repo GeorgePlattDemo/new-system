@@ -43,7 +43,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 ## Shared terms
 
 
-**Trail** — The one six-step path every project follows: **Intent → The bench → The Store answers → Your call → We cut it → Pick up & build.** Idea comes before it, unnumbered. Declared in `apps/stb/public-build/stb-trail-contract.js` (`STB-TRAIL-CONTRACT-0.2`); the rules are AGENTS.md "Trail rules"; enforced by the trail scoreboard test.
+**Trail** — The one six-step path every project follows: **Intent → The bench → The Store answers → Your call → We cut it → Pick up & build.** Idea comes before it, unnumbered. Declared in `public/live/stb-trail-contract.js` (`STB-TRAIL-CONTRACT-0.2`) and drawn by the shared tile host in `public/live/system-build-current.html`. This repository has no separate trail test.
 
 **Job-definition revision** — The identified record of this job's current requirements, values, derivations and unresolved responsibilities. It is not "the object sent to Store"; what goes to Store is the Store inquiry.
 
@@ -61,7 +61,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Tile** — One project on the Shared Home. Each tile tests a different way a job arrives: one board, a published plan, an exact fit, a whole assembly, a different material.
 
-**Three doors** — New user, Returning user and Professional (`ACTORS` in `apps/stb/shared/contracts.mjs`). Different openings, same Shared Home, same rules.
+**Three doors** — New user, Returning user and Professional (the landing page of `public/live/system-build-base-8d8a9dd.html`). Different openings, same Shared Home, same rules.
 
 **User 1** — The one demonstration account. Not real authentication.
 
@@ -85,7 +85,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Fresh evaluation** — Every formal Store request is evaluated again against current Store state. An earlier answer is history, not a current answer.
 
-**Store pin** — The exact Store commit the app calls. Its current operational owner is `STORE_PIN` in [`apps/stb/shared/contracts.mjs`](../../apps/stb/shared/contracts.mjs). Changing it is a deliberate, separate act (see the protected path in [AGENTS.md](../../AGENTS.md)).
+**Store pin** — The exact Store commit the app calls. Its owner is `STORE_CANDIDATE.inspectedCommit` in [`src/system/store-candidate.ts`](../src/system/store-candidate.ts); the published runtime pin, the CI Store checkout and `startup.sh` name the same commit and move with it (see [AGENTS.md](../AGENTS.md)).
 
 **Stages 1–4** — Store/cell evidence levels: one board; Store Zero and the D-001 reference cell; a physical cell; an evidence-informed system. Store owns these levels.
 

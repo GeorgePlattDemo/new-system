@@ -1,7 +1,7 @@
 (function(root){
   'use strict';
 
-  // STB terms flow: one post-Store terms flow for every project tile (System AGENTS.md, trail rule 6).
+  // STB terms flow: one post-Store terms flow for every project tile (the Trail in docs/DEFINITIONS.md).
   // This file owns the event meanings, order and gates. Every tile uses it; no tile is the master copy.
   //
   //   1 SENT        your definition, by its payload digest

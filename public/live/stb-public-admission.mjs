@@ -8,7 +8,7 @@ import {
 } from './shared/definition-contract.mjs';
 
 export const PUBLIC_ADMISSION_VERSION = 'STB-PUBLIC-ADMISSION-0.1';
-const STORE_REPOSITORY = 'GeorgePlattDemo/scan-to-build-store';
+const STORE_REPOSITORY = 'GeorgePlattDemo/store-zero';
 const PUBLIC_PROJECTS = new Set(['start-own', 'alcove', 'window-seat', 'outdoor', 'playhouse']);
 
 function isObject(value) {

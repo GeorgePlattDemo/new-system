@@ -17,7 +17,7 @@ Checked 2026-10-08 against Store release `4cb0c625ac00c62390129b55a52596b52f10de
 | Terms flow | Simulated acceptance, yard, and pickup | Accepts the quote only. No machine admission. |
 | Saved bench record | Length and wood on reopen | Not a current price, and not acceptance |
 
-The four specimen records in `stb-store-handoff-contract.js` are explanatory history. `resolveUser1StoreReference` no longer returns a price, a complete flag, or permission. The bench does not call it. A matching specimen may be named on the bench as history. It does not fill the price, completeness, acceptance, or the yard.
+No copied Store answer or specimen travels with the page. The specimen file copied from the original Store, `stb-store-handoff-contract.js`, is deleted; every Start your own price comes from the Store, asked for the current revision.
 
 ## Three different answers
 

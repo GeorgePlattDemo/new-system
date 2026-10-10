@@ -1596,13 +1596,13 @@ function auditText(){
   L.push('Commerce and the yard are simulated: no money moves and no machine runs.');
   hr('5 · CHECK IT YOURSELF');
   const pin=(a&&a.storePin)||'(the pin in stb-store-runtime.json)';
-  const demand=a?(a.demand||{classId:'cut_package.v1',...a.definition,storeRevision:a.storePin}):null;
+  const demand=a?a.demand:null;
   if(!demand)L.push('Ask the Store first. The exact demand it evaluated appears here.');
   else{L.push('1. Save this as window-seat.json:');L.push(JSON.stringify(demand,null,2))}
   L.push('2. Get the Store at the pinned commit and run the same request:');
-  L.push('   git clone https://github.com/GeorgePlattDemo/scan-to-build-store');
-  L.push('   cd scan-to-build-store && git checkout '+pin);
-  L.push('   node --input-type=module -e "import fs from \'node:fs\'; import {requestCutPackageStoreEvaluation as ask} from \'./cut-package-evaluator.mjs\'; const d=JSON.parse(fs.readFileSync(\'window-seat.json\',\'utf8\')); const r=ask(d,{requestId:\'my-check\',storeRevision:d.storeRevision}); console.log(r.status, r.totals.sumOfSupportableLines, r.calculationIdentity.resultHash)"');
+  L.push('   git clone https://github.com/GeorgePlattDemo/store-zero');
+  L.push('   cd store-zero && git checkout '+pin);
+  L.push('   node --input-type=module -e "import fs from \'node:fs\'; import {evaluateStoreRequest} from \'./src/requests/store-request.mjs\'; import {loadCatalog} from \'./src/evaluation/catalog.mjs\'; const demand=JSON.parse(fs.readFileSync(\'window-seat.json\',\'utf8\')); const r=evaluateStoreRequest({requestType:\'CUT_PACKAGE_V1\',requestId:\'my-check\',demand},{release:\''+pin+'\',catalog:loadCatalog()}); console.log(r.status, r.calculationIdentity&&r.calculationIdentity.resultHash)"');
   L.push('3. Compare: the same demand and the same pin give the same result hash'+(id&&id.answered?' ('+id.answered+').':'.'));
   return L.join('\n');
 }

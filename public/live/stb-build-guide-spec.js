@@ -14,11 +14,11 @@
   const STORE_ZERO='Store Zero is a declared reference lumberyard. Not inventory. Not a quote.';
   const WHOLE_RESULT='The Store budgetary answer is the whole Store result.';
   const NO_COMPLETE='Missing required component → no complete budgetary estimate.';
-  const README_URL='https://github.com/GeorgePlattDemo/scan-to-build-store/blob/main/README.md';
-  const TRAVEL_URL='https://github.com/GeorgePlattDemo/scan-to-build-store/blob/9c62d9d6f7775deef83d47196d32c9b5174a352c/DIMENSIONAL-STORE-TRAVEL-STANDARD-0.1.md';
-  const D001_URL='https://github.com/GeorgePlattDemo/scan-to-build-store/blob/9c62d9d6f7775deef83d47196d32c9b5174a352c/D-001-STAGE2-ENVELOPE-0.1.md';
-  const S001_URL='https://github.com/GeorgePlattDemo/scan-to-build-store/blob/9c62d9d6f7775deef83d47196d32c9b5174a352c/S-001-STAGE2-ENVELOPE-0.1.md';
-  const REVIEW_URL='https://github.com/GeorgePlattDemo/scan-to-build-store/blob/main/docs/project-1-digital-trail/D001_Project1_Review.md';
+  const README_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/README.md';
+  const TRAVEL_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/d001-travel-standard.mjs';
+  const D001_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/envelopes/d001-stage2-envelope.mjs';
+  const S001_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/envelopes/s001-stage2-envelope.mjs';
+  const REVIEW_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/D001_Project1_Review.md';
   const sec=(title,items,quiet)=>quiet?{title,items,quiet:true}:{title,items};
   const rail=(header,flag,bullets,sections=[])=>({header,flag,bullets,sections});
   const PLUMB_FRAME=sec('Plumbing',['postMessage is a contract: origin, schema, correlation.','Known wart: two DOMs.'],true);

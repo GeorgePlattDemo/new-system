@@ -2,7 +2,7 @@
   'use strict';
 
   // STB trail contract: one protocol for every project tile.
-  // The nine trail rules live in System AGENTS.md ("Trail rules"). This file is the machine-readable half:
+  // The trail is defined in docs/DEFINITIONS.md ("Trail"). This file is the machine-readable half:
   // Idea is the unnumbered intake, then the six steps every trail uses, plus the pages that belong to each tile.
   // Adding a tile means adding it here. Nothing else. The trail scoreboard test picks it up automatically.
 

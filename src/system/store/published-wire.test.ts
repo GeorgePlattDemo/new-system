@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import test from "node:test";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { answerPublishedWire, boardDemandFromPublishedLine } from "./published-wire.ts";
@@ -91,7 +91,7 @@ test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
-  assert.equal(runtime.includes("9df038f371e59913a4f4f5a31645c3cb6d58ed8b"), true);
+  assert.equal(runtime.includes("81d958482bd25e784f122c97ffb11174013395af"), true);
 });
 
 test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
@@ -136,7 +136,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
     demandSignature: "demand",
     querySignature: null,
     payloadDigest: "digest",
-    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
+    expectedStorePin: "81d958482bd25e784f122c97ffb11174013395af",
     attemptId: "attempt-1",
     attemptNumber: 1,
     sentAt: "2026-10-09T02:00:00.000Z",
@@ -192,7 +192,7 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
     demandSignature: "demand-18",
     querySignature: null,
     payloadDigest: "digest-18",
-    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
+    expectedStorePin: "81d958482bd25e784f122c97ffb11174013395af",
     attemptId: "attempt-18",
     attemptNumber: 1,
     sentAt: "2026-10-09T03:00:00.000Z",
@@ -241,7 +241,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
     demandSignature: "demand-84",
     querySignature: null,
     payloadDigest: "digest-84",
-    expectedStorePin: "9df038f371e59913a4f4f5a31645c3cb6d58ed8b",
+    expectedStorePin: "81d958482bd25e784f122c97ffb11174013395af",
     attemptId: "attempt-84",
     attemptNumber: 1,
     sentAt: "2026-10-09T04:00:00.000Z",
@@ -263,13 +263,13 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
   assert.equal((body.machineAdmission as { physicalRelease?: boolean }).physicalRelease, false);
 });
 
-test("the bench does not ask the specimen function for the current answer", () => {
+test("no copied Store specimen or answer travels with the page; the Store is asked", () => {
   const page = readFileSync(new URL("../../../public/live/system-build-current.html", import.meta.url), "utf8");
-  const handoff = readFileSync(new URL("../../../public/live/stb-store-handoff-contract.js", import.meta.url), "utf8");
+  assert.equal(existsSync(new URL("../../../public/live/stb-store-handoff-contract.js", import.meta.url)), false);
+  assert.equal(page.includes("stb-store-handoff-contract"), false);
+  assert.equal(page.includes("STBStoreHandoffContract"), false);
   assert.equal(page.includes("startOwnOfferings"), false);
   assert.equal(page.includes("exact promoted Store reference matched"), false);
-  assert.equal(handoff.includes("MATCHED_STORE_REFERENCE"), false);
-  assert.equal(handoff.includes("status:'HISTORICAL_SPECIMEN'"), true);
   assert.equal(page.includes("Build guide · developer notes"), true);
 });
 function wireFor(projectId: string, requestType: string, revision: string, payload: Record<string, unknown>) {
