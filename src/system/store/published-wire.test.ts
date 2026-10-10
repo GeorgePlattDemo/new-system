@@ -852,6 +852,16 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(profiles.length,5);
   assert.ok(profiles.every((f:any)=>f.status==="SUPPORTABLE"&&f.pathLengthIn===44&&f.yIn===3&&f.totalDepthIn===.75));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(valid),true);
+  const storeTime=publishedFunction(file,"alcoveStoreTime");
+  const displayedTime=storeTime(valid);
+  assert.ok(displayedTime.T_MACHINE_sec>0);
+  for(const key of Object.keys(displayedTime)){
+    assert.equal(displayedTime[key],valid.rawEvaluation.packages.reduce((sum:number,p:any)=>sum+p.time[key],0));
+  }
+  const missingTime=JSON.parse(JSON.stringify(valid));delete missingTime.rawEvaluation.packages[0].time;
+  assert.equal(storeTime(missingTime),null);
+  const scopedOnly=JSON.parse(JSON.stringify(valid));scopedOnly.jobSupportability.status="REQUIREMENTS_NOT_FULLY_EVALUATED";
+  assert.equal(storeTime(scopedOnly),null);
   assert.equal(valid.machineAdmission.physicalRelease,false);
   const withoutSpots=JSON.parse(JSON.stringify(definition));
   withoutSpots.spotDemand.enabled=false;withoutSpots.spotDemand.features=[];
@@ -867,6 +877,7 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(refused.rawEvaluation.packages.find((p:any)=>p.packageId==="ALCOVE-UPRIGHT-PARENTS").status,"REFUSED");
   assert.ok(refused.rawEvaluation.packages.find((p:any)=>p.packageId==="ALCOVE-UPRIGHT-PARENTS").reasonCodes.includes("SPOT_TOOL_DIAMETER_NOT_DECLARED"));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(refused),false);
+  assert.equal(storeTime(refused),null);
   const incomplete=JSON.parse(JSON.stringify(definition));delete incomplete.componentPrograms[0].features[0].xIn;
   const missing=await ask(incomplete,"alcove-explicit-missing-location");
   assert.equal(missing.adapterError,true);assert.equal(missing.rawEstimate,undefined);

@@ -228,23 +228,7 @@ tr:last-child td{border-bottom:0}
 
             <button class="cta" id="the-set" type="button">RESET TO THE PUBLISHED PLAN</button>
           </div>
-          <div class="card" data-knob="WOOD"><h3>WOOD: one click</h3><p class="hint" id="wood-hint"></p></div>
-          <div class="card" data-knob="HARDWARE"><h3>HARDWARE PACK: one click</h3><div class="opts" id="tiers"></div><p class="hint" id="tier-hint"></p></div>
-          <div class="card" data-knob="SIZE">
-            <h3>CUSTOM: grow or shrink</h3>
-            <div class="len">
-              <button type="button" data-size="-12" aria-label="One foot shorter">−1 ft</button>
-              <button type="button" data-size="-1" aria-label="One inch shorter">−1 in</button>
-              <div class="val" id="len-val">—</div>
-              <button type="button" data-size="1" aria-label="One inch longer">+1 in</button>
-              <button type="button" data-size="12" aria-label="One foot longer">+1 ft</button>
-              <input type="range" id="len" min="60" max="216" step="1" value="72" aria-label="Table length in inches">
-            </div>
-            <p class="hint" id="len-hint"></p>
-          </div>
-          <p class="note">Your current definition gets its answer from Store.</p><button class="cta" id="bench-ask" type="button">ASK STORE →</button><p class="note" id="bench-status" aria-live="polite"></p>
-          <p class="more"><button class="quiet-more" type="button" id="to-edge">View operation details →</button></p>
-        </div></div><div class="stb-intent-stack"><div style="flex:1 1 220px"><h3>THE PROJECT: “The plan, as designed”</h3><p class="stb-intent-note">Choose the wood class. The prices below are fresh Store answers for this plan, not item-lookup claims.</p><p id="kit-text"></p></div><div class="stb-intent-card"><div id="outdoor-wood-lookup"></div></div><div class="opts" id="woods"></div><div class="stb-intent-card"><h3>Bring your tools</h3><p>Length and the plan’s cut geometry are already here. Add a spot tool or decorative end cut to the parts you choose. Set locations and angles on the Bench.</p><p class="stb-intent-note">Spotting means a 3/16 in spot, 3/16 in deep at full diameter after the drill point. The plan supplies no spot locations; you specify those on the Bench.</p><div id="intent-tools"></div></div></div></div><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Attached plan · chosen wood class · hardware choice · length tool · each extra tool assigned to an identified part. Every requested operation stays in the definition.</div><div class="actions"><button class="cta ghost" id="ask-as-is" type="button">ASK STORE FOR THE PLAN AS IS →</button><button class="cta push" id="take-to-bench" type="button">TAKE IT TO THE BENCH →</button></div><p id="as-is-note" class="stb-intent-note"></p></div><aside class="rail dev-build-guide" data-guide-id="outdoor-plan" aria-label="Build guide · developer notes"></aside></div></section>
+        </div></div><div class="stb-intent-stack"><div class="stb-intent-card" data-knob="WOOD"><h3>Grab your wood</h3><p class="stb-intent-note">Choose the wood class. The prices below are fresh Store answers for this plan, not item-lookup claims.</p><p id="kit-text"></p><p class="hint" id="wood-hint"></p><div id="outdoor-wood-lookup"></div><div class="opts" id="woods"></div></div><div class="card" data-knob="HARDWARE"><h3>HARDWARE PACK: one click</h3><div class="opts" id="tiers"></div><p class="hint" id="tier-hint"></p></div><div class="stb-intent-card"><h3>Bring your tools</h3><p>Length and the plan’s cut geometry are already here. Add a spot tool or decorative end cut to the parts you choose. Set locations and angles on the Bench.</p><p class="stb-intent-note">Spotting means a 3/16 in spot, 3/16 in deep at full diameter after the drill point. The plan supplies no spot locations; you specify those on the Bench.</p><div id="intent-tools"></div></div></div></div><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Attached plan · chosen wood class · hardware choice · length tool · each extra tool assigned to an identified part. Every requested operation stays in the definition.</div><div class="actions"><button class="cta ghost" id="ask-as-is" type="button">ASK STORE FOR THE PLAN AS IS →</button><button class="cta push" id="take-to-bench" type="button">TAKE IT TO THE BENCH →</button></div><p id="as-is-note" class="stb-intent-note"></p></div><aside class="rail dev-build-guide" data-guide-id="outdoor-plan" aria-label="Build guide · developer notes"></aside></div></section>
 
   <!-- ═════ SCREEN 2 · STEPS 2 AND 3 · THE PLAN, AS PUBLISHED ═════ -->
   <section class="view" id="s-build" data-section="build" hidden>
@@ -262,6 +246,21 @@ tr:last-child td{border-bottom:0}
         </div>
 
       </div>
+          <div class="card" data-knob="SIZE">
+            <h3>CUSTOM: grow or shrink</h3>
+            <div class="len">
+              <button type="button" data-size="-12" aria-label="One foot shorter">−1 ft</button>
+              <button type="button" data-size="-1" aria-label="One inch shorter">−1 in</button>
+              <div class="val" id="len-val">—</div>
+              <button type="button" data-size="1" aria-label="One inch longer">+1 in</button>
+              <button type="button" data-size="12" aria-label="One foot longer">+1 ft</button>
+              <input type="range" id="len" min="60" max="216" step="1" value="72" aria-label="Table length in inches">
+            </div>
+            <p class="hint" id="len-hint"></p>
+          </div>
+          <p class="note">Your current definition gets its answer from Store.</p><button class="cta" id="bench-ask" type="button">ASK STORE →</button><p class="note" id="bench-status" aria-live="polite"></p>
+          <p class="more"><button class="quiet-more" type="button" id="to-edge">View operation details →</button></p>
+
       <h2>Your part tools</h2><div id="parts-bench"></div>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-bench" aria-label="Build guide · developer notes"></aside></div>
   </section>

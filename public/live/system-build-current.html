@@ -1420,7 +1420,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=intent-2c028da"
+                  src="stb-outdoor-picnic-0.4.html?v=intent-2c028da-2"
                 ></iframe>
               </div>
             `;
@@ -1453,7 +1453,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=intent-2c028da"
+                  src="stb-window-seat-0.9.html?v=intent-2c028da-2"
                 ></iframe>
               </div>
             `;
@@ -3230,7 +3230,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
       setYard('proof-yard-remnant',Number.isFinite(Number(remnantIn))?Number(remnantIn).toFixed(3).replace(/\.000$/,'')+' in · simulated reconciliation':'UNRESOLVED');
 
       if(materialSource)materialSource.textContent=materialResolution?.source
-        ? 'Store Zero catalog '+materialResolution.source.clock+' · '+String(materialResolution.source.pin).slice(0,12)+'…'
+        ? 'Store Zero catalog '+(materialResolution.source.clock?materialResolution.source.clock+' · ':'')+String(materialResolution.source.pin).slice(0,12)+'…'
         : storeReference?.source?.storePin
           ? 'Store Zero · tested reference '+String(storeReference.source.storePin).slice(0,12)+'…'
           : 'Store Zero catalog · exact project material mapping not carried here';

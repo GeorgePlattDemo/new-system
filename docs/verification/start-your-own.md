@@ -36,6 +36,8 @@ The current Store pin is `2c028da3e574734a7bc70b1f19399834c9b1656e`. System's 32
 
 Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Material selection and adding tools happen on Intent. Existing imagery, plan sources, measurements and controls are retained. Outdoor selects its plan on Idea and has a distinct Store Answers page. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
 
+Alcove's cycle display sums the timings in the current Store's complete, supportable cut-package answer. It does not read the retired single-machine answer shape or estimate missing timings. A partial or refused job has no complete displayed cycle. Outdoor's length adjustments and Store-answer button are on the Bench; Intent retains the wood, hardware and tool choices and the unchanged-plan inquiry.
+
 ## History
 
 The checks below describe their original System and Store revisions. They are retained as evidence, not current release claims.
