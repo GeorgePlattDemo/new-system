@@ -394,6 +394,83 @@ test("the four published jobs reach the pinned Store and a changed input changes
   assert.notEqual((refused.body.priceCompleteness as { status?: string }).status, "COMPLETE_FOR_TRAVEL_STANDARD");
 });
 
+const playhouseSheet = (version: string, extra: Record<string, unknown>[] = [], sheet: Record<string, unknown> = {}) => ({
+  configurationId: "PLAYHOUSE-ARCHED-WINDOW",
+  configurationVersion: version,
+  sheet: { thicknessIn: 0.5, lengthIn: 96, widthIn: 48, species: "pine", grade: "sheathing-4ply", ...sheet },
+  features: [
+    { featureId: "OPENING", kind: "ARCHED_APERTURE", placement: "CENTERED", widthIn: 36, straightHeightIn: 24, riseIn: 12, retain: "TABS", requestedTabCount: 4 },
+    { featureId: "CENTER-SPLIT", kind: "STRAIGHT_SPLIT", within: "OPENING", line: "VERTICAL_CENTERLINE" },
+    { featureId: "CUT-LEFT", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 18 },
+    { featureId: "CUT-RIGHT", kind: "CROSSCUT", fromEnd: "RIGHT", distanceIn: 18 },
+    ...extra,
+  ],
+  returnAllPieces: true,
+});
+
+test("Playhouse tools: an added crosscut is evaluated by the Store, never dropped, and changes the price", async () => {
+  const origin = await storeOrigin();
+  const ask = (version: string, definition: Record<string, unknown>) =>
+    answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version, { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
+  const base = await ask("ph-base", playhouseSheet("ph-base"));
+  const raw = (answer: { body: Record<string, unknown> }) => answer.body.rawEvaluation as Record<string, any>;
+  assert.equal(raw(base).status, "SUPPORTABLE");
+  assert.equal(raw(base).totals.Q, 65.04);
+  assert.equal(raw(base).material.storeSku, "STB-ZERO-PLY-050-48X96-001");
+  const cut = await ask("ph-cut", playhouseSheet("ph-cut", [{ featureId: "CUT-M1", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 26 }]));
+  assert.equal(raw(cut).status, "SUPPORTABLE");
+  assert.equal(raw(cut).freshEvaluation, true);
+  assert.ok(raw(cut).totals.Q > raw(base).totals.Q, "the added cut is priced, not dropped");
+  assert.ok(raw(cut).operations.some((op: { opId: string; xIn?: number }) => op.opId === "CROSSCUT" && op.xIn === 26));
+  assert.deepEqual(cut.body.carriedNotAccepted, []);
+  const mapped = (cut.body.mappedCallInputs as { demand: { features: { featureId: string }[] } }).demand;
+  assert.ok(mapped.features.some((feature) => feature.featureId === "CUT-M1"), "the added cut reached the Store");
+  // A cut through the opening is the Store's refusal, with its own reason.
+  const through = await ask("ph-through", playhouseSheet("ph-through", [{ featureId: "CUT-M1", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 48 }]));
+  assert.equal(raw(through).status, "REFUSED");
+  assert.ok(raw(through).reasonRecords.some((r: { code: string }) => r.code === "CROSSCUT_INTERSECTS_ROUTED_FEATURE"));
+  // Another wood the Store offers is priced for that wood.
+  const fir = await ask("ph-fir", playhouseSheet("ph-fir", [], { thicknessIn: 0.625, species: "fir", grade: "BCX-sanded" }));
+  assert.equal(raw(fir).status, "SUPPORTABLE");
+  assert.equal(raw(fir).material.storeSku, "STB-ZERO-PLY-063-48X96-001");
+  assert.equal(raw(fir).totals.Q, 102.37);
+});
+
+test("Playhouse tools the Store cannot evaluate yet are refused by the Store with the field named, never dropped", async () => {
+  const origin = await storeOrigin();
+  const ask = (version: string, definition: Record<string, unknown>) =>
+    answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", version, { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
+  for (const [version, feature, field] of [
+    ["ph-rip", { featureId: "CUT-M1", kind: "RIP", fromEdge: "TOP", distanceIn: 4 }, "features[4].fromEdge"],
+    ["ph-pattern", { featureId: "PATTERN", kind: "PATTERN", within: "OPENING", offsetXIn: 2, offsetYIn: 0 }, "features[4].offsetXIn"],
+  ] as const) {
+    const answered = await ask(version, playhouseSheet(version, [feature]));
+    const refusal = answered.body.rawEvaluation as Record<string, any>;
+    assert.equal(answered.httpStatus, 200);
+    assert.equal(refusal.status, "REFUSED");
+    assert.equal(refusal.freshEvaluation, false, "a contract refusal is not an evaluation");
+    assert.equal(refusal.evaluationReceipt, null);
+    assert.ok(refusal.reasonCodes.includes(`DEFINITION_FIELD_NOT_DECLARED:${field}`), `${field} is named`);
+    assert.equal(refusal.totals, undefined, "no price on a refusal");
+    assert.equal(answered.body.candidateRevisionId, version, "the refusal names the revision it answers");
+    const mapped = (answered.body.mappedCallInputs as { demand: { features: Record<string, unknown>[] } }).demand;
+    assert.deepEqual(mapped.features[4], feature, "the tool reached the Store whole");
+    assert.deepEqual(answered.body.carriedNotAccepted, []);
+  }
+});
+
+test("a sheet or feature field the translator does not carry is reported, not silently dropped", async () => {
+  const origin = await storeOrigin();
+  const definition = playhouseSheet("ph-extra", [{ featureId: "X", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 26, colour: "red" }], { storeSku: "STB-ZERO-PLY-050-48X96-001" });
+  const answered = await answerPublishedWire(wireFor("playhouse", "SHEET_PACKAGE_V1", "ph-extra", { definition, definitionKind: "sheet_package.v1", ruleVersion: "0.1" }), origin);
+  const carried = answered.body.carriedNotAccepted as { field: string; reported: string }[];
+  assert.deepEqual(carried.map((item) => item.field).sort(), ["features[4].colour", "sheet.storeSku"]);
+  assert.ok(carried.every((item) => item.reported === "NOT_A_STORE_SHEET_FIELD"));
+  const demand = (answered.body.mappedCallInputs as { demand: { sheet: Record<string, unknown>; features: Record<string, unknown>[] } }).demand;
+  assert.equal(demand.sheet.storeSku, undefined);
+  assert.equal(demand.features[4].colour, undefined);
+});
+
 test("alcove milling path and depth stay unevaluated and block a full-job claim", async () => {
   const origin = await storeOrigin();
   const definition = {

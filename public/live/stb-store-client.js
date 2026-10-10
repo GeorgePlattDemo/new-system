@@ -108,17 +108,20 @@
   // The transport inside inquire() for a tile whose one admission decision is admit() in
   // tile-host-admission-contract.mjs. `admitted` is the request admit() produced; this function does not admit
   // anything and does not call admitPublicStoreRequest. It sends only that request's tile, request type and revision.
-  async function sendAdmittedJob({admitted, payload, signatureBody = null, requestId, freshReceipt = true, timeoutMs = 25000}){
+  // `allowNotEvaluatedRefusal`: a tile that states fields or tools the Store's request contract does not declare yet
+  // may accept the Store's contract refusal as the answer. It is a REFUSED answer with reason codes, no receipt and no
+  // price, never an evaluation, and it can never be a supportable answer. Every other failed freshness check still throws.
+  async function sendAdmittedJob({admitted, payload, signatureBody = null, requestId, freshReceipt = true, timeoutMs = 25000, allowNotEvaluatedRefusal = false}){
     if(admitted?.interface !== 'STB-DEFINITION-STORE-0.1' || !admitted.tileId || !admitted.requestType ||
        !admitted.definitionRevisionId || !payload){
       throw new Error('STORE_CLIENT_REQUEST_INCOMPLETE');
     }
     const config = await loadConfig();
     return post({config, projectId:admitted.tileId, requestType:admitted.requestType, body:clone(payload),
-      revision:String(admitted.definitionRevisionId), signatureBody, requestId, freshReceipt, timeoutMs});
+      revision:String(admitted.definitionRevisionId), signatureBody, requestId, freshReceipt, timeoutMs, allowNotEvaluatedRefusal});
   }
 
-  async function post({config, projectId, requestType, body, revision, signatureBody, requestId, freshReceipt, timeoutMs}){
+  async function post({config, projectId, requestType, body, revision, signatureBody, requestId, freshReceipt, timeoutMs, allowNotEvaluatedRefusal = false}){
     const wire = {
       protocolVersion:PROTOCOL_VERSION,
       requestId:String(requestId || crypto.randomUUID()),
@@ -158,7 +161,11 @@
       throw new Error('STORE_CORRELATION_ERROR');
     }
     if(answer.storePin !== config.storePin) throw new Error('STORE_PIN_MISMATCH');
-    if(freshReceipt){
+    const evaluation = answer.rawEvaluation;
+    const contractRefusal = allowNotEvaluatedRefusal === true && evaluation?.status === 'REFUSED' &&
+      evaluation.freshEvaluation === false && evaluation.evaluationReceipt == null && answer.evaluationReceipt == null &&
+      Array.isArray(evaluation.reasonCodes) && evaluation.reasonCodes.length > 0;
+    if(freshReceipt && !contractRefusal){
       const receipt = answer.evaluationReceipt || answer.rawEvaluation?.evaluationReceipt || null;
       if(answer.rawEvaluation?.freshEvaluation !== true ||
          receipt?.requestId !== wire.requestId ||

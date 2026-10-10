@@ -268,15 +268,14 @@
       'Arched opening. Center kept for shutters. Every remnant returned.',
       'No machine side effects here.',
       'The features become this job’s knobs.',
-      'Hinges and hardware: not in this order. Tab trimming: User 1.',
-      'Interchangeable sheet heads: not proved.'
+      'Hinges and hardware: not in this order. Tab trimming: User 1.'
     ]),
     'ph-bench':rail('DEV/REV GUIDE — JOB 5 · PLAYHOUSE · PAGE 2 · THE BENCH',FLAG,[
       'This page is always the bench. Do not rename it configurator.',
-      'Three knobs: width, side height, arch rise. Reset: 36 / 24 / 12.',
+      'Three knobs: width, side height, arch rise. Reset: 36 / 24 / 12. Each tool Intent added brings its own knob.',
       'The bench turns the knobs. It never adds one.',
       'Every turn is a new version. The Store is asked again.',
-      'One sheet, 48 × 96 in, ½ in plywood. Four operations. Center on tabs. Remnants returned.',
+      'One sheet, the Store row chosen at Intent. Four operations, plus the tools Intent added. Center on tabs. Remnants returned.',
       'The Store decides fit. Too wide or too tall → REFUSED, with its reason. The page never corrects it.'
     ],[
       sec('Plumbing',['Known wart: injected pages in the shell.'],true)

@@ -329,18 +329,31 @@ export const ADMISSION_PROFILES = deepFreeze({
       },
     },
   },
-  // Playhouse 0.2: the sheet is the fixed sheet its page sends, thickness, length and width, each above 0. No upper
-  // bound: a sheet the Store cannot cut is the Store's refusal, not an admission failure.
+  // Playhouse 0.3: the customer states the wood and the tools. The sheet is the Store row the customer chose at Intent: its
+  // thickness, length and width above 0, and the species, grade and Store SKU the row carries (text). No upper bound: a
+  // sheet the Store cannot cut is the Store's refusal, not an admission failure. The tools fact is every tool this job
+  // authorized: the two end cuts every Playhouse job carries, any manual cuts added (each states which way it runs, which
+  // end or edge it is measured from, and how far), and the placement of the pattern in the field when that tool is added.
+  // A cut with no distance yet is a gap on the job, owned by the customer, and blocks before the Store.
   playhouse: {
-    version: '0.2',
+    version: '0.3',
     scopes: {
       SHEET_PACKAGE_V1: {
         requestType: 'SHEET_PACKAGE_V1',
         requires: [
-          req('playhouse.sheet', OWNER.PROJECT, 'object', 'Real sheet dimensions',
-            fields({ thicknessIn: 'positive-number', lengthIn: 'positive-number', widthIn: 'positive-number' })),
+          req('playhouse.sheet', OWNER.USER, 'object', 'Wood from the Store: thickness, size, species, grade and SKU',
+            fields({ thicknessIn: 'positive-number', lengthIn: 'positive-number', widthIn: 'positive-number', species: 'text', grade: 'text', storeSku: 'text' })),
           req('playhouse.opening', OWNER.USER, 'object', 'Complete arched-opening geometry',
             fields({ widthIn: 'positive-number', straightHeightIn: 'positive-number', riseIn: 'positive-number' })),
+          req('playhouse.tools', OWNER.USER, 'object', 'Every tool this job authorized, with what each needs',
+            fields({
+              endCuts: fields({ fromLeftIn: 'positive-number', fromRightIn: 'positive-number' }),
+              manualCuts: all('list', each(all(
+                fields({ orientation: 'text' }),
+                whenField('orientation', 'ACROSS_WIDTH', fields({ fromEnd: 'text', distanceIn: 'positive-number' })),
+                whenField('orientation', 'ALONG_LENGTH', fields({ fromEdge: 'text', distanceIn: 'positive-number' }))))),
+              pattern: nullable(fields({ offsetXIn: 'finite-number', offsetYIn: 'finite-number' })),
+            })),
         ],
       },
     },

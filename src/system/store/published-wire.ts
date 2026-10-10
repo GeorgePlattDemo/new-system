@@ -12,7 +12,7 @@ const PRICED_BOARD_ENDS = { endRelation: "parallel", lengthDatum: "long-long-out
 export type CarriedRequirement = {
   field: string;
   value: string;
-  reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD";
+  reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" | "NOT_A_STORE_SHEET_FIELD";
 };
 
 export type EndIdentityCanonicalization = {
@@ -438,19 +438,35 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
   };
 }
 
-const SHEET_FEATURE_FIELDS = ["featureId", "kind", "placement", "widthIn", "straightHeightIn", "riseIn", "retain", "requestedTabCount", "within", "line", "fromEnd", "distanceIn"];
+const SHEET_FIELDS = ["thicknessIn", "lengthIn", "widthIn", "species", "grade"];
+// The feature fields a sheet job can carry: the Store's declared ones, and the fields the manual-cut and pattern tools
+// state (fromEdge, offsetXIn, offsetYIn). The Store's contract refuses a field it does not declare, by name, so a tool the
+// Store cannot yet evaluate is refused by the Store, not dropped here.
+const SHEET_FEATURE_FIELDS = ["featureId", "kind", "placement", "widthIn", "straightHeightIn", "riseIn", "retain", "requestedTabCount", "within", "line", "fromEnd", "fromEdge", "distanceIn", "offsetXIn", "offsetYIn"];
+
+/** What a published object states that the allowed list does not carry. Reported, never silently dropped. */
+function droppedFields(source: Json, allowed: string[], at: string): CarriedRequirement[] {
+  return Object.keys(source)
+    .filter((key) => !allowed.includes(key))
+    .map((key) => ({ field: `${at}.${key}`, value: "present", reported: "NOT_A_STORE_SHEET_FIELD" }));
+}
 
 /** Published sheet definition, in the Store's sheet-package contract. Species is not invented. */
 export function sheetDemandFromPublishedDefinition(definition: Json): { demand: Json; carriedNotAccepted: CarriedRequirement[] } {
   const sheet = asObject(definition.sheet) ?? {};
-  const carriedNotAccepted: CarriedRequirement[] = [];
-  const features = (Array.isArray(definition.features) ? definition.features : []).map((feature) => pick(asObject(feature) ?? {}, SHEET_FEATURE_FIELDS));
+  const carriedNotAccepted: CarriedRequirement[] = droppedFields(sheet, SHEET_FIELDS, "sheet");
+  const rawFeatures = Array.isArray(definition.features) ? definition.features : [];
+  const features = rawFeatures.map((feature, index) => {
+    const object = asObject(feature) ?? {};
+    carriedNotAccepted.push(...droppedFields(object, SHEET_FEATURE_FIELDS, `features[${index}]`));
+    return pick(object, SHEET_FEATURE_FIELDS);
+  });
   return {
     carriedNotAccepted,
     demand: {
       configurationId: String(definition.configurationId ?? ""),
       configurationVersion: String(definition.configurationVersion ?? ""),
-      sheet: pick(sheet, ["thicknessIn", "lengthIn", "widthIn", "species", "grade"]),
+      sheet: pick(sheet, SHEET_FIELDS),
       features,
       ...(definition.returnAllPieces != null ? { returnAllPieces: definition.returnAllPieces === true } : {}),
       ...(definition.exteriorRatingRequested != null ? { exteriorRatingRequested: definition.exteriorRatingRequested === true } : {}),

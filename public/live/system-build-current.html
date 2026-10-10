@@ -11,10 +11,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 </style>
 </head>
 <body>
-<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=f7e3be9e"></iframe>
+<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=0be68681"></iframe>
 <script src="stb-canonical-journey.js?v=e0619841"></script>
 <script src="stb-store-handoff-contract.js?v=ebd2c856"></script>
-<script src="stb-store-client.js?v=f1897ecc"></script>
+<script src="stb-store-client.js?v=5b07e926"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=db611717"></script>
 <script type="module">
 import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-answer";
@@ -22,11 +22,11 @@ window.STBStartOwnAnswer = startOwnAnswer;
 </script>
 <script src="stb-terms-flow.js?v=365d795c"></script>
 <script src="store-zero-canonical-doctrine.js?v=65366367"></script>
-<script src="stb-build-guide-spec.js?v=b291bfe4"></script>
+<script src="stb-build-guide-spec.js?v=e642d09a"></script>
 <script src="stb-trail-contract.js?v=e8ca7b23"></script>
 <script>
 // The shared tile host reads the one System contract (apps/stb/shared/tile-host-admission-contract.mjs, deployed byte for byte).
-import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => {
+import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => {
   window.STBTileHostAdmission = Object.freeze({ ...contract });
 });
 </script>
@@ -127,6 +127,70 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       .s001-v2-order b,.s001-v2-order span{display:block}.s001-v2-order b{font-size:9px;letter-spacing:.05em;color:var(--text2)}.s001-v2-order span{margin-top:3px;font-size:11.5px}
       @media(max-width:820px){.s001-v2-intent-grid,.s001-v2-machine-grid{grid-template-columns:1fr}}
       .alcove-chain{margin:0 0 18px;padding:14px 16px;border:1px solid var(--border-accent,var(--border));border-radius:10px;background:var(--surface,#fff)}.alcove-chain .chainhd{margin:0 0 10px;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--accent,#8a5a2b)}.alcove-chain code{font:10.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;color:var(--text)}.alcove-chain .chainpair{display:grid;gap:10px;margin:0 0 12px}.alcove-chain .chainpair div{padding:10px 12px;border-radius:8px;background:var(--tint,#f6efe6)}.alcove-chain .chainpair b{display:block;margin:0 0 4px;font-size:10px;letter-spacing:.07em;color:var(--text2)}.alcove-chain .chainpair code{font-size:12px}.alcove-chain .chainlinks{margin:0;padding:0;list-style:none;display:grid;gap:8px}.alcove-chain .chainlinks li{padding:8px 10px;border-left:3px solid var(--border-accent,var(--border));background:var(--bg)}.alcove-chain .chainstep{margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text2)}.alcove-chain .chainrow{display:grid;grid-template-columns:128px 1fr;gap:8px;font-size:11px;padding:1px 0}.alcove-chain .chainrow span{color:var(--text2)}.alcove-chain .chainhistory{margin:0;padding-left:16px;font-size:11px}
+      /* Playhouse Intent and Bench: one drawing column, tools on the right, the dev rail at 17% on every Playhouse page. */
+      .page.on[id^="playhouse-"]{display:grid;grid-template-columns:minmax(0,1fr) 17vw}
+      .wrap:has(.page.on[id^="playhouse-"]){max-width:none;padding-left:12px;padding-right:12px}
+      .page[id^="playhouse-"] > .main{padding:22px 24px 18px;min-width:0}
+      .page[id^="playhouse-"] > .rail{min-width:0;overflow-wrap:anywhere}
+      .s001-ph-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin:14px 0}
+      .s001-ph-below{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px;align-items:start}
+      .s001-ph-left{display:grid;gap:10px;align-content:start;min-width:0}
+      .s001-ph-stack{display:grid;gap:10px;min-width:0}
+      .s001-ph-grid .dim{font-size:12px}
+      .s001-ph-grid>*,.s001-ph-below>*,.s001-ph-stack>*{min-width:0}
+      @media(max-width:520px){.s001-ph-grid,.s001-ph-below{grid-template-columns:1fr}}
+      .s001-ph-stack .s001-card{padding:11px 12px}
+      .s001-ph-grid .s001-card,.s001-ph-below .s001-card{overflow-wrap:anywhere}
+      .s001-ph-nouni{margin:0!important}.s001-ph-nouni ul{margin:4px 0 0;padding-left:18px}.s001-ph-nouni li{margin:2px 0}
+      .s001-ph-label{display:block;margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--text3)}
+      .s001-ph-chip{display:inline-flex;max-width:100%;align-items:center;gap:7px;font-size:12px;font-weight:700;padding:4px 11px 4px 5px;border-radius:999px;border:1px solid var(--border);background:var(--bg)}
+      .s001-ph-chip i{width:26px;height:16px;border-radius:4px;border:1px solid rgba(0,0,0,.22);background:linear-gradient(178deg,#E4D8BC,#D8C9A8 50%,#C9B995);flex:none}
+      .s001-ph-lookup{display:flex;gap:6px;align-items:center}
+      .s001-ph-lookup input{flex:1;min-width:0;font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+      .s001-ph-pill{font-size:11px;padding:5px 11px;border:1px solid var(--border-accent);border-radius:999px;background:var(--surface);color:var(--accent);font-weight:700;cursor:pointer;white-space:nowrap}
+      .s001-ph-pill[disabled]{opacity:.55;cursor:default}
+      .s001-ph-tries{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:6px 0 2px;font-size:10.5px;color:var(--text2)}
+      .s001-ph-tries button{font-size:10.5px;padding:1px 8px;border:1px solid var(--border);border-radius:999px;background:var(--bg);color:var(--text);cursor:pointer}
+      .s001-ph-results{list-style:none;margin:6px 0 0;padding:0 2px 0 0;display:grid;gap:5px;max-height:112px;overflow-y:auto}
+      .s001-ph-results li{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid var(--border);border-radius:8px;padding:6px 8px;background:var(--surface);font-size:11.5px}
+      .s001-ph-results li b{display:block;font-size:11.5px}
+      .s001-ph-results li span{color:var(--text2);font-size:10.5px;overflow-wrap:anywhere}
+      .s001-ph-results li.on{border-color:var(--accent);background:var(--tint)}
+      .s001-ph-results .s001-ph-pill{font-size:10px;padding:3px 9px}
+      .s001-ph-checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;margin:4px 0 8px}
+      @media(max-width:900px){.s001-ph-checks{grid-template-columns:1fr}}
+      .s001-ph-checks>div{display:grid;grid-template-columns:16px minmax(0,1fr);gap:6px;font-size:11.5px;line-height:1.3}
+      .s001-ph-checks b{font-size:11.5px}
+      .s001-ph-checks .ck{color:#5d7f3f;font-weight:800}
+      .s001-ph-checks span.d{display:block;color:var(--text2);font-size:10.5px}
+      .s001-ph-add{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+      .s001-ph-add select{flex:1;min-width:0;font-size:11.5px;padding:5px 7px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+      .s001-ph-added{display:grid;gap:5px;margin-top:6px}
+      .s001-ph-tool{display:grid;grid-template-columns:16px 1fr auto;gap:6px;border:1px solid var(--accent);background:var(--tint);border-radius:8px;padding:6px 8px;font-size:11.5px}
+      .s001-ph-tool .d{display:block;color:var(--text2);font-size:10.5px}
+      .s001-ph-tool .where{display:block;margin-top:2px;font-size:10px;color:var(--accent);font-weight:700}
+      .s001-ph-tool select{margin-top:4px;max-width:100%;font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+      .s001-ph-tool .rm{border:0;background:transparent;color:var(--text2);cursor:pointer;font-size:10.5px;text-decoration:underline;text-underline-offset:2px;align-self:start;padding:0}
+      .s001-ph-facts{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:2px 0 0}
+      .s001-ph-facts .row{border:1px solid var(--border);border-radius:7px;padding:5px 7px;background:var(--surface)}
+      .s001-ph-facts b,.s001-ph-facts span{display:block}.s001-ph-facts b{font-size:8.5px;letter-spacing:.05em;color:var(--text2)}.s001-ph-facts span{font-size:11px;margin-top:1px}
+      .s001-ph-chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+      .s001-ph-chips span{font-size:10.5px;border:1px solid var(--border);border-radius:999px;padding:2px 9px;background:var(--surface)}
+      .s001-ph-chips span.new{border-color:var(--accent);background:var(--tint);font-weight:700}
+      .s001-ph-carry{font:10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text2);overflow-wrap:anywhere;margin:4px 0 0}
+      .s001-control.s001-ph-newknob{background:var(--tint);padding:8px;border-radius:8px;border:1px solid var(--accent);margin-top:6px}
+      .s001-control select{grid-column:1/-1;max-width:100%;font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+      .s001-ph-sum{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
+      .s001-ph-sum h3{margin:0 0 2px;font-size:12px;letter-spacing:.03em}
+      .s001-ph-sum table{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0 0}
+      .s001-ph-sum td{padding:5px 0;border-top:1px solid var(--border);vertical-align:top}
+      .s001-ph-sum td:last-child{text-align:right;font-weight:700;white-space:nowrap;padding-left:10px}
+      .s001-ph-sum td small{display:block;font-weight:400;color:var(--text2);font-size:10.5px;line-height:1.35;white-space:normal}
+      .s001-ph-sum tr.total td{border-top:2px solid var(--border-accent);font-size:13px}
+      .s001-ph-sum td.na{font-weight:400;color:var(--text2);font-size:11px;white-space:normal}
+      .s001-ph-sum .state{margin:6px 0 0;padding:7px 9px;border-left:4px solid #9b7540;background:var(--tint);font-size:11px;line-height:1.4}
+      .s001-ph-sum .state.no{border-left-color:#a04c43}
+      .s001-ph-sum .state ul{margin:4px 0 0;padding-left:16px}
     `;
     doc.head.append(style);
 
@@ -2067,7 +2131,6 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
 
     const intent = doc.getElementById('playhouse-s001');
     const intentMain = intent?.querySelector('.main');
-    const intentRail = intent?.querySelector('.rail');
 
     // Idea: the intake before the steps, not a step. User 1's picture and story land here and end at Intent.
     // Its way to Intent is the Idea line's Intent control, drawn by the shared tile host.
@@ -2107,19 +2170,199 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       intent.insertAdjacentElement('beforebegin', s001IdeaPage);
     }
 
+    // ── Playhouse job · the wood and the tools this job brings to its Bench ─────────────────────────
+    // The wood is a Store row found through the Store's Item Lookup (only the default SKU is named here; its thickness,
+    // size, species, grade and price come from the Store). The tools are the job's own list: the required ones, and the
+    // ones Intent adds. A tool Intent adds brings its own knob to the Bench. Nothing here prices or approves anything.
+    const S001_DEFAULT_SKU = 'STB-ZERO-PLY-050-48X96-001';
+    const S001_END_CUT_IN = 18;
+    // Where a newly added cut starts: clear of the centered opening, so the first answer is about the cut, not a collision.
+    const S001_NEW_CUT_IN = Object.freeze({ ACROSS_WIDTH:26, ALONG_LENGTH:4 });
+    const s001Job = {
+      sheet:null,
+      wantSku:S001_DEFAULT_SKU,
+      wood:{ state:'idle', message:'', rows:[], token:0 },
+      tools:[],
+      nextToolId:1
+    };
+    const s001Esc = value => String(value).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+    const S001_TOOL_KINDS = Object.freeze({
+      MANUAL_CUT:Object.freeze({ label:'Add manual sheet goods cut', name:'Manual sheet goods cut' }),
+      PATTERN:Object.freeze({ label:'Add sheet goods pattern', name:'Sheet goods pattern' })
+    });
+    const S001_CUT_ORIENTATIONS = Object.freeze({
+      ACROSS_WIDTH:Object.freeze({ label:'Across the width', datums:Object.freeze(['LEFT','RIGHT']), datumLabel:'end', short:'across' }),
+      ALONG_LENGTH:Object.freeze({ label:'Along the length', datums:Object.freeze(['TOP','BOTTOM']), datumLabel:'edge', short:'along' })
+    });
+    const s001SheetFromRow = row => {
+      const t = Number(row?.actualT), l = Number(row?.sheetL_in), w = Number(row?.sheetW_in);
+      if (!row || typeof row.storeSku !== 'string' || !(t > 0) || !(l > 0) || !(w > 0)
+        || typeof row.species !== 'string' || !row.species || typeof row.grade !== 'string' || !row.grade) return null;
+      return { storeSku:row.storeSku, description:String(row.description || ''), thicknessIn:t, lengthIn:l, widthIn:w,
+        species:row.species, grade:row.grade, price:Number(row.sellingPrice), onHand:Number(row.onHand) };
+    };
+    // The distance a cut can be asked for is bounded by the wood on screen: inside the sheet, whatever the Store says of it.
+    const s001CutLimit = tool => {
+      const sheet = s001Job.sheet;
+      const span = tool.orientation === 'ALONG_LENGTH' ? (sheet?.widthIn ?? 48) : (sheet?.lengthIn ?? 96);
+      return Math.max(1, span - 1);
+    };
+    function s001NewTool(kind) {
+      const id = 't' + s001Job.nextToolId++;
+      if (kind === 'PATTERN') return { id, kind, offsetXIn:0, offsetYIn:0 };
+      return { id, kind:'MANUAL_CUT', orientation:'ACROSS_WIDTH', datum:'LEFT', distanceIn:S001_NEW_CUT_IN.ACROSS_WIDTH };
+    }
+    function s001ClampTools() {
+      s001Job.tools.forEach(tool => {
+        if (tool.kind === 'MANUAL_CUT') tool.distanceIn = Math.max(1, Math.min(s001CutLimit(tool), Number(tool.distanceIn) || 1));
+      });
+    }
+    const s001PatternTool = () => s001Job.tools.find(tool => tool.kind === 'PATTERN') || null;
+    const s001CutTools = () => s001Job.tools.filter(tool => tool.kind === 'MANUAL_CUT');
+    const s001CutWords = tool => `${S001_CUT_ORIENTATIONS[tool.orientation].label.toLowerCase()}, ${fmt(tool.distanceIn)} in from the ${tool.datum.toLowerCase()} ${S001_CUT_ORIENTATIONS[tool.orientation].datumLabel}`;
+    const s001WoodName = () => s001Job.sheet ? (s001Job.sheet.description || s001Job.sheet.storeSku) : null;
+
+    // One drawing, drawn on both pages with its own id prefix. It is the sheet on screen, the Store's centered field,
+    // the opening the knobs describe, and the cuts the job asks for. The opening is a true circular segment.
+    const s001SheetSvg = p => `
+            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Plywood sheet showing the current routed work field, the routed arched profile with tabs, the internal route, and the requested saw cuts">
+              <rect id="${p}-sheet" x="8" y="8" width="944" height="464" rx="5" fill="#eee7da" stroke="#5d5041" stroke-width="4"/>
+              <rect id="${p}-band-l" x="8" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
+              <rect id="${p}-band-r" x="720" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
+              <rect id="${p}-band-t" x="240" y="8" width="480" height="52" fill="#b03734" opacity=".12"/>
+              <rect id="${p}-band-b" x="240" y="420" width="480" height="52" fill="#b03734" opacity=".12"/>
+              <rect x="240" y="60" width="480" height="360" fill="#faf8f2" stroke="#9c3e3a" stroke-width="3" stroke-dasharray="11 8"/>
+              <line id="${p}-endcut-l" x1="180" y1="16" x2="180" y2="464" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/>
+              <line id="${p}-endcut-r" x1="780" y1="16" x2="780" y2="464" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/>
+              <g id="${p}-tool-lines"></g>
+              <path id="${p}-opening-path" d="" fill="none" stroke="#3f3a34" stroke-width="5"/>
+              <path id="${p}-center-route" d="" fill="none" stroke="#7a5b2f" stroke-width="4"/>
+              <g id="${p}-tab-markers"></g>
+              <text id="${p}-parent-label" x="480" y="29" text-anchor="middle" font-size="18" fill="#4c443b">96 in parent sheet</text>
+              <text x="480" y="53" text-anchor="middle" font-size="15" fill="#7f332f">CURRENT ROUTED FIELD · 48 × 36 in</text>
+              <text id="${p}-endlbl-l" x="180" y="455" text-anchor="middle" font-size="13" fill="#315f85">${S001_END_CUT_IN} in</text>
+              <text id="${p}-endlbl-r" x="780" y="455" text-anchor="middle" font-size="13" fill="#315f85">${S001_END_CUT_IN} in</text>
+              <text id="${p}-opening-label" x="480" y="446" text-anchor="middle" font-size="15" fill="#4c443b"></text>
+            </svg>
+            <div class="s001-v2-legend">
+              <span><i class="s001-v2-key"></i> routed path</span>
+              <span><i class="s001-v2-key tabs"></i> retained tab material</span>
+              <span><i class="s001-v2-key saw"></i> straight-cut request</span>
+              <span><i class="s001-v2-key out"></i> outside current routed field</span>
+            </div>
+            <p class="dim" style="margin:8px 0 0">The blue straight-cut lines are shown because User 1 requested them. The Store decides whether each requested operation is inside its current capability.</p>`;
+
+    // The drawing for the geometry g (width, straight, rise) and the job's wood and tools.
+    function s001Draw(p, g) {
+      const set = (id, attrs) => {
+        const el = doc.getElementById(p + '-' + id);
+        if (el) Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+      };
+      const text = (id, value) => { const el = doc.getElementById(p + '-' + id); if (el) el.textContent = value; };
+      const L = s001Job.sheet?.lengthIn ?? 96, W = s001Job.sheet?.widthIn ?? 48;
+      const x0 = 480 - L * 5 + 8, y0 = 240 - W * 5 + 8, sw = L * 10 - 16, sh = W * 10 - 16;
+      const fieldL = 240, fieldR = 720, fieldT = 60, fieldB = 420;
+      set('sheet', { x:x0, y:y0, width:sw, height:sh });
+      set('band-l', { x:x0, y:y0, width:Math.max(0, fieldL - x0), height:sh });
+      set('band-r', { x:fieldR, y:y0, width:Math.max(0, x0 + sw - fieldR), height:sh });
+      set('band-t', { x:fieldL, y:y0, width:fieldR - fieldL, height:Math.max(0, fieldT - y0) });
+      set('band-b', { x:fieldL, y:fieldB, width:fieldR - fieldL, height:Math.max(0, y0 + sh - fieldB) });
+      const endLeft = 480 - L * 5 + S001_END_CUT_IN * 10, endRight = 480 + L * 5 - S001_END_CUT_IN * 10;
+      set('endcut-l', { x1:endLeft, x2:endLeft, y1:y0 + 8, y2:y0 + sh - 8 });
+      set('endcut-r', { x1:endRight, x2:endRight, y1:y0 + 8, y2:y0 + sh - 8 });
+      set('endlbl-l', { x:endLeft, y:y0 + sh - 17 });
+      set('endlbl-r', { x:endRight, y:y0 + sh - 17 });
+      set('parent-label', { y:y0 + 21 });
+      text('parent-label', `${fmt(L)} in parent sheet`);
+      const lines = doc.getElementById(p + '-tool-lines');
+      if (lines) {
+        lines.innerHTML = s001CutTools().map(tool => {
+          const d = Number(tool.distanceIn) * 10;
+          if (tool.orientation === 'ALONG_LENGTH') {
+            const y = tool.datum === 'TOP' ? 240 - W * 5 + d : 240 + W * 5 - d;
+            return `<line x1="${x0 + 8}" y1="${y}" x2="${x0 + sw - 8}" y2="${y}" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/><text x="${x0 + 60}" y="${y - 6}" text-anchor="middle" font-size="13" fill="#315f85">${fmt(tool.distanceIn)} in</text>`;
+          }
+          const x = tool.datum === 'LEFT' ? 480 - L * 5 + d : 480 + L * 5 - d;
+          return `<line x1="${x}" y1="${y0 + 8}" x2="${x}" y2="${y0 + sh - 8}" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/><text x="${x}" y="${y0 + 44}" text-anchor="middle" font-size="13" fill="#315f85">${fmt(tool.distanceIn)} in</text>`;
+        }).join('');
+      }
+      // The opening: a circular segment of the chord (width) and rise. A pattern moves it within the field.
+      const pattern = s001PatternTool();
+      const px = 10, fieldHeight = 360;
+      const centerX = 480 + (pattern ? Number(pattern.offsetXIn) || 0 : 0) * px;
+      const openingW = g.width * px, openingH = g.total * px;
+      const bottom = fieldT + (fieldHeight + openingH) / 2 - (pattern ? Number(pattern.offsetYIn) || 0 : 0) * px;
+      const top = bottom - openingH, springY = bottom - g.straight * px;
+      const left = centerX - openingW / 2, right = centerX + openingW / 2;
+      const radiusPx = g.radius * px;
+      const largeArc = g.rise > g.width / 2 ? 1 : 0;
+      set('opening-path', { d:`M ${left} ${bottom} L ${left} ${springY} A ${radiusPx} ${radiusPx} 0 ${largeArc} 1 ${right} ${springY} L ${right} ${bottom} Z` });
+      set('center-route', { d:`M ${centerX} ${bottom} L ${centerX} ${top}` });
+      const tabs = doc.getElementById(p + '-tab-markers');
+      if (tabs) {
+        const circleCenterY = top + radiusPx;
+        const arcY = dx => circleCenterY - Math.sqrt(Math.max(0, radiusPx * radiusPx - dx * dx));
+        const points = [
+          [left, bottom - g.straight * px * .5],
+          [right, bottom - g.straight * px * .5],
+          [centerX - openingW * .25, arcY(-openingW * .25)],
+          [centerX + openingW * .25, arcY(openingW * .25)]
+        ];
+        tabs.innerHTML = points.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="7" fill="#f4efe7" stroke="#7a5b2f" stroke-width="4"/>`).join('');
+      }
+      text('opening-label', `${fmt(g.width)} wide · ${fmt(g.straight)} straight + ${fmt(g.rise)} rise = ${fmt(g.total)} high`
+        + (pattern ? ` · pattern ${fmt(pattern.offsetXIn)} right, ${fmt(pattern.offsetYIn)} up` : ''));
+    }
+
+    const S001_INTENT_FLAG = 'Intent makes the knobs. The bench only turns them.';
     if (intentMain) intentMain.innerHTML = `
       <h1>INTENT · PLAYHOUSE WINDOW</h1>
       <p class="sub">User 1 does not need a whole sheet of plywood. She needs the useful parts the sheet can become.</p>
-      <section class="s001-card">
-        <h3>WHAT USER 1 DEFINES</h3>
-        <div class="s001-data">${s001KnownRows('s001-intent-opening')}
+      <div class="s001-ph-grid">
+        <div class="s001-ph-left">
+          <section class="s001-card">${s001SheetSvg('s001i')}</section>
+          <div class="s001-v2-callout s001-ph-nouni"><b>Every job builds its own tools.</b><ul><li>There is no one tool list for all jobs.</li><li>Only the tools you add here show up on this job's Bench.</li><li>The Store still decides whether it can do each one.</li></ul></div>
         </div>
-        <div class="s001-v2-callout"><b>The sheet is the input. The outcome is the parts.</b>Every value here came forward from Idea. The next page carries only the material, geometry and operations the system needs.</div>
-      </section>
+        <div class="s001-ph-stack">
+          <section class="s001-card" aria-labelledby="ph-wood-h">
+            <h3 id="ph-wood-h">GRAB YOUR WOOD</h3>
+            <span class="s001-ph-chip"><i aria-hidden="true"></i><span id="ph-wood-name">Asking the Store…</span></span>
+            <p class="dim" id="ph-wood-meta" style="margin:5px 0 8px;font-size:10.5px"></p>
+            <label class="s001-ph-label" for="ph-lookup">ITEM LOOKUP</label>
+            <div class="s001-ph-lookup"><input id="ph-lookup" type="text" maxlength="80" autocomplete="off" placeholder="Plywood, ply 48x96, or Store SKU…"><button type="button" class="s001-ph-pill" data-s001-control id="ph-lookup-go">LOOK UP</button></div>
+            <div class="s001-ph-tries">Try: <button type="button" data-s001-control data-ph-try="ply 48x96">ply 48x96</button><button type="button" data-s001-control data-ph-try="plywood">plywood</button><button type="button" data-s001-control data-ph-try="osb">osb</button></div>
+            <p class="dim" id="ph-lookup-answer" aria-live="polite" style="margin:2px 0;font-size:10.5px"></p>
+            <ul class="s001-ph-results" id="ph-lookup-results" aria-label="Store Zero items"></ul>
+          </section>
+          <section class="s001-card" aria-labelledby="ph-tools-h">
+            <h3 id="ph-tools-h">BRING YOUR TOOLS</h3>
+            <div class="s001-ph-checks" id="ph-required"></div>
+            <label class="s001-ph-label" for="ph-add-select">ADD A TOOL THIS JOB NEEDS</label>
+            <div class="s001-ph-add"><select id="ph-add-select"></select><button type="button" class="s001-ph-pill" data-s001-control id="ph-add-go">ADD</button></div>
+            <div class="s001-ph-added" id="ph-added" aria-live="polite"></div>
+          </section>
+        </div>
+      </div>
+      <div class="s001-ph-below">
+        <section class="s001-card" aria-labelledby="ph-known-h">
+          <h3 id="ph-known-h">ALREADY KNOWN</h3>
+          <div class="s001-ph-facts">
+            <div class="row"><b>OPENING</b><span id="s001-intent-opening">${s001OpeningText(S001_KNOWN.opening)}</span></div>
+            <div class="row"><b>KEEP CENTER</b><span>Yes · retained by tabs</span></div>
+            <div class="row"><b>RETURN REMNANTS</b><span>All remaining pieces returned</span></div>
+            <div class="row"><b>OWNER FINISH</b><span>User 1 removes the tabs</span></div>
+            <div class="row" style="grid-column:1/-1"><b>HARDWARE</b><span>Not included in this order</span></div>
+          </div>
+        </section>
+        <section class="s001-card" aria-labelledby="ph-travel-h">
+          <h3 id="ph-travel-h">WHAT TRAVELS TO THE BENCH</h3>
+          <div class="s001-ph-chips" id="ph-travel"></div>
+          <p class="s001-ph-carry" id="ph-carry"></p>
+        </section>
+      </div>
       <div class="s001-boundary">Intent does not create machine motion. User 1 defines the material and features; the machine-facing definition is derived next and remains bounded by the admitted Store envelope.</div>
-      <div class="btns"><button type="button" data-canonical-go="projects">BACK TO HOME</button><button type="button" data-canonical-go="playhouse-machine">SEE MACHINE DEFINITION →</button></div>
+      <div class="btns"><button type="button" data-canonical-go="projects">BACK TO HOME</button><button type="button" data-canonical-go="playhouse-machine" id="ph-to-bench">BRING YOUR WOOD AND TOOLS TO THE BENCH →</button></div>
     `;
-    if (intentRail) intentRail.innerHTML = `<p class="hd">BUILD GUIDE</p><p class="goal">Outcome before gadget</p><div class="row"><b>Why this page exists</b><span>Human intent has value here. User 1 describes the result she wants, not machine coordinates.</span></div><div class="row"><b>What carries forward</b><span>Material, dimensions, retained-part intent and requested operations.</span></div>`;
 
     let machine = doc.getElementById('playhouse-machine');
     if (!machine) {
@@ -2129,52 +2372,27 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       machine.innerHTML = `<div class="main">
         <h1>MACHINE DEFINITION · SHEET</h1>
         <p class="sub">The story stops here. This page carries only what the bounded sheet operation needs to know.</p>
-        <div class="s001-v2-machine-grid">
+        <div class="s001-ph-grid">
           <section class="s001-card">
-            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Four by eight plywood sheet showing current routed work field, routed arched profile with tabs, internal route, and separate secondary saw cut requests">
-              <rect x="8" y="8" width="944" height="464" rx="5" fill="#eee7da" stroke="#5d5041" stroke-width="4"/>
-              <rect x="8" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
-              <rect x="720" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
-              <rect x="240" y="8" width="480" height="52" fill="#b03734" opacity=".12"/>
-              <rect x="240" y="420" width="480" height="52" fill="#b03734" opacity=".12"/>
-              <rect x="240" y="60" width="480" height="360" fill="#faf8f2" stroke="#9c3e3a" stroke-width="3" stroke-dasharray="11 8"/>
-              <line x1="180" y1="16" x2="180" y2="464" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/>
-              <line x1="780" y1="16" x2="780" y2="464" stroke="#315f85" stroke-width="4" stroke-dasharray="13 10"/>
-              <path id="s001-opening-path" d="" fill="none" stroke="#3f3a34" stroke-width="5"/>
-              <path id="s001-center-route" d="" fill="none" stroke="#7a5b2f" stroke-width="4"/>
-              <g id="s001-tab-markers"></g>
-              <text x="480" y="31" text-anchor="middle" font-size="18" fill="#4c443b">96 in parent sheet</text>
-              <text x="480" y="84" text-anchor="middle" font-size="16" fill="#7f332f">CURRENT ROUTED FIELD · 48 × 36 in</text>
-              <text x="180" y="455" text-anchor="middle" font-size="13" fill="#315f85">18 in</text>
-              <text x="780" y="455" text-anchor="middle" font-size="13" fill="#315f85">18 in</text>
-              <text id="s001-opening-label" x="480" y="408" text-anchor="middle" font-size="15" fill="#4c443b"></text>
-            </svg>
-            <div class="s001-v2-legend">
-              <span><i class="s001-v2-key"></i> routed path</span>
-              <span><i class="s001-v2-key tabs"></i> retained tab material</span>
-              <span><i class="s001-v2-key saw"></i> secondary straight-cut request</span>
-              <span><i class="s001-v2-key out"></i> outside current routed field</span>
-            </div>
-            <p class="dim">The blue straight-cut lines are shown because User 1 requested them. The Store decides whether each requested operation is inside its current capability.</p>
+            ${s001SheetSvg('s001')}
+            <div class="s001-ph-sum" id="s001-bench-summary" aria-live="polite"></div>
           </section>
           <section class="s001-card">
             <h3>BOUNDED GEOMETRY</h3>
+            <p class="dim" style="margin:0 0 4px;font-size:10.5px">Wood from Intent: <b id="s001-bench-wood">—</b>. The bench turns the knobs; it never adds one.</p>
             <div class="s001-control"><label for="s001-opening-width">Opening width</label><output id="s001-opening-width-out">${S001_KNOWN.opening.widthIn} in</output><input id="s001-opening-width" data-s001-control type="range" min="1" max="48" step="0.5" value="${S001_KNOWN.opening.widthIn}"></div>
             <div class="s001-control"><label for="s001-straight-height">Straight side height</label><output id="s001-straight-height-out">${S001_KNOWN.opening.straightHeightIn} in</output><input id="s001-straight-height" data-s001-control type="range" min="1" max="35" step="0.5" value="${S001_KNOWN.opening.straightHeightIn}"></div>
             <div class="s001-control"><label for="s001-arch-rise">Arch rise</label><output id="s001-arch-rise-out">${S001_KNOWN.opening.riseIn} in</output><input id="s001-arch-rise" data-s001-control type="range" min="1" max="12" step="0.5" value="${S001_KNOWN.opening.riseIn}"></div>
+            <div id="s001-tool-controls"></div>
             <div class="btns"><button type="button" data-s001-control id="s001-reset">RESET TO USER 1'S ${S001_KNOWN.opening.widthIn} / ${S001_KNOWN.opening.straightHeightIn} / ${S001_KNOWN.opening.riseIn}</button></div>
             <div class="s001-status" id="s001-field-status">CURRENT 48 × 36 ROUTED FIELD · THE STORE CHECKS THE FIT</div>
             <p class="dim" id="s001-geometry-summary"></p>
-            <div class="s001-v2-seq">
-              <div class="row"><span class="n">01</span><div><b>ROUTE INTERNAL CENTER FEATURE</b><span>Straight internal route. Retained material remains connected by tabs according to the project rule.</span></div></div>
-              <div class="row"><span class="n">02</span><div><b>ROUTE OUTER ARCHED PROFILE</b><span>Curvilinear opening profile with retained tabs.</span></div></div>
-              <div class="row"><span class="n">03</span><div><b>SECONDARY STRAIGHT CUT REQUEST</b><span>Two straight cuts, 18 in from the sheet ends. Sent to the Store as its own requested operation.</span></div></div>
-            </div>
+            <div class="s001-v2-seq" id="s001-sequence"></div>
           </section>
         </div>
         <div class="s001-boundary">This is an operation definition, not controller code. The internal route and straight-cut requests are retained as project facts; Store decides which portions are inside its current reference capability.</div>
         <div class="btns"><button type="button" data-canonical-go="playhouse-s001">BACK TO INTENT</button><button type="button" data-canonical-go="playhouse-store">ASK STORE ZERO →</button></div>
-      </div><aside class="rail"><p class="hd">BUILD GUIDE</p><p class="goal">Only machine-facing facts</p><div class="row"><b>Material</b><span>48 × 96 in · 1/2 in plywood.</span></div><div class="row"><b>Current routed field</b><span>48 × 36 in centered.</span></div><div class="row"><b>Paths</b><span>Internal route · outer arched route · separate straight-cut request.</span></div></aside>`;
+      </div><aside class="rail"></aside>`;
       intent.insertAdjacentElement('afterend', machine);
     }
 
@@ -2193,7 +2411,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
           <div><b>SHEET</b><span id="s001-live-material">—</span></div>
           <div><b>STORE STATUS</b><span id="s001-live-status-2">—</span></div>
           <div><b>MATERIAL</b><span id="s001-live-material-price">—</span></div>
-          <div><b>MACHINE SERVICE</b><span id="s001-live-machine">—</span></div>
+          <div><b>MODELED MACHINE SERVICE</b><span id="s001-live-machine">—</span></div>
           <div><b>BUDGETARY TOTAL</b><span id="s001-live-q">—</span></div>
           <div><b>MODELED TIME</b><span id="s001-live-time">—</span></div>
           <div><b>TABS</b><span id="s001-live-tabs">—</span></div>
@@ -2255,7 +2473,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
         <div><b>RETURN TO OWNER</b><span>Center piece and remaining sheet pieces</span></div>
         <div><b>HARDWARE</b><span>Not included</span></div>
         <div><b>MATERIAL PRICE</b><span data-s001-bind="materialPrice">—</span></div>
-        <div><b>MACHINE SERVICE</b><span data-s001-bind="machine">—</span></div>
+        <div><b>MODELED MACHINE SERVICE</b><span data-s001-bind="machine">—</span></div>
         <div><b>BUDGETARY TOTAL</b><span data-s001-bind="q">—</span></div>
         <div><b>PHYSICAL EXECUTION</b><span>false · simulated yard events only</span></div>
         <div><b>STORE PIN</b><span data-s001-bind="pin">—</span></div>
@@ -3187,10 +3405,99 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       const straight = Number(doc.getElementById('s001-straight-height')?.value || 24);
       const rise = Number(doc.getElementById('s001-arch-rise')?.value || 12);
       const total = straight + rise;
+      // Radius of the circular segment with chord `width` and rise `rise`.
       const radius = width * width / (8 * rise) + rise / 2;
       return { width, straight, rise, total, radius };
     };
     const text = (id, value) => { const el = doc.getElementById(id); if (el) el.textContent = value; };
+
+    // Intent: the wood on screen, the required tools, the tools this job added, and what travels to the Bench.
+    function s001RenderIntent(g) {
+      const sheet = s001Job.sheet;
+      const wood = s001Job.wood;
+      text('ph-wood-name', sheet ? s001WoodName() : wood.state === 'error' ? 'The Store could not be reached' : 'Asking the Store…');
+      text('ph-wood-meta', sheet
+        ? `${sheet.storeSku} · ${sheet.species} ${sheet.grade} · ${fmt(sheet.widthIn)} × ${fmt(sheet.lengthIn)} in · Store price ${s001Money(sheet.price)} · ${fmt(sheet.onHand)} on hand`
+        : wood.state === 'error' ? 'No wood is chosen, so nothing can be sent to the Store. Search again.' : 'The wood comes from the Store; nothing is assumed.');
+      text('ph-lookup-answer', wood.message);
+      const results = doc.getElementById('ph-lookup-results');
+      if (results) results.innerHTML = wood.rows.map(row => {
+        const candidate = s001SheetFromRow(row);
+        const chosen = candidate && sheet && candidate.storeSku === sheet.storeSku;
+        return `<li class="${chosen ? 'on' : ''}"><div><b>${s001Esc(row.description || row.storeSku)}</b><span>${s001Esc(String(row.storeSku).replace('STB-ZERO-', ''))}${candidate
+          ? ` · ${s001Esc(row.species)} ${s001Esc(row.grade)} · ${fmt(candidate.widthIn)} × ${fmt(candidate.lengthIn)} in · ${s001Money(candidate.price)}`
+          : ' · not a sheet; this job cuts sheet goods'}</span></div>${candidate
+          ? `<button type="button" class="s001-ph-pill" data-s001-control data-ph-use="${s001Esc(row.storeSku)}">${chosen ? 'SELECTED' : 'USE'}</button>` : ''}</li>`;
+      }).join('');
+      const required = doc.getElementById('ph-required');
+      if (required) required.innerHTML = [
+        ['Route the arched opening', `${fmt(g.width)} wide, ${fmt(g.straight)} straight, ${fmt(g.rise)} rise`],
+        ['Route the center split', 'Straight internal route'],
+        ['Keep the center attached with tabs', 'Routed pieces stay on tabs; you remove them later'],
+        ['Make the two straight manual end cuts', `${S001_END_CUT_IN} in from each end, at the yard panel saw`]
+      ].map(([title, detail]) => `<div><span class="ck" aria-hidden="true">✓</span><div><b>${title}</b><span class="d">${detail}</span></div></div>`).join('');
+      const select = doc.getElementById('ph-add-select');
+      if (select) {
+        const hasPattern = !!s001PatternTool();
+        const signature = hasPattern ? 'pattern-added' : 'all';
+        if (select.dataset.signature !== signature) {
+          select.dataset.signature = signature;
+          select.innerHTML = '<option value="">Choose a tool…</option>' + Object.entries(S001_TOOL_KINDS)
+            .filter(([kind]) => !(kind === 'PATTERN' && hasPattern))
+            .map(([kind, spec]) => `<option value="${kind}">${spec.label}</option>`).join('');
+        }
+      }
+      const added = doc.getElementById('ph-added');
+      if (added && !added.contains(doc.activeElement)) {
+        added.innerHTML = s001Job.tools.map(tool => tool.kind === 'PATTERN'
+          ? `<div class="s001-ph-tool"><span aria-hidden="true" style="font-weight:800;color:var(--accent)">+</span><div><b>Sheet goods pattern</b><span class="d">The plunging router starts with a plunge cut. You place the stencil-type cut in the field; tabs keep the inside pieces from fouling the machine.</span><span class="where">Adds a placement knob to this job’s Bench; the Store may refuse it</span></div><button type="button" class="rm" data-s001-control data-ph-remove="${tool.id}" aria-label="Remove sheet goods pattern">remove</button></div>`
+          : `<div class="s001-ph-tool"><span aria-hidden="true" style="font-weight:800;color:var(--accent)">+</span><div><b>Manual sheet goods cut</b><span class="d">One full cut, edge to edge. No partial cuts.</span><select data-ph-orientation="${tool.id}" aria-label="Which way this cut runs">${Object.entries(S001_CUT_ORIENTATIONS).map(([key, spec]) => `<option value="${key}"${tool.orientation === key ? ' selected' : ''}>${spec.label}</option>`).join('')}</select><span class="where">Adds a distance knob to this job’s Bench; the Store prices and checks it</span></div><button type="button" class="rm" data-s001-control data-ph-remove="${tool.id}" aria-label="Remove manual sheet goods cut">remove</button></div>`).join('');
+      }
+      const woodLabel = sheet ? s001WoodName() : 'wood not chosen yet';
+      const travel = doc.getElementById('ph-travel');
+      if (travel) travel.innerHTML = `<span>Wood: ${s001Esc(woodLabel)}</span><span>Opening width</span><span>Straight side height</span><span>Arch rise</span>`
+        + s001Job.tools.map(tool => tool.kind === 'PATTERN' ? '<span class="new">+ Pattern placement</span>' : `<span class="new">+ Cut distance (${S001_CUT_ORIENTATIONS[tool.orientation].short})</span>`).join('');
+      text('ph-carry', `Job revision: ${s001Revision(g).definitionRevisionId}. A different wood, opening or tool is a different revision, and the Store is asked again.`);
+    }
+
+    // Bench: the knobs the tools added at Intent brought, and the operation list.
+    function s001RenderBenchTools() {
+      const host = doc.getElementById('s001-tool-controls');
+      if (!host) return;
+      const shape = JSON.stringify(s001Job.tools.map(tool => [tool.id, tool.kind, tool.orientation || '', tool.datum || '']))
+        + (s001Job.sheet ? s001Job.sheet.lengthIn + 'x' + s001Job.sheet.widthIn : 'none');
+      if (host.dataset.shape !== shape) {
+        host.dataset.shape = shape;
+        host.innerHTML = s001Job.tools.map(tool => {
+          if (tool.kind === 'PATTERN') {
+            return `<div class="s001-control s001-ph-newknob"><label for="ph-px-${tool.id}">Pattern: right of center</label><output id="ph-px-out-${tool.id}"></output><input id="ph-px-${tool.id}" data-ph-knob="${tool.id}" data-ph-field="offsetXIn" type="range" min="-24" max="24" step="0.5" value="${tool.offsetXIn}"></div>`
+              + `<div class="s001-control s001-ph-newknob"><label for="ph-py-${tool.id}">Pattern: above center</label><output id="ph-py-out-${tool.id}"></output><input id="ph-py-${tool.id}" data-ph-knob="${tool.id}" data-ph-field="offsetYIn" type="range" min="-18" max="18" step="0.5" value="${tool.offsetYIn}"></div>`;
+          }
+          const spec = S001_CUT_ORIENTATIONS[tool.orientation];
+          return `<div class="s001-control s001-ph-newknob"><label for="ph-cut-${tool.id}">Cut ${s001CutTools().indexOf(tool) + 1} · ${spec.label.toLowerCase()}</label><output id="ph-cut-out-${tool.id}"></output><select data-ph-datum="${tool.id}" aria-label="Measure from which ${spec.datumLabel}">${spec.datums.map(d => `<option value="${d}"${tool.datum === d ? ' selected' : ''}>from the ${d.toLowerCase()} ${spec.datumLabel}</option>`).join('')}</select><input id="ph-cut-${tool.id}" data-ph-knob="${tool.id}" data-ph-field="distanceIn" type="range" min="1" max="${s001CutLimit(tool)}" step="0.5" value="${tool.distanceIn}"></div>`;
+        }).join('') + (s001Job.tools.length ? '<p class="dim" style="margin:6px 0 0;font-size:10.5px">Controls added at Intent. Each one is part of this job’s revision.</p>' : '');
+      }
+      s001Job.tools.forEach(tool => {
+        if (tool.kind === 'PATTERN') {
+          text('ph-px-out-' + tool.id, fmt(tool.offsetXIn) + ' in');
+          text('ph-py-out-' + tool.id, fmt(tool.offsetYIn) + ' in');
+        } else {
+          text('ph-cut-out-' + tool.id, fmt(tool.distanceIn) + ' in');
+        }
+      });
+      const sequence = doc.getElementById('s001-sequence');
+      if (sequence) {
+        const rows = [
+          ['ROUTE INTERNAL CENTER FEATURE', 'Straight internal route. Retained material remains connected by tabs according to the project rule.'],
+          ['ROUTE OUTER ARCHED PROFILE', 'Curvilinear opening profile with retained tabs.'],
+          ['SECONDARY STRAIGHT CUT REQUEST', `Two straight cuts, ${S001_END_CUT_IN} in from the sheet ends. Sent to the Store as its own requested operation.`],
+          ...s001CutTools().map((tool, i) => [`MANUAL SHEET GOODS CUT ${i + 1}`, `One full cut, edge to edge: ${s001CutWords(tool)}. Sent to the Store as its own requested operation.`]),
+          ...(s001PatternTool() ? [['SHEET GOODS PATTERN', `Plunge start, stencil-type cut with tabs, placed ${fmt(s001PatternTool().offsetXIn)} in right and ${fmt(s001PatternTool().offsetYIn)} in above center. Sent to the Store as its own requested operation.`]] : [])
+        ];
+        sequence.innerHTML = rows.map(([title, detail], i) => `<div class="row"><span class="n">${String(i + 1).padStart(2, '0')}</span><div><b>${title}</b><span>${detail}</span></div></div>`).join('');
+      }
+    }
+
     const sync = () => {
       const widthInput = doc.getElementById('s001-opening-width');
       const straightInput = doc.getElementById('s001-straight-height');
@@ -3200,32 +3507,16 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       let rise = Math.max(1, Math.min(12, Number(riseInput.value) || 12));
       let width = Math.max(1, Math.min(48, Number(widthInput.value) || 36));
       widthInput.value = String(width); straightInput.value = String(straight); riseInput.value = String(rise);
+      s001ClampTools();
       const g = read();
       text('s001-opening-width-out', fmt(g.width) + ' in');
       text('s001-straight-height-out', fmt(g.straight) + ' in');
       text('s001-arch-rise-out', fmt(g.rise) + ' in');
-      const px = 10, centerX = 480, fieldTop = 60, fieldHeight = 360;
-      const openingW = g.width * px, openingH = g.total * px;
-      const bottom = fieldTop + (fieldHeight + openingH) / 2;
-      const top = bottom - openingH;
-      const springY = bottom - g.straight * px;
-      const left = centerX - openingW / 2, right = centerX + openingW / 2;
-      const outer = `M ${left} ${bottom} L ${left} ${springY} Q ${centerX} ${top} ${right} ${springY} L ${right} ${bottom} Z`;
-      doc.getElementById('s001-opening-path')?.setAttribute('d', outer);
-      const centerRoute = `M ${centerX} ${bottom} L ${centerX} ${top + 7}`;
-      doc.getElementById('s001-center-route')?.setAttribute('d', centerRoute);
-      const tabs = doc.getElementById('s001-tab-markers');
-      if (tabs) {
-        const points = [
-          [left, bottom - g.straight * px * .45],
-          [right, bottom - g.straight * px * .45],
-          [centerX - openingW * .22, top + g.rise * px * .42],
-          [centerX + openingW * .22, top + g.rise * px * .42],
-          [centerX, bottom - openingH * .28]
-        ];
-        tabs.innerHTML = points.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="7" fill="#f4efe7" stroke="#7a5b2f" stroke-width="4"/>`).join('');
-      }
-      text('s001-opening-label', `${fmt(g.width)} wide · ${fmt(g.straight)} straight + ${fmt(g.rise)} rise = ${fmt(g.total)} high`);
+      s001Draw('s001', g);
+      s001Draw('s001i', g);
+      s001RenderBenchTools();
+      s001RenderIntent(g);
+      text('s001-bench-wood', s001Job.sheet ? s001WoodName() : 'not chosen yet');
       text('s001-geometry-summary', `Opening ${fmt(g.width)} × ${fmt(g.total)} in overall · straight side ${fmt(g.straight)} in · arch rise ${fmt(g.rise)} in · derived radius ${fmt(g.radius)} in.`);
       text('s001-store-opening', `${fmt(g.width)} in wide × ${fmt(g.total)} in overall`);
       text('s001-store-radius', `Circular segment · ${fmt(g.radius)} in derived radius`);
@@ -3420,40 +3711,79 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
     const S001_PROJECT_ID = 'playhouse';
     const S001_REQUEST_TYPE = 'SHEET_PACKAGE_V1';
     const S001_INQUIRY_SCOPE = 'SHEET_PACKAGE_V1';
-    const S001_SHEET = S001_KNOWN.sheet;
     const s001Live = { token:0, asking:false, answer:null, error:null, version:null, timer:null, admission:null, blocking:[] };
     const s001Positive = value => Number.isFinite(value) && value > 0;
-    // One job-definition revision from what is on screen. The opening is User 1's; the sheet is the project's.
-    // A fact that is not there is left out, so admission blocks on it rather than the page filling it in.
-    function s001Revision(g) {
-      const facts = {
-        'playhouse.sheet': { value:{ ...S001_SHEET }, status:'CONFIRMED' }
+    // The tools the job brought, as the admission profile states them: the required end cuts, every added cut, the pattern.
+    function s001ToolsFact() {
+      return {
+        endCuts:{ fromLeftIn:S001_END_CUT_IN, fromRightIn:S001_END_CUT_IN },
+        manualCuts:s001CutTools().map(tool => tool.orientation === 'ALONG_LENGTH'
+          ? { orientation:tool.orientation, fromEdge:tool.datum, distanceIn:tool.distanceIn }
+          : { orientation:tool.orientation, fromEnd:tool.datum, distanceIn:tool.distanceIn }),
+        pattern:s001PatternTool() ? { offsetXIn:s001PatternTool().offsetXIn, offsetYIn:s001PatternTool().offsetYIn } : null
       };
+    }
+    // The readable identity of this exact job: the wood, the opening, the tab count, the end cuts and each tool added.
+    // System invents no canonical hash; a different wood, opening or tool is a different id.
+    function s001RevisionId(g) {
+      const sheet = s001Job.sheet;
+      const parts = ['playhouse', sheet ? sheet.storeSku.replace(/^STB-ZERO-/, '') : 'no-wood', `w${g.width}`, `s${g.straight}`, `r${g.rise}`, 't4', `c${S001_END_CUT_IN}x${S001_END_CUT_IN}`];
+      s001Job.tools.forEach(tool => {
+        if (tool.kind === 'PATTERN') parts.push(`pat-x${tool.offsetXIn}-y${tool.offsetYIn}`);
+        else parts.push(`${tool.orientation === 'ALONG_LENGTH' ? 'rip' : 'xc'}-${tool.datum[0]}${tool.distanceIn}`);
+      });
+      return parts.join('-');
+    }
+    // One job-definition revision from what is on screen. The opening and the tools are User 1's; the wood is the Store row
+    // she chose. A fact that is not there is left out, so admission blocks on it rather than the page filling it in.
+    function s001Revision(g) {
+      const facts = {};
+      const sheet = s001Job.sheet;
+      if (sheet) {
+        facts['playhouse.sheet'] = { value:{ thicknessIn:sheet.thicknessIn, lengthIn:sheet.lengthIn, widthIn:sheet.widthIn, species:sheet.species, grade:sheet.grade, storeSku:sheet.storeSku }, status:'CONFIRMED' };
+      }
       if (s001Positive(g.width) && s001Positive(g.straight) && s001Positive(g.rise)) {
         facts['playhouse.opening'] = { value:{ widthIn:g.width, straightHeightIn:g.straight, riseIn:g.rise }, status:'CONFIRMED' };
       }
-      return {
-        definitionRevisionId:`playhouse-w${g.width}-s${g.straight}-r${g.rise}-t4-c18x18`,
-        tileId:S001_PROJECT_ID,
-        facts
-      };
+      facts['playhouse.tools'] = { value:s001ToolsFact(), status:'CONFIRMED' };
+      return { definitionRevisionId:s001RevisionId(g), tileId:S001_PROJECT_ID, facts };
     }
-    // The sheet definition the Store is asked about, built only from the admitted request's facts.
+    // The sheet definition the Store is asked about, built only from the admitted request's facts. The Store row's
+    // SKU stays on the job (it checks the answer); the Store matches the wood by what the definition states.
     function s001DefinitionFrom(request) {
       const sheet = request.facts['playhouse.sheet'];
       const opening = request.facts['playhouse.opening'];
+      const tools = request.facts['playhouse.tools'];
+      const features = [
+        { featureId:'OPENING', kind:'ARCHED_APERTURE', placement:'CENTERED', widthIn:opening.widthIn, straightHeightIn:opening.straightHeightIn, riseIn:opening.riseIn, retain:'TABS', requestedTabCount:4 },
+        { featureId:'CENTER-SPLIT', kind:'STRAIGHT_SPLIT', within:'OPENING', line:'VERTICAL_CENTERLINE' },
+        { featureId:'CUT-LEFT', kind:'CROSSCUT', fromEnd:'LEFT', distanceIn:tools.endCuts.fromLeftIn },
+        { featureId:'CUT-RIGHT', kind:'CROSSCUT', fromEnd:'RIGHT', distanceIn:tools.endCuts.fromRightIn }
+      ];
+      (tools.manualCuts || []).forEach((cut, i) => {
+        features.push(cut.orientation === 'ALONG_LENGTH'
+          ? { featureId:`CUT-M${i + 1}`, kind:'RIP', fromEdge:cut.fromEdge, distanceIn:cut.distanceIn }
+          : { featureId:`CUT-M${i + 1}`, kind:'CROSSCUT', fromEnd:cut.fromEnd, distanceIn:cut.distanceIn });
+      });
+      if (tools.pattern) features.push({ featureId:'PATTERN', kind:'PATTERN', within:'OPENING', offsetXIn:tools.pattern.offsetXIn, offsetYIn:tools.pattern.offsetYIn });
       return {
         configurationId:'PLAYHOUSE-ARCHED-WINDOW',
         configurationVersion:request.definitionRevisionId,
-        sheet:{ thicknessIn:sheet.thicknessIn, lengthIn:sheet.lengthIn, widthIn:sheet.widthIn },
-        features:[
-          { featureId:'OPENING', kind:'ARCHED_APERTURE', placement:'CENTERED', widthIn:opening.widthIn, straightHeightIn:opening.straightHeightIn, riseIn:opening.riseIn, retain:'TABS', requestedTabCount:4 },
-          { featureId:'CENTER-SPLIT', kind:'STRAIGHT_SPLIT', within:'OPENING', line:'VERTICAL_CENTERLINE' },
-          { featureId:'CUT-LEFT', kind:'CROSSCUT', fromEnd:'LEFT', distanceIn:18 },
-          { featureId:'CUT-RIGHT', kind:'CROSSCUT', fromEnd:'RIGHT', distanceIn:18 }
-        ],
+        sheet:{ thicknessIn:sheet.thicknessIn, lengthIn:sheet.lengthIn, widthIn:sheet.widthIn, species:sheet.species, grade:sheet.grade },
+        features,
         returnAllPieces:true
       };
+    }
+    // The Store's contract refusal (it does not accept a field this job states) is an answer with reason codes and no
+    // evaluation. Each code is explained in the job's own words; nothing is priced and nothing is dropped.
+    function s001ContractReasons(codes, definition) {
+      return (codes || []).map(code => {
+        const m = /^DEFINITION_FIELD_NOT_DECLARED:(?:features\[(\d+)\]\.)?(.+)$/.exec(String(code));
+        if (!m) return { code, explanation:'The Store did not evaluate this job (' + code + '). No price is shown.' };
+        const id = m[1] != null ? definition?.features?.[Number(m[1])]?.featureId : null;
+        const where = id === 'PATTERN' ? 'the sheet goods pattern' : id && /^CUT-M\d+$/.test(id) ? 'manual sheet goods cut ' + id.slice(5) : id ? 'the ' + id.toLowerCase() + ' feature' : 'this job';
+        return { code, explanation:`The Store does not accept "${m[2]}" for ${where} yet, so it did not evaluate this job.` };
+      });
     }
     function s001Admitted() {
       return s001Live.admission?.admission?.result === tileHostContract.ADMISSION_RESULT.ADMITTED;
@@ -3599,6 +3929,7 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
         if (open) button.removeAttribute('aria-disabled'); else button.setAttribute('aria-disabled','true');
       });
       doc.documentElement.dataset.playhouseStoreStatus = binds.status;
+      s001RenderSummary();
       s001FeedTerms();
       s001RenderTerms();
     }
@@ -3626,28 +3957,39 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
         const sentAt = new Date().toISOString();
         let definition = null;
         let body = null;
+        let admittedSku = null;
         tileHostContract.inquire(admission, request => {
           if (request.requestType !== S001_REQUEST_TYPE) throw new Error('ADMITTED_REQUEST_TYPE_MISMATCH');
           definition = s001DefinitionFrom(request);
-          // The sheet sent is exactly the admitted sheet: its thickness, length and width, and nothing else.
+          // The sheet sent is exactly the admitted sheet: its thickness, length, width, species and grade, and nothing else.
           const admittedSheet = request.facts['playhouse.sheet'];
           const sentSheet = definition.sheet;
-          if (!sentSheet || Object.keys(sentSheet).sort().join() !== 'lengthIn,thicknessIn,widthIn'
-            || ['thicknessIn','lengthIn','widthIn'].some(key => sentSheet[key] !== admittedSheet[key])) {
+          if (!sentSheet || Object.keys(sentSheet).sort().join() !== 'grade,lengthIn,species,thicknessIn,widthIn'
+            || ['thicknessIn','lengthIn','widthIn','species','grade'].some(key => sentSheet[key] !== admittedSheet[key])) {
             throw new Error('ADMITTED_SHEET_NOT_SENT');
           }
+          admittedSku = admittedSheet.storeSku;
           // admit() above is this inquiry's one admission decision; the transport does not admit it again.
           return client.sendAdmittedJob({
             admitted:request,
-            payload:{ definition, definitionKind:'sheet_package.v1', ruleVersion:'0.1' }
+            payload:{ definition, definitionKind:'sheet_package.v1', ruleVersion:'0.1' },
+            // A tool the Store's contract does not declare yet comes back as the Store's own refusal (reason codes, no
+            // receipt, no price). It is shown as exactly that, never as an evaluation and never as a yes.
+            allowNotEvaluatedRefusal:true
           }).then(answer => (body = answer));
         }).then(result => {
           if (token !== s001Live.token) return;
-          const ev = body.rawEvaluation;
-          // The answer must be this project's answer for this exact version.
-          if (body.projectId !== S001_PROJECT_ID || body.requestType !== S001_REQUEST_TYPE || ev?.configurationVersion !== definition.configurationVersion) {
+          const raw = body.rawEvaluation;
+          const evaluated = raw?.freshEvaluation === true;
+          // The answer must be this project's answer for this exact version. An evaluation names the version it
+          // evaluated; the Store's contract refusal names the revision the request carried.
+          const answeredVersion = evaluated ? raw?.configurationVersion : body.candidateRevisionId;
+          if (body.projectId !== S001_PROJECT_ID || body.requestType !== S001_REQUEST_TYPE || answeredVersion !== definition.configurationVersion) {
             throw new Error('STORE_ANSWER_NOT_FOR_THIS_VERSION');
           }
+          // The Store prices the wood this job chose, or says why it cannot. A different row is not this job's answer.
+          if (evaluated && raw.material && raw.material.storeSku !== admittedSku) throw new Error('STORE_ANSWER_FOR_A_DIFFERENT_SHEET');
+          const ev = evaluated ? raw : { ...raw, status:'REFUSED', notEvaluated:true, reasonRecords:s001ContractReasons(raw.reasonCodes, definition) };
           s001Live.answer = { evaluation:ev, receipt:body.evaluationReceipt, requestId:body.requestId, storePin:body.storePin, version:definition.configurationVersion, body, sentAt,
             authority:result.answer.authority, definitionRevisionId:result.answer.definitionRevisionId, inquiryScope:result.answer.inquiryScope };
           s001Live.asking = false;
@@ -3663,11 +4005,163 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
     function s001AskIfChanged(g) {
       // Only the active Playhouse project asks the Store; loading the app or another project asks nothing.
       if (!tileHostActive(S001_PROJECT_ID)) return;
+      // The default wood is found in the Store the first time the job is open; until then nothing is sent.
+      if (!s001Job.sheet && s001Job.wood.state === 'idle') s001LookUp(s001Job.wantSku, true);
       const revision = s001Revision(g);
       // A settled failure is this revision's result too: returning to the page shows it, not a new asking line.
       if (revision.definitionRevisionId === s001Live.version && (s001Live.asking || s001Live.answer || s001Live.error || s001Live.blocking.length)) { s001Render(); return; }
       s001Inquire(revision);
     }
+
+    // The Bench's budgetary summary under the drawing. It shows only the Store's answer for the revision on screen:
+    // never an earlier answer, never a number this page worked out.
+    function s001RenderSummary() {
+      const box = doc.getElementById('s001-bench-summary');
+      if (!box) return;
+      const a = s001CurrentAnswer();
+      const ev = a?.evaluation || null;
+      const blocked = !s001Live.asking && !!s001Live.admission && !s001Admitted();
+      let html = '<h3>STORE BUDGETARY ANSWER</h3>';
+      if (blocked) {
+        html += `<div class="state no"><b>Not sent to the Store.</b> Missing: <ul>${s001Live.blocking.map(b => `<li>${s001Esc(b.title)} · owner ${s001Esc(b.owner)}</li>`).join('')}</ul></div>`;
+      } else if (s001Live.asking) {
+        html += '<div class="state">Asking the Store about this version… No earlier answer is reused.</div>';
+      } else if (s001Live.error) {
+        html += `<div class="state no">The Store could not answer (${s001Esc(s001Live.error)}). Nothing is shown rather than a guess.</div>`;
+      } else if (!ev) {
+        html += '<div class="state">No matching Store answer for this version yet.</div>';
+      } else if (ev.status !== 'SUPPORTABLE') {
+        const reasons = (ev.reasonRecords || []).map(r => `<li><b>${s001Esc(r.code)}</b> · ${s001Esc(r.explanation)}</li>`).join('');
+        html += `<div class="state no"><b>${s001Esc(ev.status)}</b>${ev.notEvaluated ? ' · the Store did not evaluate this version' : ''}<ul>${reasons}</ul>A refusal is an answer. No price is shown.</div>`;
+      } else {
+        html += `<table><tbody>
+<tr><td>Material<small>${s001Esc(String(ev.material.storeSku).replace(/^STB-ZERO-/, ''))}</small></td><td>${s001Money(ev.totals.material)}</td></tr>
+<tr><td>Modeled machine service<small>Time is modeled, not measured: ${fmt(ev.time.T_MACHINE_min)} min.</small></td><td>${s001Money(ev.totals.machine_service)}</td></tr>
+<tr><td>Yard cuts<small>The end cuts and any crosscuts at the yard panel saw</small></td><td class="na">inside the machine service today; not a separate Store line yet</td></tr>
+<tr class="total"><td>Total Q<small>Budgetary, not a quote</small></td><td>${s001Money(ev.totals.Q)}</td></tr></tbody></table>`;
+      }
+      box.innerHTML = html;
+    }
+
+    // Item Lookup: the Store's own catalog search. The page holds no catalog; when the Store cannot answer, there is no list.
+    async function s001LookUp(searchText, isDefault) {
+      const client = window.STBStoreClient;
+      const wood = s001Job.wood;
+      const token = ++wood.token;
+      const query = String(searchText || '').trim();
+      if (!query) { wood.message = 'Type a search, or use one of the suggestions.'; wood.rows = []; sync(); return; }
+      wood.state = 'asking'; wood.message = 'Asking the Store…';
+      if (!isDefault) wood.rows = [];
+      sync();
+      try {
+        if (!client || typeof client.lookupOfferings !== 'function') throw new Error('STORE_CLIENT_UNAVAILABLE');
+        const answer = await client.lookupOfferings({ projectId:S001_PROJECT_ID, candidateRevisionId:'playhouse-wood-lookup', searchText:query });
+        if (token !== wood.token) return;
+        const rows = answer.rawOfferings || [];
+        if (isDefault) {
+          const found = s001SheetFromRow(rows.find(row => row.storeSku === s001Job.wantSku));
+          if (!found) throw new Error('STORE_SHEET_NOT_OFFERED');
+          s001Job.sheet = found;
+          wood.state = 'ready'; wood.message = 'Search the Store, or keep this sheet.'; wood.rows = [];
+        } else {
+          wood.state = 'ready'; wood.rows = rows;
+          wood.message = rows.length
+            ? `${answer.totalMatches} Store ${answer.totalMatches === 1 ? 'item matches' : 'items match'}${answer.truncated ? ` (showing ${rows.length})` : ''}.`
+            : 'The Store has no item for that search.';
+        }
+      } catch (error) {
+        if (token !== wood.token) return;
+        wood.state = 'error'; wood.rows = [];
+        wood.message = `The Store could not answer this search (${error?.message || 'STORE_ZERO_UNAVAILABLE'}). Nothing is assumed.`;
+      }
+      sync();
+    }
+    const s001Use = sku => {
+      const row = s001Job.wood.rows.find(item => item.storeSku === sku);
+      const chosen = s001SheetFromRow(row);
+      if (!chosen) return;
+      s001Job.sheet = chosen;
+      s001Job.wantSku = chosen.storeSku;
+      s001Job.wood.message = 'Wood chosen. A different wood is a different version of the job; the Store is asked again.';
+      sync();
+    };
+    const s001ToolById = id => s001Job.tools.find(tool => tool.id === id) || null;
+    intent?.addEventListener('click', event => {
+      const target = event.target.closest?.('button');
+      if (!target) return;
+      if (target.id === 'ph-lookup-go') s001LookUp(doc.getElementById('ph-lookup')?.value || '', false);
+      else if (target.dataset.phTry) { const input = doc.getElementById('ph-lookup'); if (input) input.value = target.dataset.phTry; s001LookUp(target.dataset.phTry, false); }
+      else if (target.dataset.phUse) s001Use(target.dataset.phUse);
+      else if (target.id === 'ph-add-go') {
+        const kind = doc.getElementById('ph-add-select')?.value;
+        if (!S001_TOOL_KINDS[kind] || (kind === 'PATTERN' && s001PatternTool())) return;
+        s001Job.tools.push(s001NewTool(kind));
+        sync();
+      } else if (target.dataset.phRemove) {
+        const index = s001Job.tools.findIndex(tool => tool.id === target.dataset.phRemove);
+        if (index >= 0) { s001Job.tools.splice(index, 1); sync(); }
+      }
+    });
+    doc.getElementById('ph-lookup')?.addEventListener('keydown', event => { if (event.key === 'Enter') s001LookUp(event.target.value, false); });
+    intent?.addEventListener('change', event => {
+      const select = event.target.closest?.('[data-ph-orientation]');
+      if (!select) return;
+      const tool = s001ToolById(select.dataset.phOrientation);
+      if (!tool || !S001_CUT_ORIENTATIONS[select.value]) return;
+      tool.orientation = select.value;
+      tool.datum = S001_CUT_ORIENTATIONS[select.value].datums[0];
+      tool.distanceIn = S001_NEW_CUT_IN[tool.orientation];
+      select.blur();
+      sync();
+    });
+    machine?.addEventListener('input', event => {
+      const knob = event.target.closest?.('[data-ph-knob]');
+      if (!knob) return;
+      const tool = s001ToolById(knob.dataset.phKnob);
+      const field = knob.dataset.phField;
+      if (!tool || !['distanceIn', 'offsetXIn', 'offsetYIn'].includes(field)) return;
+      tool[field] = Number(knob.value);
+      sync();
+    });
+    machine?.addEventListener('change', event => {
+      const select = event.target.closest?.('[data-ph-datum]');
+      const tool = select ? s001ToolById(select.dataset.phDatum) : null;
+      if (!tool || !S001_CUT_ORIENTATIONS[tool.orientation].datums.includes(select.value)) return;
+      tool.datum = select.value;
+      sync();
+    });
+
+    // The job's wood and tools belong to the project, so a saved copy carries them and the published library project
+    // opens on its own (the default wood, no added tools). The wood is held by SKU and found in the Store again on restore.
+    const s001CaptureJob = () => ({
+      sku:s001Job.sheet?.storeSku ?? s001Job.wantSku,
+      next:s001Job.nextToolId,
+      tools:s001Job.tools.map(tool => ({ ...tool }))
+    });
+    function s001CleanTool(raw) {
+      const id = typeof raw?.id === 'string' && /^t\d+$/.test(raw.id) ? raw.id : null;
+      if (!id) return null;
+      if (raw.kind === 'PATTERN') {
+        return Number.isFinite(raw.offsetXIn) && Number.isFinite(raw.offsetYIn) ? { id, kind:'PATTERN', offsetXIn:raw.offsetXIn, offsetYIn:raw.offsetYIn } : null;
+      }
+      const spec = S001_CUT_ORIENTATIONS[raw.orientation];
+      if (raw.kind !== 'MANUAL_CUT' || !spec || !spec.datums.includes(raw.datum) || !(Number(raw.distanceIn) > 0)) return null;
+      return { id, kind:'MANUAL_CUT', orientation:raw.orientation, datum:raw.datum, distanceIn:Number(raw.distanceIn) };
+    }
+    function s001RestoreJob(saved) {
+      const sku = typeof saved?.sku === 'string' && saved.sku ? saved.sku : S001_DEFAULT_SKU;
+      const tools = Array.isArray(saved?.tools) ? saved.tools.map(s001CleanTool).filter(Boolean) : [];
+      let hasPattern = false;
+      s001Job.tools = tools.filter(tool => tool.kind !== 'PATTERN' || (!hasPattern && (hasPattern = true)));
+      s001Job.nextToolId = Math.max(Number(saved?.next) || 1, ...s001Job.tools.map(tool => Number(tool.id.slice(1)) + 1), 1);
+      if (!s001Job.sheet || s001Job.sheet.storeSku !== sku) {
+        s001Job.sheet = null;
+        s001Job.wantSku = sku;
+        s001Job.wood = { state:'idle', message:'', rows:[], token:s001Job.wood.token + 1 };
+      }
+      sync();
+    }
+    win.STBProjectStateParts?.register('playhouse', { capture:s001CaptureJob, restore:s001RestoreJob });
     const s001Current = () => s001Revision(read());
     win.STBPlayhouseLive = Object.freeze({
       // The definition the current revision sends, or null when admission blocks it.
@@ -3680,8 +4174,12 @@ import('./shared/tile-host-admission-contract.mjs?v=69228b46').then(contract => 
       admission:() => s001Live.admission ? JSON.parse(JSON.stringify(s001Live.admission)) : null,
       // Asks about a revision through the same admission as the page; a blocked one never reaches the Store.
       inquire:revision => JSON.parse(JSON.stringify(s001Inquire(revision))),
+      // The wood and tools this job holds (a copy), and the lookup state.
+      job:() => JSON.parse(JSON.stringify({ sheet:s001Job.sheet, tools:s001Job.tools, wood:{ state:s001Job.wood.state, message:s001Job.wood.message } })),
       state:() => JSON.parse(JSON.stringify({ asking:s001Live.asking, error:s001Live.error, version:s001Live.version, answer:s001Live.answer,
         admission:s001Live.admission?.admission ?? null })),
+      // Redraws and re-reads the page: the shell calls it after it restores a project's state.
+      sync:() => sync(),
       hostMessage:() => s001HostMessage(),
       terms:() => s001Terms?.state() ?? null,
       supportable:() => s001Supportable()

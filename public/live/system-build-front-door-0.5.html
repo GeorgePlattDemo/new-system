@@ -184,6 +184,10 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
     let preview = null;
     let ownedOpen = null;
     let restoringState = false;
+    // A tile that holds job state outside form controls (the Playhouse's wood and tools) registers it here, so a saved copy
+    // carries it and the published library project restores to its own. restore(undefined) means the published state.
+    const stateParts = {};
+    win.STBProjectStateParts = Object.freeze({ register(name, part) { stateParts[name] = part; } });
     const userSelect = doc.getElementById('canonical-demo-user');
 
     const plywoodTile = doc.querySelector('#projects .tile[data-go="window-parts"]');
@@ -204,21 +208,6 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       tile.append(small);
     });
 
-    function fmtIn(value) {
-      const n = Number(value);
-      if (!Number.isFinite(n)) return '—';
-      return n.toFixed(2).replace(/\.00$/, '').replace(/(\.\d)0$/, '$1');
-    }
-
-    function readS001() {
-      const width = Number(doc.getElementById('s001-opening-width')?.value ?? 36);
-      const straight = Number(doc.getElementById('s001-straight-height')?.value ?? 24);
-      const rise = Number(doc.getElementById('s001-arch-rise')?.value ?? 12);
-      const total = straight + rise;
-      const radius = rise > 0 ? (width * width) / (8 * rise) + rise / 2 : null;
-      return { width, straight, rise, total, radius };
-    }
-
     // The Playhouse review is this page's, so its confirm is recorded here: exactly the revision the live Store
     // answer found supportable. A refused, stale or missing answer records nothing.
     function recordS001Confirm() {
@@ -228,59 +217,11 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       if (version) doc.documentElement.dataset.playhouseRevisionConfirmed = version;
     }
 
+    // The Playhouse Intent and Bench pages draw and read the Playhouse themselves; this layer only asks them to redraw
+    // after state is restored. It draws nothing of its own, so there is one drawing and one arch.
     function syncS001Playhouse() {
-      const widthInput = doc.getElementById('s001-opening-width');
-      const straightInput = doc.getElementById('s001-straight-height');
-      const riseInput = doc.getElementById('s001-arch-rise');
-      if (!widthInput || !straightInput || !riseInput) return;
-
-      let width = Math.max(1, Math.min(48, Number(widthInput.value) || 36));
-      let straight = Math.max(1, Math.min(35, Number(straightInput.value) || 24));
-      // No fit correction here: the Store decides whether the opening fits and may refuse it.
-      let rise = Math.max(1, Math.min(12, Number(riseInput.value) || 12));
-      widthInput.value = String(width);
-      straightInput.value = String(straight);
-      riseInput.value = String(rise);
-
-      const g = readS001();
-      const set = (id, text) => { const el = doc.getElementById(id); if (el) el.textContent = text; };
-      set('s001-opening-width-out', fmtIn(g.width) + ' in');
-      set('s001-straight-height-out', fmtIn(g.straight) + ' in');
-      set('s001-arch-rise-out', fmtIn(g.rise) + ' in');
-
-      const px = 10;
-      const centerX = 480;
-      const fieldTop = 60;
-      const fieldHeight = 360;
-      const openingW = g.width * px;
-      const openingH = g.total * px;
-      const bottom = fieldTop + (fieldHeight + openingH) / 2;
-      const top = bottom - openingH;
-      const springY = bottom - g.straight * px;
-      const left = centerX - openingW / 2;
-      const right = centerX + openingW / 2;
-      const path = `M ${left} ${bottom} L ${left} ${springY} Q ${centerX} ${top} ${right} ${springY} L ${right} ${bottom} Z`;
-      const pathEl = doc.getElementById('s001-opening-path');
-      if (pathEl) pathEl.setAttribute('d', path);
-      set('s001-opening-label', `${fmtIn(g.width)} wide · ${fmtIn(g.straight)} straight + ${fmtIn(g.rise)} rise = ${fmtIn(g.total)} high`);
-      set('s001-geometry-summary', `Opening ${fmtIn(g.width)} × ${fmtIn(g.total)} in overall · straight side ${fmtIn(g.straight)} in · arch rise ${fmtIn(g.rise)} in · derived circular-segment radius ${fmtIn(g.radius)} in.`);
-      set('s001-store-opening', `${fmtIn(g.width)} in wide × ${fmtIn(g.total)} in overall`);
-      set('s001-store-radius', `circular segment · ${fmtIn(g.radius)} in radius`);
-      set('s001-review-opening', `${fmtIn(g.width)} wide · ${fmtIn(g.straight)} straight · ${fmtIn(g.rise)} rise · ${fmtIn(g.total)} total height`);
-      set('s001-result-geometry', `${fmtIn(g.width)} wide · ${fmtIn(g.straight)} straight · ${fmtIn(g.rise)} rise · ${fmtIn(g.total)} total height`);
-      set('s001-record-geometry', `${fmtIn(g.width)} wide · ${fmtIn(g.straight)} straight · ${fmtIn(g.rise)} rise`);
+      win.STBPlayhouseLive?.sync?.();
     }
-
-    [doc.getElementById('s001-opening-width'), doc.getElementById('s001-straight-height'), doc.getElementById('s001-arch-rise')].forEach(input => {
-      input?.addEventListener('input', syncS001Playhouse);
-    });
-    doc.getElementById('s001-reset')?.addEventListener('click', () => {
-      doc.getElementById('s001-opening-width').value = '36';
-      doc.getElementById('s001-straight-height').value = '24';
-      doc.getElementById('s001-arch-rise').value = '12';
-      syncS001Playhouse();
-    });
-    syncS001Playhouse();
 
     function captureState() {
       const controls = {};
@@ -294,7 +235,9 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       const format = doc.getElementById('fmt')?.textContent || null;
       const pills = [...doc.querySelectorAll('#decisionRows .rowline')].map(row => row.querySelector('.pill.on')?.textContent || null);
       const stock = doc.querySelector('.pick.on')?.getAttribute('data-stock') || null;
-      return { controls, heights, material, picnicMaterial, picnicTitle, format, pills, stock };
+      const parts = {};
+      Object.entries(stateParts).forEach(([name, part]) => { parts[name] = part.capture(); });
+      return { controls, heights, material, picnicMaterial, picnicTitle, format, pills, stock, parts };
     }
 
     function unlockPreviewControls() {
@@ -363,6 +306,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
         if (typeof win.syncAlcove === 'function') win.syncAlcove();
         if (typeof win.syncPicnic === 'function') win.syncPicnic();
         if (typeof win.syncTransaction === 'function') win.syncTransaction();
+        Object.entries(stateParts).forEach(([name, part]) => part.restore(state.parts?.[name]));
         syncS001Playhouse();
       } finally {
         restoringState = false;
