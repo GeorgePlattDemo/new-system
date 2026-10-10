@@ -441,7 +441,14 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
   }
   const hardware = asObject(definition.hardwareDemand);
   const itemLines = hardware ? [itemFrom({ lineId: hardware.requirementId, requirementId: hardware.requirementId, qty: hardware.qty }, problems)].filter((line): line is Json => line != null) : [];
-  if (definition.spotDemand != null) {
+  // The published disabled declaration explicitly asks for no spots. It is not an unevaluated operation.
+  // Any additional summary fact, any listed feature or any component spot still needs its full evaluation.
+  const spotDemand = asObject(definition.spotDemand);
+  const noSpotsRequested = spotDemand?.enabled === false
+    && Array.isArray(spotDemand.features) && spotDemand.features.length === 0
+    && Object.keys(spotDemand).every((key) => ["enabled", "mode", "toolDiameterIn", "source", "features"].includes(key))
+    && [...groups.values()].every((pkg) => (pkg.parts as Json[]).every((part) => !Array.isArray(part.spots) || part.spots.length === 0));
+  if (definition.spotDemand != null && !noSpotsRequested) {
     carriedNotAccepted.push({ field: "spotDemand", value: "present", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
   }
   if (problems.length) return { blocked: problems };

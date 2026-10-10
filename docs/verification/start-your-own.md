@@ -30,7 +30,7 @@ No copied Store answer or specimen travels with a page. Every price shown comes 
 
 A request type the adapter does not translate is refused as `LIVE_JOB_NOT_MIGRATED_YET`. Closet cleats is not a tile.
 
-## What was exercised on 2026-10-10
+## Initial checks on 2026-10-10
 
 Automated, `npm test` against a checkout whose `git rev-parse HEAD` is `81d958482bd25e784f122c97ffb11174013395af` (322 tests, all passing), including:
 
@@ -57,7 +57,25 @@ The Alcove gate now reads `COMPLETE_FOR_TRAVEL_STANDARD` and requires `REQUIREME
 
 Outdoor assigns stable part-and-spot identifiers when it generates the customer's selected spots. The coordinates and placements remain as selected. The actual Store evaluates all six spots in the regression case and returns increased machine service and Q; a missing identifier still blocks submission, and an off-board spot receives no complete estimate.
 
-All 325 System tests pass against a checkout of the unchanged Store pin, including the five published request paths, the fully evaluated Alcove simulated handoff, terminal Alcove budgetary review, Outdoor spot generation and refusal, and the unresolved Playhouse custom split. The Railway Node production build and TypeScript check pass. Browser verification of the deployed repair is recorded separately from these automated results.
+The live no-mill Alcove case also exposed an inactive spot declaration incorrectly classified as missing evaluation. The translator now recognizes `enabled:false` with no summary or component spots as no requested operation. Additional summary requirements, listed features and component spots still prevent this interpretation. A regression builds the actual published Alcove definition for 11 in deep, full-width strips, with pilot spots off, and obtains `REQUIREMENTS_SATISFIED` from the pinned Store. The physical-release block remains in place.
+
+All 326 System tests pass against a checkout of the unchanged Store pin, including the five published request paths, the fully evaluated Alcove simulated handoff, the actual full-width-strip definition, terminal Alcove budgetary review, Outdoor spot generation and refusal, and the unresolved Playhouse custom split. The Railway Node production build and TypeScript check pass.
+
+## Live application checks on 2026-10-10
+
+Through the deployed application's published controls and its actual Store connection:
+
+| Project | Observed result |
+| --- | --- |
+| Start your own | 16 in SPF $8.54; changing to 18 in gave a fresh $9.07 answer. Confirm, Your call, simulated yard READY and simulated pickup produced the handoff receipt. |
+| Alcove | The default inquiry reached Your call for scoped budgetary review at $449.85. Unevaluated operations were displayed; simulated acceptance, yard and pickup stayed blocked. |
+| Window Seat | Pine $1,489.09; selecting Poplar produced a fresh $2,005.89 answer and receipt. The revised job completed the simulated yard and pickup sequence. |
+| Outdoor | The Classic A-frame plan $275.52; placing two spots on each of its six tabletop boards reached Store as 12 spots and raised Q to $282.60. An invalid location closed the answer and decision gates and identified the missing placement. Restoring valid locations produced a new revision and receipt; the spot job completed simulated pickup. |
+| Playhouse | Default $76.57; changing arch rise from 12 to 11.5 in asked again and returned $76.48. The revised job completed simulated pickup. |
+
+The deployed `/api/store-zero/job` route was also exercised for custom Playhouse split positions omitted, null and empty: each returned a fresh `UNRESOLVED` answer, `SPLIT_TAB_POSITIONS_REQUIRED`, no complete Q and no physical release. Stated positions `[6,20]` were evaluated. An opening with 30 in arch rise was refused with no complete Q. These are endpoint checks; the screen does not expose a custom-split control.
+
+Railway deployed System repair `a722fc4cf0490b364d1fae1be520dd3a318a5a1e` for these initial live checks. Store remained `81d958482bd25e784f122c97ffb11174013395af`; its live shipped-source digest matched the pinned checkout. Commercial and yard events above are simulations; no money moved and no machine ran.
 
 ## History
 

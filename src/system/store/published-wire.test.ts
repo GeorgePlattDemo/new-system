@@ -296,7 +296,8 @@ function wireFor(projectId: string, requestType: string, revision: string, paylo
 
 function publishedFunction(file: string, name: string, context: Record<string, unknown> = {}) {
   const source = readFileSync(new URL(`../../../public/live/${file}`, import.meta.url), "utf8");
-  const match = source.match(new RegExp(`(^[ \\t]*)function ${name}\\([^]*?^\\1}`, "m"));
+  const match = source.match(new RegExp(`^[ \\t]*function ${name}\\([^\\n]*}$`, "m"))
+    ?? source.match(new RegExp(`(^[ \\t]*)function ${name}\\([^]*?^\\1}`, "m"));
   assert.ok(match, `${file} must define ${name}`);
   return runInNewContext(`(${match[0]})`, context);
 }
@@ -370,6 +371,55 @@ test("Alcove's scoped estimate opens only budgetary review, discloses the uneval
   assert.equal(current.machineAdmission.physicalRelease, false);
   terms.invalidate();
   assert.equal(terms.state().callOpen, false);
+});
+
+test("Alcove's actual definition with pilot spots switched off and full-width strips is fully evaluated", async () => {
+  const componentPrograms = publishedFunction("system-build-base-8d8a9dd.html", "alcoveComponentPrograms");
+  const signature = publishedFunction("system-build-base-8d8a9dd.html", "alcoveDefinitionSignature");
+  const revision = publishedFunction("system-build-base-8d8a9dd.html", "alcoveRevision", {
+    alcove: { pilotShelves: false }, alcoveComponentPrograms: componentPrograms,
+    alcoveDefinitionSignature: signature, ALCOVE_PROJECT_ID: "alcove",
+  })({ h: 72, w: 45.5, d: 11, n: 5, span: 44, material: "pine", pilotFeatures: [] });
+  const definitionFrom = publishedFunction("system-build-base-8d8a9dd.html", "alcoveDefinitionFrom", {
+    ALCOVE_HARDWARE_DEMAND: { requirementId: "ALCOVE-PINS-AND-SCREWS", description: "pins + screws", qty: 1, selectionAuthority: "STORE_ZERO" },
+  });
+  const definition = definitionFrom({ definitionRevisionId: revision.definitionRevisionId,
+    facts: Object.fromEntries(Object.entries(revision.facts).map(([key, fact]) => [key, (fact as { value: unknown }).value])),
+    openDemands: ["alcove.hardware"],
+  });
+  assert.equal(definition.spotDemand.enabled, false);
+  assert.equal(definition.componentPrograms.length, 14);
+  const ask = (suffix: string, spotDemand: Record<string, unknown>) => answerPublishedWire(
+    wireFor("alcove", "ALCOVE_INSERT_V1", `alcove-off-${suffix}`, { definition: { ...definition, configurationVersion: `alcove-off-${suffix}`, spotDemand } }),
+    origin!,
+  );
+  await storeOrigin();
+  const body = (await ask("complete", definition.spotDemand)).body as Record<string, any>;
+  assert.equal(body.rawEvaluation.status, "SUPPORTABLE");
+  assert.equal(body.rawEvaluation.freshEvaluation, true);
+  assert.equal(body.jobSupportability.status, "REQUIREMENTS_SATISFIED");
+  assert.deepEqual(body.requirementSatisfaction.unevaluated, []);
+  assert.ok(body.mappedCallInputs.demand.cutPackages.every((pkg: Record<string, any>) => pkg.parts.every((part: Record<string, any>) => !part.spots?.length)));
+  assert.equal(publishedFunction("system-build-current.html", "alcoveSupportable")(body), true);
+  assert.equal(body.machineAdmission.physicalRelease, false);
+  const withComponentSpot = { ...definition, configurationVersion: "alcove-off-component-spot",
+    componentPrograms: definition.componentPrograms.map((part: Record<string, unknown>, index: number) => index ? part : {
+      ...part, features: [{ featureId: "UPRIGHT-SPOT", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "INSET_FROM_EDGE", insetFromEdgeIn: 1.5 }],
+    }),
+  };
+  const contradictory = (await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-off-component-spot", { definition: withComponentSpot }), origin!)).body as Record<string, any>;
+  assert.equal(contradictory.jobSupportability.status, "NOT_FULLY_SUPPORTABLE");
+  assert.ok(contradictory.mappedCallInputs.demand.cutPackages.some((pkg: Record<string, any>) => pkg.parts.some((part: Record<string, any>) => part.spots?.length === 1)));
+  for (const [name, changed] of [
+    ["extra-requirement", { ...definition.spotDemand, requiredDiameterIn: 0.5 }],
+    ["missing-enabled", { ...definition.spotDemand, enabled: undefined }],
+    ["unmapped-spot", { ...definition.spotDemand, features: [{ featureId: "UNMAPPED", kind: "SPOT_ON_LOCATION", xIn: 12 }] }],
+  ] as const) {
+    const incomplete = (await ask(name, changed)).body as Record<string, any>;
+    assert.equal(incomplete.jobSupportability.status, "NOT_FULLY_SUPPORTABLE", name);
+    assert.ok(incomplete.requirementSatisfaction.unevaluated.some((item: { field: string }) => item.field === "spotDemand"), name);
+    assert.equal(publishedFunction("system-build-current.html", "alcoveSupportable")(incomplete), false, name);
+  }
 });
 
 test("Outdoor's published generator identifies every selected spot before translation and Store evaluation", async () => {
