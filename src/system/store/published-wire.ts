@@ -309,6 +309,7 @@ function spotFrom(feature: Json, index: number, partId: string, problems: Carrie
   if (feature.acrossWidthRule != null) spot.acrossWidthRule = String(feature.acrossWidthRule);
   const inset = finite(feature.insetFromEdgeIn);
   if (inset != null) spot.insetFromEdgeIn = inset;
+  for (const field of ["toolDiameterIn", "fullDiameterDepthIn"]) if (feature[field] !== undefined) spot[field] = feature[field];
   return spot;
 }
 
@@ -408,11 +409,6 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
       if (yIn == null || finished == null || yIn !== finished) {
         problems.push({ field: `mill:${String(mill?.featureId ?? "")}`, value: "finished width does not equal the mill y", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
       }
-      carriedNotAccepted.push({
-        field: `mill:${String(mill?.featureId ?? "")}`,
-        value: `pathLengthIn=${String(mill?.pathLengthIn ?? "")};totalDepthIn=${String(mill?.totalDepthIn ?? "")}`,
-        reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD",
-      });
     }
     const key = `${String(row.requirementId ?? "PARTS")}|${mills.length && finished != null ? finished : "full"}`;
     const requirements = Array.isArray(definition.boardRequirements) ? definition.boardRequirements : [];
@@ -430,26 +426,53 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
     const partId = String(row.componentId ?? "");
     const spots = features
       .filter((feature) => asObject(feature)?.kind === "SPOT_ON_LOCATION")
-      .map((feature, index) => spotFrom(asObject(feature) ?? {}, index, partId, problems))
+      .map((feature, index) => {
+        const stated = asObject(feature) ?? {};
+        const spot = spotFrom(stated, index, partId, problems);
+        return spot && { ...unconsumed(stated, ["kind", "featureId", "xIn", "acrossWidthRule", "insetFromEdgeIn", "toolDiameterIn", "fullDiameterDepthIn"]), ...spot };
+      })
       .filter((spot): spot is Json => spot != null);
     (existing.parts as Json[]).push({
       partId,
       ...(finite(row.finishedLengthIn) != null ? { lengthIn: finite(row.finishedLengthIn) } : {}),
       ...(spots.length ? { spots } : {}),
+      ...(mills.length ? { edgeProfiles: mills.map((mill) => ({ ...mill })) } : {}),
     });
+    for (const feature of features) if (!["SPOT_ON_LOCATION", "MILL_LONGITUDINAL_PROFILE"].includes(String(asObject(feature)?.kind))) {
+      problems.push({ field: `feature:${String(asObject(feature)?.featureId ?? partId)}`, value: "operation has no cut-package translation", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+    }
     groups.set(key, existing);
   }
   const hardware = asObject(definition.hardwareDemand);
   const itemLines = hardware ? [itemFrom({ lineId: hardware.requirementId, requirementId: hardware.requirementId, qty: hardware.qty }, problems)].filter((line): line is Json => line != null) : [];
   // The published disabled declaration explicitly asks for no spots. It is not an unevaluated operation.
-  // Any additional summary fact, any listed feature or any component spot still needs its full evaluation.
+  // An enabled summary is consumed only when every named physical spot matches its component program exactly.
   const spotDemand = asObject(definition.spotDemand);
   const noSpotsRequested = spotDemand?.enabled === false
     && Array.isArray(spotDemand.features) && spotDemand.features.length === 0
     && Object.keys(spotDemand).every((key) => ["enabled", "mode", "toolDiameterIn", "source", "features"].includes(key))
     && [...groups.values()].every((pkg) => (pkg.parts as Json[]).every((part) => !Array.isArray(part.spots) || part.spots.length === 0));
-  if (definition.spotDemand != null && !noSpotsRequested) {
+  const componentSpots = [...groups.values()].flatMap((pkg) => (pkg.parts as Json[]).flatMap((part) =>
+    (Array.isArray(part.spots) ? part.spots : []).map((spot) => ({ partId: part.partId, spot: asObject(spot) ?? {} }))));
+  const summaryFeatures = Array.isArray(spotDemand?.features) ? spotDemand.features : [];
+  const mappedSpots = spotDemand?.enabled === true && spotDemand.mode === "SPOT_ON_LOCATION" && spotDemand.source === "SHELF_ELEVATIONS"
+    && Object.keys(spotDemand).every((key) => ["enabled", "mode", "toolDiameterIn", "source", "features"].includes(key))
+    && summaryFeatures.length > 0 && summaryFeatures.length === componentSpots.length
+    && new Set(summaryFeatures.map((feature) => asObject(feature)?.featureId)).size === summaryFeatures.length
+    && summaryFeatures.every((feature) => {
+      const row = asObject(feature) ?? {};
+      const component = componentSpots.find((entry) => entry.spot.featureId === row.featureId && entry.partId === row.targetComponentId);
+      return component != null && row.kind === "SPOT_ON_LOCATION" && row.reference === "FROM_BASE" && row.basis === "DERIVED_FROM_SHELF_ELEVATION"
+        && ["LEFT_UPRIGHT", "RIGHT_UPRIGHT"].includes(String(row.targetRole))
+        && row.partRelativeXIn === row.xIn && row.toolDiameterIn === spotDemand.toolDiameterIn
+        && Object.keys(row).every((key) => ["featureId", "kind", "targetComponentId", "targetRole", "partRelativeXIn", "xIn", "reference", "acrossWidthRule", "insetFromEdgeIn", "toolDiameterIn", "fullDiameterDepthIn", "basis"].includes(key))
+        && ["xIn", "acrossWidthRule", "insetFromEdgeIn", "toolDiameterIn", "fullDiameterDepthIn"].every((key) => row[key] === component.spot[key]);
+    });
+  if (definition.spotDemand != null && !noSpotsRequested && !mappedSpots) {
     carriedNotAccepted.push({ field: "spotDemand", value: "present", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+  }
+  for (const condition of Array.isArray(definition.unresolvedConditions) ? definition.unresolvedConditions : []) {
+    carriedNotAccepted.push({ field: "unresolvedConditions", value: String(condition), reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
   }
   if (problems.length) return { blocked: problems };
   return {

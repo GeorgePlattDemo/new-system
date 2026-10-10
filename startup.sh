@@ -2,7 +2,7 @@
 set -eu
 cd /workspace
 node scripts/preview.mjs stop || true
-want=81d958482bd25e784f122c97ffb11174013395af
+want=2c028da3e574734a7bc70b1f19399834c9b1656e
 root=${STORE_ZERO_ROOT:-/tmp/store-zero-main}
 head=""
 dirty="unreadable"

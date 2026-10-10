@@ -1,0 +1,15 @@
+.stb-intent-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:18px;margin:18px 0}
+.stb-intent-reference{min-width:0}.stb-intent-reference>img,.stb-intent-reference>svg{display:block;width:100%;max-height:290px;object-fit:contain;background:var(--rail,#f2ece2);border-radius:8px}
+.stb-intent-reference figcaption,.stb-intent-note{font-size:12px;color:var(--text2,#716555);line-height:1.5;margin:8px 0 12px}
+.stb-intent-stack{display:grid;gap:12px;align-content:start;min-width:0}
+.stb-intent-card{border:1px solid var(--border,#ded4c7);border-radius:8px;padding:14px;background:var(--surface,#fffdf9);min-width:0}
+.stb-intent-card h2,.stb-intent-card h3{font-size:13px;letter-spacing:.05em;margin:0 0 9px;text-transform:uppercase}
+.stb-intent-card p{font-size:12px;line-height:1.5}.stb-intent-card label{font-size:12px}
+.stb-intent-travel{padding:13px 15px;border-left:3px solid var(--accent,#966930);background:var(--tint,#f7f0e4);margin:14px 0;font-size:12px;line-height:1.6}
+.stb-intent-travel b{display:block;font-size:11px;letter-spacing:.05em;margin-bottom:4px}
+.stb-wood-search{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap}.stb-wood-search input{font:inherit;padding:8px;border:1px solid var(--border,#ded4c7);border-radius:5px;min-width:0;flex:1 1 150px;background:var(--surface,#fff);color:inherit}
+.stb-wood-search button,.stb-wood-row button{font:inherit;font-size:11px;padding:8px 10px;border:1px solid var(--border,#ded4c7);border-radius:5px;background:var(--surface,#fff);color:inherit;cursor:pointer}
+.stb-wood-search button:disabled,.stb-wood-row button:disabled{opacity:.5;cursor:default}
+.stb-wood-result{font-size:11px;color:var(--text2,#716555);margin-top:8px}.stb-wood-row{padding:9px 0;border-top:1px solid var(--border,#ded4c7);font-size:11px;display:flex;gap:8px;align-items:center;justify-content:space-between}.stb-wood-row p{margin:0;overflow-wrap:anywhere}.stb-wood-rows{max-height:235px;overflow:auto}
+.stb-tool-row{padding:8px 0;border-top:1px solid var(--border,#ded4c7)}.stb-tool-row .tools{margin:7px 0 0}
+@media(max-width:650px){.stb-intent-grid{grid-template-columns:1fr}.stb-intent-reference>img,.stb-intent-reference>svg{max-height:225px}}

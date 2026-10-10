@@ -2,7 +2,7 @@
 
 This note is not part of the job. The five project screens do not link here.
 
-Current as of 2026-10-10, against Store release `81d958482bd25e784f122c97ffb11174013395af`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
+Current as of 2026-10-10, against Store release `2c028da3e574734a7bc70b1f19399834c9b1656e`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
 
 ## What supplies a current answer
 
@@ -11,7 +11,7 @@ Current as of 2026-10-10, against Store release `81d958482bd25e784f122c97ffb1117
 | Published screens, drawings, developer notes, build-guide rails | Presentation | No |
 | Intent and the Bench on each screen | Job definition | Defines the job. Does not price it. |
 | Tile-host admission | Decides whether this revision may be asked | No price |
-| Store client and `stb-store-runtime.json` | Same-origin `POST /api/store-zero/job` and offering lookup, pin `81d958482bd25e784f122c97ffb11174013395af` | Carries the answer. Does not invent one. |
+| Store client and `stb-store-runtime.json` | Same-origin `POST /api/store-zero/job` and offering lookup, pin `2c028da3e574734a7bc70b1f19399834c9b1656e` | Carries the answer. Does not invent one. |
 | `src/system/store/published-wire.ts` | Puts the published definition in the Store's request shape and asks the pinned Store. Anything the definition states that it does not read travels to the Store as stated, and the Store's contract refuses an undeclared field by name. | Returns the Store's answer, then says whether that answer is the whole job. |
 | Terms flow | Simulated acceptance, yard and pickup | Accepts a quote only. No machine admission. |
 | Saved records | Reopen a definition | Not a current price, and not acceptance |
@@ -23,14 +23,24 @@ No copied Store answer or specimen travels with a page. Every price shown comes 
 | Job | Request the Store receives | Current Store answer |
 |---|---|---|
 | Start your own | `USER_DEFINED_BOARD_V1` | Fresh quote. End relation and length datum are sent and evaluated; a supplied end identity redundant with that datum is reconciled, not deleted. Machine blocked. |
-| Critical fit (Alcove) | `CUT_PACKAGE_V1`, translated from the published insert | Fresh answer. The milled path and depth are not a Store field: they stay on the job as unevaluated, and the job is `NOT_FULLY_SUPPORTABLE`. Your call does not open (see Open items). |
+| Critical fit (Alcove) | `CUT_PACKAGE_V1`, translated from the published insert | Fresh answer. Literal through profiles and explicit spot constraints are evaluated by Store. The published default reaches `REQUIREMENTS_SATISFIED`; unsupported profiles are refused. Unevaluated installation requirements permit scoped budgetary review only. |
 | Space utilization (Window Seat) | `CUT_PACKAGE_V1` | Fresh answer. An extra spot on a chosen part is sent as a spot on that part. Asks the Store has no line for stay on the screen as "kept, not sent". |
 | Outdoor build | `CUT_PACKAGE_V1` | Fresh answer for the committed table and for the option prices. |
 | Playhouse arched window | `SHEET_PACKAGE_V1` | Fresh answer. A custom split with no tab positions is `UNRESOLVED` with `SPLIT_TAB_POSITIONS_REQUIRED`, and no Q. |
 
 A request type the adapter does not translate is refused as `LIVE_JOB_NOT_MIGRATED_YET`. Closet cleats is not a tile.
 
-## Initial checks on 2026-10-10
+## Coordinated operation and Intent integration
+
+The current Store pin is `2c028da3e574734a7bc70b1f19399834c9b1656e`. System's 327 tests pass against that exact Git checkout; Store's 332 tests and CI pass. The joint regression generates the published default Alcove definition, including five named through profiles and 20 shelf-elevation spots. Store evaluates all of them, returns a complete answer, and the full-supportability gate opens. The same definition with a different explicit spot diameter is refused; a missing spot location blocks submission. The unsupported-profile regression now asserts actual Store refusal and no complete estimate. Installation requirements outside that Store scope still block simulated acceptance.
+
+Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Material selection and adding tools happen on Intent. Existing imagery, plan sources, measurements and controls are retained. Outdoor selects its plan on Idea and has a distinct Store Answers page. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
+
+## History
+
+The checks below describe their original System and Store revisions. They are retained as evidence, not current release claims.
+
+### Initial checks on 2026-10-10
 
 Automated, `npm test` against a checkout whose `git rev-parse HEAD` is `81d958482bd25e784f122c97ffb11174013395af` (322 tests, all passing), including:
 

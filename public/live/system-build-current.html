@@ -1420,7 +1420,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=store-81d9584"
+                  src="stb-outdoor-picnic-0.4.html?v=intent-2c028da"
                 ></iframe>
               </div>
             `;
@@ -1453,7 +1453,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=store-81d9584"
+                  src="stb-window-seat-0.9.html?v=intent-2c028da"
                 ></iframe>
               </div>
             `;
@@ -2233,15 +2233,15 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
 
     const S001_INTENT_FLAG = 'Intent makes the knobs. The bench only turns them.';
     if (intentMain) intentMain.innerHTML = `
-      <h1>INTENT · PLAYHOUSE WINDOW</h1>
+      <h1>Intent · Playhouse arched window</h1>
       <p class="sub">User 1 does not need a whole sheet of plywood. She needs the useful parts the sheet can become.</p>
-      <div class="s001-ph-grid">
-        <div class="s001-ph-left">
-          <section class="s001-card">${s001SheetSvg('s001i')}</section>
-          <div class="s001-v2-callout s001-ph-nouni"><b>Every job builds its own tools.</b><ul><li>There is no one tool list for all jobs.</li><li>Only the tools you add here show up on this job's Bench.</li><li>The Store still decides whether it can do each one.</li></ul></div>
+      <div class="s001-ph-grid stb-intent-grid">
+        <div class="s001-ph-left stb-intent-reference">
+          <section class="s001-card stb-intent-card">${s001SheetSvg('s001i')}</section>
+          <div class="s001-v2-callout s001-ph-nouni"><b>Choose your tools here.</b><ul><li>Carry your idea, wood and tools into the same process.</li><li>The Bench adjusts the tools declared for this job.</li><li>Store evaluates every requested operation.</li></ul></div>
         </div>
-        <div class="s001-ph-stack">
-          <section class="s001-card" aria-labelledby="ph-wood-h">
+        <div class="s001-ph-stack stb-intent-stack">
+          <section class="s001-card stb-intent-card" aria-labelledby="ph-wood-h">
             <h3 id="ph-wood-h">GRAB YOUR WOOD</h3>
             <span class="s001-ph-chip"><i aria-hidden="true"></i><span id="ph-wood-name">Asking the Store…</span></span>
             <p class="dim" id="ph-wood-meta" style="margin:5px 0 8px;font-size:10.5px"></p>
@@ -2251,7 +2251,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
             <p class="dim" id="ph-lookup-answer" aria-live="polite" style="margin:2px 0;font-size:10.5px"></p>
             <ul class="s001-ph-results" id="ph-lookup-results" aria-label="Store Zero items"></ul>
           </section>
-          <section class="s001-card" aria-labelledby="ph-tools-h">
+          <section class="s001-card stb-intent-card" aria-labelledby="ph-tools-h">
             <h3 id="ph-tools-h">BRING YOUR TOOLS</h3>
             <div class="s001-ph-checks" id="ph-required"></div>
             <label class="s001-ph-label" for="ph-add-select">ADD A TOOL THIS JOB NEEDS</label>
@@ -2261,7 +2261,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
         </div>
       </div>
       <div class="s001-ph-below">
-        <section class="s001-card" aria-labelledby="ph-known-h">
+        <section class="s001-card stb-intent-card" aria-labelledby="ph-known-h">
           <h3 id="ph-known-h">ALREADY KNOWN</h3>
           <div class="s001-ph-facts">
             <div class="row"><b>OPENING</b><span id="s001-intent-opening">${s001OpeningText(S001_KNOWN.opening)}</span></div>
@@ -2271,7 +2271,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
             <div class="row" style="grid-column:1/-1"><b>HARDWARE</b><span>Not included in this order</span></div>
           </div>
         </section>
-        <section class="s001-card" aria-labelledby="ph-travel-h">
+        <section class="s001-card stb-intent-card" aria-labelledby="ph-travel-h">
           <h3 id="ph-travel-h">WHAT TRAVELS TO THE BENCH</h3>
           <div class="s001-ph-chips" id="ph-travel"></div>
           <p class="s001-ph-carry" id="ph-carry"></p>
