@@ -70,15 +70,15 @@ System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate
 
 ## What this candidate actually contains
 
-The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for Start your own, and what has not.
+The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for the five jobs, and what has not.
 
 | Question | Where the answer is |
 | --- | --- |
 | What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
 | Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
-| What has been shown for Start your own? | [Verification note](docs/verification/start-your-own.md) |
+| What has been shown for the five jobs? | [Verification note](docs/verification/start-your-own.md) |
 
-The other four jobs still have their published screens. They are not yet answered by this Store. That is unfinished work, not a hidden success.
+All five jobs ask the pinned Store for a fresh answer to the revision on screen. An answer can be yes, no, or not yet: a refusal or an unresolved requirement is the result, not a failure to hide. Work the Store did not evaluate stays on the job, and the job is not presented as fully supportable. The [verification note](docs/verification/start-your-own.md) lists what each job sends, what was exercised, and what is still open.
 
 Store prices are budgetary estimates. Machine time is modeled. Commercial and yard events are simulated. Physical production is not commissioned. A quote is not machine admission.
 
