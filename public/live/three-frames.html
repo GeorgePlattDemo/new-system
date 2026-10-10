@@ -380,8 +380,8 @@
           </g>
 
           <!-- control-surface band, last 24in = x532..860 -->
-          <rect id="stb-bench-hold-band" x="532" y="101" width="328" height="78" fill="url(#obHatch)"/>
-          <rect id="stb-bench-hold-outline" x="532" y="101" width="328" height="78" fill="none" stroke="#2f6f9e" stroke-width="1.5" stroke-dasharray="6 4" opacity=".8"/>
+          <path id="stb-bench-hold-band" d="M532 101H860V179H532Z" fill="url(#obHatch)"/>
+          <path id="stb-bench-hold-outline" d="M532 101H860V179H532Z" fill="none" stroke="#2f6f9e" stroke-width="1.5" stroke-dasharray="6 4" opacity=".8"/>
 
           <!-- three 30deg cuts: x40, x259, x477 -->
           <g id="stb-bench-static-cuts" stroke="#a85a2a" stroke-width="5" stroke-linecap="round">
@@ -612,13 +612,17 @@
     const hasRemainder=storeSelected && demand.remainderIn!=null && Number.isFinite(remainderIn) && remainderIn>0 && remainderIn<workpieceLength;
     const holdX=hasRemainder ? x0+(workpieceLength-remainderIn)*scale : 0;
     const holdWidth=hasRemainder ? remainderIn*scale : 0;
+    // The returned remainder starts beyond the last kerf. Its drawn boundary follows the same cut angle:
+    // a vertical rectangle here would cross the angled cut and imply that the grip occupies a finished part.
+    const holdTopX=holdX+delta*(bottomY-(topY+1))/(bottomY-topY);
+    const holdBottomX=holdX+delta/(bottomY-topY);
+    const holdPath='M'+holdTopX+' '+(topY+1)+'H'+xMax+'V'+(bottomY-1)+'H'+holdBottomX+'Z';
     ['stb-bench-hold-band','stb-bench-hold-outline'].forEach(id => {
       const band=document.getElementById(id);
       if (!band) return;
       band.style.display=hasRemainder ? '' : 'none';
       if (!hasRemainder) return;
-      band.setAttribute('x', String(holdX));
-      band.setAttribute('width', String(holdWidth));
+      band.setAttribute('d', holdPath);
     });
     ['stb-bench-hold-title','stb-bench-hold-note'].forEach(id => {
       const label=document.getElementById(id);

@@ -11,7 +11,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 </style>
 </head>
 <body>
-<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=bfd582cb"></iframe>
+<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=1fd5dfdf66b9"></iframe>
 <script src="stb-canonical-journey.js?v=e0619841"></script>
 <script src="stb-store-client.js?v=5b07e926"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=db611717"></script>
@@ -260,7 +260,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=store-81d9584"
+                  src="three-frames.html?v=09a20c5759a7"
                 ></iframe>
               </div>
             `;
@@ -269,7 +269,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=store-81d9584';
+            liveFrame.src = 'three-frames.html?v=09a20c5759a7';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -1420,7 +1420,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=intent-2c028da-2"
+                  src="stb-outdoor-picnic-0.4.html?v=0cd10c8b63df"
                 ></iframe>
               </div>
             `;
@@ -1453,7 +1453,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=intent-2c028da-2"
+                  src="stb-window-seat-0.9.html?v=2c9dd3d792ab"
                 ></iframe>
               </div>
             `;

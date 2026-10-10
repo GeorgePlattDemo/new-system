@@ -44,7 +44,7 @@ Each keeps its own project facts while using the same journey.
 
 **Idea** is the unnumbered intake before those steps: the source material and context you bring. **Intent** establishes this job’s requirements and meaningful controls. **The Bench** changes tool values and shows the resulting definition. **The Store answers** from its material, capability, modeled work, and economics. **Your call** records your decision; the later steps carry the job through the demonstrated yard and handoff sequence.
 
-Alcove, Window Seat, Outdoor and Playhouse carry the idea reference into a shared Intent layout: **Grab your wood**, **Bring your tools**, and **What travels to the Bench**. Wood lookup discovers Store offerings; it does not evaluate a job. Material choices and added tools are established on Intent, and the Bench adjusts their values. Outdoor can ask for its attached published plan as it stands, or take selected tools to the Bench. [The imagery brief](docs/intent-imagery-brief.md) gives Claude the existing references and rules for any missing asset.
+Alcove and Playhouse carry the idea reference into Intent. Alcove’s four wood choices and optional shelf-elevation spots are together on the Bench. Window Seat and Outdoor retain their original published layouts, plan choices and controls. Store evaluates each resulting definition; material lookup does not establish supportability.
 
 Known information travels with the job. A changed definition gets a fresh Store evaluation. The identified revision, its answer, your next decision, and the consequential record remain together.
 
