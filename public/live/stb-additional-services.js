@@ -22,8 +22,11 @@ const css=[
 '.stb-as-workline>#stb-bench-workline{grid-column:1;grid-row:1;min-width:0}',
 '.stb-as-workline>span:not(.stb-as-host){grid-column:1;grid-row:2;min-width:0}',
 '.stb-as-workline>.stb-as-host{grid-column:2;grid-row:1 / span 2;justify-self:end}',
-'.stb-as-host--alcove{margin-left:auto}',
-'.stb-as-host--window-seat,.stb-as-host--outdoor,.stb-as-host--playhouse{float:right;margin:0 0 4px 7px}',
+'.stb-as-host--alcove{margin:0 0 3px 0}',
+'.stb-as-host--window-seat{display:flex;justify-content:flex-end;margin:0 0 6px}',
+'.stb-as-host--outdoor{display:flex;justify-content:flex-end;margin:0 0 9px}',
+'.stb-as-host--playhouse{display:flex;justify-content:flex-end;margin:3px 0 6px}',
+'.stb-as-host>.stb-as-trigger{font:600 10px/1.2 system-ui,sans-serif!important;min-height:22px!important;padding:3px 6px!important;white-space:nowrap!important}',
 '.stb-as-popup{position:fixed;z-index:2147483600;box-sizing:border-box;overflow:auto;padding:10px 12px;border:1px solid #aeb5ba;border-radius:9px;background:#fff;color:#272c30;box-shadow:0 10px 36px rgba(0,0,0,.2);font:11px/1.3 system-ui,sans-serif;text-align:left}',
 '.stb-as-popup[hidden]{display:none!important}',
 '.stb-as-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 7px;padding:0 0 6px;border-bottom:1px solid #ddd}',
@@ -49,10 +52,10 @@ function selected(project){
 }
 function anchor(doc,p){
  if(p==='start-own')return doc.getElementById('stb-bench-workline')?.closest('.workline');
- if(p==='alcove')return doc.getElementById('alcove-bench-store-price')?.parentElement;
- if(p==='window-seat')return doc.querySelector('#s-bench .stage > .card');
- if(p==='outdoor')return doc.querySelector('#s-build #bench-answer');
- if(p==='playhouse')return doc.querySelector('#playhouse-machine .s001-ph-grid > .s001-card:nth-child(2)');
+ if(p==='alcove')return doc.querySelector('#alcove-config #shelves');
+ if(p==='window-seat')return doc.querySelector('#s-bench .ctl > #ctlcol');
+ if(p==='outdoor')return doc.querySelector('#s-build [data-knob="SIZE"]');
+ if(p==='playhouse')return doc.querySelector('#playhouse-machine #s001-tool-controls');
  return null;
 }
 function mount(doc,p){
@@ -99,8 +102,8 @@ function mount(doc,p){
  if(p==='start-own'){
   target.classList.add('stb-as-workline');
   const caption=target.querySelector('span');if(caption)caption.before(host);else target.append(host);
- }else if(p==='alcove')target.append(host);
- else target.insertBefore(host,target.firstChild);
+ }else if(p==='window-seat')target.before(host);
+ else target.after(host);
  doc.body.append(panel);
  const view=doc.defaultView;
  function place(){
