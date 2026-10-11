@@ -79,6 +79,10 @@ The public door is [the published shell](public/live/system-build-current.html).
 | What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
 | Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
 | What has been shown for the five jobs? | [Verification note](docs/verification/start-your-own.md) |
+| What is the proposed shared SKU, machine-time and Q engine? | [Store-owned manufacturing candidate](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/store-manufacturing-core.mjs) |
+| What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](docs/commercial-sequence-template.md) |
+
+The manufacturing candidate is published only in Store. The commercial template is shared with Store and published here for review; System owns its shared workflow meanings. These files describe proposed adoption into the responsible boundaries and do not change the application's current runtime.
 
 All five jobs ask the pinned Store for a fresh answer to the revision on screen. An answer can be yes, no, or not yet: a refusal or an unresolved requirement is the result, not a failure to hide. Work the Store did not evaluate stays on the job, and the job is not presented as fully supportable. The [verification note](docs/verification/start-your-own.md) lists what each job sends, what was exercised, and what is still open.
 
