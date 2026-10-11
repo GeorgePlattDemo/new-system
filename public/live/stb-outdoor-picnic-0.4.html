@@ -359,7 +359,7 @@ tr:last-child td{border-bottom:0}
           <div class="card" id="outdoor-custom-tools" hidden>
             <h3>Additional tools brought from Intent</h3>
             <div id="outdoor-custom-tool-controls"></div>
-            <p class="hint">A named tool is not an invented machine capability. Any tool still ON without a defined Store operation remains unresolved and cannot receive a complete job answer.</p>
+            <p class="hint">A named tool is not an invented machine capability. A new named tool remains unresolved while ON. To request Store evaluation, turn it OFF and define any supported operation using the bigger Bench controls.</p>
           </div>
           <div class="answer" id="bench-answer"><button class="cta ghost" type="button" id="bench-ask" style="float:right">ASK STORE ↻</button><p class="note" id="bench-status" aria-live="polite"></p>
             <div id="bench-instant"></div>
@@ -678,7 +678,7 @@ function conditions(){
   const c=[];const cfg=S.cfg;
   if(!cfg){c.push({t:'Pick a plan',d:'',block:true});return c}
   for(const tool of S.intentTools.filter(x=>x.on)){
-    c.push({t:'Tool '+tool.label+' needs a defined operation before Store evaluation',d:'Turn it off on the Bench or define its supported work on the bigger Bench.',block:true,customTool:true});
+    c.push({t:'Tool '+tool.label+' needs a defined operation before Store evaluation',d:'Turn the named tool OFF on the Bench and define actual work explicitly on the bigger Bench.',block:true,customTool:true});
   }
   for(const {kind,len,g} of kindsOf(cfg)){
     const p=cfg.parts[kind];if(!p)continue;const name=PART_NAMES[kind];
@@ -1167,7 +1167,7 @@ const clampLen=n=>Math.min(RULE.lengthIn.max,Math.max(RULE.lengthIn.min,Math.rou
 function setLength(n){if(!S.cfg)return;n=clampLen(n);if(!isFinite(n)||n===S.cfg.lengthIn)return;S.cfg.lengthIn=n;changed()}
 function openPlan(plan){
   if(!S.cfg||S.cfg.plan!==plan){
-    S.cfg=planCfg(plan);partsSig='';S.intentTools=[];
+    S.cfg=planCfg(plan);partsSig=''; // Tools from Intent accompany the chosen plan.
     if(S.selectedOffering){
       const offering=S.selectedOffering;
       const wood=WOODS.find(w=>w.species===offering.species&&w.grade===offering.grade);
@@ -1226,7 +1226,7 @@ function showToolList(open){
   }
 }
 function addIntentTool(){
-  const label=String(opsInput.value||'').replace(/\\s+/g,' ').trim().slice(0,40);
+  const label=String(opsInput.value||'').replace(/\s+/g,' ').trim().slice(0,40);
   if(!label)return;
   const builtin=['hardware','cut','at an angle','wood species'];
   if(!builtin.includes(label.toLowerCase())&&!S.intentTools.some(tool=>tool.label.toLowerCase()===label.toLowerCase())){
