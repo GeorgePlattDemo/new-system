@@ -1352,7 +1352,7 @@ function chooseOutdoorService(id){
   if(id==='sanding')S.serviceChoice.sanding=!S.serviceChoice.sanding;
   else if(id==='cart'||id==='pallet')S.serviceChoice.handoff=S.serviceChoice.handoff===id?null:id;
   else return;
-  renderOutdoorServices();syncNav();
+  render(); // Refresh the commercial gate, disabled button, event evidence and trail immediately.
 }
 
 function renderTerms(){for(const id of ['call-terms','yard-terms','record-terms']){const h=$(id);if(h)h.innerHTML=TERMS.renderControls(h.dataset.termsStep)+TERMS.renderChain()}}
