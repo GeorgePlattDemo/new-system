@@ -1,7 +1,7 @@
 /* Shared Intent presentation only. Material discovery uses the existing live Store client; job evaluation stays there. */
 (function(root){
   'use strict';
-  function mountWoodLookup({host,projectId,candidateRevisionId,accept,onPick,requirementText}){
+  function mountWoodLookup({host,projectId,candidateRevisionId,accept,onPick,requirementText,resultExplanation}){
     if(!host)return;
     const doc=host.ownerDocument;
     const form=doc.createElement('form');form.className='stb-wood-search';
@@ -17,7 +17,7 @@
       try{
         const answer=await root.STBStoreClient.lookupOfferings({projectId,candidateRevisionId:String(typeof candidateRevisionId==='function'?candidateRevisionId():candidateRevisionId),searchText:query});
         if(current!==token)return;
-        note.textContent=answer.totalMatches+' Store items match'+(answer.truncated?' (showing '+answer.rawOfferings.length+')':'')+'. Item lookup does not evaluate this job.';
+        note.textContent=answer.totalMatches+' Store items match'+(answer.truncated?' (showing '+answer.rawOfferings.length+')':'')+'. '+(resultExplanation||'Item lookup does not evaluate this job.');
         for(const item of answer.rawOfferings){
           const row=doc.createElement('div');row.className='stb-wood-row';const label=doc.createElement('p');
           label.textContent=item.description+' · '+item.storeSku;
