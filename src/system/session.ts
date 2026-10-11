@@ -1,3 +1,4 @@
+import {definitionManifest} from "./manifest.ts";
 import { calculationHash, sha256Bytes } from "./hash.ts";
 import { createId } from "./ids.ts";
 import { compileRecipe } from "./compile.ts";
@@ -261,7 +262,7 @@ export function beginInquiry(record: RecordFile, projectId: string): InquiryStar
     // retired names are not recipe request types; a demand that smuggled one would still be the recipe's type
   }
   const requestId = createId("inquiry");
-  const sent = serializeRequest({ requestType: revision.requestType, requestId, demand: revision.demand });
+  const sent = serializeRequest({ requestType: revision.requestType, requestId, demand: revision.demand,manifest:definitionManifest(revision.requestType,revision.demand) });
   const attempt: Attempt = {
     attemptId: requestId,
     requestId,
@@ -302,6 +303,7 @@ export function applyInquiryResult(
   }
   const revision = currentRevision(project);
   const interpreted = interpretStoreHttp({
+    manifest: (JSON.parse(attempt.sentBody) as {manifest?:unknown}).manifest,
     sentBody: attempt.sentBody,
     sentDigest: attempt.sentDigest,
     requestType: revision?.requestType ?? "",

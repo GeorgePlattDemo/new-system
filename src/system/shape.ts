@@ -132,7 +132,7 @@ export const DEFINITION_SHAPES = {
           object: {
             packageId: "string",
             material: boardMaterial,
-            endCut: { object: { angleDeg: "number" } },
+            endCut: { object: { angleDeg: "number", endRelation:"string",lengthDatum:"string",plane:"string" } },
             finishedWidthIn: "number",
             parts: {
               array: {

@@ -23,19 +23,11 @@ The join is the frozen definition revision plus the exact Store request, answer,
 
 The candidate's `selectedStock` is a proposed SKU/quantity plan. Its `operations` ledger predicts occupied time. Its `Q` covers material, hardware, and its declared machine/cut service. Reservation, actual work, financial activity, and inspected results come from their respective sources.
 
-## 2. What the present code establishes
+## 2. Adopted implementation
 
-| Inspected surface | Present behavior | Required treatment for the proposed chain |
-| --- | --- | --- |
-| `public/live/stb-terms-flow.js` | Shared post-Store flow used across the project tiles; refusals and scoped budgetary reviews cannot open acceptance | Preserve this shared entry point and its refusal gates; replace its internal event rules when the contract is adopted |
-| `ensureOffer()` and `accept()` | Creates a simulated offer description; acceptance immediately appends simulated payment and queue entry | Record an identified seller offer, customer decision, seller acceptance, and financial/queue evidence as distinct acts |
-| `runYard()` | Appends allocation, release, cut, stage, and ready events in one simulated action | Consume separate source records and gates; introduce explicit local admission, execution outcome, and inspection |
-| `pickup()` and `receipt()` | Records a simulated handoff and exports the simulated event chain | Require identified packages, applicable inspection disposition, and actual transfer evidence for an actual custody event |
-| `verify()` | Checks adjacent hash links and the presence of hashes | Recompute content digests, check schema/identity/gates, and validate source authority separately; a linked hash is not authentication |
-| `src/system/acceptance.ts` and Store's accepted-packet contract | Freeze a simulated accepted decision with definition and Store answer; physical authority remains false | Preserve the content bridge; attach subsequent commercial and release records through an explicitly revised contract |
-| System completion terms | Definitions name completion plans, decisions, secondary-work responsibility, and closeout | Reuse those meanings when adopting completion records; do not mark an incomplete job ready merely because primary machining ended |
+System and Store use the same executable event gate: System's `public/live/stb-commercial-sequence.js` and Store's `src/contracts/commercial-sequence.js` are byte-identical. System attaches the verified answer and manifest as C01. Later progression requires explicit, identified source records and seller policy. Acceptance no longer manufactures payment, queue, cutting, inspection, or custody evidence. The UI retains its shared six-step navigation and leaves each unavailable stage pending.
 
-These mechanisms are explicitly simulations. They do not establish actual payment, stock reservation, physical processing, inspection, or commercial authority. The template below supplies the missing separation needed for subsequent implementation.
+Only simulated evidence sources are installed. Actual source records are refused. Each event validates prerequisites, identities, actor/source, expected sequence and idempotency; verification replays the gate and recomputes the content hashes. The `/v1/commercial-events` Store endpoint validates the submitted stream and proposed event without making external commercial or machine changes.
 
 ## 3. Reusable commercial sequence
 
@@ -81,7 +73,7 @@ The following is a fill-in schema example, not an executed event. The event modu
 
 ```json
 {
-  "schema": "PROPOSED-STB-TRANSACTION-EVENT-1",
+  "schema": "STB-COMMERCIAL-EVENT-1",
   "eventId": "<unique-event-id>",
   "eventType": "OrderAccepted",
   "streamId": "<transaction-stream-id>",
@@ -175,6 +167,4 @@ Inspected current repository heads:
 - [System · 0cb4bea](https://github.com/GeorgePlattDemo/new-system/tree/0cb4bea743b16a026f57e46d873d433761835069): shared definitions, terms flow, acceptance/session surfaces, and Store boundary references.
 - [Store · 3afe00a](https://github.com/GeorgePlattDemo/store-zero/tree/3afe00ac8672da0791ee8a7af05422d24f6785ab): operational specification and accepted-packet contract; Project 1 review Appendix C H01–H12 supplies the preserved handoff rationale.
 
-The manufacturing file's integration comments carry this Program alignment and the separate transaction boundary. Its executable calculation, model ID and calculation hashes are unchanged. The engine candidate is published only in Store's `docs/`; this commercial map is published identically in both repositories, with README links. System's copy is the canonical shared map for this proposal, and Store's copy retains that ownership. Runtime implementation and pins are unchanged by this publication. The JSON example was checked for syntax; the manufacturing module was checked with Node 22. This documentary alignment does not claim adopted contracts, working financial/inventory adapters or live integration.
-
-**Repository verification during publication.** On Node 22.23.3, the current Store revision passed catalog validation but its unchanged baseline suite reported 231 passes and 9 failures out of 240 tests. Failures include stale contract examples, changed cut-package answers and Project 1 authority/evidence expectations. System's test command reached its final 42-test group with 37 passes and 5 failures, including Alcove $420.28 against the recorded $429.16 expectation and Start your own request/runtime checks. An initial environment proxy warning interfering with a CLI JSON test was separately isolated before these results. No runtime source, recorded answer, contract fixture or test expectation was changed for this publication. Passing repository-wide verification remains an unresolved adoption requirement; publication of these review files is not a claim that the repositories are green.
+The manufacturing core is active in Store's `src/evaluation/engine/store-manufacturing-core.mjs`. System submits its complete definition manifest and consumes the Store's quote and operation ledger. The shared commercial module implements the sequence gates above for explicit simulated evidence. Physical production, financial activity, stock reservation and custody require commissioned source adapters and remain blocked in this migration.

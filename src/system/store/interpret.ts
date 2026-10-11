@@ -1,3 +1,4 @@
+import {definitionManifest} from "../manifest.ts";
 import { calculationHash, sha256Bytes } from "../hash.ts";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 
@@ -5,10 +6,11 @@ export type StoreRequest = {
   requestType: string;
   requestId: string;
   demand: Record<string, unknown>;
+  manifest?:Record<string,unknown>;
 };
 
 export function serializeRequest(request: StoreRequest): { body: string; digest: string } {
-  const body = JSON.stringify(request);
+  const body = JSON.stringify(request.requestType === "OFFERING_LOOKUP" ? request : {...request, manifest:request.manifest ?? definitionManifest(request.requestType,request.demand)});
   return { body, digest: sha256Bytes(body) };
 }
 
@@ -17,7 +19,7 @@ export type Interpreted =
   | { outcome: "transport" | "protocol"; code: string; detail?: string };
 
 const FRESHNESS_RULE = "STB-STORE-FRESH-EVALUATION-0.1";
-const RECEIPT_FIELDS = ["freshnessRule", "requestType", "requestId", "evaluatedAt", "authority", "demandHash", "status", "calculationIdentity", "receiptHash"];
+const RECEIPT_FIELDS = ["freshnessRule", "requestType", "requestId", "evaluatedAt", "authority", "demandHash", "manifestHash", "status", "calculationIdentity", "receiptHash"];
 
 /** A real UTC instant. Impossible dates and bare strings are not timestamps. */
 export function validUtcTimestamp(value: unknown): value is string {
@@ -28,7 +30,7 @@ export function validUtcTimestamp(value: unknown): value is string {
   return new Date(time).toISOString() === normalized;
 }
 
-function receiptProblems(answer: Record<string, unknown>, demand: unknown, expectedRelease: string): string | null {
+function receiptProblems(answer: Record<string, unknown>, demand: unknown, expectedRelease: string,manifest:unknown): string | null {
   const receipt = answer.evaluationReceipt as Record<string, unknown> | null | undefined;
   const discovery = answer.requestType === "OFFERING_LOOKUP" || answer.kind === "SEARCH" || answer.kind === "SKU" || answer.kind === "QUERY";
   if (discovery) {
@@ -52,6 +54,7 @@ function receiptProblems(answer: Record<string, unknown>, demand: unknown, expec
   if (core.status !== answer.status) return "RECEIPT_STATUS_CONTRADICTION";
   if (!validUtcTimestamp(core.evaluatedAt)) return "RECEIPT_TIME_INVALID";
   if (core.demandHash !== calculationHash(demand)) return "DEMAND_HASH_MISMATCH";
+  if(core.manifestHash !== calculationHash(manifest))return "MANIFEST_HASH_MISMATCH";
   const authority = core.authority;
   if (!authority || typeof authority !== "object" || Array.isArray(authority)) return "RECEIPT_AUTHORITY";
   const revision = (authority as { storeRevision?: unknown }).storeRevision;
@@ -73,6 +76,7 @@ export function interpretStoreHttp(args: {
   requestType: string;
   requestId: string;
   demand: unknown;
+  manifest?:unknown;
   httpStatus: number;
   responseText: string;
   expectedRelease?: string;
@@ -95,7 +99,11 @@ export function interpretStoreHttp(args: {
   if (!answer || typeof answer !== "object" || Array.isArray(answer)) return { outcome: "protocol", code: "ANSWER_MISSING" };
   const record = answer as Record<string, unknown>;
   if (record.requestType !== args.requestType || record.requestId !== args.requestId) return { outcome: "protocol", code: "ANSWER_IDENTITY_MISMATCH" };
-  const receipt = receiptProblems(record, args.demand, expected);
+  let sent: StoreRequest;
+  try { sent=JSON.parse(args.sentBody) as StoreRequest; } catch { return {outcome:"protocol",code:"SENT_REQUEST_NOT_JSON"}; }
+  if(sent.requestType!==args.requestType || sent.requestId!==args.requestId || calculationHash(sent.demand)!==calculationHash(args.demand))return {outcome:"protocol",code:"SENT_REQUEST_IDENTITY_MISMATCH"};
+  if(args.manifest!==undefined && calculationHash(args.manifest)!==calculationHash(sent.manifest))return {outcome:"protocol",code:"SENT_MANIFEST_MISMATCH"};
+  const receipt = receiptProblems(record, sent.demand, expected,sent.manifest);
   if (receipt) return { outcome: "protocol", code: receipt };
   return { outcome: "answer", wrapper, answer: record };
 }

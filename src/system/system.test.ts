@@ -1,3 +1,4 @@
+import {definitionManifest} from "./manifest.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -47,6 +48,7 @@ function fixtureAnswer(args: {
     evaluatedAt: args.evaluatedAt ?? "2026-10-08T18:00:00.000Z",
     authority: { storeRevision: args.release ?? STORE_CANDIDATE.inspectedCommit, catalogHash: "ab".repeat(32) },
     demandHash: calculationHash(args.demand),
+    manifestHash:calculationHash(definitionManifest(args.requestType,args.demand as Record<string,unknown>)),
     status: args.receiptStatus ?? status,
     calculationIdentity: identity,
   };
@@ -317,7 +319,7 @@ test("malformed and unknown saved records are not converted", () => {
   if (!loadRecord({ schema: "STB-SYSTEM-RECORD-0", projects: [] }).ok) {
     assert.equal(loadRecord({ schema: "STB-SYSTEM-RECORD-0", projects: [] }).ok === false && (loadRecord({ schema: "STB-SYSTEM-RECORD-0", projects: [] }) as { code: string }).code, "UNSUPPORTED_VERSION");
   }
-  assert.equal(loadRecord({ schema: "STB-SYSTEM-RECORD-1", projects: [] }).ok, true);
+  assert.equal(loadRecord({ schema: "STB-SYSTEM-RECORD-2", projects: [] }).ok, true);
 });
 
 test("reopening a saved file keeps the decision and retires the price", () => {
@@ -383,7 +385,7 @@ test("window seat zero shelves is a real count and emits no tower shelf", () => 
 });
 
 test("a null project does not load, and a saved project round-trips", () => {
-  const broken = loadRecord({ schema: "STB-SYSTEM-RECORD-1", projects: [null] });
+  const broken = loadRecord({ schema: "STB-SYSTEM-RECORD-2", projects: [null] });
   assert.equal(broken.ok, false);
   if (!broken.ok) assert.equal(broken.code, "MALFORMED");
   const opened = openRecipe(emptyRecord(), "closet-cleats");

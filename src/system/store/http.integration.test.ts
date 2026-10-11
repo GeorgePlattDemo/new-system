@@ -108,42 +108,44 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
 
     const project1 = await ask("project-1");
     assert.equal(project1.status, "UNRESOLVED");
-    assert.equal((project1.materialResolution as { reason?: string }).reason, "GRADE_CHOICE_REQUIRED");
+    assert.equal((project1.reasonCodes as string[])[0], "GRADE_CHOICE_REQUIRED");
     assert.equal(presentMoney(project1).kind, "none");
-    assert.equal(project1.estimate, null);
+    assert.equal(project1.Q, null);
 
     const braces = await ask("start-own", { species: "spf" });
     assert.equal(braces.status, "SUPPORTABLE");
-    assert.equal((braces.estimate as { totals: { Q: number } }).totals.Q, 8.54);
-    assert.notEqual((braces.estimate as { totals: { Q: number } }).totals.Q, 11.09);
+    assert.equal(braces.Q, 8.62);
+    assert.notEqual(braces.Q, 11.09);
 
     const alcove = await ask("alcove");
     assert.equal(alcove.status, "SUPPORTABLE");
-    assert.equal((alcove.totals as { sumOfSupportableLines: number }).sumOfSupportableLines, 429.16);
+    assert.equal((alcove.totals as { sumOfSupportableLines: number }).sumOfSupportableLines, 378.68);
 
     const playhouse = await ask("playhouse");
     assert.equal(playhouse.status, "SUPPORTABLE");
-    assert.equal((playhouse.totals as { Q: number }).Q, 76.57);
+    assert.equal((playhouse.totals as { Q: number }).Q, 76.56);
     assert.equal((playhouse.totals as { manual_cut_service:number }).manual_cut_service, 20);
 
     const windowSeat = await ask("window-seat");
     assert.equal(windowSeat.status, "SUPPORTABLE");
     const windowMoney = presentMoney(windowSeat);
     assert.equal(windowMoney.kind, "full");
-    if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1489.09);
+    if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1193.1);
 
     const aFrame = await ask("outdoor", { planId: "a-frame", wood: "treated", hardwareTier: "BYO" });
     assert.equal(aFrame.status, "SUPPORTABLE");
     const aFrameMoney = presentMoney(aFrame);
     assert.equal(aFrameMoney.kind, "full");
-    if (aFrameMoney.kind === "full") assert.equal(aFrameMoney.amount, 256.64);
+    if (aFrameMoney.kind === "full") assert.equal(aFrameMoney.amount, 267.20);
 
     const cleats = await ask("closet-cleats");
     assert.equal(cleats.status, "SUPPORTABLE");
     assert.equal(presentMoney(cleats).kind, "full");
 
     const outdoor = await ask("outdoor", { planId: "table-benches", wood: "ground-contact", hardwareTier: "BYO" });
-    assert.ok(outdoor.status === "SUPPORTABLE" || outdoor.status === "NOT_ALL_LINES_SUPPORTABLE");
+    assert.equal(outdoor.status, "SUPPORTABLE");
+    assert.equal(presentMoney(outdoor).kind, "full");
+    assert.ok(typeof outdoor.Q === "number" && outdoor.Q > 0);
 
     const refusedRise = await ask("playhouse", { straightHeightIn: 30 });
     assert.equal(refusedRise.status, "REFUSED");
@@ -299,8 +301,7 @@ test("HTTP: machine evidence for a board, a supplied end identity, and a cut pac
     const cleats = await packetFor("closet-cleats");
     assert.equal(cleats.definition.requirements.endIdentity, "square-end");
     const refusedCut = await askEvidence(cleats);
-    assert.equal(refusedCut.status, "REFUSED");
-    assert.ok((refusedCut.reasonCodes as string[]).includes("LOWERING_NOT_REGISTERED_FOR:CUT_PACKAGE_V1"));
-    assert.equal(refusedCut.records, undefined);
+    assert.equal(refusedCut.status,"VIRTUAL_EVIDENCE_READY");
+    assert.equal((refusedCut.admission as {status:string}).status,"BLOCKED");
   });
 });

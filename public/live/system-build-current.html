@@ -19,6 +19,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=project1-answer";
 window.STBStartOwnAnswer = startOwnAnswer;
 </script>
+<script src="stb-commercial-sequence.js?v=1"></script>
 <script src="stb-terms-flow.js?v=store-81d9584"></script>
 <script src="store-zero-canonical-doctrine.js?v=65366367"></script>
 <script src="stb-build-guide-spec.js?v=store-81d9584"></script>
@@ -3798,6 +3799,12 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
     }
     const s001Money = value => Number.isFinite(Number(value)) ? '$' + Number(value).toFixed(2) : '—';
     const S001_OP_TEXT = {
+      SHEET_LOAD_REFERENCE:() => 'Load and reference the sheet',
+      SHEET_PROFILE_PATH:op => `Route the declared profile · ${fmt(op.pathLengthIn)} in · pass ${op.pass}`,
+      SHEET_TAB_TRANSITIONS:op => `Retain ${op.tabs} declared tabs · pass ${op.pass}`,
+      PANEL_SAW_CUT:op => `${op.cutKind === 'RIP' ? 'Panel-saw rip' : 'Panel-saw crosscut'} at ${fmt(op.positionIn)} in · ${fmt(op.pathLengthIn)} in path`,
+      SHEET_RELEASE:() => 'Release the sheet',
+      SHEET_LABEL:() => 'Label every returned piece',
       LOAD_REFERENCE:() => 'Load the sheet and reference it on the sheet cell',
       ROUTE_PROFILE:op => op.profile === 'STRAIGHT_SPLIT'
         ? `Route the center split · ${fmt(op.lengthIn)} in`
@@ -3829,16 +3836,16 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
       if (reasons) reasons.innerHTML = blocked
         ? s001Live.blocking.map(b => '<li><b>' + b.owner + '</b> · ' + b.title + ' (' + b.condition + ')</li>').join('')
         : (!s001Live.asking && ev && ev.status !== 'SUPPORTABLE')
-        ? (ev.reasonRecords || []).map(r => '<li><b>' + r.code + '</b> · ' + r.explanation + '</li>').join('')
+        ? (ev.reasonRecords || []).map(r => '<li><b>' + r.code + '</b> · ' + (r.explanation || r.subject || r.code) + '</li>').join('')
         : '';
       const ok = !s001Live.asking && ev?.status === 'SUPPORTABLE';
       text('s001-live-summary', ok ? `${ev.pieces.length} pieces come back to User 1 · ${fmt(ev.time.T_MACHINE_min)} min modeled` : '');
       const ops = doc.getElementById('s001-live-operations');
-      if (ops) ops.innerHTML = ok ? ev.operations.map(op => '<li>' + (S001_OP_TEXT[op.opId]?.(op) || op.opId) + '</li>').join('') : '';
+      if (ops) ops.innerHTML = ok ? ev.operations.map(op => '<li>' + (S001_OP_TEXT[op.kind]?.(op) || op.kind) + '</li>').join('') : '';
       const kinds = ok ? ev.pieces.reduce((m,p) => (m[p.kind] = (m[p.kind]||0) + 1, m), {}) : {};
       text('s001-live-pieces', ok ? `Returned: ${kinds.PANEL||0} end panels, ${kinds.FRAME||0} frame, ${kinds.RETAINED_CENTER_PIECE||0} center pieces on tabs.` : '');
-      const material = ev?.material ? `${ev.material.storeSku} · ${ev.material.description || ''}` : '—';
-      const tabs = ok ? (() => { const t = ev.features.apertures[0]?.tabPlan; return `${t.requestedTabCount} requested · ${t.plannedTabCount} planned · retention NOT MEASURED`; })() : '—';
+      const material = ev?.selectedStock?.[0] ? `${ev.selectedStock[0].storeSku} · ${ev.selectedStock[0].description || ''}` : '—';
+      const tabs = ok ? (() => { const t = ev.parents?.find(p=>p.kind==='sheet')?.geometry.apertures[0]?.tabPositionsIn; return Array.isArray(t) ? `${t.length} modeled tabs · retention NOT MEASURED` : '—'; })() : '—';
       const receipt = ok ? String(a.receipt.receiptHash).slice(0,16) + '… · request ' + String(a.requestId).slice(0,8) : '—';
       text('s001-live-material', material);
       text('s001-live-material-price', ok ? s001Money(ev.totals.material) : '—');
@@ -3856,7 +3863,7 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
         machine: ok ? s001Money(ev.totals.machine_service) : '—',
         tabs,
         pin: a?.storePin || '—',
-        operations: ok ? ev.operations.map(op => S001_OP_TEXT[op.opId]?.(op) || op.opId).join(' · ') : '—',
+        operations: ok ? ev.operations.map(op => S001_OP_TEXT[op.kind]?.(op) || op.kind).join(' · ') : '—',
         receipt
       };
       doc.querySelectorAll('[data-s001-bind]').forEach(el => { el.textContent = binds[el.dataset.s001Bind] ?? '—'; });
@@ -3925,7 +3932,7 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
             throw new Error('STORE_ANSWER_NOT_FOR_THIS_VERSION');
           }
           // The Store prices the wood this job chose, or says why it cannot. A different row is not this job's answer.
-          if (evaluated && raw.material && raw.material.storeSku !== admittedSku) throw new Error('STORE_ANSWER_FOR_A_DIFFERENT_SHEET');
+          if (evaluated && raw.status === "SUPPORTABLE" && raw.selectedStock?.[0]?.storeSku !== admittedSku) throw new Error('STORE_ANSWER_FOR_A_DIFFERENT_SHEET');
           const ev = evaluated ? raw : { ...raw, status:'REFUSED', notEvaluated:true, reasonRecords:s001ContractReasons(raw.reasonCodes, definition) };
           s001Live.answer = { evaluation:ev, receipt:body.evaluationReceipt, requestId:body.requestId, storePin:body.storePin, version:definition.configurationVersion, body, sentAt,
             authority:result.answer.authority, definitionRevisionId:result.answer.definitionRevisionId, inquiryScope:result.answer.inquiryScope };
@@ -3973,7 +3980,7 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
         html += `<div class="state no"><b>${s001Esc(ev.status)}</b>${ev.notEvaluated ? ' · the Store did not evaluate this version' : ''}<ul>${reasons}</ul>A refusal is an answer. No price is shown.</div>`;
       } else {
         html += `<table><tbody>
-<tr><td>Material<small>${s001Esc(String(ev.material.storeSku).replace(/^STB-ZERO-/, ''))}</small></td><td>${s001Money(ev.totals.material)}</td></tr>
+<tr><td>Material<small>${s001Esc(String(ev.selectedStock[0].storeSku).replace(/^STB-ZERO-/, ''))}</small></td><td>${s001Money(ev.totals.material)}</td></tr>
 <tr><td>Modeled machine service<small>${fmt(ev.time.T_MACHINE_min)} min total modeled time, including separately billed saw time.</small></td><td>${s001Money(ev.totals.machine_service)}</td></tr>
 <tr><td>Manual yard cuts<small>${ev.totals.manualCutCount} full cut(s) × $10.00 · declared ±¼ in cut-position tolerance; saw time not double-billed.</small></td><td>${s001Money(ev.totals.manual_cut_service)}</td></tr>
 <tr class="total"><td>Total Q<small>Fresh Store budgetary estimate · not a commercial quote</small></td><td>${s001Money(ev.totals.Q)}</td></tr></tbody></table>`;

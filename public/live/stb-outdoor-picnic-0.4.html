@@ -582,6 +582,7 @@ tr:last-child td{border-bottom:0}
 
 <script src="store-zero-canonical-doctrine.js?v=65366367"></script>
 <script src="stb-store-client.js?v=5b07e926"></script>
+<script src="stb-commercial-sequence.js?v=1"></script>
 <script src="stb-terms-flow.js?v=365d795c"></script>
 <script src="stb-build-guide-spec.js?v=e642d09a"></script>
 <script src="stb-trail-contract.js?v=aea2f84d"></script>
@@ -742,7 +743,7 @@ function packagesFor(cfg,woodKeys){
     for(const {kind,n,len,g} of kindsOf(cfg)){
       const p=cfg.parts[kind],da=decoAngle(p,g),angle=da==null?g.angle:da;
       const id=wood.key+'|'+g.id+(da==null?'':'|A'+angle);
-      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle},parts:[]};out.push(byId[id])}
+      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face"},parts:[]};out.push(byId[id])}
       const spots=spotsFor(p,len);
       for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots.map((spot,index)=>({...spot,featureId:part.partId+'-SPOT-'+String(index+1).padStart(2,'0')}));byId[id].parts.push(part)}
     }
@@ -1155,7 +1156,7 @@ function renderDefinition(){
   const pending=S.asking||!answerCurrent();
   const blockers=conditions().filter(c=>c.block);
   price.textContent=current?money(v.estimate):'No complete price';
-  costs.innerHTML=current?'<b>Store Zero budgetary estimate</b><p class="def-muted">Material '+money(v.t.material)+' + modeled machine service '+money(v.t.machine_service)+' + hardware '+money(v.t.items||0)+'</p>':
+  costs.innerHTML=current?'<b>Store Zero budgetary estimate</b><p class="def-muted">Material '+money(v.t.material)+' + modeled machine service '+money(v.t.machine_service)+' + hardware '+money(v.t.hardware)+'</p>':
     '<b>Not yet a complete Store budgetary answer</b><p class="def-muted">Amounts are never estimated locally or borrowed from a different revision.</p>';
   if(blockers.length){
     status.innerHTML='<div class="def-warning bad"><b>DEFINITION NOT READY — NOT SENT TO STORE</b>'+
@@ -1171,14 +1172,8 @@ function renderDefinition(){
     status.innerHTML='<p class="def-muted">Store returned a complete budgetary answer for this exact revision. Engineering and installation remain outside its evaluation.</p>';
   }
   if(current){
-    const keys=[
-      ['Cutting','T_SAW_sec'],['Milling','T_MILL_sec'],['Spot drilling','T_DRILL_SPOT_sec'],
-      ['Load · reference · index · label',null],['Total modeled cell time','T_MACHINE_sec']
-    ];
-    const pk=v.pk.filter(line=>line.status==='SUPPORTABLE');
-    const sumKey=key=>pk.reduce((sum,line)=>sum+Number(line.time?.[key]||0),0)/60;
-    const handling=['T_LOAD_SEAT_sec','T_REFERENCE_sec','T_INDEX_sec','T_RELEASE_LABEL_sec'].reduce((sum,key)=>sum+sumKey(key),0);
-    clock.innerHTML=keys.map(([label,key])=>definitionRow(label,(key?sumKey(key):handling).toFixed(2)+' min')).join('');
+    const time=S.answer.evaluation?.time;
+    clock.innerHTML=time&&Number.isFinite(time.totalMinutes)&&time.categories?Object.entries(time.categories).map(([category,seconds])=>definitionRow(category.replaceAll('_',' '),(seconds/60).toFixed(2)+' min')).join('')+definitionRow('Total modeled cell time',time.totalMinutes.toFixed(2)+' min'):'<p class="def-muted">No complete modeled time for this revision.</p>';
   }else clock.innerHTML='<p class="def-muted">No complete modeled time for this revision.</p>';
   if(v){
     const lines=[...v.pk,...v.it];

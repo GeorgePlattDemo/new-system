@@ -169,8 +169,8 @@ test("16 in SPF: the Store's 60 in board, its own Q, and the definition's 8 in s
   assert.equal(view.selection?.sku, "STB-ZERO-SPF-2X4-60-001");
   assert.equal(view.selection?.stockLengthIn, 60);
   assert.equal(view.economics?.material, 2.61);
-  assert.equal(view.economics?.machineService, 5.93);
-  assert.equal(view.economics?.q, 8.54);
+  assert.equal(view.economics?.machineService, 6.01);
+  assert.equal(view.economics?.q, 8.62);
   assert.equal(view.work?.finalRemainderIn, 27.625);
   assert.equal(view.swap.visible, false);
   assert.equal(view.identity?.definitionRevisionId, "SYO-USER1-XBRACE-0.1-v2");
@@ -179,11 +179,11 @@ test("16 in SPF: the Store's 60 in board, its own Q, and the definition's 8 in s
   const travel = required(answer).rawEstimate.travel;
   const features = (travel.parts as Json[]).map((part) => (part.features as Json[]).map((feature) => [feature.featureId, feature.kind, feature.xIn]));
   assert.deepEqual(features, [[["SPOT-1", "SPOT_ON_LOCATION", 8]], [["SPOT-2", "SPOT_ON_LOCATION", 8]]]);
-  const spotOps = (travel.operationPlan as Json[]).filter((op) => op.kind === "SPOT_ON_LOCATION");
-  assert.deepEqual(spotOps.map((op) => [op.partRelativeXIn, op.fullDiameterDepthIn, op.acrossWidthRule]), [[8, 0.1875, "CENTERED_ON_WIDE_FACE"], [8, 0.1875, "CENTERED_ON_WIDE_FACE"]]);
+  const spotOps = (travel.operationPlan as Json[]).filter((op) => op.kind === "FEATURE_ANSWERED"&&op.category==="SPOT");
+  assert.deepEqual(spotOps.map(op=>op.featureId),["SPOT-1","SPOT-2"]);
 });
 
-test("18 in SPF: Store refuses 60 in on retained control, selects 72 in, and the longer-board frame says why", async () => {
+test("18 in SPF: Store selects 72 in using whole-job Q and the bench reports only returned evidence", async () => {
   const job = braceJob(18);
   const { admission, answer } = await ask(job, "SYO-USER1-XBRACE-0.1-v3");
   const view = read(job, "SYO-USER1-XBRACE-0.1-v3", inquiryOf(admission, answer));
@@ -192,16 +192,16 @@ test("18 in SPF: Store refuses 60 in on retained control, selects 72 in, and the
   assert.equal(view.selection?.stockLengthIn, 72);
   assert.equal(view.selection?.requestedMinimumIn, 60);
   assert.equal(view.economics?.material, 3.13);
-  assert.equal(view.economics?.machineService, 5.94);
-  assert.equal(view.economics?.q, 9.07);
+  assert.equal(view.economics?.machineService, 6.00);
+  assert.equal(view.economics?.q, 9.13);
   assert.equal(view.work?.finalRemainderIn, 35.625);
-  assert.deepEqual(view.refusedCandidates.map((row) => [row.storeSku, row.stockLengthIn, row.reason]), [["STB-ZERO-SPF-2X4-60-001", 60, "LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL"]]);
+  assert.deepEqual(view.refusedCandidates, []);
   assert.equal(view.swap.visible, true);
   assert.match(view.swap.html, /^<b>The Store grabbed a longer board\.<\/b>/);
-  assert.match(view.swap.html, /refused it: after the last cut, the board left behind would be too short for the machine&#39;s two holding rollers/);
+  assert.match(view.swap.html, /using the complete modeled Q/);
   assert.match(view.swap.html, /6-foot 2×4 \(72 in\) \(STB-ZERO-SPF-2X4-72-001\)/);
   assert.match(view.swap.html, /comes back with your stub: 35⅝ in/);
-  assert.match(view.swap.html, /STB-ZERO-SPF-2X4-60-001 · 60 in · REFUSED · LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL/);
+  assert.doesNotMatch(view.swap.html, /REFUSED|Store evidence:/);
   assert.doesNotMatch(view.swap.html, /no 60 in board|not available|unavailable/i);
   const travel = required(answer).rawEstimate.travel;
   assert.deepEqual((travel.parts as Json[]).map((part) => part.features[0].xIn), [9, 9]);
@@ -219,17 +219,17 @@ test("the Store's numbers reconcile by its own convention, and the bench shows t
     assert.equal(cents(totals.machine_service), cents(estimate.travel.time.T_MACHINE_hr * estimate.economics.sellRatePerHour));
     // Material is the selected board's selling price, quantity one.
     assert.equal(totals.material, answer.materialResolution.unitPrice);
-    assert.equal(totals.Q_basis, "CALCULATED_FROM_DECLARED_STAGE2_MODEL");
+    assert.equal(totals.Q_basis, "CALCULATED_FROM_DECLARED_MANUFACTURING_CORE");
     assert.equal(reconciles(totals), true);
     // The modeled time the bench shows is the same machine time the price used.
     assert.equal(estimate.cycle.T_job_min, estimate.travel.time.T_MACHINE_min);
   }
 });
 
-test("a contradictory price is refused, not displayed: $3.13 + $5.94 is not $8.54", async () => {
+test("a contradictory price is refused, not displayed: $3.13 + $6.00 is not $8.62", async () => {
   const job = braceJob(18);
   const { admission, answer } = await ask(job, "SYO-USER1-XBRACE-0.1-v4");
-  const contradiction = altered(required(answer), (copy) => { copy.rawEstimate.totals.Q = 8.54; });
+  const contradiction = altered(required(answer), (copy) => { copy.rawEstimate.totals.Q = 8.62; });
   const view = read(job, "SYO-USER1-XBRACE-0.1-v4", inquiryOf(admission, contradiction));
   assert.equal(view.status, BENCH_STATUS.INVALID);
   assert.equal(view.quote, false);
@@ -301,8 +301,7 @@ test("Store refusal and Store unresolved answers keep their reasons and show no 
   assert.equal(refusal.selection, null);
   assert.equal(refusal.economics, null);
   assert.equal(refusal.swap.visible, false);
-  assert.ok(refusal.reasons.includes("NO_COMPLETE_DIMENSIONAL_CANDIDATE"));
-  assert.ok(refusal.reasons.includes("OP_NOT_ON_OFFERING:TAPER"));
+  assert.ok(refusal.reasons.includes("REQUIRED_OPERATION_NOT_REPRESENTED:TAPER"));
 
   const treated = braceJob(16, { species: "syp-treated", form: "board", nominalT: 2, nominalW: 4 });
   const unresolved = await ask(treated, "SYO-USER1-XBRACE-0.1-v11");
@@ -368,8 +367,7 @@ test("Store text in the longer-board frame is escaped, never injected", async ()
   const job = braceJob(18);
   const { admission, answer } = await ask(job, "SYO-USER1-XBRACE-0.1-v16");
   const hostile = altered(required(answer), (copy) => {
-    copy.materialResolution.consideredCandidates[0].storeSku = "<img src=x onerror=alert(1)>";
-    copy.materialResolution.consideredCandidates[0].reason = "<script>x</script>";
+    copy.materialResolution.storeSku = "<img src=x onerror=alert(1)>";
   });
   const view = read(job, "SYO-USER1-XBRACE-0.1-v16", inquiryOf(admission, hostile));
   assert.equal(view.swap.visible, true);

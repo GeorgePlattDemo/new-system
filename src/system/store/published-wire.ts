@@ -3,6 +3,7 @@
  * The page keeps its words. This file does not price anything itself.
  */
 
+import {definitionManifest} from "../manifest.ts";
 import { sha256Bytes } from "../hash.ts";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { interpretStoreHttp } from "./interpret.ts";
@@ -101,9 +102,9 @@ export function boardDemandFromPublishedLine(line: Json): {
         featureId,
         kind: String(spot.kind ?? ""),
         xIn: finite(spot.xIn),
-        locationRule: spot.locationRule == null ? null : String(spot.locationRule),
-        acrossWidthRule: spot.acrossWidthRule == null ? null : String(spot.acrossWidthRule),
-        insetFromEdgeIn: finite(spot.insetFromEdgeIn),
+        ...(spot.locationRule != null ? {locationRule:String(spot.locationRule)} : {}),
+        ...(spot.acrossWidthRule != null ? {acrossWidthRule:String(spot.acrossWidthRule)} : {}),
+        ...(finite(spot.insetFromEdgeIn) != null ? {insetFromEdgeIn:finite(spot.insetFromEdgeIn)} : {}),
       };
     }) : [];
     return { partId, lengthIn: finite(row.lengthIn), features };
@@ -177,6 +178,7 @@ function readStoreReply(sent: { httpStatus: number; responseText: string; sent: 
     requestType,
     requestId,
     demand,
+    manifest: (JSON.parse(sent.sent) as Json).manifest,
     httpStatus: sent.httpStatus,
     responseText: sent.responseText,
     expectedRelease: STORE_CANDIDATE.inspectedCommit,
@@ -219,8 +221,9 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
       : "NOT_FULLY_SUPPORTABLE";
   const firstLine = asObject(Array.isArray(answer.lines) ? answer.lines[0] : null);
   const price = asObject(firstLine?.price);
-  const resolution = asObject(answer.materialResolution) ?? {};
-  const capability = asObject(answer.capability) ?? asObject(resolution.capability);
+  const stock=asObject(Array.isArray(answer.selectedStock)?answer.selectedStock[0]:null)??{};
+  const resolution = asObject(answer.materialResolution) ?? {storeSku:stock.storeSku??null,workpieceLengthIn:stock.stockL_in??null,stock:stock,offeredGrades:answer.offeredGrades??[], requestedMinimumWorkpieceLengthIn:finite(asObject(asObject(asObject(wire.payload)?.line)?.definedWorkpieceLength)?.value ?? asObject(asObject(wire.payload)?.line)?.definedWorkpieceLengthIn), selectionPolicy:asObject(answer.optimization)?.status??null};
+  const capability = asObject(answer.capability) ?? asObject(resolution.capability) ?? stock;
   const reasonCodes = Array.isArray(answer.reasonCodes) ? answer.reasonCodes.map(String) : [];
   const cellFamily = Array.isArray(capability?.cellFamily) ? capability.cellFamily : null;
   const supportedOps = Array.isArray(capability?.supportedOps) ? capability.supportedOps : null;
@@ -246,13 +249,13 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
     },
     materialResolution: {
       ...resolution,
-      unitPrice: price?.sellingPrice ?? null,
+      unitPrice: price?.sellingPrice ?? stock.unitPrice ?? null,
       source: { repository: "replacement-store", pin: wrapper.storeRelease, clock: null },
     },
     rawOffering: {
       storeSku: resolution.storeSku ?? null,
       stockL_in: resolution.workpieceLengthIn ?? null,
-      sellingPrice: price?.sellingPrice ?? null,
+      sellingPrice: price?.sellingPrice ?? stock.unitPrice ?? null,
       cellFamily,
       supportedOps,
       capabilityAttribution: cellFamily || supportedOps ? "STORE_ANSWER" : "NOT_SUPPLIED_BY_STORE",
@@ -270,11 +273,17 @@ function presentedEstimate(answer: Json): Json {
   const complete = answer.status === "SUPPORTABLE";
   return {
     complete,
+    travel: { time: {T_MACHINE_sec:asObject(answer.time)?.totalSeconds??null,T_MACHINE_min:asObject(answer.time)?.totalMinutes??null,T_MACHINE_hr: typeof asObject(answer.time)?.totalSeconds === "number" ? Number(asObject(answer.time)?.totalSeconds)/3600 : null}, parts:Array.isArray(answer.components)?answer.components.map(p=>({...asObject(p),lengthIn:asObject(p)?.nominalFinishedLengthIn})):[], operationPlan:answer.operations??[], derivedSawCuts:Array.isArray(answer.operations)?answer.operations.filter(o=>asObject(o)?.kind==="SAW_ON").length:null, derivedSpotCount:Array.isArray(answer.operations)?answer.operations.filter(o=>asObject(o)?.kind==="FEATURE_ANSWERED"&&asObject(o)?.category==="SPOT").length:null, finalRemainderIn:asObject(Array.isArray(answer.parents)?answer.parents[0]:null)?.remainingLengthIn??null },
+    cycle: {T_job_min:asObject(answer.time)?.totalMinutes??null,model:asObject(answer.model)?.id??null,version:"0.1"},
+    engine:answer.model??null,
+    economics: {sellRatePerHour:totals.hourlyRate??null},
     totals: {
       material: totals.material ?? null,
       machine_service: totals.machine_service ?? null,
-      hardware: totals.items ?? null,
-      Q: complete ? totals.sumOfSupportableLines ?? answer.Q ?? null : null,
+      hardware: totals.hardware ?? totals.items ?? null,
+      manual_cut_service:totals.manual_cut_service??null,
+      Q_basis:"CALCULATED_FROM_DECLARED_MANUFACTURING_CORE",
+      Q: complete ? totals.Q ?? totals.sumOfSupportableLines ?? answer.Q ?? null : null,
     },
   };
 }
@@ -582,7 +591,11 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   if ("error" in translated) {
     return { httpStatus: 422, body: echo(wire, { adapterError: true, code: translated.error, requestType: wire.requestType, carriedNotAccepted: translated.blocked ?? [] }) };
   }
+  const payload=asObject(wire.payload)??{};
+  const source=asObject(wire.requestType==="USER_DEFINED_BOARD_V1"?payload.line:payload.definition)??{};
+  const manifest=definitionManifest(String(wire.requestType),source,translated.carriedNotAccepted);
   const sent = await postStore(origin, {
+    manifest,
     requestType: translated.storeRequestType,
     requestId: String(wire.requestId),
     demand: translated.demand,
@@ -590,9 +603,9 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
   const read = readStoreReply(sent, translated.demand, String(wire.requestId), translated.storeRequestType);
   if (read.outcome !== "answer") return rejected(wire, read.code);
   const body = pageAnswer(wire, read.wrapper, translated.carriedNotAccepted, translated.notes);
-  body.mappedCallInputs = { requestType: translated.storeRequestType, demand: translated.demand };
+  body.mappedCallInputs = { requestType: translated.storeRequestType, demand: translated.demand,manifest };
   const answer = read.answer;
-  const packages = Array.isArray(answer.packages) ? answer.packages : [];
+  const packages = Array.isArray(answer.parents) ? answer.parents : Array.isArray(answer.packages) ? answer.packages : [];
   const items = Array.isArray(answer.items) ? answer.items : [];
   if (packages.length || items.length) {
     body.rawEvaluation = {
@@ -600,7 +613,7 @@ export async function answerPublishedWire(wire: Json, origin: string): Promise<{
       lines: [
         ...packages.map((pkg) => {
           const row = asObject(pkg) ?? {};
-          return { role: row.packageId, storeSku: row.storeSku ?? null, qty: row.boards ?? null, price: { sellingPrice: asObject(row.totals)?.material ?? row.sellingPrice ?? null }, stock: { status: row.status ?? null } };
+          return { role: row.packageId, storeSku: row.storeSku ?? null, qty: row.qty ?? row.boards ?? null, price: { sellingPrice: row.materialExtension ?? asObject(row.totals)?.material ?? row.unitPrice ?? row.sellingPrice ?? null }, stock: { status: row.status ?? null } };
         }),
         ...items.map((item) => {
           const row = asObject(item) ?? {};

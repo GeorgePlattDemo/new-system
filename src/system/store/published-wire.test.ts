@@ -94,7 +94,7 @@ test("the served Start your own runtime names this Store", () => {
   const runtime = readFileSync(new URL("../../../public/live/stb-store-runtime.json", import.meta.url), "utf8");
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
-  assert.equal(runtime.includes("2c028da3e574734a7bc70b1f19399834c9b1656e"), true);
+  assert.equal(runtime.includes(release), true);
 });
 
 test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
@@ -139,7 +139,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
     demandSignature: "demand",
     querySignature: null,
     payloadDigest: "digest",
-    expectedStorePin: "2c028da3e574734a7bc70b1f19399834c9b1656e",
+    expectedStorePin: release,
     attemptId: "attempt-1",
     attemptNumber: 1,
     sentAt: "2026-10-09T02:00:00.000Z",
@@ -157,7 +157,7 @@ test("Start your own confirm path gets a fresh replacement-Store answer, not a c
   assert.equal(evaluation.status, "SUPPORTABLE");
   assert.equal(evaluation.freshEvaluation, true);
   assert.equal(estimate.complete, true);
-  assert.equal(estimate.totals?.Q, 8.54);
+  assert.equal(estimate.totals?.Q, 8.62);
   const price = body.priceCompleteness as { status?: string; scope?: string };
   assert.equal(price.status, "COMPLETE_FOR_TRAVEL_STANDARD");
   assert.equal(price.scope, "QUOTE_ONLY");
@@ -195,7 +195,7 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
     demandSignature: "demand-18",
     querySignature: null,
     payloadDigest: "digest-18",
-    expectedStorePin: "2c028da3e574734a7bc70b1f19399834c9b1656e",
+    expectedStorePin: release,
     attemptId: "attempt-18",
     attemptNumber: 1,
     sentAt: "2026-10-09T03:00:00.000Z",
@@ -211,8 +211,8 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
   assert.equal(evaluation.status, "SUPPORTABLE");
   assert.equal(evaluation.freshEvaluation, true);
   assert.equal(estimate.complete, true);
-  assert.equal(estimate.totals?.Q, 9.07);
-  assert.notEqual(estimate.totals?.Q, 8.54);
+  assert.equal(estimate.totals?.Q, 9.13);
+  assert.notEqual(estimate.totals?.Q, 8.62);
   assert.equal(resolution.storeSku, "STB-ZERO-SPF-2X4-72-001");
   assert.equal(resolution.workpieceLengthIn, 72);
   const job = body.jobSupportability as { status?: string; machineAdmitted?: boolean };
@@ -227,9 +227,9 @@ test("the 18 in brace is a different fresh answer, and the Store advances off th
   assert.equal(canonical.suppliedEndIdentity, "both");
   assert.equal(canonical.sentEndIdentity, null);
   const offering = body.rawOffering as { supportedOps?: unknown; cellFamily?: unknown; capabilityAttribution?: string };
-  assert.equal(offering.supportedOps, null);
-  assert.equal(offering.cellFamily, null);
-  assert.equal(offering.capabilityAttribution, "NOT_SUPPLIED_BY_STORE");
+  assert.ok(Array.isArray(offering.supportedOps) && offering.supportedOps.includes("CROSSCUT") && offering.supportedOps.includes("SPOT_ON_LOCATION"));
+  assert.deepEqual(offering.cellFamily, ["D-001"]);
+  assert.equal(offering.capabilityAttribution, "STORE_ANSWER");
 });
 
 test("a board the Store refuses is not a complete quote and not a supportable job", async () => {
@@ -244,7 +244,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
     demandSignature: "demand-84",
     querySignature: null,
     payloadDigest: "digest-84",
-    expectedStorePin: "2c028da3e574734a7bc70b1f19399834c9b1656e",
+    expectedStorePin: release,
     attemptId: "attempt-84",
     attemptNumber: 1,
     sentAt: "2026-10-09T04:00:00.000Z",
@@ -256,7 +256,7 @@ test("a board the Store refuses is not a complete quote and not a supportable jo
   const evaluation = body.rawEvaluation as { status?: string; freshEvaluation?: boolean };
   const price = body.priceCompleteness as { status?: string };
   const job = body.jobSupportability as { status?: string; quoteComplete?: boolean; machineAdmitted?: boolean };
-  assert.equal(evaluation.status, "REFUSED");
+  assert.equal(evaluation.status, "UNAVAILABLE");
   assert.equal(evaluation.freshEvaluation, true);
   assert.notEqual(price.status, "COMPLETE_FOR_TRAVEL_STANDARD");
   assert.equal(job.status, "NOT_SUPPORTABLE");
@@ -304,6 +304,7 @@ function publishedFunction(file: string, name: string, context: Record<string, u
 
 function publishedTerms(projectId: string) {
   const window = { crypto: webcrypto } as Record<string, any>;
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-commercial-sequence.js",import.meta.url),"utf8"),{window,TextEncoder});
   runInNewContext(readFileSync(new URL("../../../public/live/stb-terms-flow.js", import.meta.url), "utf8"), { window, TextEncoder });
   return window.STBTermsFlow.create({ projectId });
 }
@@ -325,53 +326,19 @@ test("Alcove's published gate opens Your call for a fully evaluated current Stor
   terms.setAnswer({ version: "alcove-call", status: "SUPPORTABLE", total: body.rawEstimate.totals.Q, body });
   assert.equal(terms.state().callOpen, true);
   await terms.accept();
-  assert.equal(terms.state().yardOpen, true);
+  assert.equal(terms.state().yardOpen, false);
   await terms.runYard();
   await terms.pickup();
-  assert.equal(terms.state().stage, "HANDED_OFF");
+  assert.equal(terms.state().stage, "ANSWERED");
+  assert.equal(terms.state().pendingReason,"SELLER_OFFER_AND_TERMS_REQUIRED");
 });
 
-test("Alcove's scoped estimate opens only budgetary review, discloses the unevaluated installation requirement, and cannot create downstream events", async () => {
-  const definition = {
-    configurationId: "ALCOVE-USER1", configurationVersion: "alcove-review",
-    materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
-    boardRequirements: [{ requirementId: "SHELVES", requiredOps: ["CROSSCUT"] }],
-    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", nominalW: 6, finishedLengthIn: 30, finishedWidthIn: 5.5,
-      features: [] }],
-    unresolvedConditions: ["INSTALLATION_LOAD_RATING_REQUIRED"],
-  };
-  const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-review", { definition }), await storeOrigin());
-  assert.equal(answered.httpStatus, 200);
-  const body = answered.body as Record<string, any>;
-  const gate = publishedFunction("system-build-current.html", "alcoveSupportable");
-  const review = publishedFunction("system-build-current.html", "alcoveBudgetaryReview", { tileHostContract });
-  assert.equal(gate(body), false);
-  assert.equal(review(body), true);
-  const admission = { admission: { result: tileHostContract.ADMISSION_RESULT.ADMITTED }, definitionRevisionId: "alcove-review",
-    inquiryScope: "ALCOVE_INSERT_V1", request: { tileId: "alcove" } };
-  const trail = { steps: ["Intent", "The bench", "The Store answers", "Your call", "We cut it", "Pick up & build"] };
-  const current: Record<string, any> = { ...body, authority: tileHostContract.ANSWER_AUTHORITY.CURRENT, definitionRevisionId: "alcove-review", inquiryScope: "ALCOVE_INSERT_V1", withinEnvelope: false };
-  assert.ok(tileHostContract.availableSteps({ trail, admission, freshAnswer: current }).includes("Your call"));
-  for (const invalid of [
-    { ...current, definitionRevisionId: "older" },
-    { ...current, authority: tileHostContract.ANSWER_AUTHORITY.HISTORY },
-    { ...current, rawEvaluation: { ...current.rawEvaluation, status: "REFUSED" } },
-    { ...current, rawEstimate: { ...current.rawEstimate, complete: false } },
-    { ...current, rawEstimate: { complete: true, totals: { Q: null } } },
-  ]) assert.equal(tileHostContract.availableSteps({ trail, admission, freshAnswer: invalid }).includes("Your call"), false);
-  const terms = publishedTerms("alcove");
-  terms.setAnswer({ version: "alcove-review", status: "BUDGETARY_REVIEW", total: current.rawEstimate.totals.Q, body: current,
-    reasons: current.requirementSatisfaction.unevaluated.map((item: any) => ({ code: "REQUIREMENT_UNEVALUATED", text: `${item.field} = ${item.value}` })) });
-  assert.equal(terms.state().callOpen, true);
-  assert.equal(terms.state().canAccept, false);
-  assert.match(terms.renderControls("call"), /unresolvedConditions = INSTALLATION_LOAD_RATING_REQUIRED/);
-  for (const action of ["accept", "decline", "runYard", "pickup"]) await terms[action]();
-  assert.equal(terms.state().events.length, 3);
-  assert.equal(terms.state().yardOpen, false);
-  assert.equal(terms.state().recordOpen, false);
-  assert.equal(current.machineAdmission.physicalRelease, false);
-  terms.invalidate();
-  assert.equal(terms.state().callOpen, false);
+test("Alcove unresolved installation requirements block whole-job Q and all commercial stages",async()=>{
+  const definition={configurationId:"ALCOVE-USER1",configurationVersion:"unresolved",materialDemand:{species:"poplar",form:"board",nominalT:1,grade:"select"},boardRequirements:[{requirementId:"SHELVES",requiredOps:["CROSSCUT"]}],componentPrograms:[{componentId:"SHELF-01",requirementId:"SHELVES",nominalW:6,finishedLengthIn:30,finishedWidthIn:5.5,features:[]}],unresolvedConditions:["INSTALLATION_LOAD_RATING_REQUIRED"]};
+  const answered=await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1","unresolved",{definition}),await storeOrigin());
+  const body=answered.body as any;assert.equal(body.rawEvaluation.status,"UNRESOLVED");assert.equal(body.rawEstimate.complete,false);assert.equal(body.rawEstimate.totals.Q,null);assert.equal(body.jobSupportability.status,"NOT_SUPPORTABLE");
+  const terms=publishedTerms("alcove");terms.setAnswer({version:"unresolved",status:"UNRESOLVED",total:null,body});
+  for(const action of ["accept","decline","runYard","pickup"])await terms[action]();assert.equal(terms.state().yardOpen,false);assert.equal(terms.state().receipt,null);
 });
 
 test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Idea has a real next route", () => {
@@ -394,7 +361,7 @@ test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals inst
   const starting={depthIn:14,nominalW:8,requiredFullStripIn:7.25};
   for(const [species,offered,expected] of [
     ["cherry",[{nominalW:4,actualW:3.5},{nominalW:6,actualW:5.5}],"NO_MATCHING_BOARD_OFFERING"],
-    ["oak",[{nominalW:6,actualW:5.5},{nominalW:8,actualW:7.25}],"OP_NOT_ON_OFFERING:MILL_LONGITUDINAL_PROFILE"],
+    ["oak",[{nominalW:6,actualW:5.5},{nominalW:8,actualW:7.25}],"OPERATIONS_NOT_ON_OFFERING:CROSSCUT,MILL_LONGITUDINAL_PROFILE"],
   ] as const){
     const stock={species,status:"READY",offers:offered.map(o=>({...o,species,offered:true,form:"board",nominalT:1,grade:"select"})),pin:release};
     const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
@@ -419,8 +386,9 @@ test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals inst
     assert.ok(definition.componentPrograms.every((part:Record<string,any>)=>part.nominalW===8));
     const result=(await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1",`alcove-${species}-material-check`,{definition}),await storeOrigin()));
     assert.equal(result.httpStatus,200,`${species}: did not reach Store Zero`);
-    const packages=(result.body as Record<string,any>).rawEvaluation.packages as Record<string,any>[];
-    assert.ok(packages.some(pkg=>pkg.reasonCodes?.includes(expected)),`${species}: expected real Store refusal ${expected}`);
+    const evaluation=(result.body as Record<string,any>).rawEvaluation;
+    assert.equal(evaluation.Q,null);
+    assert.ok(evaluation.reasonCodes.includes(expected),`${species}: expected real Store refusal ${expected}; got ${evaluation.reasonCodes}`);
   }
 });
 
@@ -494,7 +462,7 @@ test("Alcove's actual definition with pilot spots switched off and full-width st
     }),
   };
   const contradictory = (await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-off-component-spot", { definition: withComponentSpot }), origin!)).body as Record<string, any>;
-  assert.equal(contradictory.jobSupportability.status, "NOT_FULLY_SUPPORTABLE");
+  assert.equal(contradictory.jobSupportability.status, "NOT_SUPPORTABLE");
   assert.ok(contradictory.mappedCallInputs.demand.cutPackages.some((pkg: Record<string, any>) => pkg.parts.some((part: Record<string, any>) => part.spots?.length === 1)));
   for (const [name, changed] of [
     ["extra-requirement", { ...definition.spotDemand, requiredDiameterIn: 0.5 }],
@@ -502,7 +470,7 @@ test("Alcove's actual definition with pilot spots switched off and full-width st
     ["unmapped-spot", { ...definition.spotDemand, features: [{ featureId: "UNMAPPED", kind: "SPOT_ON_LOCATION", xIn: 12 }] }],
   ] as const) {
     const incomplete = (await ask(name, changed)).body as Record<string, any>;
-    assert.equal(incomplete.jobSupportability.status, "NOT_FULLY_SUPPORTABLE", name);
+    assert.equal(incomplete.jobSupportability.status, "NOT_SUPPORTABLE", name);
     assert.ok(incomplete.requirementSatisfaction.unevaluated.some((item: { field: string }) => item.field === "spotDemand"), name);
     assert.equal(publishedFunction("system-build-current.html", "alcoveSupportable")(incomplete), false, name);
   }
@@ -551,7 +519,7 @@ test("Outdoor's published generator identifies every selected spot before transl
 
 test("a cut-package field the translator does not read reaches the Store, which refuses it by name; it is not dropped", async () => {
   const origin = await storeOrigin();
-  const legs = { packageId: "LEGS", material: { species: "syp-treated", form: "board", nominalT: 2, nominalW: 6, grade: "above-ground" }, endCut: { angleDeg: 25 }, parts: [{ partId: "LEG-01", lengthIn: 31.375 }] };
+  const legs = { packageId: "LEGS", material: { species: "syp-treated", form: "board", nominalT: 2, nominalW: 6, grade: "above-ground" }, endCut: { angleDeg: 25,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face" }, parts: [{ partId: "LEG-01", lengthIn: 31.375 }] };
   const ask = (version: string, cutPackages: Record<string, unknown>[]) => answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", version, {
     definition: { configurationId: "OUTDOOR", configurationVersion: version, cutPackages }, definitionKind: "cut_package.v1", ruleVersion: "0.1",
   }), origin);
@@ -606,7 +574,7 @@ test("the four published jobs reach the pinned Store and a changed input changes
     ],
     materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
     componentPrograms: [
-      { componentId: "ALCOVE-UPRIGHT-01", requirementId: "ALCOVE-UPRIGHT-PARENTS", nominalW: 6, finishedLengthIn: 36, finishedWidthIn: 5.5, features: [{ featureId: "SPOT-1", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "CENTERED_ON_WIDE_FACE", insetFromEdgeIn: 0.75 }] },
+      { componentId: "ALCOVE-UPRIGHT-01", requirementId: "ALCOVE-UPRIGHT-PARENTS", nominalW: 6, finishedLengthIn: 36, finishedWidthIn: 5.5, features: [{ featureId: "SPOT-1", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "CENTERED_ON_WIDE_FACE" }] },
       { componentId: "ALCOVE-SHELF-01-STRIP-01", requirementId: "ALCOVE-SHELF-PARENTS", nominalW: 6, finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] },
     ],
     hardwareDemand: { requirementId: "ALCOVE-PINS-AND-SCREWS", qty: 1 },
@@ -641,7 +609,7 @@ test("the four published jobs reach the pinned Store and a changed input changes
   const outdoor = {
     configurationId: "OUTDOOR-PICNIC-A-FRAME",
     configurationVersion: "od-a",
-    cutPackages: [{ packageId: "treated|LEGS", material: { species: "syp-treated", form: "board", nominalT: 2, nominalW: 6, grade: "above-ground" }, endCut: { angleDeg: 25 }, parts: [{ partId: "LEG-01", lengthIn: 31.375 }] }],
+    cutPackages: [{ packageId: "treated|LEGS", material: { species: "syp-treated", form: "board", nominalT: 2, nominalW: 6, grade: "above-ground" }, endCut: { angleDeg: 25,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face" }, parts: [{ partId: "LEG-01", lengthIn: 31.375 }] }],
   };
   const outdoorAnswer = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", "od-a", { definition: outdoor, definitionKind: "cut_package.v1", ruleVersion: "0.1" }), origin);
   assert.equal((outdoorAnswer.body.rawEvaluation as { freshEvaluation?: boolean }).freshEvaluation, true);
@@ -693,28 +661,28 @@ test("Playhouse tools: an added crosscut is evaluated by the Store, never droppe
   const base = await ask("ph-base", playhouseSheet("ph-base"));
   const raw = (answer: { body: Record<string, unknown> }) => answer.body.rawEvaluation as Record<string, any>;
   assert.equal(raw(base).status, "SUPPORTABLE");
-  assert.equal(raw(base).totals.Q, 76.57);
+  assert.equal(raw(base).totals.Q, 76.56);
   assert.equal(raw(base).totals.material, 26.55);
-  assert.equal(raw(base).totals.machine_service, 30.02);
+  assert.equal(raw(base).totals.machine_service, 30.01);
   assert.equal(raw(base).totals.manual_cut_service, 20);
   assert.equal(raw(base).totals.manualCutCount, 2);
-  assert.equal(raw(base).material.storeSku, "STB-ZERO-PLY-050-48X96-001");
+  assert.equal(raw(base).selectedStock[0].storeSku, "STB-ZERO-PLY-050-48X96-001");
   const cut = await ask("ph-cut", playhouseSheet("ph-cut", [{ featureId: "CUT-M1", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 26 }]));
   assert.equal(raw(cut).status, "SUPPORTABLE");
   assert.equal(raw(cut).freshEvaluation, true);
   assert.ok(raw(cut).totals.Q > raw(base).totals.Q, "the added cut is priced, not dropped");
-  assert.ok(raw(cut).operations.some((op: { opId: string; xIn?: number }) => op.opId === "CROSSCUT" && op.xIn === 26));
+  assert.ok(raw(cut).operations.some((op:any)=>op.kind==="PANEL_SAW_CUT"&&op.cutKind==="CROSSCUT"&&op.positionIn===26));
   assert.deepEqual(cut.body.carriedNotAccepted, []);
   const mapped = (cut.body.mappedCallInputs as { demand: { features: { featureId: string }[] } }).demand;
   assert.ok(mapped.features.some((feature) => feature.featureId === "CUT-M1"), "the added cut reached the Store");
   // A cut through the opening is the Store's refusal, with its own reason.
   const through = await ask("ph-through", playhouseSheet("ph-through", [{ featureId: "CUT-M1", kind: "CROSSCUT", fromEnd: "LEFT", distanceIn: 48 }]));
   assert.equal(raw(through).status, "REFUSED");
-  assert.ok(raw(through).reasonRecords.some((r: { code: string }) => r.code === "CROSSCUT_INTERSECTS_ROUTED_FEATURE"));
+  assert.ok(raw(through).reasonRecords.some((r: { code: string }) => r.code === "PANEL_CUT_INTERSECTS_ROUTED_FEATURE"));
   // Another wood the Store offers is priced for that wood.
   const fir = await ask("ph-fir", playhouseSheet("ph-fir", [], { thicknessIn: 0.625, species: "fir", grade: "BCX-sanded" }));
   assert.equal(raw(fir).status, "SUPPORTABLE");
-  assert.equal(raw(fir).material.storeSku, "STB-ZERO-PLY-063-48X96-001");
+  assert.equal(raw(fir).selectedStock[0].storeSku, "STB-ZERO-PLY-063-48X96-001");
   assert.equal(raw(fir).totals.manual_cut_service, 20);
   assert.ok(raw(fir).totals.Q > raw(base).totals.Q, "the different Store sheet and machine passes produce a different Q");
 });
@@ -729,16 +697,16 @@ test("Playhouse pattern within the centered 48 x 36 field is freshly evaluated; 
   const accepted = within.body.rawEvaluation as Record<string, any>;
   assert.equal(accepted.status, "SUPPORTABLE");
   assert.equal(accepted.freshEvaluation, true);
-  assert.equal(accepted.totals.Q, 76.57);
-  assert.equal(accepted.features.apertures[0].box.x0, 32);
-  assert.equal(accepted.featureAnswers.find((f: { featureId: string }) => f.featureId === "PATTERN").status, "ANSWERED");
+  assert.equal(accepted.totals.Q, 76.56);
+  assert.equal(accepted.parents.find((p:any)=>p.kind==="sheet").geometry.apertures[0].box.x0, 32);
+  assert.ok(accepted.operations.some((op:any)=>op.kind==="FEATURE_ANSWERED"&&op.featureId==="PATTERN"));
   assert.deepEqual(within.body.carriedNotAccepted, []);
   assert.ok(accepted.evaluationReceipt);
   const moved = await ask("ph-pattern-out", playhouseSheet("ph-pattern-out",[{...pattern,offsetXIn:7}]));
   const refused = moved.body.rawEvaluation as Record<string, any>;
   assert.equal(refused.status, "REFUSED");
   assert.equal(refused.freshEvaluation, true);
-  assert.ok(refused.reasonCodes.includes("CENTER_WORK_FIELD_EXCEEDED"));
+  assert.ok(refused.reasonCodes.includes("ROUTED_PROFILE_OUTSIDE_WORK_FIELD"));
   assert.equal(refused.totals, null);
   assert.equal(refused.Q, null);
   assert.deepEqual(moved.body.carriedNotAccepted, []);
@@ -746,7 +714,7 @@ test("Playhouse pattern within the centered 48 x 36 field is freshly evaluated; 
   (tooTall.features[0] as { straightHeightIn:number }).straightHeightIn=25;
   const heightRefusal = await ask("ph-height-out",tooTall);
   assert.equal((heightRefusal.body.rawEvaluation as Record<string, any>).status,"REFUSED");
-  assert.ok((heightRefusal.body.rawEvaluation as Record<string, any>).reasonCodes.includes("CENTER_WORK_FIELD_EXCEEDED"));
+  assert.ok((heightRefusal.body.rawEvaluation as Record<string, any>).reasonCodes.includes("ROUTED_PROFILE_OUTSIDE_WORK_FIELD"));
 });
 
 test("the same Store supports standalone manual full-length rips; unsafe mixed-axis Playhouse saw plans are refused", async () => {
@@ -762,13 +730,13 @@ test("the same Store supports standalone manual full-length rips; unsafe mixed-a
   assert.equal(evaluated.freshEvaluation,true);
   assert.equal(evaluated.totals.manual_cut_service,10);
   assert.equal(evaluated.totals.Q,37.94);
-  assert.ok(evaluated.operations.some((op:{opId:string,lengthIn?:number})=>op.opId==="RIP"&&op.lengthIn===96));
+  assert.ok(evaluated.operations.some((op:any)=>op.kind==="PANEL_SAW_CUT"&&op.cutKind==="RIP"&&op.pathLengthIn===96));
   assert.deepEqual(done.body.carriedNotAccepted,[]);
   const onPlayhouse=await ask("ph-rip-mixed",playhouseSheet("ph-rip-mixed",[rip]));
   const refusal=onPlayhouse.body.rawEvaluation as Record<string, any>;
   assert.equal(refusal.status,"REFUSED");
   assert.equal(refusal.freshEvaluation,true);
-  assert.ok(refusal.reasonCodes.includes("ORTHOGONAL_SAW_STAGING_NOT_DEFINED"));
+  assert.ok(refusal.reasonCodes.includes("PANEL_CUT_INTERSECTS_ROUTED_FEATURE"),refusal.reasonCodes.join(","));
   assert.equal(refusal.Q,null);
   assert.deepEqual(onPlayhouse.body.carriedNotAccepted,[]);
 });
@@ -801,9 +769,8 @@ test("Playhouse custom split: absent tab positions stay required; the split and 
     assert.equal(sentSplit?.splitTabMode, "CUSTOM", `${name}: the custom mode reached the Store`);
     assert.equal(raw.status, "UNRESOLVED", name);
     assert.equal(raw.freshEvaluation, true);
-    assert.deepEqual(raw.featureAnswers.find((feature: { featureId: string }) => feature.featureId === "CENTER-SPLIT"),
-      { featureId: "CENTER-SPLIT", kind: "STRAIGHT_SPLIT", status: "UNRESOLVED", reasonCodes: ["SPLIT_TAB_POSITIONS_REQUIRED"] });
-    assert.deepEqual(raw.unresolvedConditions, ["SPLIT_TAB_POSITIONS_REQUIRED"]);
+    assert.ok(raw.reasonCodes.includes("SPLIT_TAB_POSITIONS_REQUIRED"));
+    assert.ok(raw.reasonRecords.some((r:any)=>r.subject==="CENTER-SPLIT"));
     assert.equal(raw.Q, null);
     assert.equal(raw.totals, null);
     assert.notEqual((answered.body.priceCompleteness as { status: string }).status, "COMPLETE_FOR_TRAVEL_STANDARD");
@@ -813,11 +780,11 @@ test("Playhouse custom split: absent tab positions stay required; the split and 
   const placed = await ask("ph-split-placed", { splitTabMode: "CUSTOM", splitTabPositionsIn: [6, 20] });
   const raw = placed.body.rawEvaluation as Record<string, any>;
   assert.equal(raw.status, "SUPPORTABLE");
-  assert.equal(raw.featureAnswers.find((feature: { featureId: string }) => feature.featureId === "CENTER-SPLIT").status, "ANSWERED");
+  assert.ok(raw.manifestCoverage.featureIds.includes("CENTER-SPLIT"));
   assert.equal(typeof raw.totals.Q, "number");
 });
 
-test("an unsupported Alcove profile reaches Store as literal geometry and is refused without a full-job claim", async () => {
+test("a declared shallow Alcove profile reaches the shared model as literal geometry", async () => {
   const origin = await storeOrigin();
   const definition = {
     configurationId: "ALCOVE-USER1",
@@ -839,12 +806,12 @@ test("an unsupported Alcove profile reaches Store as literal geometry and is ref
   const profile = body.mappedCallInputs.demand.cutPackages[0].parts[0].edgeProfiles[0];
   assert.equal(profile.pathLengthIn, 30);
   assert.equal(profile.totalDepthIn, 0.25);
-  assert.equal(body.rawEvaluation.packages[0].status, "REFUSED");
-  assert.equal(body.rawEvaluation.packages[0].Q, null);
-  assert.equal(body.rawEstimate.complete, false);
+  assert.equal(body.rawEvaluation.status,"SUPPORTABLE");
+  assert.ok(body.rawEvaluation.operations.some((op:any)=>op.kind==="ROUTER_CUT"&&op.axialDepthIn===0.25));
+  assert.equal(body.rawEstimate.complete,true);
   assert.equal(publishedFunction("system-build-current.html", "alcoveBudgetaryReview", { tileHostContract })(body), false);
   const job = answered.body.jobSupportability as { status?: string };
-  assert.notEqual(job.status, "REQUIREMENTS_SATISFIED");
+  assert.equal(job.status,"REQUIREMENTS_SATISFIED");
 });
 
 test("a caller pin cannot govern, and a supportable-looking failure is not a quote", async () => {
@@ -864,7 +831,7 @@ test("a caller pin cannot govern, and a supportable-looking failure is not a quo
       req.on("end", () => {
         const sent = JSON.parse(raw) as { requestId?: string; requestType?: string };
         const digest = sha256Bytes(raw);
-        const base = { protocol: "STORE-ZERO-REQUEST-1", storeRelease: release, payloadDigest: digest };
+        const base = { protocol: "STORE-ZERO-REQUEST-2", storeRelease: release, payloadDigest: digest };
         if (sent.requestId?.endsWith("http-500")) {
           res.writeHead(500, { "content-type": "application/json" });
           res.end(JSON.stringify({ ...base, answer: { status: "SUPPORTABLE", requestId: sent.requestId, requestType: sent.requestType, freshEvaluation: true, Q: 1 } }));
@@ -938,9 +905,9 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(valid.jobSupportability.status,"REQUIREMENTS_SATISFIED");
   assert.deepEqual(valid.requirementSatisfaction.unevaluated,[]);
   assert.equal(valid.rawEvaluation.packages.reduce((n: number,p: any)=>n+p.spotCount,0),20);
-  const profiles=valid.rawEvaluation.packages.flatMap((p:any)=>p.requirementAnswers||[]);
+  const profiles=valid.rawEvaluation.components.flatMap((p:any)=>p.features.filter((f:any)=>f.kind==="MILL_LONGITUDINAL_PROFILE"));
   assert.equal(profiles.length,5);
-  assert.ok(profiles.every((f:any)=>f.status==="SUPPORTABLE"&&f.pathLengthIn===44&&f.yIn===6.75&&f.totalDepthIn===.75));
+  assert.ok(profiles.every((f:any)=>f.pathLengthIn===44&&f.yIn===6.75&&f.totalDepthIn===.75));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(valid),true);
   // Three Bench choices are distinct Store definitions. Compare complete Store answers.
   const pricedFinish = async (mode: "BALANCED"|"ALL_EDGES") => {
@@ -966,18 +933,17 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(allEdges.rawEvaluation.status,"SUPPORTABLE");
   assert.equal(allEdges.jobSupportability.status,"REQUIREMENTS_SATISFIED");
   const allStrips=allEdges.rawEvaluation.packages.filter((p:any)=>p.packageId.startsWith("ALCOVE-SHELF"));
-  assert.ok(allStrips.length>0&&allStrips.every((p:any)=>p.edgeMill?.stages?.length===2
-    && p.edgeMill.stages.every((step:any)=>step.removedIn===0.125)));
+  assert.ok(allStrips.length>0&&allStrips.every((p:any)=>["FAR_EDGE","FENCE_EDGE"].every(subject=>p.events.some((op:any)=>op.kind==="ROUTER_CUT"&&op.subject===subject))));
   assert.ok(allEdges.rawEstimate.totals.Q>balanced.rawEstimate.totals.Q,"Store must charge its modeled additional machining, not a UI surcharge");
   assert.equal(allEdges.machineAdmission.physicalRelease,false);
 
   const storeTime=publishedFunction(file,"alcoveStoreTime");
   const displayedTime=storeTime(valid);
   assert.ok(displayedTime.T_MACHINE_sec>0);
-  for(const key of Object.keys(displayedTime)){
-    assert.equal(displayedTime[key],valid.rawEvaluation.packages.reduce((sum:number,p:any)=>sum+p.time[key],0));
-  }
-  const missingTime=JSON.parse(JSON.stringify(valid));delete missingTime.rawEvaluation.packages[0].time;
+  assert.equal(displayedTime.T_MACHINE_sec,valid.rawEvaluation.time.totalSeconds);
+  assert.equal(displayedTime.T_MACHINE_min,valid.rawEvaluation.time.totalMinutes);
+  assert.deepEqual(displayedTime.categories,valid.rawEvaluation.time.categories);
+  const missingTime=JSON.parse(JSON.stringify(valid));delete missingTime.rawEvaluation.time;
   assert.equal(storeTime(missingTime),null);
   const scopedOnly=JSON.parse(JSON.stringify(valid));scopedOnly.jobSupportability.status="REQUIREMENTS_NOT_FULLY_EVALUATED";
   assert.equal(storeTime(scopedOnly),null);
@@ -993,8 +959,9 @@ test("the published default Alcove, including through profiles and shelf-elevati
   wrongTool.componentPrograms.forEach((p:any)=>p.features.filter((f:any)=>f.kind==="SPOT_ON_LOCATION").forEach((f:any)=>f.toolDiameterIn=.5));
   const refused=await ask(wrongTool,"alcove-explicit-wrong-tool");
   assert.equal(refused.rawEstimate.complete,false);
-  assert.equal(refused.rawEvaluation.packages.find((p:any)=>p.packageId.startsWith("ALCOVE-UPRIGHT-PARENTS-")).status,"REFUSED");
-  assert.ok(refused.rawEvaluation.packages.find((p:any)=>p.packageId.startsWith("ALCOVE-UPRIGHT-PARENTS-")).reasonCodes.includes("SPOT_TOOL_DIAMETER_NOT_DECLARED"));
+  assert.equal(refused.rawEvaluation.status,"REFUSED");
+  assert.equal(refused.rawEvaluation.Q,null);
+  assert.ok(refused.rawEvaluation.reasonCodes.includes("SPOT_DIAMETER_NOT_DECLARED"));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(refused),false);
   assert.equal(storeTime(refused),null);
   const incomplete=JSON.parse(JSON.stringify(definition));delete incomplete.componentPrograms[0].features[0].xIn;

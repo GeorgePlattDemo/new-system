@@ -26,6 +26,8 @@ export const BENCH_STATUS = Object.freeze({
  * @type {Readonly<Record<string, string>>}
  */
 const REASON_WORDS = Object.freeze({
+  RETAINED_CONTROL_LENGTH_TOO_SHORT:
+    "after the last cut, the board left behind would be too short for the machine's two holding rollers to keep control of it",
   LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL:
     "after the last cut, the board left behind would be too short for the machine's two holding rollers to keep control of it",
   NO_COMPLETE_DIMENSIONAL_CANDIDATE: "no board the Store offers can carry this whole job",
@@ -168,6 +170,7 @@ export function reconciles(totals) {
     if (hardware == null) return false;
     cents += cent(hardware);
   }
+  if(totals.manual_cut_service != null){const manual=numberOrNull(totals.manual_cut_service);if(manual==null)return false;cents+=cent(manual);}
   return cents === cent(q);
 }
 
@@ -295,9 +298,9 @@ function longerBoardFrame({ parts, selection, work }) {
       + (words ? `: ${escapeHtml(words)}` : "")
       + `. It moved up to the ${picked}.`;
   } else if (shorter.length) {
-    why = `The Store's answer names no ${inches(minimum)} board for this job. The shortest board it could use is the ${picked}.`;
+    why = `The Store's answer names no ${inches(minimum)} board for this job. The Store selected the ${picked} for the complete modeled Q.`;
   } else {
-    why = `The Store's answer lists no board shorter than the ${picked} for this job.`;
+    why = `The Store selected the ${picked} using the complete modeled Q.`;
   }
   const lead = finished != null ? `At ${inches(finished)} a brace, the job still asks for at least ${inches(minimum)} of board. ` : "";
   const extra = work.finalRemainderIn != null ? ` The extra comes back with your stub: ${inches(work.finalRemainderIn)}.` : "";

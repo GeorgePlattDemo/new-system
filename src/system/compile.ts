@@ -163,7 +163,7 @@ function partGroups(rule: Record<string, unknown>, inputs: Inputs, recipe: Recip
     cutPackages.push({
       packageId,
       material: { species, form: "board", nominalT, nominalW, grade },
-      endCut: { angleDeg: angle },
+      endCut: { angleDeg: angle, endRelation:"parallel", lengthDatum:"long-long-outer-edge", plane:"miter-face" },
       ...(finished ? { finishedWidthIn: finished.value } : {}),
       parts: parts.map((part) => ({ ...part, spots: [] })),
     });
@@ -282,7 +282,7 @@ function planGroups(rule: Record<string, unknown>, inputs: Inputs, recipe: Recip
   const cutPackages = plan.groups.map((group) => ({
     packageId: group.id,
     material: { species: wood.species, form: "board", nominalT: group.nominalT, nominalW: group.nominalW, grade: wood.grade },
-    endCut: { angleDeg: group.angleDeg },
+    endCut: { angleDeg: group.angleDeg, endRelation:"parallel", lengthDatum:"long-long-outer-edge", plane:"miter-face" },
     parts: group.parts.flatMap((part) =>
       Array.from({ length: part.count }, (_, i) => ({
         partId: `${part.id}-${String(i + 1).padStart(2, "0")}`,

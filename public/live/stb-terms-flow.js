@@ -1,28 +1,9 @@
 (function(root){
   'use strict';
 
-  // STB terms flow: one post-Store terms flow for every project tile (the Trail in docs/DEFINITIONS.md).
-  // This file owns the event meanings, order and gates. Every tile uses it; no tile is the master copy.
-  //
-  //   1 SENT        your definition, by its payload digest
-  //   2 ARRIVED     the Store's arrival receipt
-  //   3 ANSWERED    the Store's budgetary answer or refusal — not a quote or commercial offer
-  //   4 OFFERED     System's simulated commercial offer based on that exact Store answer
-  //   5 YOUR CALL   accepted or declined, hashed
-  //   6 PAID        simulated; no money moves
-  //   7 SENT TO STORE · IN THE YARD QUEUE
-  //   8 MATERIAL ALLOCATED   9 PRODUCTION RELEASED   10 CUT   11 STAGED   12 READY NOTICE
-  //   13 PICKED UP · CUSTODY  the handoff, which issues the terms / handoff receipt
-  //
-  // Rules: only a fresh SUPPORTABLE Store answer can produce a simulated offer. A refused, unresolved or
-  // unavailable answer ends at step 3 with the Store's reasons. A declined simulated offer ends at step 5.
-  // Events after the Store answer are hash-linked (each carries the previous hash). A new Store answer for a
-  // changed version starts a new chain; the old one is kept in history, never edited.
-  // Commerce and the yard are SIMULATED. Nothing here moves money, starts a machine, or claims a physical cut.
-  // BUDGETARY_REVIEW opens Your call only to inspect a scoped estimate and its unevaluated requirements.
-  // It cannot create an offer, acceptance, payment, queue entry, yard event or pickup.
-
-  const VERSION = 'STB-TERMS-FLOW-0.2';
+  // One shared evidence-gated commercial sequence. A customer decision is not seller acceptance,
+  // payment, allocation or production. Missing seller terms and source evidence remain pending.
+  const VERSION = 'STB-TERMS-FLOW-1';
   const EVENTS = Object.freeze([
     Object.freeze({ id:'sent',      label:'Your definition · sent',                  who:'you' }),
     Object.freeze({ id:'arrived',   label:'Arrived at Store Zero · receipt',         who:'store' }),
@@ -38,7 +19,7 @@
     Object.freeze({ id:'ready',     label:'READY notice',                            who:'fulfillment' }),
     Object.freeze({ id:'custody',   label:'Picked up · custody (handoff)',           who:'you' })
   ]);
-  const YARD_EVENTS = Object.freeze(['allocated','released','cut','staged','ready']);
+  const COMMERCIAL_ALIASES=Object.freeze({StoreAnswerAttached:'answered',OfferIssued:'offered',CustomerDecisionRecorded:'decision',OrderAccepted:'order',FinancialEventRecorded:'paid',ReservationConfirmed:'reserved',CapacityCommitmentRecorded:'capacity',QueueEntryConfirmed:'queued',MaterialAllocated:'allocated',MaterialIssued:'issued',ProductionReleaseRecorded:'released',LocalPlanBound:'plan',LocalAdmissionRecorded:'admitted',ExecutionEventRecorded:'cut',InspectionDispositionRecorded:'inspected',StagingRecorded:'staged',ReadyNoticeRecorded:'ready',CustodyTransferred:'custody',ProjectCloseoutRecorded:'closed',ExceptionRecorded:'exception'});
   const CONFIG_ROOTS = Object.freeze({
     alcove:'#alcove-config',
     'window-seat':'#s-configure'
@@ -158,7 +139,7 @@
         status: answer.status,
         total: answer.total,
         reasons: Array.isArray(answer.reasons) ? answer.reasons.slice() : [],
-        orderId: null, paymentId: null,
+        orderId: null, paymentId: null, source:JSON.parse(JSON.stringify(body)), commercial:null, recording:null, commercialError:null,
         events: [
           { id:'sent', at: answer.sentAt || body.sentAt || null, hash: body.payloadDigest || null, detail: 'demand ' + String(body.demandSignature || '—').slice(0,16) + '…' },
           { id:'arrived', at: receipt?.evaluatedAt || null, hash: receipt?.receiptHash || null, detail: 'request ' + String(body.requestId || '—').slice(0,8) + ' · Store ' + String(body.storePin || '—').slice(0,7) },
@@ -166,52 +147,45 @@
             detail: answer.status === 'SUPPORTABLE' ? 'SUPPORTABLE · ' + money(answer.total) + ' budgetary, not a quote or offer' : answer.status + ' · ' + (answer.reasons || []).map(r => r.code).join(', ') }
         ]
       };
+      void ensureCommercial().then(notify).catch(error=>{if(chain){chain.commercialError=error.message;notify();}});
       notify();
       return state();
     }
 
-    async function append(id, detail){
-      const prev = last();
-      const at = now();
-      const hash = await sha256({ flow: VERSION, projectId, version: chain.version, event: id, prevHash: prev?.hash || null, detail, at });
-      chain.events.push({ id, at, hash, prevHash: prev?.hash || null, detail });
+    async function ensureCommercial(){
+      if(!chain || chain.status!=='SUPPORTABLE')return null;
+      const current=chain;
+      if(current.recording)return current.recording;
+      current.recording=(async()=>{
+        const body=current.source,answer=body.rawEvaluation||{},receipt=body.evaluationReceipt||answer.evaluationReceipt;
+        if(!root.STBCommercialSequence)throw new Error('COMMERCIAL_CONTRACT_NOT_LOADED');
+        if(!receipt||answer.complete!==true||!answer.manifestCoverage)throw new Error('COMPLETE_STORE_MANIFEST_EVIDENCE_REQUIRED');
+        const links={projectId,definitionId:String(answer.jobId),revisionId:String(answer.revision),manifestHash:receipt.manifestHash,requestId:current.requestId,receiptHash:receipt.receiptHash,storeRevision:current.storePin,modelHash:receipt.authority?.manufacturingModel?.hash,inputHash:answer.calculationIdentity?.inputHash,resultHash:answer.calculationIdentity?.resultHash};
+        current.commercial=root.STBCommercialSequence.create({streamId:projectId+'|'+current.version+'|'+current.requestId,links});
+        const at=receipt.evaluatedAt;
+        await current.commercial.recordEvent({schema:root.STBCommercialSequence.schema,eventId:'answer:'+receipt.receiptHash,eventType:'StoreAnswerAttached',streamId:projectId+'|'+current.version+'|'+current.requestId,sequence:1,expectedPreviousSequence:0,causedByEventIds:[],idempotencyKey:'answer:'+receipt.receiptHash,occurredAt:at,recordedAt:at,actor:{partyId:'system',role:'system'},evidenceClass:'SIMULATED',authority:{sourceSystem:'store-zero',sourceRecordId:receipt.receiptHash,verificationRecordId:receipt.receiptHash,policyId:'PROTOTYPE-EVIDENCE-ONLY',policyVersion:'1'},links,payload:{status:answer.status,complete:answer.complete,manifestCoverageComplete:true}},0);
+        return current.commercial;
+      })();
+      return current.recording;
     }
-
-    function canAccept(){ return !!chain && chain.status === 'SUPPORTABLE' && !event('decision') && !!event('arrived')?.hash; }
-    async function ensureOffer(){
-      if (!canAccept()) return false;
-      if (!event('offered')) await append('offered', 'SIMULATED_OFFER · ' + money(chain.total) + ' · based on this Store budgetary answer');
-      return true;
+    function canAccept(){return !!chain&&chain.status==='SUPPORTABLE'&&!event('decision')&&!!chain.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');}
+    async function recordCommercialEvent(source){
+      const current=chain,stream=await ensureCommercial();if(!stream||chain!==current)return state();
+      const stored=await stream.recordEvent(source,source.expectedPreviousSequence);
+      const id=COMMERCIAL_ALIASES[stored.eventType],existing=chain.events.find(e=>e.sourceEventId===stored.eventId);
+      if(id&&!existing&&stored.eventType!=='StoreAnswerAttached')chain.events.push({id,at:stored.recordedAt,hash:stored.hash,prevHash:stored.previousHash,sourceEventId:stored.eventId,detail:stored.eventType==='CustomerDecisionRecorded'?stored.payload.decision:stored.eventType+' · SIMULATED'});
+      if(stored.eventType==='OrderAccepted')chain.orderId=stored.payload.orderId;
+      if(stored.eventType==='FinancialEventRecorded'&&['CAPTURED','SETTLED'].includes(stored.payload.kind))chain.paymentId=stored.payload.financialEventId;
+      notify();return state();
     }
-
-    async function accept(){
-      if (!await ensureOffer()) return state();
-      await append('decision', 'ACCEPTED');
-      chain.paymentId = shortId('SIM-PAY');
-      await append('paid', money(chain.total) + ' · ' + chain.paymentId + ' · simulated');
-      chain.orderId = shortId('ORDER');
-      await append('queued', chain.orderId + ' · position 1');
-      notify();
-      return state();
+    async function decision(kind){
+      const current=chain,stream=await ensureCommercial();if(!stream||chain!==current||!canAccept())return state();
+      const snapshot=stream.deriveTransactionState(),offer=snapshot.events.find(e=>e.eventType==='OfferIssued'),at=now(),id=shortId('SIM-DECISION');
+      return recordCommercialEvent({schema:root.STBCommercialSequence.schema,eventId:id,eventType:'CustomerDecisionRecorded',streamId:snapshot.streamId,sequence:snapshot.sequence+1,expectedPreviousSequence:snapshot.sequence,causedByEventIds:[offer.eventId],idempotencyKey:id,occurredAt:at,recordedAt:at,actor:{partyId:'prototype-customer',role:'customer'},evidenceClass:'SIMULATED',authority:{sourceSystem:'system-customer-action',sourceRecordId:id,verificationRecordId:id,policyId:offer.payload.policy.id,policyVersion:offer.payload.policy.version},links:offer.links,payload:{decisionId:id,offerId:offer.payload.offerId,offerVersion:offer.payload.offerVersion,decision:kind}});
     }
-    async function decline(){
-      if (!await ensureOffer()) return state();
-      await append('decision', 'DECLINED');
-      notify();
-      return state();
-    }
-    async function runYard(){
-      if (!event('queued') || event('ready')) return state();
-      for (const id of YARD_EVENTS) if (!event(id)) await append(id, 'simulated');
-      notify();
-      return state();
-    }
-    async function pickup(){
-      if (!event('ready') || event('custody')) return state();
-      await append('custody', 'handed to the customer · simulated');
-      notify();
-      return state();
-    }
+    const accept=()=>decision('ACCEPTED'),decline=()=>decision('DECLINED');
+    // Legacy callers can request the view, but cannot manufacture missing source evidence.
+    const runYard=async()=>state(),pickup=async()=>state();
 
     function stage(){
       if (!chain) return 'NO_ANSWER';
@@ -222,7 +196,7 @@
       if (d.detail === 'DECLINED') return 'DECLINED';
       if (event('custody')) return 'HANDED_OFF';
       if (event('ready')) return 'READY';
-      return 'QUEUED';
+      return event('queued')?'QUEUED':'SELLER_PENDING';
     }
 
     function receipt(){
@@ -247,6 +221,8 @@
         recordOpen: ['READY','HANDED_OFF'].includes(s),
         orderId: chain?.orderId || null,
         events: (chain?.events || []).map(e => ({ ...e })),
+        commercial:chain?.commercial?.deriveTransactionState()??null,
+        pendingReason:chain?.commercialError||(!event('offered')?'SELLER_OFFER_AND_TERMS_REQUIRED':null),
         receipt: receipt(),
         history: history.length
       };
@@ -288,17 +264,19 @@
           + '. Return to the Bench to revise the definition. Acceptance, payment, the yard and pickup remain blocked. Physical admission remains blocked.</p>';
         if (s === 'REFUSED_BY_STORE') return '<p class="stb-terms-refused" data-terms-refused>The Store did not support this version (' + esc(chain.status) + '). The refusal is the result. Change the definition to ask again.</p>';
         if (s === 'DECLINED') return '<p class="stb-terms-declined">You declined the simulated offer for this answer. Change the definition to ask again.</p>';
-        if (s !== 'ANSWERED') return '<p class="stb-terms-done">Simulated offer accepted and sent to the Store · ' + esc(chain.orderId) + '.</p>';
-        return '<div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="accept">ACCEPT SIMULATED OFFER &amp; SEND TO STORE · ' + esc(money(chain.total)) + ' →</button>'
+        if (s === 'SELLER_PENDING') return '<p class="stb-terms-wait">Your decision is recorded. Waiting for separate seller acceptance, payment evidence and a confirmed queue entry.</p>';
+        if(s==='ANSWERED'&&!canAccept())return '<p class="stb-terms-wait">The Store has answered this job. Waiting for a seller offer with identified terms and commercial policy. Q remains the Store manufacturing amount.</p>';
+        if (s !== 'ANSWERED') return '<p class="stb-terms-done">Seller order · ' + esc(chain.orderId) + '.</p>';
+        return '<div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="accept">RECORD ACCEPTANCE OF SIMULATED OFFER · ' + esc(money(chain.total)) + ' →</button>'
           + '<button type="button" class="stb-terms-ghost" data-terms-action="decline">DECLINE SIMULATED OFFER</button></div>';
       }
       if (step === 'yard') {
-        if (!['QUEUED','READY','HANDED_OFF'].includes(s)) return '<p class="stb-terms-wait">Nothing is in the yard yet. This opens after you accept the simulated offer and send this version to the Store.</p>';
-        if (s === 'QUEUED') return '<div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="yard">RUN THE YARD (SIMULATED): ALLOCATE → RELEASE → CUT → STAGE → READY →</button></div>';
+        if (!['QUEUED','READY','HANDED_OFF'].includes(s)) return '<p class="stb-terms-wait">Waiting for seller acceptance and a confirmed queue entry. A customer decision does not reserve stock or release production.</p>';
+        if (s === 'QUEUED') return '<p class="stb-terms-wait">Queue entry confirmed. Waiting for separate allocation, release, local admission, execution, inspection and staging evidence.</p>';
         return '<p class="stb-terms-done">Simulated yard run reached READY · ' + esc(chain.orderId) + '.</p>';
       }
       if (step === 'record') {
-        if (s === 'READY') return '<div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="pickup">RECORD PICKUP · ISSUE TERMS / HANDOFF RECEIPT →</button></div>';
+        if (s === 'READY') return '<p class="stb-terms-wait">Ready notice recorded. Waiting for identified recipient and custody evidence.</p>';
         if (s === 'HANDED_OFF') return renderReceipt();
         return '<p class="stb-terms-wait">Nothing to pick up yet. This opens once the simulated yard run is READY.</p>';
       }
@@ -333,7 +311,7 @@
       });
     }
 
-    const flow = Object.freeze({ setAnswer, invalidate, accept, decline, runYard, pickup, state, renderChain, renderControls, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
+    const flow = Object.freeze({ setAnswer, invalidate, recordCommercialEvent, accept, decline, runYard, pickup, state, renderChain, renderControls, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
     INSTANCES.set(projectId, flow);
     return flow;
   }
@@ -363,10 +341,6 @@
     d.head.append(style);
   }
 
-  function verify(state){
-    const events = state?.events || [];
-    for (let i = 3; i < events.length; i++) if (events[i].prevHash !== events[i-1].hash || !events[i].hash) return false;
-    return true;
-  }
+  async function verify(state){return !!root.STBCommercialSequence&&await root.STBCommercialSequence.verify(state?.commercial?.events||[]);}
   root.STBTermsFlow = Object.freeze({ version: VERSION, events: EVENTS, create, installStyle, sha256, canonical, verify, instance: id => INSTANCES.get(id) || null });
 })(typeof window !== 'undefined' ? window : globalThis);

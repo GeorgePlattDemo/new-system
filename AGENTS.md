@@ -17,7 +17,7 @@ System defines a job. Store evaluates it. System does not price, and it does not
 
 ## Store pin
 
-`STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts` is the only Store commit this application asks. The accepted integration commit is `3afe00ac8672da0791ee8a7af05422d24f6785ab`. The same commit is in `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`; they move together. Change it only by recording the new commit and rerunning the joint test against a checkout whose `git rev-parse HEAD` is that commit. Do not label whichever process happens to be running. A caller-supplied pin does not select the release.
+`STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts` is the only Store commit this application asks. The accepted integration commit is `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. The same commit is in `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`; they move together. Change it only by recording the new commit and rerunning the joint test against a checkout whose `git rev-parse HEAD` is that commit. Do not label whichever process happens to be running. A caller-supplied pin does not select the release.
 
 ## Verification
 

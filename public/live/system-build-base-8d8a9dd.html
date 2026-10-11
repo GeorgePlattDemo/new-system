@@ -468,26 +468,22 @@ function renderAlcoveStoreBlocked(admission){
  if(typeof syncTransaction==='function')syncTransaction()
 }
 function alcoveStoreTime(answer){
- const evaluation=answer&&answer.rawEvaluation,packages=evaluation&&evaluation.packages;
- if(evaluation?.status!=='SUPPORTABLE'||answer.jobSupportability?.status!=='REQUIREMENTS_SATISFIED'||!Array.isArray(packages)||!packages.length)return null;
- const keys=['T_LOAD_SEAT_sec','T_REFERENCE_sec','T_INDEX_sec','T_SAW_sec','T_DRILL_SPOT_sec','T_MILL_sec','T_RELEASE_LABEL_sec','T_MACHINE_sec','T_MACHINE_min'];
- if(packages.some(pkg=>pkg.status!=='SUPPORTABLE'||!pkg.time||keys.some(key=>typeof pkg.time[key]!=='number'||!Number.isFinite(pkg.time[key])||pkg.time[key]<0)))return null;
- return Object.fromEntries(keys.map(key=>[key,packages.reduce((sum,pkg)=>sum+pkg.time[key],0)]));
+ const evaluation=answer&&answer.rawEvaluation,time=evaluation&&evaluation.time;
+ if(evaluation?.status!=='SUPPORTABLE'||answer.jobSupportability?.status!=='REQUIREMENTS_SATISFIED'||!time||!time.categories)return null;
+ if(![time.totalSeconds,time.totalMinutes,...Object.values(time.categories)].every(value=>typeof value==='number'&&Number.isFinite(value)&&value>=0))return null;
+ return {T_MACHINE_sec:time.totalSeconds,T_MACHINE_min:time.totalMinutes,categories:time.categories};
 }
 function renderAlcoveCycleRun(answer){
  const el=document.getElementById('p-cycle-run');if(!el)return;
  if(!answer){el.innerHTML='<p class="cyclehd">MODELED CELL TIME · THIS DEFINITION</p><p class="cycleline">asking Store Zero…</p>';return}
  const t=alcoveStoreTime(answer);
- if(!t||!Number.isFinite(Number(t.T_MACHINE_sec))){el.innerHTML='<p class="cyclehd">MODELED CELL TIME · THIS DEFINITION</p><p class="cycleline">UNRESOLVED · Store Zero returned no complete cycle for this definition</p>';return}
- const m=v=>(Number(v||0)/60).toFixed(2)+' min';
- const handling=Number(t.T_LOAD_SEAT_sec||0)+Number(t.T_REFERENCE_sec||0)+Number(t.T_INDEX_sec||0)+Number(t.T_RELEASE_LABEL_sec||0);
- el.innerHTML='<p class="cyclehd">MODELED CELL TIME · THIS DEFINITION</p>'+
-  '<div class="cyclegrid"><div><span>Cutting</span><b>'+m(t.T_SAW_sec)+'</b></div><div><span>Milling</span><b>'+m(t.T_MILL_sec)+'</b></div><div><span>Spot drilling</span><b>'+m(t.T_DRILL_SPOT_sec)+'</b></div><div><span>Load · reference · index · label</span><b>'+m(handling)+'</b></div><div class="cycletotal"><span>Total modeled cell time</span><b>'+Number(t.T_MACHINE_min).toFixed(2)+' min</b></div></div>'+
-  '<p class="cycleline">Sum of the package timings returned by Store Zero for this exact definition · recomputed on every change · modeled, not measured</p>';
+ if(!t){el.innerHTML='<p class="cyclehd">MODELED CELL TIME · THIS DEFINITION</p><p class="cycleline">UNRESOLVED · Store Zero returned no complete cycle for this definition</p>';return}
+ const labels={LOAD:'Load and seat',REFERENCE:'Reference',INDEX:'Indexing',SAW:'Saw cutting',SPOT:'Spot drilling',MILL:'Milling',RELEASE:'Release',LABEL:'Labeling'};
+ el.innerHTML='<p class="cyclehd">MODELED CELL TIME · THIS DEFINITION</p><div class="cyclegrid">'+Object.entries(t.categories).map(([key,seconds])=>'<div><span>'+(labels[key]||key)+'</span><b>'+(seconds/60).toFixed(2)+' min</b></div>').join('')+'<div class="cycletotal"><span>Total modeled cell time</span><b>'+t.T_MACHINE_min.toFixed(2)+' min</b></div></div><p class="cycleline">Store Zero operation-ledger time for this exact definition · recomputed on every change · modeled, not measured</p>';
 }
 function renderAlcoveStoreAnswer(answer){
  alcoveStoreAnswer=answer;window.STBAlcoveStoreAnswer=Object.freeze(JSON.parse(JSON.stringify(answer)));renderAlcoveCycleRun(answer);
- const evaln=answer.rawEvaluation||{},estimate=answer.rawEstimate||evaln.estimate||{},totals=estimate.totals||{},lines=Array.isArray(evaln.lines)?evaln.lines:[],status=evaln.status||answer.priceCompleteness?.status||'UNRESOLVED',q=totals.Q!==null&&totals.Q!==undefined&&totals.Q!==''&&Number.isFinite(Number(totals.Q))?Number(totals.Q):null,skus=lines.map(line=>line.storeSku).filter(Boolean),priceLines=lines.map(line=>line.price&&line.price.sellingPrice!==null&&line.price.sellingPrice!==undefined&&Number.isFinite(Number(line.price.sellingPrice))?line.role+' '+money(Number(line.price.sellingPrice)):null).filter(Boolean),stockLines=lines.map(line=>{const s=line.stock||{};return line.role+' '+(s.status||'UNRESOLVED')+(s.available!==null&&s.available!==undefined&&Number.isFinite(Number(s.available))?' '+s.available+'/'+line.qty:'')}),reasonRecords=Array.isArray(answer.priceCompleteness?.reasonRecords)?answer.priceCompleteness.reasonRecords:(Array.isArray(evaln.reasonRecords)?evaln.reasonRecords:[]),reasonText=reasonRecords.map(reason=>(reason.category?reason.category+': ':'')+(reason.explanation||reason.code||'Store condition')).join(' · ');
+ const evaln=answer.rawEvaluation||{},estimate=answer.rawEstimate||evaln.estimate||{},totals=estimate.totals||{},lines=Array.isArray(evaln.selectedStock)?evaln.selectedStock:[],status=evaln.status||answer.priceCompleteness?.status||'UNRESOLVED',q=totals.Q!==null&&totals.Q!==undefined&&totals.Q!==''&&Number.isFinite(Number(totals.Q))?Number(totals.Q):null,skus=lines.map(line=>line.storeSku).filter(Boolean),priceLines=lines.map(line=>Number.isFinite(line.unitPrice)?line.storeSku+' '+money(line.unitPrice):null).filter(Boolean),stockLines=lines.map(line=>{return line.storeSku+' · '+line.qty+' selected / '+line.available+' available'}),reasonRecords=Array.isArray(answer.priceCompleteness?.reasonRecords)?answer.priceCompleteness.reasonRecords:(Array.isArray(evaln.reasonRecords)?evaln.reasonRecords:[]),reasonText=reasonRecords.map(reason=>(reason.category?reason.category+': ':'')+(reason.explanation||reason.code||'Store condition')).join(' · ');
  document.getElementById('p-price').textContent=Number.isFinite(q)?money(q):status;
  document.getElementById('p-basis').textContent=Number.isFinite(q)?'Store Zero budgetary estimate · material '+storeMoney(totals.material)+' + machine service '+storeMoney(totals.machine_service)+' + hardware '+storeMoney(totals.hardware):'Store Zero '+status+' · '+(reasonText||[...(answer.priceCompleteness?.unresolvedConditions||[]),...(answer.priceCompleteness?.refusalConditions||[]),...(evaln.refusalConditions||[])].join(' · ')||answer.priceCompleteness?.note||'complete Q not returned');
  document.getElementById('o-sku').textContent=skus.length?skus.map(s=>s.replace('STB-ZERO-','')).join(' · '):'UNRESOLVED';

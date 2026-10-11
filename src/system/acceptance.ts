@@ -1,3 +1,5 @@
+import {calculationHash} from "./hash.ts";
+import {definitionManifest} from "./manifest.ts";
 import { PACKET_SCHEMA } from "./store-candidate.ts";
 import { createId } from "./ids.ts";
 import { validUtcTimestamp } from "./store/interpret.ts";
@@ -23,6 +25,7 @@ export type AcceptedPacket = {
     revisionId: string;
     requestType: string;
     demand: Record<string, unknown>;
+    manifest:Record<string,unknown>;
     requirements: { endRelation: string; lengthDatum: string; endIdentity?: string };
   };
   storeAnswer: Record<string, unknown>;
@@ -61,8 +64,9 @@ export function acceptOffer(args: {
 }): { ok: true; decision: Decision; packet: AcceptedPacket; duplicate: boolean } | { ok: false; code: string } {
   if (args.answer.status !== "SUPPORTABLE" || args.answer.freshEvaluation !== true) return { ok: false, code: "ACCEPT_REQUIRES_FRESH_SUPPORTABLE" };
   if (args.answer.requestType === "OFFERING_LOOKUP") return { ok: false, code: "DISCOVERY_IS_NOT_AN_OFFER" };
-  const receipt = args.answer.evaluationReceipt as { receiptHash?: string; requestId?: string; evaluatedAt?: string; status?: string } | undefined;
+  const receipt = args.answer.evaluationReceipt as { receiptHash?: string; requestId?: string; evaluatedAt?: string; status?: string; demandHash?:string; manifestHash?:string } | undefined;
   if (!receipt?.receiptHash || receipt.requestId !== args.answer.requestId || receipt.status !== "SUPPORTABLE") return { ok: false, code: "ACCEPT_REQUIRES_RECEIPT" };
+  if(receipt.demandHash!==calculationHash(args.demand) || receipt.manifestHash!==calculationHash(definitionManifest(args.requestType,args.demand)))return {ok:false,code:"ACCEPT_DEFINITION_BINDING_MISMATCH"};
   const decidedAt = args.now ?? new Date().toISOString();
   if (!validUtcTimestamp(receipt.evaluatedAt) || !validUtcTimestamp(decidedAt)) return { ok: false, code: "ACCEPT_TIME_INVALID" };
   if (Date.parse(decidedAt) < Date.parse(receipt.evaluatedAt)) return { ok: false, code: "ACCEPT_BEFORE_ANSWER" };
@@ -83,6 +87,7 @@ export function acceptOffer(args: {
           revisionId: args.revisionId,
           requestType: args.requestType,
           demand: args.demand,
+          manifest:definitionManifest(args.requestType,args.demand),
           requirements: wireRequirements(args.requirements),
         },
         storeAnswer: args.answer,
@@ -116,6 +121,7 @@ export function acceptOffer(args: {
       revisionId: args.revisionId,
       requestType: args.requestType,
       demand: args.demand,
+          manifest:definitionManifest(args.requestType,args.demand),
       requirements: wireRequirements(args.requirements),
     },
     storeAnswer: args.answer,
