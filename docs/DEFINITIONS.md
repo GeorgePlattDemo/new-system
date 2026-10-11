@@ -30,6 +30,8 @@ Do not add a word just to make the page longer. Add one when two trades would ot
 
 **Outdoor option preview** — Each alternative wood is evaluated as a separate complete manufacturing job. Each hardware alternative is evaluated with the currently selected wood. Displayed option amounts come only from the corresponding fresh Store answer. Alternatives never share stock allocation or part identities in one inquiry, and their preview answers never enter the commercial terms flow. The selected definition receives its own independent evaluation before proceeding.
 
+Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquiry at a time, with a selected job ahead of queued previews. A transport failure releases the queue for the next inquiry; it supplies no substitute price.
+
 **Published release assets** — The manufacturing-core migration changes the versioned URLs for its live pages and scripts together. Returning browsers must load the current timing reader and commercial sequence; cached readers from a previous release do not describe the current Store response.
 
 **Your call** — Reviewing the current Store answer for this revision and receipt. A fully evaluated supportable answer permits simulated acceptance, once per revision and receipt. Alcove may also show a complete scoped budgetary estimate with every unevaluated requirement disclosed; that review cannot create an offer, acceptance, payment, yard entry, production or pickup. An older acceptance stays in the file and does not become the state of a later refusal.

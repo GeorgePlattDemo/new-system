@@ -572,6 +572,25 @@ test("Outdoor option alternatives get independent Store receipts even when one w
   assert.ok(answers.get("tier:COATED")?.rawEvaluation.items[0].Q>0);
 });
 
+test("Outdoor inquiry queue runs one job at a time and gives selected work priority after a preview failure", async () => {
+  const window: Record<string, any> = {};
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window});
+  const {enqueue} = window.STBOutdoorOptionRequests;
+  const order: string[] = [];
+  let release!: () => void;
+  const gate = new Promise<void>(resolve=>{release=resolve});
+  const first = enqueue(async()=>{order.push("first preview");await gate;throw new Error("transport failed")},{preview:true});
+  const failed = assert.rejects(first,/transport failed/);
+  const preview = enqueue(async()=>{order.push("next preview");return "preview"},{preview:true});
+  const selected = enqueue(async()=>{order.push("selected job");return "selected"});
+  assert.deepEqual(order,["first preview"]);
+  release();
+  await failed;
+  assert.equal(await selected,"selected");
+  assert.equal(await preview,"preview");
+  assert.deepEqual(order,["first preview","selected job","next preview"]);
+});
+
 test("a missing angle, spot, or item line is not sent as a smaller job", async () => {
   const origin = await storeOrigin();
   const missingAngle = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", "no-angle", {

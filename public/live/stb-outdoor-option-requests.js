@@ -17,5 +17,20 @@
       ...tiers.map(key=>make('tier',key,selected,items.filter(p=>String(p.lineId).startsWith(key+'|'))))
     ];
   }
-  root.STBOutdoorOptionRequests={split};
+  const queues=[[],[]];let active=false;
+  async function drain(){
+    if(active)return;
+    active=true;
+    while(queues[0].length||queues[1].length){
+      const job=queues[0].shift()||queues[1].shift();
+      try{job.resolve(await job.run())}catch(error){job.reject(error)}
+    }
+    active=false;
+  }
+  function enqueue(run,{preview=false}={}){
+    return new Promise((resolve,reject)=>{
+      queues[preview?1:0].push({run,resolve,reject});drain();
+    });
+  }
+  root.STBOutdoorOptionRequests={split,enqueue};
 })(typeof window==='undefined'?globalThis:window);
