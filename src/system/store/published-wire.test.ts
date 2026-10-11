@@ -311,9 +311,9 @@ function publishedTerms(projectId: string) {
 test("Alcove's published gate opens Your call for a fully evaluated current Store answer", async () => {
   const definition = {
     configurationId: "ALCOVE-USER1", configurationVersion: "alcove-call",
-    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
     boardRequirements: [{ requirementId: "SHELVES", requiredOps: ["CROSSCUT"] }],
-    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] }],
+    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", nominalW: 6, finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] }],
   };
   const answered = await answerPublishedWire(wireFor("alcove", "ALCOVE_INSERT_V1", "alcove-call", { definition }), await storeOrigin());
   const body = answered.body as Record<string, any>;
@@ -334,9 +334,9 @@ test("Alcove's published gate opens Your call for a fully evaluated current Stor
 test("Alcove's scoped estimate opens only budgetary review, discloses the unevaluated installation requirement, and cannot create downstream events", async () => {
   const definition = {
     configurationId: "ALCOVE-USER1", configurationVersion: "alcove-review",
-    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
     boardRequirements: [{ requirementId: "SHELVES", requiredOps: ["CROSSCUT"] }],
-    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", finishedLengthIn: 30, finishedWidthIn: 5.5,
+    componentPrograms: [{ componentId: "SHELF-01", requirementId: "SHELVES", nominalW: 6, finishedLengthIn: 30, finishedWidthIn: 5.5,
       features: [] }],
     unresolvedConditions: ["INSTALLATION_LOAD_RATING_REQUIRED"],
   };
@@ -375,10 +375,14 @@ test("Alcove's scoped estimate opens only budgetary review, discloses the uneval
 });
 
 test("Alcove's actual definition with pilot spots switched off and full-width strips is fully evaluated", async () => {
-  const componentPrograms = publishedFunction("system-build-base-8d8a9dd.html", "alcoveComponentPrograms");
-  const signature = publishedFunction("system-build-base-8d8a9dd.html", "alcoveDefinitionSignature");
+  const offers=[6,8,10].map(w=>({offered:true,species:"pine",form:"board",grade:"select",nominalT:1,nominalW:w,actualW:w===6?5.5:w===8?7.25:9.25}));
+  const stock={species:"pine",status:"READY",offers,pin:"test-fixture"};
+  const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
+  const specs=publishedFunction("system-build-base-8d8a9dd.html","alcoveBoardSpecifications",{alcoveStock:stock,alcoveFinish:finish});
+  const componentPrograms=publishedFunction("system-build-base-8d8a9dd.html","alcoveComponentPrograms");
+  const signature=publishedFunction("system-build-base-8d8a9dd.html","alcoveDefinitionSignature",{alcoveBoardSpecifications:specs,alcoveFinish:finish});
   const revision = publishedFunction("system-build-base-8d8a9dd.html", "alcoveRevision", {
-    alcove: { pilotShelves: false }, alcoveComponentPrograms: componentPrograms,
+    alcove: { pilotShelves: false },alcoveBoardSpecifications:specs,alcoveComponentPrograms:componentPrograms,
     alcoveDefinitionSignature: signature, ALCOVE_PROJECT_ID: "alcove",
   })({ h: 72, w: 45.5, d: 11, n: 5, span: 44, material: "pine", pilotFeatures: [] });
   const definitionFrom = publishedFunction("system-build-base-8d8a9dd.html", "alcoveDefinitionFrom", {
@@ -519,10 +523,10 @@ test("the four published jobs reach the pinned Store and a changed input changes
       { requirementId: "ALCOVE-UPRIGHT-PARENTS", requiredOps: ["CROSSCUT"] },
       { requirementId: "ALCOVE-SHELF-PARENTS", requiredOps: ["CROSSCUT"] },
     ],
-    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
     componentPrograms: [
-      { componentId: "ALCOVE-UPRIGHT-01", requirementId: "ALCOVE-UPRIGHT-PARENTS", finishedLengthIn: 36, finishedWidthIn: 5.5, features: [{ featureId: "SPOT-1", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "CENTERED_ON_WIDE_FACE", insetFromEdgeIn: 0.75 }] },
-      { componentId: "ALCOVE-SHELF-01-STRIP-01", requirementId: "ALCOVE-SHELF-PARENTS", finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] },
+      { componentId: "ALCOVE-UPRIGHT-01", requirementId: "ALCOVE-UPRIGHT-PARENTS", nominalW: 6, finishedLengthIn: 36, finishedWidthIn: 5.5, features: [{ featureId: "SPOT-1", kind: "SPOT_ON_LOCATION", xIn: 12, acrossWidthRule: "CENTERED_ON_WIDE_FACE", insetFromEdgeIn: 0.75 }] },
+      { componentId: "ALCOVE-SHELF-01-STRIP-01", requirementId: "ALCOVE-SHELF-PARENTS", nominalW: 6, finishedLengthIn: 30, finishedWidthIn: 5.5, features: [] },
     ],
     hardwareDemand: { requirementId: "ALCOVE-PINS-AND-SCREWS", qty: 1 },
   };
@@ -738,10 +742,11 @@ test("an unsupported Alcove profile reaches Store as literal geometry and is ref
     configurationId: "ALCOVE-USER1",
     configurationVersion: "alcove-mill",
     boardRequirements: [{ requirementId: "ALCOVE-SHELF-PARENTS", requiredOps: ["CROSSCUT"] }],
-    materialDemand: { species: "poplar", form: "board", nominalT: 1, nominalW: 6, grade: "select" },
+    materialDemand: { species: "poplar", form: "board", nominalT: 1, grade: "select" },
     componentPrograms: [{
       componentId: "ALCOVE-SHELF-01",
       requirementId: "ALCOVE-SHELF-PARENTS",
+      nominalW: 6,
       finishedLengthIn: 30,
       finishedWidthIn: 5.5,
       features: [{ featureId: "MILL-1", kind: "MILL_LONGITUDINAL_PROFILE", yIn: 5.5, pathLengthIn: 30, totalDepthIn: 0.25 }],
@@ -835,9 +840,13 @@ test("the published default Alcove, including through profiles and shelf-elevati
   const alcove = { material: "pine", pilotShelves: true, spotInsetIn: 1.5, H: [12, 24, 36, 45, 65, 68, 70] };
   const inputs: Record<string, {value: string}> = { "c-h": {value:"72"}, "c-w": {value:"45.5"}, "c-d": {value:"14"}, "c-n": {value:"5"} };
   const snapshot = publishedFunction(file, "currentAlcoveSnapshot", { alcove, document: {getElementById:(id: string)=>inputs[id]} })();
-  const components = publishedFunction(file, "alcoveComponentPrograms");
-  const revision = publishedFunction(file, "alcoveRevision", {alcove, alcoveComponentPrograms:components,
-    alcoveDefinitionSignature:publishedFunction(file,"alcoveDefinitionSignature"), ALCOVE_PROJECT_ID:"alcove"})(snapshot);
+  const offers=[6,8,10].map(w=>({offered:true,species:"pine",form:"board",grade:"select",nominalT:1,nominalW:w,actualW:w===6?5.5:w===8?7.25:9.25}));
+  const stock={species:"pine",status:"READY",offers,pin:"test-fixture"};
+  const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
+  const specs=publishedFunction(file,"alcoveBoardSpecifications",{alcoveStock:stock,alcoveFinish:finish});
+  const components=publishedFunction(file,"alcoveComponentPrograms");
+  const revision = publishedFunction(file, "alcoveRevision", {alcove, alcoveBoardSpecifications:specs, alcoveComponentPrograms:components,
+    alcoveDefinitionSignature:publishedFunction(file,"alcoveDefinitionSignature",{alcoveBoardSpecifications:specs,alcoveFinish:finish}), ALCOVE_PROJECT_ID:"alcove"})(snapshot);
   const definition = publishedFunction(file,"alcoveDefinitionFrom", {ALCOVE_HARDWARE_DEMAND:{requirementId:"ALCOVE-PINS-AND-SCREWS",qty:1}})({
     definitionRevisionId:revision.definitionRevisionId,
     facts:Object.fromEntries(Object.entries(revision.facts).map(([key,fact])=>[key,(fact as {value:unknown}).value])), openDemands:["alcove.hardware"]});
@@ -850,7 +859,7 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(valid.rawEvaluation.packages.reduce((n: number,p: any)=>n+p.spotCount,0),20);
   const profiles=valid.rawEvaluation.packages.flatMap((p:any)=>p.requirementAnswers||[]);
   assert.equal(profiles.length,5);
-  assert.ok(profiles.every((f:any)=>f.status==="SUPPORTABLE"&&f.pathLengthIn===44&&f.yIn===3&&f.totalDepthIn===.75));
+  assert.ok(profiles.every((f:any)=>f.status==="SUPPORTABLE"&&f.pathLengthIn===44&&f.yIn===6.75&&f.totalDepthIn===.75));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(valid),true);
   const storeTime=publishedFunction(file,"alcoveStoreTime");
   const displayedTime=storeTime(valid);
@@ -874,8 +883,8 @@ test("the published default Alcove, including through profiles and shelf-elevati
   wrongTool.componentPrograms.forEach((p:any)=>p.features.filter((f:any)=>f.kind==="SPOT_ON_LOCATION").forEach((f:any)=>f.toolDiameterIn=.5));
   const refused=await ask(wrongTool,"alcove-explicit-wrong-tool");
   assert.equal(refused.rawEstimate.complete,false);
-  assert.equal(refused.rawEvaluation.packages.find((p:any)=>p.packageId==="ALCOVE-UPRIGHT-PARENTS").status,"REFUSED");
-  assert.ok(refused.rawEvaluation.packages.find((p:any)=>p.packageId==="ALCOVE-UPRIGHT-PARENTS").reasonCodes.includes("SPOT_TOOL_DIAMETER_NOT_DECLARED"));
+  assert.equal(refused.rawEvaluation.packages.find((p:any)=>p.packageId.startsWith("ALCOVE-UPRIGHT-PARENTS-")).status,"REFUSED");
+  assert.ok(refused.rawEvaluation.packages.find((p:any)=>p.packageId.startsWith("ALCOVE-UPRIGHT-PARENTS-")).reasonCodes.includes("SPOT_TOOL_DIAMETER_NOT_DECLARED"));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(refused),false);
   assert.equal(storeTime(refused),null);
   const incomplete=JSON.parse(JSON.stringify(definition));delete incomplete.componentPrograms[0].features[0].xIn;
