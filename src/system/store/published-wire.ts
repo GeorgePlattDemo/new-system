@@ -273,8 +273,9 @@ function presentedEstimate(answer: Json): Json {
   const complete = answer.status === "SUPPORTABLE";
   return {
     complete,
+    status: answer.status ?? null,
     travel: { time: {T_MACHINE_sec:asObject(answer.time)?.totalSeconds??null,T_MACHINE_min:asObject(answer.time)?.totalMinutes??null,T_MACHINE_hr: typeof asObject(answer.time)?.totalSeconds === "number" ? Number(asObject(answer.time)?.totalSeconds)/3600 : null}, parts:Array.isArray(answer.components)?answer.components.map(p=>({...asObject(p),lengthIn:asObject(p)?.nominalFinishedLengthIn})):[], operationPlan:answer.operations??[], derivedSawCuts:Array.isArray(answer.operations)?answer.operations.filter(o=>asObject(o)?.kind==="SAW_ON").length:null, derivedSpotCount:Array.isArray(answer.operations)?answer.operations.filter(o=>asObject(o)?.kind==="FEATURE_ANSWERED"&&asObject(o)?.category==="SPOT").length:null, finalRemainderIn:asObject(Array.isArray(answer.parents)?answer.parents[0]:null)?.remainingLengthIn??null },
-    cycle: {T_job_min:asObject(answer.time)?.totalMinutes??null,model:asObject(answer.model)?.id??null,version:"0.1"},
+    cycle: {T_job_min:asObject(answer.time)?.totalMinutes??null,model:asObject(answer.model)?.id??null,version:asObject(answer.model)?.version??null},
     engine:answer.model??null,
     economics: {sellRatePerHour:totals.hourlyRate??null},
     totals: {

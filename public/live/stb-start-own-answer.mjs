@@ -240,7 +240,7 @@ function readAnswer(answer, { requestedMinimumIn, parts, confirmedRequestId }) {
     machineService: Number(totals.machine_service),
     q: Number(totals.Q),
     qBasis: text(totals.Q_basis),
-    engine: estimate.engine?.id ? `${estimate.engine.id} · v${estimate.engine.version}` : null,
+    engine: estimate.engine?.id ? `${estimate.engine.id}${text(estimate.engine.version) ? ` · v${estimate.engine.version}` : ""}` : null,
     economicsId: text(estimate.economics?.id),
     documentKind: text(estimate.engine?.documentKind),
     status: text(estimate.status),
@@ -249,7 +249,7 @@ function readAnswer(answer, { requestedMinimumIn, parts, confirmedRequestId }) {
   /** @type {Work} */
   const work = {
     modeledMinutes: numberOrNull(estimate.cycle?.T_job_min),
-    cycleModel: estimate.cycle?.model ? `${estimate.cycle.model} · v${estimate.cycle.version}` : null,
+    cycleModel: estimate.cycle?.model ? `${estimate.cycle.model}${text(estimate.cycle.version) ? ` · v${estimate.cycle.version}` : ""}` : null,
     derivedSawCuts: numberOrNull(estimate.travel?.derivedSawCuts),
     derivedSpotCount: numberOrNull(estimate.travel?.derivedSpotCount),
     finalRemainderIn: numberOrNull(estimate.travel?.finalRemainderIn),

@@ -171,6 +171,9 @@ test("16 in SPF: the Store's 60 in board, its own Q, and the definition's 8 in s
   assert.equal(view.economics?.material, 2.61);
   assert.equal(view.economics?.machineService, 6.01);
   assert.equal(view.economics?.q, 8.62);
+  assert.equal(view.economics?.status, "SUPPORTABLE");
+  assert.equal(view.economics?.engine, answer?.rawEvaluation.model.id);
+  assert.equal(view.work?.cycleModel, answer?.rawEvaluation.model.id);
   assert.equal(view.work?.finalRemainderIn, 27.625);
   assert.equal(view.swap.visible, false);
   assert.equal(view.identity?.definitionRevisionId, "SYO-USER1-XBRACE-0.1-v2");

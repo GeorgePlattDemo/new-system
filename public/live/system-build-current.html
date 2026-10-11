@@ -905,7 +905,7 @@ import('./shared/tile-host-admission-contract.mjs?v=5307b992').then(contract => 
                   : String(definition.capability?.basis || 'UNRESOLVED')+' · '+statusWords);
                 setText('stb-basis-store-pin', identity?.storePin || '—');
                 setText('stb-basis-economics', economics
-                  ? String(economics.status || 'UNRESOLVED')+' · '+String(economics.completeness || 'UNRESOLVED')+' · '+String(economics.economicsId || 'economics not named')
+                  ? String(economics.status || 'UNRESOLVED')+' · '+String(economics.completeness || 'UNRESOLVED')+' · '+String(economics.economicsId || economics.qBasis || 'basis not stated')
                   : statusWords);
                 setText('stb-basis-pricing-engine', economics?.engine || 'UNRESOLVED');
                 setText('stb-basis-cycle-model', work?.cycleModel || 'UNRESOLVED');
