@@ -1174,7 +1174,8 @@ window.STBIntentKit.mountWoodLookup({
     S.selectedOffering={storeSku:r.storeSku,description:r.description,species:r.species,grade:r.grade,nominalT:r.nominalT,nominalW:r.nominalW};
     if(S.cfg){
       const wood=WOODS.find(w=>w.species===r.species&&w.grade===r.grade);
-      if(wood&&S.cfg.wood!==wood.key){S.cfg.wood=wood.key;changed()}else renderIntent();
+      if(wood)S.cfg.wood=wood.key;
+      changed(); // A new Store SKU reference always changes this job's identified revision.
     }else renderIntent();
   }
 });
