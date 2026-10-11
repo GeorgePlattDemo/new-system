@@ -60,7 +60,7 @@ function anchor(doc,p){
 }
 function mount(doc,p){
  const target=anchor(doc,p);
- if(!target||target.querySelector('[data-stb-as-project="'+p+'"]')||!doc.body)return;
+ if(!target||doc.querySelector('[data-stb-as-project="'+p+'"]')||!doc.body)return;
  if(!doc.getElementById('stb-as-style')){
   const style=doc.createElement('style');style.id='stb-as-style';style.textContent=css;(doc.head||doc.documentElement).appendChild(style);
  }
