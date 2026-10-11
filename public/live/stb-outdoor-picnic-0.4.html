@@ -1304,7 +1304,7 @@ function outdoorEvidence(){
 function renderOutdoorServices(){
   const choices=requestedServices(),pending=choices.length>0,st=TERMS.state();
   const locked=['QUEUED','READY','HANDED_OFF','DECLINED'].includes(st.stage);
-  $('[data-outdoor-service]').forEach(btn=>{
+  document.querySelectorAll('[data-outdoor-service]').forEach(btn=>{
     const id=btn.dataset.outdoorService;
     btn.disabled=locked;btn.setAttribute('aria-pressed',String(id==='sanding'?S.serviceChoice.sanding:S.serviceChoice.handoff===id));
   });
