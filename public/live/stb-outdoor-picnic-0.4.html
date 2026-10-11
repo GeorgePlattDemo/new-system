@@ -1080,7 +1080,7 @@ function answerHtml(){
   const head='<h3>Store Zero answers'+(a.stale?' · this table has changed':'')+'</h3>';
   const ids='<p class="ids">SENT '+esc(String(a.body.payloadDigest||'—').slice(0,12))+'… · ARRIVED '+esc(String(a.receipt?.receiptHash||'—').slice(0,12))+'… · ANSWERED '+esc(String((v.ev.calculationIdentity||a.body.calculationIdentity||{}).resultHash||'—').slice(0,12))+'… · Store '+esc(String(a.storePin||'—').slice(0,7))+'</p>';
   if(v.estimate!=null)return head+'<div class="total" style="'+(a.stale?'opacity:.5':'')+'">'+money(v.estimate)+'</div>'
-    +'<p class="meta">Wood '+money(v.t.material)+' + machine work '+money(v.t.machine_service)+(v.t.items?' + hardware '+money(v.t.items):'')+' · '+Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+(v.stubs?' · '+v.stubs+' stubs returned with your parts':'')+'</p>'
+    +'<p class="meta">Wood '+money(v.t.material)+' + machine work '+money(v.t.machine_service)+(v.t.hardware?' + hardware '+money(v.t.hardware):'')+' · '+Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+(v.stubs?' · '+v.stubs+' stubs returned with your parts':'')+'</p>'
     +'<p class="meta">Complete budgetary estimate for revision '+a.rev+'. A Store budgetary answer, not a quote.</p>'+ids;
   return head+'<div class="total none">No complete budgetary estimate</div><p class="status bad">Store Zero can’t do every line for this table:</p><ul class="refusals">'
     +v.bad.map(l=>'<li>'+esc(groupLabel(l.packageId||l.lineId,S.cfg.plan))+': '+esc((lineCodes(l).length?lineCodes(l):[l.status]).map(reasonText).join('; '))+'</li>').join('')+'</ul>'+ids;

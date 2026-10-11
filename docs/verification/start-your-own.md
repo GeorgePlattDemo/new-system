@@ -2,7 +2,7 @@
 
 This note is not part of the job. The five project screens do not link here.
 
-Current as of 2026-10-10, against Store release `2c028da3e574734a7bc70b1f19399834c9b1656e`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
+Current as of 2026-10-11, against Store release `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
 
 ## What supplies a current answer
 
@@ -11,7 +11,7 @@ Current as of 2026-10-10, against Store release `2c028da3e574734a7bc70b1f1939983
 | Published screens, drawings, developer notes, build-guide rails | Presentation | No |
 | Intent and the Bench on each screen | Job definition | Defines the job. Does not price it. |
 | Tile-host admission | Decides whether this revision may be asked | No price |
-| Store client and `stb-store-runtime.json` | Same-origin `POST /api/store-zero/job` and offering lookup, pin `2c028da3e574734a7bc70b1f19399834c9b1656e` | Carries the answer. Does not invent one. |
+| Store client and `stb-store-runtime.json` | Same-origin `POST /api/store-zero/job` and offering lookup, pin `f7123a73c1ca60aa7eb180a86a1c365eaffe95db` | Carries the answer. Does not invent one. |
 | `src/system/store/published-wire.ts` | Puts the published definition in the Store's request shape and asks the pinned Store. Anything the definition states that it does not read travels to the Store as stated, and the Store's contract refuses an undeclared field by name. | Returns the Store's answer, then says whether that answer is the whole job. |
 | Terms flow | Simulated acceptance, yard and pickup | Accepts a quote only. No machine admission. |
 | Saved records | Reopen a definition | Not a current price, and not acceptance |
@@ -22,7 +22,7 @@ No copied Store answer or specimen travels with a page. Every price shown comes 
 
 | Job | Request the Store receives | Current Store answer |
 |---|---|---|
-| Start your own | `USER_DEFINED_BOARD_V1` | Fresh quote. End relation and length datum are sent and evaluated; a supplied end identity redundant with that datum is reconciled, not deleted. Machine blocked. |
+| Start your own | `USER_DEFINED_BOARD_V1` | Fresh budgetary answer. End relation and length datum are sent and evaluated; a supplied end identity redundant with that datum is reconciled, not deleted. Machine blocked. |
 | Critical fit (Alcove) | `CUT_PACKAGE_V1`, translated from the published insert | Fresh answer. Literal through profiles and explicit spot constraints are evaluated by Store. The published default reaches `REQUIREMENTS_SATISFIED`; unsupported profiles are refused. Unevaluated installation requirements permit scoped budgetary review only. |
 | Space utilization (Window Seat) | `CUT_PACKAGE_V1` | Fresh answer. An extra spot on a chosen part is sent as a spot on that part. Asks the Store has no line for stay on the screen as "kept, not sent". |
 | Outdoor build | `CUT_PACKAGE_V1` | Fresh answer for the committed table and for the option prices. |
@@ -32,11 +32,27 @@ A request type the adapter does not translate is refused as `LIVE_JOB_NOT_MIGRAT
 
 ## Coordinated operation and Intent integration
 
-The current Store pin is `2c028da3e574734a7bc70b1f19399834c9b1656e`. System's 327 tests pass against that exact Git checkout; Store's 332 tests and CI pass. The joint regression generates the published default Alcove definition, including five named through profiles and 20 shelf-elevation spots. Store evaluates all of them, returns a complete answer, and the full-supportability gate opens. The same definition with a different explicit spot diameter is refused; a missing spot location blocks submission. The unsupported-profile regression now asserts actual Store refusal and no complete estimate. Installation requirements outside that Store scope still block simulated acceptance.
+The current Store pin is `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. All 332 System tests pass against that exact Git checkout, including the joint HTTP regression. The TypeScript check and Railway Node production build pass. The Store's shared manufacturing core supplies the current operation-ledger time and Q. Required facts, unsupported operations and unavailable material remain explicit; an incomplete answer cannot become a complete price or physical release.
 
-Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Material selection and adding tools happen on Intent. Existing imagery, plan sources, measurements and controls are retained. Outdoor selects its plan on Idea and has a distinct Store Answers page. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
+Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Intent declares the wood and tools; the Bench changes their values. Existing imagery, plan sources, measurements and controls are retained. Outdoor opens with an explicit Classic A-frame demo definition: 72 in, treated wood and coated hardware. Either published plan can be selected on Intent. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
 
 Alcove's cycle display sums the timings in the current Store's complete, supportable cut-package answer. It does not read the retired single-machine answer shape or estimate missing timings. A partial or refused job has no complete displayed cycle. Outdoor's length adjustments and Store-answer button are on the Bench; Intent retains the wood, hardware and tool choices and the unchanged-plan inquiry. Job 1's returned-remainder boundary follows the declared cut angle, so the retained-control outline does not cross the cut. The diagram still uses only the current Store's selected board and returned remainder.
+
+## Automatic Bench pricing verified on 2026-10-11
+
+Every Bench obtains its current Store budgetary answer without a pricing prompt. Changes request a fresh answer automatically. Idea has a top NEXT → INTENT button; Intent's forward buttons say BRING IT TO THE BENCH →. Window Seat shows its Store price beside its wood and dimensional controls. Outdoor submits the selected job before queued option previews and requires no second plan selection or Ask Store button.
+
+Through the deployed five-job shell and its actual pinned Store connection:
+
+| Project | Starting Store Q | Automatic change verified |
+| --- | --- | --- |
+| Start your own | $8.62 · 16 in SPF brace | 18 in → $9.13 |
+| Alcove | $379.11 | Four-edge finish → $499.24 |
+| Window Seat | $1,193.10 | Depth 14 to 13¾ in → $1,192.91 |
+| Outdoor | $293.16 · Classic A-frame, 72 in, treated, coated | Length 73 in → $293.26 |
+| Playhouse | $76.56 | Opening width 35 in → $76.43 |
+
+Window Seat's selected Poplar version received no complete budgetary estimate because Store could not fulfill every line. Returning to Pine obtained a fresh complete price. Playhouse's published read-only project still requires MAKE CHANGES to enable its controls; its opening price is already visible without that action. Missing facts in an edited or saved definition are not replaced with demo values. These are Store budgetary amounts; commercial acceptance and physical authority remain separate.
 
 ## History
 
