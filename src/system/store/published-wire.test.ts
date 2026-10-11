@@ -389,6 +389,41 @@ test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Id
   assert.match(current,/system-build-front-door-0\.5\.html\?v=alcove-onebyeight-direct-20261011/);
 });
 
+test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals instead of blocking admission", async () => {
+  const page="system-build-base-8d8a9dd.html";
+  const starting={depthIn:14,nominalW:8,requiredFullStripIn:7.25};
+  for(const [species,offered,expected] of [
+    ["cherry",[{nominalW:4,actualW:3.5},{nominalW:6,actualW:5.5}],"NO_MATCHING_BOARD_OFFERING"],
+    ["oak",[{nominalW:6,actualW:5.5},{nominalW:8,actualW:7.25}],"OP_NOT_ON_OFFERING:MILL_LONGITUDINAL_PROFILE"],
+  ] as const){
+    const stock={species,status:"READY",offers:offered.map(o=>({...o,species,offered:true,form:"board",nominalT:1,grade:"select"})),pin:release};
+    const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
+    const boardSpecs=publishedFunction(page,"alcoveBoardSpecifications",{
+      alcoveStock:stock,alcoveFinish:finish,ALCOVE_STARTING_1X8_REQUIREMENT:starting
+    });
+    const components=publishedFunction(page,"alcoveComponentPrograms");
+    const signature=publishedFunction(page,"alcoveDefinitionSignature",{alcoveBoardSpecifications:boardSpecs,alcoveFinish:finish});
+    const revisionFor=publishedFunction(page,"alcoveRevision",{
+      alcove:{pilotShelves:false},alcoveBoardSpecifications:boardSpecs,alcoveComponentPrograms:components,
+      alcoveDefinitionSignature:signature,ALCOVE_PROJECT_ID:"alcove"
+    });
+    const revision=revisionFor({h:72,w:45.5,d:14,n:5,span:44,material:species,pilotFeatures:[]});
+    assert.equal(revision.facts["alcove.component-programs"].value.length,14,`${species}: real component programs must exist`);
+    const admitted=tileHostContract.admit({revision,inquiryScope:"ALCOVE_INSERT_V1"});
+    assert.equal(admitted.admission.result,tileHostContract.ADMISSION_RESULT.ADMITTED,`${species}: Store must own material/capability refusal`);
+    const definitionFrom=publishedFunction(page,"alcoveDefinitionFrom",{
+      ALCOVE_HARDWARE_DEMAND:{requirementId:"ALCOVE-PINS-AND-SCREWS",description:"pins + screws",qty:1,selectionAuthority:"STORE_ZERO"}
+    });
+    const definition=definitionFrom(admitted.request);
+    assert.equal(definition.componentPrograms.length,14);
+    assert.ok(definition.componentPrograms.every((part:Record<string,any>)=>part.nominalW===8));
+    const result=(await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1",`alcove-${species}-material-check`,{definition}),await storeOrigin()));
+    assert.equal(result.httpStatus,200,`${species}: did not reach Store Zero`);
+    const packages=(result.body as Record<string,any>).rawEvaluation.packages as Record<string,any>[];
+    assert.ok(packages.some(pkg=>pkg.reasonCodes?.includes(expected)),`${species}: expected real Store refusal ${expected}`);
+  }
+});
+
 test("Alcove automatically proposes 1x8; selecting an offered 1x8 attaches its nominal class without pinning a SKU", () => {
   const page="system-build-base-8d8a9dd.html";
   const offers=[6,8,10].map(w=>({offered:true,form:"board",grade:"select",species:"pine",nominalT:1,
