@@ -374,6 +374,21 @@ test("Alcove's scoped estimate opens only budgetary review, discloses the uneval
   assert.equal(terms.state().callOpen, false);
 });
 
+test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Idea has a real next route", () => {
+  const source=readFileSync(new URL("../../../public/live/system-build-base-8d8a9dd.html",import.meta.url),"utf8");
+  const buttons=source.match(/<button[^>]*data-alcove-use-1x8/g)||[];
+  assert.equal(buttons.length,2,"Intent and Bench must each have a visible 1x8 selector");
+  assert.match(source,/async function selectAlcoveOneByEight\(\)/);
+  assert.match(source,/alcoveStock\.offers\.find\(r=>r\.offered===true/);
+  assert.match(source,/chooseAlcoveOfferedBoard\(matched\)/);
+  const idea=source.split('<section class="page" id="alcove-idea">')[1]?.split('<svg class="edge"')[0]||"";
+  assert.match(idea,/<button[^>]*data-go="alcove-capture"[^>]*>NEXT → INTENT<\/button>/);
+  const front=readFileSync(new URL("../../../public/live/system-build-front-door-0.5.html",import.meta.url),"utf8");
+  const current=readFileSync(new URL("../../../public/live/system-build-current.html",import.meta.url),"utf8");
+  assert.match(front,/system-build-base-8d8a9dd\.html\?v=alcove-onebyeight-direct-20261011/);
+  assert.match(current,/system-build-front-door-0\.5\.html\?v=alcove-onebyeight-direct-20261011/);
+});
+
 test("Alcove automatically proposes 1x8; selecting an offered 1x8 attaches its nominal class without pinning a SKU", () => {
   const page="system-build-base-8d8a9dd.html";
   const offers=[6,8,10].map(w=>({offered:true,form:"board",grade:"select",species:"pine",nominalT:1,
