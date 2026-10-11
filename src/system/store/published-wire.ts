@@ -397,6 +397,7 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
   const carriedNotAccepted: CarriedRequirement[] = [];
   const problems: CarriedRequirement[] = [];
   const material = asObject(definition.materialDemand) ?? {};
+  if (material.nominalW != null) problems.push({field:'materialDemand.nominalW',value:'blanket source width would override the finished components',reported:'KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD'});
   const programs = Array.isArray(definition.componentPrograms) ? definition.componentPrograms : [];
   const groups = new Map<string, Json>();
   for (const program of programs) {
@@ -410,17 +411,25 @@ export function cutDemandFromAlcoveInsert(definition: Json): Translation {
         problems.push({ field: `mill:${String(mill?.featureId ?? "")}`, value: "finished width does not equal the mill y", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
       }
     }
-    const key = `${String(row.requirementId ?? "PARTS")}|${mills.length && finished != null ? finished : "full"}`;
+    const nominalW = finite(row.nominalW);
+    if(nominalW == null || nominalW <= 0) problems.push({field:`component:${String(row.componentId ?? "")}.nominalW`,value:'source board class missing',reported:'KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD'});
+    const hasEdgePreparation=Object.hasOwn(row,'edgePreparation');
+    const edgePreparation=asObject(row.edgePreparation);
+    if(hasEdgePreparation && (!edgePreparation || !['farEdgeRemovalIn','fenceEdgeRemovalIn'].every(k=>finite(edgePreparation[k])!=null && Number(edgePreparation[k])>0) || Object.keys(edgePreparation).length!==2 || mills.length!==1)){
+      problems.push({field:`component:${String(row.componentId ?? "")}.edgePreparation`,value:'two edge surfaces must be explicitly defined and milled',reported:'KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD'});
+    }
+    const key = `${String(row.requirementId ?? "PARTS")}|${nominalW ?? "MISSING"}|${finished ?? "MISSING"}|${hasEdgePreparation?JSON.stringify(edgePreparation):""}`;
     const requirements = Array.isArray(definition.boardRequirements) ? definition.boardRequirements : [];
     const parent = requirements.find((item) => asObject(item)?.requirementId === row.requirementId);
     const ops = Array.isArray(asObject(parent)?.requiredOps) ? asObject(parent)?.requiredOps as unknown[] : [];
     const square = ops.includes("CROSSCUT");
     if (!square) problems.push({ field: `endCut:${String(row.requirementId ?? "")}`, value: "published operation does not state a square crosscut", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
     const existing = groups.get(key) ?? {
-      packageId: mills.length && finished != null ? `${String(row.requirementId ?? "PARTS")}-TO-${finished}` : String(row.requirementId ?? "PARTS"),
-      material: { ...material },
-      ...(square ? { endCut: { angleDeg: 0 } } : {}),
-      ...(mills.length && finished != null ? { finishedWidthIn: finished } : {}),
+      packageId: `${String(row.requirementId ?? "PARTS")}-${nominalW ?? "MISSING"}-TO-${finished ?? "MISSING"}${hasEdgePreparation?"-BOTH":""}`,
+      material: {...material,...(nominalW != null ? {nominalW} : {})},
+      ...(square ? {endCut:{angleDeg:0}} : {}),
+      ...(finished != null ? {finishedWidthIn:finished} : {}),
+      ...(hasEdgePreparation && edgePreparation ? {edgePreparation:{...edgePreparation}} : {}),
       parts: [] as Json[],
     };
     const partId = String(row.componentId ?? "");
