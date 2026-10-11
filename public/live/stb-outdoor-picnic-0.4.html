@@ -245,6 +245,35 @@ tr:last-child td{border-bottom:0}
   .outdoor-intent-extras .outdoor-lookup-label{min-width:100%}
   .outdoor-intent-extras #outdoor-sku-reference,.outdoor-intent-extras .outdoor-tool-status{margin-left:0}
 }
+
+/* Outdoor definition preview: mirrors the factual Alcove handoff, not its job facts or prices. */
+.idea-next-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:7px}
+.idea-next-heading h1{text-align:left;margin:4px 0;flex:1}
+.idea-next-heading .idea-next{font-size:17px;min-width:138px;padding:14px 23px;box-shadow:0 2px 0 var(--line)}
+.outdoor-definition{border:2px solid var(--brand);background:var(--card);border-radius:14px;padding:20px;margin:14px 0 10px}
+.outdoor-definition .def-head{font-size:13px;letter-spacing:.05em;text-transform:uppercase;font-weight:800;color:var(--brand);margin:0 0 12px}
+.outdoor-definition .def-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 22px}
+.outdoor-definition .def-row{display:flex;gap:9px;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding:5px 0;font-size:13px}
+.outdoor-definition .def-row span:first-child{color:var(--ink2)}
+.outdoor-definition .def-row b{text-align:right;overflow-wrap:anywhere}
+.outdoor-definition .def-sec{border-top:1px solid var(--line);padding-top:14px;margin-top:16px}
+.outdoor-definition .def-sec h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);margin:0 0 9px}
+.outdoor-definition .def-price{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:9px;padding:12px 14px;border-radius:10px;background:var(--brand-soft)}
+.outdoor-definition .def-price strong{font-size:clamp(26px,3.5vw,38px);white-space:nowrap}
+.outdoor-definition .def-muted{font-size:12px;color:var(--ink2);margin:6px 0}
+.outdoor-definition .def-warning{border-left:3px solid var(--warn);background:var(--bg);padding:10px 12px;margin:10px 0 0}
+.outdoor-definition .def-warning.bad{border-color:var(--bad)}
+.outdoor-definition .def-warning p{margin:3px 0;font-size:12.5px}
+.outdoor-definition .def-actions{display:flex;flex-wrap:wrap;align-items:center;gap:13px;margin-top:13px}
+.outdoor-definition .def-actions .cta{font-size:14px}
+.outdoor-definition .def-status{margin:0;font-size:12px;color:var(--ink2)}
+.outdoor-definition table{font-size:12px}
+.outdoor-definition th,.outdoor-definition td{padding:7px 8px}
+.outdoor-definition .def-scroll{overflow-x:auto}
+.outdoor-reference-details{margin-top:12px}
+.outdoor-reference-details summary{cursor:pointer;font-weight:650;font-size:12px;color:var(--ink2)}
+.outdoor-reference-details .doctrine{margin-top:10px}
+@media(max-width:650px){.idea-next-heading{align-items:flex-start}.idea-next-heading .idea-next{min-width:90px;padding:11px 13px}.outdoor-definition{padding:13px}.outdoor-definition .def-split{grid-template-columns:1fr}.outdoor-definition .def-row{gap:18px}}
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
 <script src="stb-intent-kit.js?v=1"></script>
@@ -266,10 +295,10 @@ tr:last-child td{border-bottom:0}
   <!-- ═════ IDEA · THE INTAKE, NOT A STEP. No step is current here; it hands off to Intent. ═════ -->
   <section class="view" id="s-idea" data-section="idea">
     <div class="pg"><div class="main">
-      <h1>Idea · the plans you brought</h1>
+      <div class="idea-next-heading"><h1>Idea · the plans you brought</h1><button class="cta idea-next" type="button" id="idea-next">NEXT →</button></div>
       <p class="sub">Two published picnic table plans land here and end at Intent. Idea is not a step.</p>
       <div id="idea-plans"></div>
-      <p class="note"><b>Nobody types these again.</b> Intent opens with every value this project already has. Choose Intent above to go on.</p>
+      <p class="note"><b>Nobody types these again.</b> Intent opens with every value this project already has. Choose NEXT to go on.</p>
       <p class="hint">Idea makes no machine motion. It is where the job’s source material lives.</p>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-idea" aria-label="Build guide · developer notes"></aside></div>
   </section>
@@ -368,7 +397,51 @@ tr:last-child td{border-bottom:0}
           <p class="more"><button class="quiet-more" type="button" id="to-edge">Bring this to a bigger bench for more work →</button></p>
         </div>
       </div>
-      <div class="doctrine card" id="bench-doctrine"></div>
+
+      <section class="outdoor-definition" id="outdoor-definition" aria-label="Resulting project definition">
+        <p class="def-head">RESULTING DEFINITION / REFERENCE ORDER — OUTDOOR BUILD</p>
+        <div id="outdoor-definition-facts" class="def-split"></div>
+        <p id="outdoor-definition-source" class="def-muted"></p>
+        <div class="def-sec">
+          <h3>Material required · defined parts and cuts</h3>
+          <p class="def-muted" id="outdoor-definition-count"></p>
+          <div class="def-scroll">
+            <table aria-label="Generated part and cut definition">
+              <thead><tr><th>Part</th><th>Qty</th><th>Nominal board</th><th>Cut length</th><th>End cut</th><th>Additional work</th></tr></thead>
+              <tbody id="outdoor-definition-parts"></tbody>
+            </table>
+          </div>
+          <p class="def-muted">Store Zero selects parent boards, actual Store SKUs, stock allocation and eligible hardware offerings. Parts and cuts above are the current System definition, not a Store stock claim.</p>
+        </div>
+        <div class="def-sec">
+          <h3>Reference calculated price · current Store answer</h3>
+          <div class="def-price"><div id="outdoor-definition-costs"></div><strong id="outdoor-definition-price">—</strong></div>
+          <div id="outdoor-definition-status" aria-live="polite"></div>
+        </div>
+        <div class="def-sec">
+          <h3>Modeled cell time · this definition</h3>
+          <div id="outdoor-definition-time" class="def-split"></div>
+          <p class="def-muted">The Store's modeled station timing, not measured production time. No timing is inferred if Store has not returned a complete answer.</p>
+        </div>
+        <div class="def-sec">
+          <h3>Store / price basis</h3>
+          <div id="outdoor-definition-store" class="def-scroll"></div>
+          <p id="outdoor-definition-receipt" class="ids"></p>
+        </div>
+        <div class="def-sec">
+          <h3>Before you send it</h3>
+          <p class="def-muted">Check the selected plan, every part length, end angle, wood and fastener choice. Plan drawings, engineering and structural adequacy are not certified here. No spot drilling is assumed from plans that omit hole locations.</p>
+          <p class="def-muted">This is a simulated definition and budgetary reference, not a purchase, stock reservation, production release or machine authorization. A changed value creates a different definition and requires a fresh Store answer.</p>
+          <div class="def-actions">
+            <button id="outdoor-definition-confirm" type="button" class="cta">CONFIRM &amp; SEND TO STORE ZERO →</button>
+            <p class="def-status" id="outdoor-definition-confirm-status" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+      <details class="outdoor-reference-details">
+        <summary>Store Zero reference process and safety boundaries</summary>
+        <div class="doctrine card" id="bench-doctrine"></div>
+      </details>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-bench" aria-label="Build guide · developer notes"></aside></div>
   </section>
 
@@ -881,7 +954,7 @@ function boardSvg(len,board,angle,spots,deco){
 /* ═════ RENDER ═════ */
 function render(){
   renderIdea();renderPlans();renderIntent();feedTerms();
-  if(S.cfg){renderBuild();renderEdge();}
+  if(S.cfg){renderBuild();renderDefinition();renderEdge();}
   renderCall();renderYard();renderRecord();renderTerms();syncNav();
 }
 /* Screen 1: each "From" is the Store's cheapest complete wood for that plan as published, at 6 ft, bring-your-own hardware. */
@@ -1000,6 +1073,91 @@ function renderBuild(){
   const missing=blockedAdmission();$('bench-ask').disabled=!!missing||S.asking;
   $('bench-status').textContent=missing?'Before Store can answer: '+ownerLine(missing):S.error?'Store could not answer ('+S.error+').':S.asking?'Asking Store for this revision…':'Your identified parts and operations are ready for a Store inquiry.';
 }
+
+/* The current System definition, then the Store's answer for exactly that revision.
+   No invented stock, pricing, machine operations or timing; stale answers never populate this panel. */
+function definitionRow(label,value){
+  return '<div class="def-row"><span>'+esc(label)+'</span><b>'+esc(value)+'</b></div>';
+}
+function renderDefinition(){
+  if(!S.cfg)return;
+  const cfg=S.cfg,p=PLANS[cfg.plan],req=buildRequest(),v=answerCurrent()&&!S.asking&&!S.error?view():null;
+  const wood=WOODS.find(w=>w.key===cfg.wood),tier=TIERS.find(t=>t.key===cfg.tier);
+  const pieces=kindsOf(cfg),totalParts=pieces.reduce((sum,part)=>sum+part.n,0);
+  const measuredAngles=[...new Set(pieces.map(({kind,g})=>{const adjusted=decoAngle(cfg.parts[kind],g);return adjusted==null?g.angle:adjusted}))];
+  const spotCount=pieces.reduce((sum,{kind,len,n})=>{const loc=spotsFor(cfg.parts[kind],len);return sum+(loc?loc.length*n:0)},0);
+  const toolNotes=S.intentTools.filter(t=>t.on).map(t=>t.label);
+  $('outdoor-definition-facts').innerHTML=[
+    definitionRow('Plan',p.title),
+    definitionRow('Overall table length',ftin(cfg.lengthIn)+' · '+fmt(cfg.lengthIn)+' in'),
+    definitionRow('Material choice',wood?wood.label:'Unresolved'),
+    definitionRow('Hardware pack',tier?tier.label:'Unresolved'),
+    definitionRow('Finished parts',String(totalParts)),
+    definitionRow('End cuts',measuredAngles.map(n=>n===0?'square':fmt(n)+'° off square').join(' · ')),
+    definitionRow('Spot demands',spotCount?String(spotCount)+' specified spots':'none from published plan'),
+    definitionRow('Additional named tools',toolNotes.length?toolNotes.join(', ')+' · unresolved':'none'),
+    definitionRow('Definition revision',req.definition.configurationVersion),
+    definitionRow('Reference SKU chosen at Intent',S.selectedOffering?.storeSku||'none; Store selects parent stock')
+  ].join('');
+  $('outdoor-definition-source').innerHTML='Published source: <a href="'+esc(p.sourceUrl)+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. The part definitions, not the photograph, control the job.';
+  $('outdoor-definition-count').textContent=totalParts+' finished pieces in '+req.definition.cutPackages.length+' cut package'+(req.definition.cutPackages.length===1?'':'s')+' · '+p.lenHint;
+  $('outdoor-definition-parts').innerHTML=pieces.map(({kind,n,len,g})=>{
+    const part=cfg.parts[kind],deco=decoAngle(part,g),angle=deco==null?g.angle:deco;
+    const locations=spotsFor(part,len);
+    const extra=[];
+    if(locations)extra.push(locations.length+' spots per part at '+locations.map(x=>fmt(x.xIn)+' in').join(', '));
+    else if(part?.spots?.on)extra.push('spot locations unresolved');
+    if(deco!=null)extra.push('decorative ends '+fmt(deco)+'°');
+    return '<tr><td>'+esc(PART_NAMES[kind])+'</td><td>'+n+'</td><td>'+esc(g.board.join('×'))+'</td><td>'+esc(fmt(len)+' in')+'</td><td>'+esc(angle?fmt(angle)+'° · both ends parallel':'square')+'</td><td>'+esc(extra.join('; ')||'none')+'</td></tr>';
+  }).join('');
+  const status=$('outdoor-definition-status'),price=$('outdoor-definition-price'),costs=$('outdoor-definition-costs');
+  const clock=$('outdoor-definition-time'),store=$('outdoor-definition-store'),receipt=$('outdoor-definition-receipt');
+  const current=!!v&&v.allOk&&v.estimate!=null;
+  const pending=S.asking||!answerCurrent();
+  const blockers=conditions().filter(c=>c.block);
+  price.textContent=current?money(v.estimate):'No complete price';
+  costs.innerHTML=current?'<b>Store Zero budgetary estimate</b><p class="def-muted">Material '+money(v.t.material)+' + modeled machine service '+money(v.t.machine_service)+' + hardware '+money(v.t.items||0)+'</p>':
+    '<b>Not yet a complete Store budgetary answer</b><p class="def-muted">Amounts are never estimated locally or borrowed from a different revision.</p>';
+  if(blockers.length){
+    status.innerHTML='<div class="def-warning bad"><b>DEFINITION NOT READY — NOT SENT TO STORE</b>'+
+      blockers.map(c=>'<p>'+esc(c.t)+(c.d?' · '+esc(c.d):'')+'</p>').join('')+'</div>';
+  }else if(S.error){
+    status.innerHTML='<div class="def-warning bad"><b>Store unavailable</b><p>'+esc(S.error)+'. No earlier reference price is reused.</p></div>';
+  }else if(pending){
+    status.innerHTML='<div class="def-warning"><b>Awaiting a Store answer for this exact revision</b></div>';
+  }else if(!v.allOk){
+    status.innerHTML='<div class="def-warning bad"><b>Store did not support every line — no complete estimate</b>'+
+      v.bad.map(line=>'<p>'+esc(groupLabel(line.packageId||line.lineId,cfg.plan))+': '+esc((lineCodes(line).length?lineCodes(line):[line.status]).map(reasonText).join('; '))+'</p>').join('')+'</div>';
+  }else{
+    status.innerHTML='<p class="def-muted">Store returned a complete budgetary answer for this exact revision. Engineering and installation remain outside its evaluation.</p>';
+  }
+  if(current){
+    const keys=[
+      ['Cutting','T_SAW_sec'],['Milling','T_MILL_sec'],['Spot drilling','T_DRILL_SPOT_sec'],
+      ['Load · reference · index · label',null],['Total modeled cell time','T_MACHINE_sec']
+    ];
+    const pk=v.pk.filter(line=>line.status==='SUPPORTABLE');
+    const sumKey=key=>pk.reduce((sum,line)=>sum+Number(line.time?.[key]||0),0)/60;
+    const handling=['T_LOAD_SEAT_sec','T_REFERENCE_sec','T_INDEX_sec','T_RELEASE_LABEL_sec'].reduce((sum,key)=>sum+sumKey(key),0);
+    clock.innerHTML=keys.map(([label,key])=>definitionRow(label,(key?sumKey(key):handling).toFixed(2)+' min')).join('');
+  }else clock.innerHTML='<p class="def-muted">No complete modeled time for this revision.</p>';
+  if(v){
+    const lines=[...v.pk,...v.it];
+    store.innerHTML='<table aria-label="Store Zero line-by-line stock and cost basis"><thead><tr><th>Requirement</th><th>Store SKU</th><th>Parent stock / units</th><th>Store result</th><th>Line value</th></tr></thead><tbody>'+
+      lines.map(line=>'<tr><td>'+esc(groupLabel(line.packageId||line.lineId,cfg.plan))+'</td><td>'+esc(line.storeSku||'not resolved')+'</td><td>'+
+        esc(line.kind==='ITEM'?(line.packages!=null?line.packages+' packages':line.qty+' requested'):(line.boards!=null?line.boards+' boards · '+line.stockLengthIn+' in':'not available'))+'</td><td>'+esc(line.status||'unresolved')+'</td><td>'+
+        (line.status==='SUPPORTABLE'&&Number.isFinite(Number(line.Q))?money(line.Q):'—')+'</td></tr>').join('')+'</tbody></table>';
+    receipt.textContent='Store '+String(S.answer.storePin||'—').slice(0,12)+' · request '+String(S.answer.requestId||'—')+' · current definition '+req.definition.configurationVersion+
+      (S.answer.receipt?.receiptHash?' · receipt '+String(S.answer.receipt.receiptHash).slice(0,12):'');
+  }else{
+    store.innerHTML='<p class="def-muted">Store has not returned a current answer for this exact definition. Parent SKUs and line values remain unresolved.</p>';
+    receipt.textContent='';
+  }
+  $('outdoor-definition-confirm').disabled=!C||S.asking||blocked()||!admitted(currentAdmission());
+  $('outdoor-definition-confirm-status').textContent=blockers.length?'Resolve these facts before sending.':
+    S.asking?'Store evaluation in progress.':'Confirm rechecks the current definition at Store Zero. No payment, stock allocation or manufacturing release.';
+}
+
 function partCard(kind,n,len,g){
   const p=partOf(S.cfg,kind),da=decoAngle(p,g),angle=da==null?g.angle:da,spots=spotsFor(p,len);
   const worked=p.spots.on||p.deco.on;
@@ -1254,6 +1412,17 @@ window.STBIntentKit.mountWoodLookup({
     }else renderIntent();
   }
 });
+$('idea-next').onclick=()=>go('intent');
+$('outdoor-definition-confirm').onclick=async()=>{
+  const req=buildRequest();
+  if(!req||S.asking||blocked()||!admitted(currentAdmission()))return;
+  const signature=req.sig;
+  $('outdoor-definition-confirm').disabled=true;
+  await askExact();
+  if(!buildRequest()||buildRequest().sig!==signature)return;
+  if(answerCurrent())go('store');
+  else if(S.section==='build')$('outdoor-definition').scrollIntoView({block:'start'});
+};
 $('to-edge').onclick=()=>go('edge');
 $('back-plan').onclick=backToPlan;$('back-plan-2').onclick=backToPlan;
 $('send-work').onclick=()=>{if(TERMS.state().callOpen)go('call')};
