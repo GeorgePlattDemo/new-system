@@ -11,22 +11,22 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 </style>
 </head>
 <body>
-<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=manufacturing-core-20261011-final"></iframe>
-<script src="stb-canonical-journey.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-store-client.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-user-defined-board-runtime-bridge.js?v=manufacturing-core-20261011-final"></script>
+<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=automatic-bench-20261011"></iframe>
+<script src="stb-canonical-journey.js?v=automatic-bench-20261011"></script>
+<script src="stb-store-client.js?v=automatic-bench-20261011"></script>
+<script src="stb-user-defined-board-runtime-bridge.js?v=automatic-bench-20261011"></script>
 <script type="module">
-import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=manufacturing-core-20261011-final";
+import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=automatic-bench-20261011";
 window.STBStartOwnAnswer = startOwnAnswer;
 </script>
-<script src="stb-commercial-sequence.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-terms-flow.js?v=manufacturing-core-20261011-final"></script>
-<script src="store-zero-canonical-doctrine.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-build-guide-spec.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-trail-contract.js?v=manufacturing-core-20261011-final"></script>
+<script src="stb-commercial-sequence.js?v=automatic-bench-20261011"></script>
+<script src="stb-terms-flow.js?v=automatic-bench-20261011"></script>
+<script src="store-zero-canonical-doctrine.js?v=automatic-bench-20261011"></script>
+<script src="stb-build-guide-spec.js?v=automatic-bench-20261011"></script>
+<script src="stb-trail-contract.js?v=automatic-bench-20261011"></script>
 <script>
 // The shared tile host reads the one System contract (apps/stb/shared/tile-host-admission-contract.mjs, deployed byte for byte).
-import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-final').then(contract => {
+import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').then(contract => {
   window.STBTileHostAdmission = Object.freeze({ ...contract });
 });
 </script>
@@ -69,6 +69,9 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
       /* Outdoor draws its own Dev/Rev rail beside each of its pages, from the same guide file; one guide, not two. */
       .outdoor-build-shell-page>aside.rail{display:none!important}
       .proof-shell-return{display:block;margin:8px 14px;padding:6px 0;border:0;background:transparent;color:var(--text2);font-size:11px;font-weight:700;cursor:pointer}
+      .project-forward-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+      .project-forward-heading h1{margin:0;flex:1}
+      .project-forward-heading button{font-weight:750;white-space:nowrap}
       .proof-actor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:12px 0}
       .proof-actor-grid>div{border:1px solid var(--border);border-radius:8px;padding:10px;background:var(--surface)}
       .proof-actor-grid b,.proof-actor-grid span{display:block}.proof-actor-grid b{font-size:9px;letter-spacing:.06em;color:var(--text2)}.proof-actor-grid span{margin-top:4px;font-size:12px}
@@ -261,7 +264,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=manufacturing-core-20261011-final"
+                  src="three-frames.html?v=automatic-bench-20261011"
                 ></iframe>
               </div>
             `;
@@ -270,7 +273,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=manufacturing-core-20261011-final';
+            liveFrame.src = 'three-frames.html?v=automatic-bench-20261011';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -996,6 +999,8 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
                 syncAndRender('BENCH_HANDOFF');
                 showStage('bench');
               });
+              childDoc.getElementById('stb-idea-next')?.addEventListener('click', () => showStage('intent'));
+              childDoc.getElementById('stb-intent-next')?.addEventListener('click', () => showStage('bench'));
               benchBack?.addEventListener('click', () => {
                 showStage('intent');
               });
@@ -1438,7 +1443,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=outdoor-options-queued-20261011"
+                  src="stb-outdoor-picnic-0.4.html?v=automatic-bench-20261011"
                 ></iframe>
               </div>
             `;
@@ -1471,7 +1476,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=manufacturing-core-20261011-final"
+                  src="stb-window-seat-0.9.html?v=automatic-bench-20261011"
                 ></iframe>
               </div>
             `;
@@ -2075,7 +2080,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
       s001IdeaPage.className = 'page';
       s001IdeaPage.id = 'playhouse-idea';
       s001IdeaPage.innerHTML = `<div class="main">
-      <h1>IDEA · PLAYHOUSE WINDOW</h1>
+      <div class="project-forward-heading"><h1>IDEA · PLAYHOUSE WINDOW</h1><button type="button" data-canonical-go="playhouse-s001">NEXT → INTENT</button></div>
       <p class="sub">What User 1 brought. It lands here and ends at Intent. Idea is not a step.</p>
       <div class="s001-v2-intent-grid">
         <section class="s001-card">
@@ -2251,7 +2256,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
 
     const S001_INTENT_FLAG = 'Intent makes the knobs. The bench only turns them.';
     if (intentMain) intentMain.innerHTML = `
-      <h1>Intent · Playhouse arched window</h1>
+      <div class="project-forward-heading"><h1>Intent · Playhouse arched window</h1><button type="button" data-canonical-go="playhouse-machine">BRING IT TO THE BENCH →</button></div>
       <p class="sub">User 1 does not need a whole sheet of plywood. She needs the useful parts the sheet can become.</p>
       <div class="s001-ph-grid stb-intent-grid">
         <div class="s001-ph-left stb-intent-reference">
@@ -2296,7 +2301,7 @@ import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-
         </section>
       </div>
       <div class="s001-boundary">Intent does not create machine motion. User 1 defines the material and features; the machine-facing definition is derived next and remains bounded by the admitted Store envelope.</div>
-      <div class="btns"><button type="button" data-canonical-go="projects">BACK TO HOME</button><button type="button" data-canonical-go="playhouse-machine" id="ph-to-bench">BRING YOUR WOOD AND TOOLS TO THE BENCH →</button></div>
+      <div class="btns"><button type="button" data-canonical-go="projects">BACK TO HOME</button><button type="button" data-canonical-go="playhouse-machine" id="ph-to-bench">BRING IT TO THE BENCH →</button></div>
     `;
 
     let machine = doc.getElementById('playhouse-machine');

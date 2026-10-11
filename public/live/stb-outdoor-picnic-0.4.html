@@ -293,7 +293,7 @@ tr:last-child td{border-bottom:0}
 @media(max-width:640px){.outdoor-service-choices{grid-template-columns:1fr}.outdoor-evidence-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
-<script src="stb-intent-kit.js?v=manufacturing-core-20261011-final"></script>
+<script src="stb-intent-kit.js?v=automatic-bench-20261011"></script>
 </head>
 <body data-section="idea">
 <div class="wrap">
@@ -312,7 +312,7 @@ tr:last-child td{border-bottom:0}
   <!-- ═════ IDEA · THE INTAKE, NOT A STEP. No step is current here; it hands off to Intent. ═════ -->
   <section class="view" id="s-idea" data-section="idea">
     <div class="pg"><div class="main">
-      <div class="idea-next-heading"><h1>Idea · the plans you brought</h1><button class="cta idea-next" type="button" id="idea-next">NEXT →</button></div>
+      <div class="idea-next-heading"><h1>Idea · the plans you brought</h1><button class="cta idea-next" type="button" id="idea-next">NEXT → INTENT</button></div>
       <p class="sub">Two published picnic table plans land here and end at Intent. Idea is not a step.</p>
       <div id="idea-plans"></div>
       <p class="note"><b>Nobody types these again.</b> Intent opens with every value this project already has. Choose NEXT to go on.</p>
@@ -323,7 +323,8 @@ tr:last-child td{border-bottom:0}
   <!-- ═════ SCREEN 1 · STEP 1 · PICK A PLAN ═════ -->
   <section class="view" id="s-intent" data-section="intent" hidden>
     <div class="pg"><div class="main">
-      <h1>Two proven plans. Pick one. Make it yours.</h1>
+      <div class="idea-next-heading"><h1>Two proven plans. Make it yours.</h1><button class="cta" type="button" data-to-bench>BRING IT TO THE BENCH →</button></div>
+      <p class="note" id="outdoor-starting-definition"></p>
       <p class="sub">Real public plans, turned into a project: every board cut to the plan. You build it.</p>
       <div class="plans" id="plans"></div>
       <div class="outdoor-intent-extras">
@@ -407,7 +408,7 @@ tr:last-child td{border-bottom:0}
             <div id="outdoor-custom-tool-controls"></div>
             <p class="hint">A named tool is not an invented machine capability. A new named tool remains unresolved while ON. To request Store evaluation, turn it OFF and define any supported operation using the bigger Bench controls.</p>
           </div>
-          <div class="answer" id="bench-answer"><button class="cta ghost" type="button" id="bench-ask" style="float:right">ASK STORE ↻</button><p class="note" id="bench-status" aria-live="polite"></p>
+          <div class="answer" id="bench-answer"><p class="note" id="bench-status" aria-live="polite"></p>
             <div id="bench-instant"></div>
             <button class="cta" id="bench-confirm" type="button" disabled style="margin-top:8px">SEE THE STORE ANSWER →</button>
           </div>
@@ -580,13 +581,13 @@ tr:last-child td{border-bottom:0}
   </section>
 </div>
 
-<script src="store-zero-canonical-doctrine.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-store-client.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-commercial-sequence.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-terms-flow.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-build-guide-spec.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-trail-contract.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-outdoor-option-requests.js?v=outdoor-options-queued-20261011"></script>
+<script src="store-zero-canonical-doctrine.js?v=automatic-bench-20261011"></script>
+<script src="stb-store-client.js?v=automatic-bench-20261011"></script>
+<script src="stb-commercial-sequence.js?v=automatic-bench-20261011"></script>
+<script src="stb-terms-flow.js?v=automatic-bench-20261011"></script>
+<script src="stb-build-guide-spec.js?v=automatic-bench-20261011"></script>
+<script src="stb-trail-contract.js?v=automatic-bench-20261011"></script>
+<script src="stb-outdoor-option-requests.js?v=automatic-bench-20261011"></script>
 <script>
 (function(){
 'use strict';
@@ -726,6 +727,9 @@ let C=null;
 window.STBTermsFlow.installStyle(document);
 const partOf=(cfg,kind)=>cfg.parts[kind]||(cfg.parts[kind]={spots:{on:false,fromEndIn:'',place:'',middle:false},deco:{on:false,angle:''}});
 const planCfg=(plan,lengthIn)=>({plan,lengthIn:lengthIn||START_LEN,wood:PLANS[plan].wood,tier:'COATED',parts:{}});
+// An explicit starting definition for the demo. The alternate plan remains selectable at Intent.
+const DEFAULT_PLAN='a-frame';
+S.cfg=planCfg(DEFAULT_PLAN);
 
 /* ═════ THE DEFINITION AND THE STORE REQUEST ═════ */
 function hash(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h.toString(16).padStart(8,'0')}
@@ -893,10 +897,13 @@ function scheduleAsk(){
    is not sent; the page names the fact and its owner. */
 async function askExact(rv){
   if(!S.cfg||!C)return null;
-  const req=buildRequest(),token=++S.token;
+  const req=buildRequest();
+  if(!rv&&S.asking&&S.askingSig===req.sig)return null;
+  clearTimeout(askTimer);
+  const token=++S.token;
   const admission=C.admit({revision:rv||revision(req),inquiryScope:COMMITTED_SCOPE});
   if(!admitted(admission)){S.blocked=admission;S.asking=false;render();return admission}
-  S.blocked=null;S.asking=true;S.error=null;render();
+  S.blocked=null;S.asking=true;S.askingSig=req.sig;S.error=null;render();
   try{
     const sentAt=new Date().toISOString(),got={};
     const result=await C.inquire(admission,storeTransport(req.definition,got));
@@ -908,7 +915,7 @@ async function askExact(rv){
       authority:result.answer.authority,definitionRevisionId:result.answer.definitionRevisionId,inquiryScope:result.answer.inquiryScope};
     if(buildRequest().sig!==req.sig){S.answer.stale=true;S.rev++;scheduleAsk()}
   }catch(e){if(token!==S.token)return admission;S.error=String(e&&e.message||e)}
-  S.asking=false;render();
+  S.asking=false;S.askingSig=null;render();
   return admission;
 }
 function scheduleOptions(){
@@ -1042,7 +1049,7 @@ function renderPlans(){
         <p class="facts">${esc(p.facts)}</p>
         <div class="row">
           <div class="from" data-from></div>
-          <button class="cta" type="button" data-plan="${key}">BUILD THIS ONE →</button>
+          <button class="cta" type="button" data-plan="${key}">BRING IT TO THE BENCH →</button>
         </div>
       </article>`).join('');
     host.dataset.built='1';
@@ -1079,6 +1086,7 @@ function answerHtml(){
     +v.bad.map(l=>'<li>'+esc(groupLabel(l.packageId||l.lineId,S.cfg.plan))+': '+esc((lineCodes(l).length?lineCodes(l):[l.status]).map(reasonText).join('; '))+'</li>').join('')+'</ul>'+ids;
 }
 function renderIntent(){
+  $('outdoor-starting-definition').textContent='Demo starting definition: '+title()+'. Choose either plan below or adjust its values on the Bench.';
   const selected=S.selectedOffering;
   $('outdoor-sku-reference').textContent=selected?'Attached reference: '+selected.storeSku+' · '+selected.description+'. Store chooses actual parent stock for the complete job.':'';
   const added=$('outdoor-added-tools');
@@ -1435,6 +1443,11 @@ function hostMessage(){
 function go(section){
   if(!SECTIONS.includes(section)||!usable()[section])return;
   S.section=section;S.step=null;document.body.dataset.section=section;
+  if(['intent','build','edge'].includes(section)&&C&&S.cfg){
+    // Queue the selected job first; previews can never delay its initial submission.
+    if(!answerCurrent()&&!S.asking)askExact();
+    scheduleOptions();
+  }
   if(section==='intent'&&C&&!Object.keys(S.from).length)askFrom();
   SECTIONS.forEach(s=>{$('s-'+s).hidden=s!==section});
   window.scrollTo(0,0);syncNav();
@@ -1527,8 +1540,6 @@ function addIntentTool(){
 opsAdd.addEventListener('click',()=>{addIntentTool();showToolList(true)});
 opsInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addIntentTool();showToolList(true)}});
 $('outdoor-ops-close').addEventListener('click',()=>showToolList(false));
-async function openStoreAnswer(){clearTimeout(askTimer);await askExact();if(answerCurrent())go('store')}
-$('bench-ask').onclick=openStoreAnswer;
 window.STBIntentKit.mountWoodLookup({
   host:$('outdoor-wood-lookup'),projectId:TILE_ID,candidateRevisionId:()=>String(S.rev),
   requirementText:'This is a Store material reference, not approval to build.',
@@ -1561,7 +1572,7 @@ $('back-build').onclick=()=>go(work(S.cfg).length?'edge':'build');
 function afterTerms(action){render();if(action==='accept')go('yard');if(action==='yard')go('record')}
 for(const id of ['call-terms','yard-terms','record-terms'])TERMS.bind($(id),afterTerms);
 TERMS.onChange(()=>{renderTerms();syncNav()});
-$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=null;S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.selectedOffering=null;S.intentTools=[];S.serviceChoice={sanding:false,handoff:null};S.serviceDigest={basis:null,hash:null};S.rev++;partsSig='';render();go('idea')};
+$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=planCfg(DEFAULT_PLAN);S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.selectedOffering=null;S.intentTools=[];S.serviceChoice={sanding:false,handoff:null};S.serviceDigest={basis:null,hash:null};S.rev++;partsSig='';render();go('idea')};
 
 /* One trail step, by its index in the trail contract: the page that step opens here. */
 function goStep(i){
@@ -1614,7 +1625,7 @@ window.STBOutdoorPicnic=Object.freeze({version:'0.4',rule:RULE,plans:Object.keys
     answer:S.answer&&{authority:S.answer.authority,definitionRevisionId:S.answer.definitionRevisionId,inquiryScope:S.answer.inquiryScope,stale:!!S.answer.stale},
     admission:clone(S.blocked?.admission??currentAdmission()?.admission??null)})});
 /* The deployed contract copy, loaded once. Nothing is asked before it is here. */
-import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-final').then(m=>{C=m;if(S.section==='intent')askFrom();if(S.cfg){scheduleAsk();scheduleOptions()}render()},
+import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').then(m=>{C=m;if(S.cfg&&['intent','build','edge'].includes(S.section)){askExact();scheduleOptions()}if(S.section==='intent')askFrom();render()},
   ()=>{document.documentElement.dataset.tileHostContract='MISSING'});
 })();
 </script>

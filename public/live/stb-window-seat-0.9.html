@@ -177,6 +177,9 @@
   .spotgrid .seg{margin:0}
   .spotgrid .seg button{font-size:11.5px;padding:4px 0}
   .spotnote{margin:8px 0 0;font-size:11.5px;line-height:1.5;color:var(--text-2)}
+  .forward-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .forward-heading h1{flex:1;margin-bottom:8px}
+  .forward-heading .go{white-space:nowrap}
   .pricebar{border-top:1px solid var(--border-accent);margin-top:10px;padding-top:10px}
   .pb{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
   .pb>div{min-width:0}
@@ -276,7 +279,7 @@
   }
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
-<script src="stb-intent-kit.js?v=manufacturing-core-20261011-final"></script>
+<script src="stb-intent-kit.js?v=automatic-bench-20261011"></script>
 </head>
 <body data-view="trail" data-section="hero">
 <div class="wrap">
@@ -300,12 +303,12 @@
 <section class="step" id="s-hero" data-section="hero">
   <div class="page">
     <div class="main">
+      <div class="pad" style="padding-bottom:8px"><div class="forward-heading"><h1>What she wants</h1><button class="go" type="button" data-to="intent">NEXT → INTENT</button></div></div>
       <figure class="hero">
         <img src="window-seat-hero-0.9.webp?v=e65dbb3d" alt="A woman celebrates at her laptop in front of a finished window seat: bookshelf towers either side of a window, a red cushioned seat below it, cubbies under the seat">
         <figcaption>room-capture.usdz · the picture of what she wants · context, not a dimension</figcaption>
       </figure>
       <div class="pad">
-        <h1>What she wants</h1>
         <div class="idea">
           <label for="idea-text">WHAT SHE WANTS, IN HER OWN WORDS</label>
           <textarea id="idea-text" rows="2"></textarea>
@@ -322,7 +325,7 @@
   <div class="page">
     <div class="main">
       <div class="pad">
-        <h1>Intent · Window seat / space utilization</h1><p class="lead">Carry the idea and its sketch forward. Choose your wood and tools here; adjust their values on the Bench.</p><div class="stb-intent-grid"><div class="stb-intent-reference"><img src="window-seat-hero-0.9.webp?v=e65dbb3d" alt="The finished window-seat idea carried from Idea"><p class="stb-intent-note">The original idea, kept beside its measured sketch below. A picture inspires the project; the definition supplies its dimensions.</p><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Source sketch · controlling measurements · chosen wood · the tools listed here and any you add. Open questions remain visible.</div></div><div class="stb-intent-stack"><div class="stb-intent-card"><h2>Grab your wood</h2><p>This definition uses nominal 1×8 select boards. Store selects the parent stock for the required finished widths.</p><div class="matprice">
+        <div class="forward-heading"><h1>Intent · Window seat / space utilization</h1><button class="go" type="button" data-to="bench">BRING IT TO THE BENCH →</button></div><p class="lead">Carry the idea and its sketch forward. Choose your wood and tools here; adjust their values on the Bench.</p><div class="stb-intent-grid"><div class="stb-intent-reference"><img src="window-seat-hero-0.9.webp?v=e65dbb3d" alt="The finished window-seat idea carried from Idea"><p class="stb-intent-note">The original idea, kept beside its measured sketch below. A picture inspires the project; the definition supplies its dimensions.</p><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Source sketch · controlling measurements · chosen wood · the tools listed here and any you add. Open questions remain visible.</div></div><div class="stb-intent-stack"><div class="stb-intent-card"><h2>Grab your wood</h2><p>This definition uses nominal 1×8 select boards. Store selects the parent stock for the required finished widths.</p><div class="matprice">
               <div data-knob="WOOD"><p class="mat-h">Material</p><div id="species" class="swatches">
                 <button type="button" class="swatch" data-material="pine"><span class="dot" style="background:#C9A227"></span>Pine</button>
                 <button type="button" class="swatch" data-material="poplar"><span class="dot" style="background:#9FA678"></span>Poplar</button>
@@ -339,7 +342,7 @@
                 </div>
                 <p class="spotnote">A small starter mark, 3/16 in wide and 3/16 in deep, that you drill through. <b>Tower sides:</b> one on each side board at every shelf height, 1½ or 2 in from the edge, so the shelf pins line up and the shelves sit level. <b>Dividers:</b> one centered where each divider meets the board above and below it, to place its fasteners. The Store spots and prices each one.</p>
               </div>
-              <div class="pricebar" id="bench-money-box"><div id="bench-money" aria-live="polite"></div></div>
+              <div class="pricebar" id="intent-money-box"><div id="intent-money" aria-live="polite"></div></div>
             </div><div id="seat-wood-lookup"></div></div><div class="stb-intent-card"><div class="sec">
           <p class="ws-h">BRING YOUR TOOLS</p>
           <p class="sub">This is Window Seat’s configurator: the knobs made for this job, and only this job. Made from the sketch, by hand where the sketch is silent, or derived by a stated rule. Each one is turned on the bench.</p>
@@ -406,7 +409,7 @@
         <div class="actions">
           <button type="button" class="trail-only" data-to="hero">← What she wants</button>
           <span class="fine" id="intent-gate">—</span>
-          <button class="go push" type="button" data-to="bench">TAKE IT TO THE BENCH →</button>
+          <button class="go push" type="button" data-to="bench">BRING IT TO THE BENCH →</button>
         </div>
       </div>
     </div>
@@ -425,7 +428,7 @@
         <div class="cfg">
           <div class="stage">
             <div class="ws-draw"><svg id="elev" viewBox="0 0 520 400" role="img" aria-label="Window seat elevation: left tower, center window-seat module with upper storage, right tower"></svg></div>
-            <p class="dim">Wood selected on Intent. <a href="#s-intent" data-to="intent">Change wood or tools →</a></p>
+            <p class="dim">Wood and tools come from Intent. Change their values beside the Store price. <a href="#s-intent" data-to="intent">Add tools →</a></p>
             <div class="card" style="margin:12px 0 0">
               <p class="lb">THE BENCH PRODUCES</p>
               <div id="produces"></div>
@@ -582,12 +585,12 @@
 </section>
 
 </div>
-<script src="store-zero-canonical-doctrine.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-store-client.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-commercial-sequence.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-terms-flow.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-build-guide-spec.js?v=manufacturing-core-20261011-final"></script>
-<script src="stb-trail-contract.js?v=manufacturing-core-20261011-final"></script>
+<script src="store-zero-canonical-doctrine.js?v=automatic-bench-20261011"></script>
+<script src="stb-store-client.js?v=automatic-bench-20261011"></script>
+<script src="stb-commercial-sequence.js?v=automatic-bench-20261011"></script>
+<script src="stb-terms-flow.js?v=automatic-bench-20261011"></script>
+<script src="stb-build-guide-spec.js?v=automatic-bench-20261011"></script>
+<script src="stb-trail-contract.js?v=automatic-bench-20261011"></script>
 <script>
 (function(){
 'use strict';
@@ -1018,6 +1021,12 @@ const rng=(id,min,max,step,val,label)=>'<input type="range" id="'+id+'" data-kno
 function controls(){
   let h='';
   const K=id=>has(id);
+  h+='<div class="grp" data-knob="WOOD"><p class="gh">WOOD</p><div id="bench-species" class="swatches">'
+    +WOODS.map(w=>'<button type="button" class="swatch" data-material="'+w.k+'"><span class="dot" style="background:'+w.c+'"></span>'+w.n+'</button>').join('')+'</div>'
+    +'<div class="pricebar" id="bench-money-box"><div id="bench-money" aria-live="polite"></div></div></div>';
+  h+='<div class="grp" data-knob="SPOTS"><p class="gh">DRILL SPOTTING · 3/16 IN</p><p class="dim">Tower sides · shelf pins</p>'
+    +'<div class="seg" id="bench-spot-sides"><button type="button" data-k="">Off</button><button type="button" data-k="1.5">1½ in from edge</button><button type="button" data-k="2">2 in from edge</button></div>'
+    +'<p class="dim">Dividers · centered</p><div class="seg" id="bench-spot-div"><button type="button" data-k="">Off</button><button type="button" data-k="on">Centered</button></div></div>';
   h+='<div class="grp"><p class="gh">SIZE</p>'
     +lab('Overall height','v-H')+rng('c-H',60,96,1,P.H,{k:'H',t:'Overall height'})
     +'<p class="ws-h" style="margin:6px 0 4px">WIDTH: LEFT + CENTER + RIGHT</p>'
@@ -1068,8 +1077,8 @@ function controls(){
   on('c-d',e=>{P.depth=+e.value});on('c-gap',e=>{P.gap=+e.value});on('c-seat',e=>{P.seat=+e.value});on('c-upperH',e=>{P.upperH=+e.value});
   on('c-bays',e=>{P.bays=+e.value});on('c-cub',e=>{P.cub=+e.value});on('c-shL',e=>{P.SH.LEFT=+e.value});on('c-shR',e=>{P.SH.RIGHT=+e.value});
   if($('c-front'))$('c-front').onchange=function(){P.front=this.checked;changed()};
-  $('c-spot-sides').onclick=e=>{const b=e.target.closest('button');if(!b)return;P.spots.sides=b.dataset.k||null;changed()};
-  $('c-spot-div').onclick=e=>{const b=e.target.closest('button');if(!b)return;P.spots.dividers=b.dataset.k==='on';changed()};
+  ['c-spot-sides','bench-spot-sides'].forEach(id=>$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;P.spots.sides=b.dataset.k||null;changed()});
+  ['c-spot-div','bench-spot-div'].forEach(id=>$(id).onclick=e=>{const b=e.target.closest('button');if(!b)return;P.spots.dividers=b.dataset.k==='on';changed()});
   if($('xs-off'))$('xs-off').oninput=function(){P.xspot.offset=this.value;changed()};
   if($('xs-place'))$('xs-place').onchange=function(){P.xspot.place=this.value;changed()};
   if($('sc-gauge')){$('sc-gauge').onchange=function(){P.screws.gauge=this.value;changed()};$('sc-finish').onchange=function(){P.screws.finish=this.value;changed()};
@@ -1077,7 +1086,7 @@ function controls(){
   $('depth-panel').addEventListener('click',e=>{const b=e.target.closest('[data-depth]');if(!b)return;
     P.depth=Math.min(24,Math.max(6,Math.round((P.depth+Number(b.dataset.depth))*4)/4));changed()});
   $('c-runs').onclick=e=>{const b=e.target.closest('button');if(!b)return;P.runsSet=b.dataset.n==='derived'?null:+b.dataset.n;changed()};
-  $$('#species [data-material]').forEach(b=>b.onclick=()=>{P.wood=b.dataset.material;changed()});
+  $$('#species [data-material], #bench-species [data-material]').forEach(b=>b.onclick=()=>{P.wood=b.dataset.material;changed()});
   $('btn-reset').onclick=()=>{P=clone(START);controls();changed()};
   /* A typed number is the number: 60.5 stays 60.5. The slider is only a quicker way to move it. A number outside the
      knob's range, or a fraction of a count, is not applied and the box says why; nothing is changed behind your back. */
@@ -1119,9 +1128,9 @@ function syncControls(def){
    ['c-bays',P.bays],['c-cub',P.cub],['c-shL',P.SH.LEFT],['c-shR',P.SH.RIGHT]].forEach(([id,v])=>{const e=$(id);if(e&&e.value!==String(v))e.value=String(v)});
   if($('c-front'))$('c-front').checked=P.front;
   $$('#c-runs button').forEach(x=>{const on=x.dataset.n==='derived'?P.runsSet==null:(P.runsSet!=null&&+x.dataset.n===P.runsSet);x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
-  $$('#c-spot-sides button').forEach(x=>{const on=(x.dataset.k||null)===P.spots.sides;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
-  $$('#c-spot-div button').forEach(x=>{const on=(x.dataset.k==='on')===!!P.spots.dividers;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
-  $$('#species [data-material]').forEach(x=>{const on=x.dataset.material===P.wood;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+  $$('#c-spot-sides button, #bench-spot-sides button').forEach(x=>{const on=(x.dataset.k||null)===P.spots.sides;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+  $$('#c-spot-div button, #bench-spot-div button').forEach(x=>{const on=(x.dataset.k==='on')===!!P.spots.dividers;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
+  $$('#species [data-material], #bench-species [data-material]').forEach(x=>{const on=x.dataset.material===P.wood;x.classList.toggle('on',on);x.setAttribute('aria-pressed',on)});
   const sel=$('xs-target');
   if(sel){const ids=def.feats.map(f=>f.id).join(',');
     if(ids!==lastTargets){lastTargets=ids;
@@ -1437,7 +1446,9 @@ function renderBenchMoney(){
     else{const r=mainRefusal(v);body='The Store can’t do every line of this version.';
       if(r)extra='<p class="why"><b>'+esc(r.line)+':</b> '+esc(r.why)+(r.more?' <span class="dim">(+'+r.more+' more line'+(r.more===1?'':'s')+')</span>':'')+'</p>';}
   }
-  el.innerHTML='<div class="pb"><div><p class="lb">'+lb+'</p><p class="basis">'+body+'</p></div>'+big+'</div>'+extra+(a&&!a.stale&&!S.asking?more:'');
+  const html='<div class="pb"><div><p class="lb">'+lb+'</p><p class="basis">'+body+'</p></div>'+big+'</div>'+extra+(a&&!a.stale&&!S.asking?more:'');
+  el.innerHTML=html;
+  $('intent-money').innerHTML=html;
 }
 
 function renderStore(req,cond){
@@ -1738,7 +1749,7 @@ window.STBWindowSeat=Object.freeze({version:'0.9',
     answer:S.answer&&{authority:S.answer.authority,definitionRevisionId:S.answer.definitionRevisionId,inquiryScope:S.answer.inquiryScope,stale:!!S.answer.stale},
     admission:clone(S.blocked?.admission??currentAdmission()?.admission??null)})});
 /* The deployed contract copy, loaded once. Nothing is asked before it is here. */
-import('./shared/tile-host-admission-contract.mjs?v=manufacturing-core-20261011-final').then(m=>{C=m;render();benchAsk()},
+import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').then(m=>{C=m;render();benchAsk()},
   ()=>{document.documentElement.dataset.tileHostContract='MISSING'});
 })();
 </script>
