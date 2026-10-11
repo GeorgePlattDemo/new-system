@@ -374,6 +374,37 @@ test("Alcove's scoped estimate opens only budgetary review, discloses the uneval
   assert.equal(terms.state().callOpen, false);
 });
 
+test("Alcove automatically proposes 1x8; selecting an offered 1x8 attaches its nominal class without pinning a SKU", () => {
+  const page="system-build-base-8d8a9dd.html";
+  const offers=[6,8,10].map(w=>({offered:true,form:"board",grade:"select",species:"pine",nominalT:1,
+    nominalW:w,actualW:w===6?5.5:w===8?7.25:9.25,storeSku:"STORE-OFFERED-"+w}));
+  const stock={species:"pine",status:"READY",offers,pin:"the-current-Store"};
+  const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
+  const proposed=publishedFunction(page,"alcoveBoardSpecifications",{alcoveStock:stock,alcoveFinish:finish})({d:14,material:"pine"});
+  assert.deepEqual(Array.from(proposed.shelves.strips,(b:any)=>[b.nominalW,b.finishedWidthIn]),[[8,7.25],[8,6.75]]);
+  const elements:Record<string,any>={
+    "alcove-mixed-boards":{checked:false},"alcove-board-first":{value:"10"},
+    "alcove-board-second":{value:"6"},"alcove-board-override":{open:false}
+  };
+  const alcove={material:"pine"};
+  let refreshed=0,lookups=0;
+  const choose=publishedFunction(page,"chooseAlcoveOfferedBoard",{
+    alcove,alcoveFinish:finish,ALCOVE_MATERIAL_DISPLAY:{pine:{},poplar:{},cherry:{},oak:{}},
+    document:{getElementById:(id:string)=>elements[id]},
+    syncAlcove:()=>{refreshed++},updateAlcoveOfferings:()=>{lookups++}
+  });
+  assert.equal(choose(offers[1]),true);
+  assert.equal(finish.mixed,true);
+  assert.equal(finish.first,8);assert.equal(finish.second,8);
+  assert.equal(elements["alcove-mixed-boards"].checked,true);
+  assert.equal(elements["alcove-board-override"].open,true);
+  assert.equal(refreshed,1);assert.equal(lookups,0);
+  const forced=publishedFunction(page,"alcoveBoardSpecifications",{alcoveStock:stock,alcoveFinish:finish})({d:14,material:"pine"});
+  assert.deepEqual(Array.from(forced.shelves.strips,(b:any)=>b.nominalW),[8,8]);
+  assert.equal(choose({...offers[1],grade:"quality"}),false,"a rejected grade must not mutate the definition");
+  assert.equal(refreshed,1);
+});
+
 test("Alcove's actual definition with pilot spots switched off and full-width strips is fully evaluated", async () => {
   const offers=[6,8,10].map(w=>({offered:true,species:"pine",form:"board",grade:"select",nominalT:1,nominalW:w,actualW:w===6?5.5:w===8?7.25:9.25}));
   const stock={species:"pine",status:"READY",offers,pin:"test-fixture"};
