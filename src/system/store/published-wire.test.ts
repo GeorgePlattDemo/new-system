@@ -861,6 +861,35 @@ test("the published default Alcove, including through profiles and shelf-elevati
   assert.equal(profiles.length,5);
   assert.ok(profiles.every((f:any)=>f.status==="SUPPORTABLE"&&f.pathLengthIn===44&&f.yIn===6.75&&f.totalDepthIn===.75));
   assert.equal(publishedFunction("system-build-current.html","alcoveSupportable")(valid),true);
+  // Three Bench choices are distinct Store definitions. Compare complete Store answers.
+  const pricedFinish = async (mode: "BALANCED"|"ALL_EDGES") => {
+    const choice={...finish,mode};
+    const chosenSpecs=publishedFunction(file,"alcoveBoardSpecifications",{alcoveStock:stock,alcoveFinish:choice});
+    const chosenSignature=publishedFunction(file,"alcoveDefinitionSignature",{alcoveBoardSpecifications:chosenSpecs,alcoveFinish:choice});
+    const chosenRevision=publishedFunction(file,"alcoveRevision",{
+      alcove,alcoveBoardSpecifications:chosenSpecs,alcoveComponentPrograms:components,
+      alcoveDefinitionSignature:chosenSignature,ALCOVE_PROJECT_ID:"alcove"
+    })(snapshot);
+    const chosenDefinition=publishedFunction(file,"alcoveDefinitionFrom",{
+      ALCOVE_HARDWARE_DEMAND:{requirementId:"ALCOVE-PINS-AND-SCREWS",qty:1}
+    })({
+      definitionRevisionId:chosenRevision.definitionRevisionId,
+      facts:Object.fromEntries(Object.entries(chosenRevision.facts).map(([key,fact])=>[key,(fact as {value:unknown}).value])),
+      openDemands:["alcove.hardware"]
+    });
+    return await ask(chosenDefinition,"alcove-edge-"+mode);
+  };
+  const balanced=await pricedFinish("BALANCED");
+  const allEdges=await pricedFinish("ALL_EDGES");
+  assert.equal(balanced.rawEvaluation.status,"SUPPORTABLE");
+  assert.equal(allEdges.rawEvaluation.status,"SUPPORTABLE");
+  assert.equal(allEdges.jobSupportability.status,"REQUIREMENTS_SATISFIED");
+  const allStrips=allEdges.rawEvaluation.packages.filter((p:any)=>p.packageId.startsWith("ALCOVE-SHELF"));
+  assert.ok(allStrips.length>0&&allStrips.every((p:any)=>p.edgeMill?.stages?.length===2
+    && p.edgeMill.stages.every((step:any)=>step.removedIn===0.125)));
+  assert.ok(allEdges.rawEstimate.totals.Q>balanced.rawEstimate.totals.Q,"Store must charge its modeled additional machining, not a UI surcharge");
+  assert.equal(allEdges.machineAdmission.physicalRelease,false);
+
   const storeTime=publishedFunction(file,"alcoveStoreTime");
   const displayedTime=storeTime(valid);
   assert.ok(displayedTime.T_MACHINE_sec>0);
