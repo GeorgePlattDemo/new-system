@@ -223,17 +223,68 @@ tr:last-child td{border-bottom:0}
   </section>
 
   <!-- ═════ SCREEN 1 · STEP 1 · PICK A PLAN ═════ -->
-  <section class="view" id="s-intent" data-section="intent" hidden><div class="pg"><div class="main"><h1>Intent · Outdoor build</h1><p class="sub">Bring the plan as it is, or choose tools to adjust it on the Bench.</p><div class="stb-intent-grid"><div class="stb-intent-reference"><img id="intent-photo" alt=""><p id="intent-source" class="stb-intent-note"></p><div class="stb-intent-card"><h3>Known from the plan</h3><p id="intent-known"></p></div><div>
+  <section class="view" id="s-intent" data-section="intent" hidden>
+    <div class="pg"><div class="main">
+      <h1>Intent · the plan as designed</h1>
+      <p class="sub">Choose your wood and hardware, then ask Store for the published plan as is—or bring added work to the Bench.</p>
+      <div class="build">
+        <div>
+          <img class="photo" id="intent-photo" alt="">
+          <p class="hint" style="margin:5px 2px 10px">A photo, not a drawing. The attached published plan supplies the parts.</p>
+          <table aria-label="Parts, as the published plan gives them">
+            <thead><tr><th>Part</th><th>Qty</th><th>Wood</th><th>Length</th><th>Ends</th></tr></thead>
+            <tbody id="intent-parts"></tbody>
+          </table>
+          <p class="hint" id="intent-source"></p>
+          <details class="card" style="margin-top:12px">
+            <summary>Known facts and published-plan authority</summary>
+            <p id="intent-known" class="note"></p>
+          </details>
+        </div>
+        <div>
           <div class="card kit">
-
-            <button class="cta" id="the-set" type="button">RESET TO THE PUBLISHED PLAN</button>
+            <div style="flex:1 1 220px">
+              <h3>THE PROJECT: “The plan, as designed”</h3>
+              <p id="kit-text"></p>
+            </div>
+            <button class="cta" id="the-set" type="button">ONE CLICK: THE SET</button>
           </div>
-        </div></div><div class="stb-intent-stack"><div class="stb-intent-card" data-knob="WOOD"><h3>Grab your wood</h3><p class="stb-intent-note">Choose the wood class. The prices below are fresh Store answers for this plan, not item-lookup claims.</p><p id="kit-text"></p><p class="hint" id="wood-hint"></p><div id="outdoor-wood-lookup"></div><div class="opts" id="woods"></div></div><div class="card" data-knob="HARDWARE"><h3>HARDWARE PACK: one click</h3><div class="opts" id="tiers"></div><p class="hint" id="tier-hint"></p></div><div class="stb-intent-card"><h3>Bring your tools</h3><p>Length and the plan’s cut geometry are already here. Add a spot tool or decorative end cut to the parts you choose. Set locations and angles on the Bench.</p><p class="stb-intent-note">Spotting means a 3/16 in spot, 3/16 in deep at full diameter after the drill point. The plan supplies no spot locations; you specify those on the Bench.</p><div id="intent-tools"></div></div></div></div><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Attached plan · chosen wood class · hardware choice · length tool · each extra tool assigned to an identified part. Every requested operation stays in the definition.</div><div class="actions"><button class="cta ghost" id="ask-as-is" type="button">ASK STORE FOR THE PLAN AS IS →</button><button class="cta push" id="take-to-bench" type="button">TAKE IT TO THE BENCH →</button></div><p id="as-is-note" class="stb-intent-note"></p></div><aside class="rail dev-build-guide" data-guide-id="outdoor-plan" aria-label="Build guide · developer notes"></aside></div></section>
+          <div class="card" data-knob="WOOD">
+            <h3>WOOD: one click</h3>
+            <div class="opts" id="woods"></div>
+            <p class="hint" id="wood-hint"></p>
+            <details style="margin-top:10px">
+              <summary>Look up an exact Store wood offering</summary>
+              <p class="hint">Catalog discovery is not a buildability answer.</p>
+              <div id="outdoor-wood-lookup"></div>
+            </details>
+          </div>
+          <div class="card" data-knob="HARDWARE">
+            <h3>HARDWARE PACK: one click</h3>
+            <div class="opts" id="tiers"></div>
+            <p class="hint" id="tier-hint"></p>
+          </div>
+          <details class="card">
+            <summary><b>MORE WORK:</b> Spot holes or decorative end cuts</summary>
+            <p class="note">Choose the operation here. Place spots and adjust angles on the Bench. No location is invented from a plan photograph.</p>
+            <div id="intent-tools"></div>
+          </details>
+          <div class="actions">
+            <button class="cta ghost" id="ask-as-is" type="button">ASK STORE FOR THE PLAN AS IS →</button>
+            <button class="cta push" id="take-to-bench" type="button">TAKE IT TO THE BENCH →</button>
+          </div>
+          <p id="as-is-note" class="hint" aria-live="polite"></p>
+        </div>
+      </div>
+      <p class="note" style="margin-top:14px"><b>What travels to the Bench:</b> the published plan, named parts, chosen wood and hardware, original dimensions and any requested additional operations.</p>
+    </div><aside class="rail dev-build-guide" data-guide-id="outdoor-plan" aria-label="Build guide · developer notes"></aside></div>
+  </section>
 
   <!-- ═════ SCREEN 2 · STEPS 2 AND 3 · THE PLAN, AS PUBLISHED ═════ -->
   <section class="view" id="s-build" data-section="build" hidden>
     <div class="pg"><div class="main">
-      <h1 id="build-title">The Bench · Outdoor build</h1><p class="sub">Adjust the tools you brought from Intent. <a href="#" data-to-intent>Change wood or add tools on Intent →</a></p>
+      <h1 id="build-title">The Bench: make it yours</h1>
+      <p class="sub">Turn the tools chosen at Intent. <a href="#" data-to-intent>Change wood, hardware or add tools on Intent →</a></p>
       <div class="build">
         <div>
           <img class="photo" id="photo" alt="">
@@ -244,8 +295,7 @@ tr:last-child td{border-bottom:0}
           </table>
           <p class="hint" id="plan-source"></p>
         </div>
-
-      </div>
+        <div>
           <div class="card" data-knob="SIZE">
             <h3>CUSTOM: grow or shrink</h3>
             <div class="len">
@@ -258,10 +308,16 @@ tr:last-child td{border-bottom:0}
             </div>
             <p class="hint" id="len-hint"></p>
           </div>
-          <p class="note">Your current definition gets its answer from Store.</p><button class="cta" id="bench-ask" type="button">ASK STORE →</button><p class="note" id="bench-status" aria-live="polite"></p>
+          <details class="card">
+            <summary><b>WORK ON THE PARTS:</b> spots and end cuts</summary>
+            <p class="note">Only operations chosen at Intent appear here. The Store must answer their exact positions and angles.</p>
+            <div id="parts-bench"></div>
+          </details>
+          <button class="cta" id="bench-ask" type="button">ASK STORE →</button>
+          <p class="note" id="bench-status" aria-live="polite"></p>
           <p class="more"><button class="quiet-more" type="button" id="to-edge">View operation details →</button></p>
-
-      <h2>Your part tools</h2><div id="parts-bench"></div>
+        </div>
+      </div>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-bench" aria-label="Build guide · developer notes"></aside></div>
   </section>
 
@@ -860,6 +916,7 @@ function renderBuild(){
   const rows=[];
   PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'°, ends parallel':'square')+'</td></tr>')));
   $('parts').innerHTML=rows.join('');
+  $('intent-parts').innerHTML=rows.join('');
   $('plan-source').innerHTML='<a href="'+p.sourceUrl+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. The plan is the project’s; every board, cut, minute and price comes from Store Zero.';
   $('kit-text').textContent=p.kitText(cfg.lengthIn);
   optionButtons();
