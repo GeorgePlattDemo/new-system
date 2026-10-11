@@ -260,7 +260,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=bench-board-aligned-20261011"
+                  src="three-frames.html?v=job1-demo-math-20261011"
                 ></iframe>
               </div>
             `;
@@ -269,7 +269,7 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=bench-board-aligned-20261011';
+            liveFrame.src = 'three-frames.html?v=job1-demo-math-20261011';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -753,6 +753,15 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                 const quote = view?.quote === true;
                 const selection = quote ? view.selection : null;
                 const economics = quote ? view.economics : null;
+                // The original "within limits" badge cannot certify pending or refused Store work.
+                const capabilityBanner=childDoc.getElementById('stb-bench-capability-banner');
+                const capabilityCaption=childDoc.getElementById('stb-bench-capability-text');
+                if(capabilityBanner)capabilityBanner.style.display=quote?'':'none';
+                if(quote&&capabilityCaption){
+                  capabilityCaption.textContent=selection.stockLengthIn>60
+                    ? 'STORE SELECTED A LONGER BOARD'
+                    : demand.finishedLength===16 ? 'WITHIN LIMITS — BUT TIGHT' : 'STORE ANSWERED THIS VERSION';
+                }
                 const work = quote ? view.work : null;
                 const capability = quote ? view.capability : null;
                 const identity = view?.identity || null;
@@ -776,6 +785,14 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
                   formatDegrees(demand.angleDegrees)+' ends');
                 setText('stb-config-angle-value',demand.angleDegrees+'° · both ends · parallel');
                 setText('stb-config-spot-value',demand.spotDemand?'1 centered spot / part':'no spot');
+                // Preserve the original 16/18 explanation, supplemented by the live math of this job.
+                const currentSpot=definition.derived.centerSpotAlongLengthIn?.value;
+                setText('stb-bench-live-math',
+                  'Current '+formatInches(demand.finishedLength)+' · angle = asin(8 ÷ '+Number(demand.finishedLength).toFixed(3)+') = '+
+                  Number(demand.angleDegrees).toFixed(3)+'° · rise = √('+Number(demand.finishedLength).toFixed(3)+'² − 8²) = '+
+                  Number(definition.derived.achievedRiseIn.value).toFixed(3)+' in · spot '+
+                  (demand.spotDemand?'at '+formatInches(currentSpot):'not requested')+'. '+
+                  'The requested minimum is 60 in. Store alone chooses the parent board and its price.');
                 setText('stb-bench-length-spec',formatInches(demand.finishedLength));
                 setText('stb-bench-angle-spec',formatDegrees(demand.angleDegrees));
                 setText('stb-bench-parts-spec',String(demand.quantity));
@@ -966,8 +983,8 @@ import('./shared/tile-host-admission-contract.mjs?v=c7e28077').then(contract => 
               syncStoreGlossary();
               try {
                 const savedBench = JSON.parse(win.localStorage.getItem('stb-start-own-user1-bench') || 'null');
-                const savedLength = Number(savedBench?.definition?.intent?.finishedLengthIn?.value);
-                if (lengthInput && Number.isFinite(savedLength)) lengthInput.value = String(savedLength);
+                // Job 1 always opens its intended 16 in / 30° demo, not an old saved length.
+                if (lengthInput) lengthInput.value = '16';
                 const savedSpecies = savedBench?.definition?.material?.stated?.species;
                 if (typeof savedSpecies === 'string' && SPECIES_WORDS[savedSpecies]) jobSpecies = savedSpecies;
               } catch (_) {}

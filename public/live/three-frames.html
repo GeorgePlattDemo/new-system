@@ -420,11 +420,11 @@
           <g id="stb-bench-dynamic-geometry"></g>
 
           <!-- capability line: within limits but tight -->
-          <g transform="translate(40 244)">
+          <g id="stb-bench-capability-banner" transform="translate(40 244)">
             <rect x="0" y="0" width="238" height="26" rx="13" fill="#f6efe0" stroke="#8a5a20"/>
             <circle cx="18" cy="13" r="6" fill="#8a5a20"/>
             <path d="M15 13 l2.2 2.4 l4-5" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <text x="34" y="17" font-size="11" font-weight="700" fill="#6e4818">WITHIN LIMITS — BUT TIGHT</text>
+            <text id="stb-bench-capability-text" x="34" y="17" font-size="11" font-weight="700" fill="#6e4818">WITHIN LIMITS — BUT TIGHT</text>
           </g>
           <text id="stb-bench-control-copy" x="288" y="261" font-size="10.5" fill="#7b6a58">The 60-in workpiece leaves 27⅝ in after the three cut kerfs; 24 in is the current retained-control minimum.</text>
 
@@ -454,6 +454,7 @@
         <p class="bench-price-line" id="stb-bench-price-line"></p>
         <div class="board-swap" id="stb-bench-board-swap" hidden role="status"></div>
         <p class="fine" id="stb-config-geometry-note">Same two parts, same 8.000 in horizontal span. 16.000 in → 30.000° end cuts. 18.000 in → 26.388° end cuts.</p>
+        <p class="fine" id="stb-bench-live-math" aria-live="polite">Current 16 in · angle = asin(8 ÷ 16) = 30.000° · rise = √(16² − 8²) = 13.856 in · spot at 8 in. The Store selects the board and price.</p>
       </div>
       <div class="specrow">
         <div class="spec"><b>DEFINED WORKPIECE</b><span id="stb-bench-workpiece-spec">2×4 · 60 in</span></div>
