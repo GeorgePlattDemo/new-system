@@ -194,22 +194,34 @@ tr:last-child td{border-bottom:0}
 @media (max-width:700px){.build{grid-template-columns:1fr}}
 .refusals li,.res p,#tried b{overflow-wrap:anywhere}
 
-/* Additions below the original two plan cards. Those cards and the Bench use their original styles. */
-.outdoor-intent-extras{margin-top:16px}
-.outdoor-intent-extras .stb-wood-search,.stb-add-tool-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.outdoor-intent-extras input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:280px;max-width:100%}
-.outdoor-intent-extras button{font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--brand-soft);color:var(--ink);font-weight:700}
-.outdoor-intent-extras button:disabled{opacity:.5}
-.outdoor-intent-extras .stb-wood-result{font-size:12px;color:var(--ink2)}
-.outdoor-intent-extras .stb-wood-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--line);padding:6px 0;font-size:12px}
+/* Compact optional lookups. The original two plan images and Bench remain unchanged. */
+.outdoor-intent-extras{margin-top:14px}
+.outdoor-intent-extras .outdoor-lookups{display:grid;gap:5px;padding:7px 2px 10px;border-bottom:1px solid var(--line)}
+.outdoor-intent-extras .outdoor-lookup-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:30px}
+.outdoor-intent-extras .outdoor-lookup-label{color:var(--muted);font-size:10px;line-height:1.2;letter-spacing:.04em;min-width:85px;font-weight:650}
+.outdoor-intent-extras #outdoor-wood-lookup{min-width:0;flex:1}
+.outdoor-intent-extras .stb-wood-search,.outdoor-intent-extras .stb-add-tool-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0}
+.outdoor-intent-extras .stb-wood-search input[type=search],.outdoor-intent-extras #outdoor-add-tool-input{font:inherit;font-size:11.5px;width:190px;max-width:100%;min-width:0;flex:0 1 220px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
+.outdoor-intent-extras .outdoor-lookup-line button,.outdoor-intent-extras .stb-wood-row button{font:inherit;font-size:10px;font-weight:600;line-height:1.2;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink2);cursor:pointer}
+.outdoor-intent-extras .outdoor-lookup-line button:hover{background:var(--brand-soft);color:var(--ink)}
+.outdoor-intent-extras button:disabled{opacity:.5;cursor:default}
+.outdoor-intent-extras .stb-wood-result{font-size:10.5px;line-height:1.3;color:var(--muted);margin:4px 0;max-width:760px}
+.outdoor-intent-extras .stb-wood-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--line);padding:6px 0;font-size:11px}
 .outdoor-intent-extras .stb-wood-row p{margin:0}
-.stb-added-tools{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
-.stb-added-tools span{border:1px solid var(--brand);border-radius:999px;padding:4px 10px;background:var(--brand-soft);font-size:12px;font-weight:700}
-.stb-added-tools .not-in-plan{opacity:.55;border-style:dashed}
-.stb-ops-list{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card)}
+.outdoor-intent-extras #outdoor-sku-reference{font-size:10.5px;color:var(--muted);margin:0 0 0 94px}
+.outdoor-intent-extras .outdoor-tool-status{margin:0 0 0 94px;font-size:10.5px;color:var(--muted)}
+.outdoor-intent-extras .outdoor-tool-handoff{padding:13px 2px 9px}
+.outdoor-intent-extras .outdoor-handoff-title{font-size:15px;font-weight:750;line-height:1.3;color:var(--ink);margin:0 0 4px}
+.outdoor-intent-extras .outdoor-handoff-intro{font-size:12.5px;color:var(--ink2);margin:0 0 8px}
+.outdoor-intent-extras .stb-added-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.outdoor-intent-extras .stb-added-tools span{border:1px solid var(--brand);border-radius:999px;padding:6px 13px;background:var(--brand-soft);font-size:12.5px;font-weight:700;color:var(--ink)}
+.outdoor-intent-extras .stb-added-tools span.not-in-plan{opacity:.55;border-style:dashed}
+.outdoor-intent-extras .outdoor-handoff-note{margin:4px 0 0;font-size:11.5px;color:var(--muted);line-height:1.4}
+.stb-ops-list{margin-top:9px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card)}
 .stb-ops-list[hidden]{display:none}
 .stb-ops-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .stb-ops-head p.lead{margin:0}
+.stb-ops-head button{font:inherit;font-size:10px;padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card)}
 .stb-ops-note{font-size:11px;color:var(--ink2)}
 .stb-ops-sec{font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-top:1px solid var(--line);padding-top:8px}
 .stb-ops-cols{columns:3 180px;column-gap:16px}
@@ -219,7 +231,11 @@ tr:last-child td{border-bottom:0}
 .stb-ops-g li{font-size:11px;line-height:1.35;color:var(--ink2)}
 .stb-ops-g li.in-job{font-weight:700;color:var(--brand)}
 .stb-ops-g label{display:flex;align-items:flex-start;gap:5px}
-.stb-ops-g input{margin:1px 0 0}
+.stb-ops-g input[type=checkbox]{margin:1px 0 0;width:10px;height:10px;min-width:10px;padding:0;flex:none}
+@media(max-width:620px){
+  .outdoor-intent-extras .outdoor-lookup-label{min-width:100%}
+  .outdoor-intent-extras #outdoor-sku-reference,.outdoor-intent-extras .outdoor-tool-status{margin-left:0}
+}
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
 <script src="stb-intent-kit.js?v=1"></script>
@@ -256,23 +272,30 @@ tr:last-child td{border-bottom:0}
       <p class="sub">Real public plans, turned into a project: every board cut to the plan. You build it.</p>
       <div class="plans" id="plans"></div>
       <div class="outdoor-intent-extras">
-        <div class="card">
-          <h3>ITEM LOOKUP</h3>
-          <div id="outdoor-wood-lookup"></div>
-          <p class="hint">An item lookup identifies Store material; only evaluation can answer whether the plan can be built.</p>
-          <p id="outdoor-sku-reference" class="note" aria-live="polite"></p>
-        </div>
-        <div class="card">
-          <h3>Tools this plan brings to the Bench</h3>
-          <div class="stb-add-tool-row">
-            <input id="outdoor-add-tool-input" type="text" maxlength="40" autocomplete="off" aria-label="Find a tool this plan needs" placeholder="Type a tool, e.g. Taper">
-            <button id="outdoor-add-tool" type="button" aria-controls="outdoor-ops-list" aria-expanded="false">ADD TOOLS</button>
+        <div class="outdoor-lookups" aria-label="Optional material and tool lookups">
+          <div class="outdoor-lookup-line">
+            <span class="outdoor-lookup-label">ITEM LOOKUP</span>
+            <div id="outdoor-wood-lookup"></div>
           </div>
+          <p id="outdoor-sku-reference" class="note" aria-live="polite"></p>
+          <div class="outdoor-lookup-line">
+            <label class="outdoor-lookup-label" for="outdoor-add-tool-input">TOOL LOOKUP</label>
+            <div class="stb-add-tool-row">
+              <input id="outdoor-add-tool-input" type="text" maxlength="40" autocomplete="off" aria-label="Look up a tool for the Bench" placeholder="Tool or operation…">
+              <button id="outdoor-tool-look" type="button" aria-controls="outdoor-ops-list" aria-expanded="false">LOOK UP</button>
+              <button id="outdoor-add-tool" type="button" aria-controls="outdoor-ops-list" aria-expanded="false">ADD TOOLS</button>
+            </div>
+          </div>
+          <p id="outdoor-tool-status" class="outdoor-tool-status" aria-live="polite"></p>
+        </div>
+        <div class="outdoor-tool-handoff">
+          <p class="outdoor-handoff-title">Bring these tools to the Bench</p>
+          <p class="outdoor-handoff-intro">The written plan already gives us the tools for this job. The Bench turns their values.</p>
           <div id="outdoor-known-tools" class="stb-added-tools" aria-label="Tools carried from the published plan">
             <span>Hardware</span><span>Cut</span><span>At an angle</span><span>Wood species</span>
           </div>
-          <p id="outdoor-angle-note" class="hint">Angle cuts are included only for the plan that specifies them.</p>
-          <p class="hint">Spot drill is not selected: the plans do not supply hole locations. New locations may be added on the bigger Bench.</p>
+          <p id="outdoor-angle-note" class="outdoor-handoff-note">Angle cuts are included only for the plan that specifies them.</p>
+          <p class="outdoor-handoff-note">No spot drill: the plans give no hole locations. New locations belong on the bigger Bench.</p>
           <div class="stb-ops-list" id="outdoor-ops-list" hidden>
             <div class="stb-ops-head"><p class="lead">Everything a job could ask for</p><button type="button" id="outdoor-ops-close">CLOSE</button></div>
             <p class="stb-ops-note"><b>Ticked</b> = in this job. Everything else is under construction: shown so you can see where this is going, not offered yet. The drafting tools people already use will be brought to the bench through the files they already save. A few operations already run in other library projects.</p>
@@ -1152,16 +1175,34 @@ $('the-set').onclick=()=>{const plan=S.cfg.plan;S.cfg=planCfg(plan);S.selectedOf
 $('bench-confirm').onclick=()=>{if(answerCurrent()&&usable().store)go('store')};
 $('confirm').textContent='YOUR CALL →';
 $('confirm').onclick=()=>{if(TERMS.state().callOpen)go('call')};
-const opsPanel=$('outdoor-ops-list'),opsAdd=$('outdoor-add-tool'),opsInput=$('outdoor-add-tool-input');
-function showToolList(open){
-  opsPanel.hidden=!open;opsAdd.setAttribute('aria-expanded',String(open));
+const opsPanel=$('outdoor-ops-list'),opsAdd=$('outdoor-add-tool'),opsLook=$('outdoor-tool-look'),opsInput=$('outdoor-add-tool-input'),opsStatus=$('outdoor-tool-status');
+function showToolList(open,filter=false){
+  opsPanel.hidden=!open;
+  opsAdd.setAttribute('aria-expanded',String(open));
+  opsLook.setAttribute('aria-expanded',String(open));
   if(open){
-    const query=opsInput.value.trim().toLowerCase();
-    opsPanel.querySelectorAll('li').forEach(li=>li.hidden=!!query&&!li.textContent.toLowerCase().includes(query));
-  }else opsAdd.focus();
+    const query=filter?opsInput.value.trim().toLowerCase():'';
+    let shown=0;
+    opsPanel.querySelectorAll('li').forEach(li=>{
+      li.hidden=!!query&&!li.textContent.toLowerCase().includes(query);
+      if(!li.hidden)shown++;
+    });
+    opsPanel.querySelectorAll('.stb-ops-g').forEach(group=>{
+      group.hidden=!!query&&!group.querySelector('li:not([hidden])');
+    });
+    opsPanel.querySelectorAll('.stb-ops-sec').forEach(heading=>{
+      const next=heading.nextElementSibling;
+      heading.hidden=!!query&&!(next&&next.querySelector('.stb-ops-g:not([hidden])'));
+    });
+    opsStatus.textContent=query?(shown?shown+' matching tools in the existing catalog.':'No listed tool matches. Nothing was added.'):'Existing tool catalog; entries under construction cannot be added to a Store job.';
+  }else{
+    opsStatus.textContent='';
+    opsAdd.focus();
+  }
 }
-opsAdd.addEventListener('click',()=>showToolList(true));
-opsInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();showToolList(true)}});
+opsLook.addEventListener('click',()=>showToolList(true,true));
+opsAdd.addEventListener('click',()=>showToolList(true,false));
+opsInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();showToolList(true,true)}});
 $('outdoor-ops-close').addEventListener('click',()=>showToolList(false));
 async function openStoreAnswer(){clearTimeout(askTimer);await askExact();if(answerCurrent())go('store')}
 $('bench-ask').onclick=openStoreAnswer;
