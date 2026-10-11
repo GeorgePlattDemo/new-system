@@ -275,6 +275,8 @@
     .cfg{padding:0 16px 12px}
   }
 </style>
+<link rel="stylesheet" href="stb-intent-kit.css?v=1">
+<script src="stb-intent-kit.js?v=1"></script>
 </head>
 <body data-view="trail" data-section="hero">
 <div class="wrap">
@@ -320,8 +322,36 @@
   <div class="page">
     <div class="main">
       <div class="pad">
-        <h1>Your intent: the sketch, the numbers, and the knobs this job needs</h1>
-        <p class="lead">Everything the bench may turn is made here, for this one job. Some knobs come straight off the sketch, some you add by hand. The bench gets these knobs and nothing else.</p>
+        <h1>Intent · Window seat / space utilization</h1><p class="lead">Carry the idea and its sketch forward. Choose your wood and tools here; adjust their values on the Bench.</p><div class="stb-intent-grid"><div class="stb-intent-reference"><img src="window-seat-hero-0.9.webp?v=e65dbb3d" alt="The finished window-seat idea carried from Idea"><p class="stb-intent-note">The original idea, kept beside its measured sketch below. A picture inspires the project; the definition supplies its dimensions.</p><div class="stb-intent-travel"><b>WHAT TRAVELS TO THE BENCH</b>Source sketch · controlling measurements · chosen wood · the tools listed here and any you add. Open questions remain visible.</div></div><div class="stb-intent-stack"><div class="stb-intent-card"><h2>Grab your wood</h2><p>This definition uses nominal 1×8 select boards. Store selects the parent stock for the required finished widths.</p><div class="matprice">
+              <div data-knob="WOOD"><p class="mat-h">Material</p><div id="species" class="swatches">
+                <button type="button" class="swatch" data-material="pine"><span class="dot" style="background:#C9A227"></span>Pine</button>
+                <button type="button" class="swatch" data-material="poplar"><span class="dot" style="background:#9FA678"></span>Poplar</button>
+                <button type="button" class="swatch" data-material="cherry"><span class="dot" style="background:#A6522C"></span>Cherry</button>
+                <button type="button" class="swatch" data-material="oak"><span class="dot" style="background:#C4A06A"></span>Oak</button>
+              </div></div>
+              <div data-knob="SPOTS" class="spotting">
+                <p class="mat-h">Drill spotting <span class="dim" style="font-weight:400;font-size:11px">3/16 in · <span id="v-spots">—</span></span></p>
+                <div class="spotgrid">
+                  <span>Tower sides <span class="dim">shelf pins</span></span>
+                  <div class="seg" id="c-spot-sides"><button type="button" data-k="">Off</button><button type="button" data-k="1.5">1½ in from edge</button><button type="button" data-k="2">2 in from edge</button></div>
+                  <span>Dividers <span class="dim">centered</span></span>
+                  <div class="seg" id="c-spot-div"><button type="button" data-k="">Off</button><button type="button" data-k="on">Centered</button></div>
+                </div>
+                <p class="spotnote">A small starter mark, 3/16 in wide and 3/16 in deep, that you drill through. <b>Tower sides:</b> one on each side board at every shelf height, 1½ or 2 in from the edge, so the shelf pins line up and the shelves sit level. <b>Dividers:</b> one centered where each divider meets the board above and below it, to place its fasteners. The Store spots and prices each one.</p>
+              </div>
+              <div class="pricebar" id="bench-money-box"><div id="bench-money" aria-live="polite"></div></div>
+            </div><div id="seat-wood-lookup"></div></div><div class="stb-intent-card"><div class="sec">
+          <p class="ws-h">BRING YOUR TOOLS</p>
+          <p class="sub">This is Window Seat’s configurator: the knobs made for this job, and only this job. Made from the sketch, by hand where the sketch is silent, or derived by a stated rule. Each one is turned on the bench.</p>
+          <details><summary>Tools already defined from the sketch</summary><div class="box"><div class="bd scroll-x"><table class="pt" id="knob-table"></table></div></div></details>
+          <p class="ws-h" style="margin-top:12px">ADD A TOOL FOR THIS JOB</p>
+          <p class="sub">Adding one here is the only way it reaches the bench. Some knobs bring required facts with them: until those are filled on the bench, the job can’t go to the Store.</p>
+          <div class="addk" id="add-knobs"></div>
+          <p class="ws-h" style="margin-top:12px">ASKED FOR, BUT THE STORE HAS NO LINE FOR IT</p>
+          <p class="sub">Kept on the job and shown at every page. Not sent, and nothing ever claims they were done.</p>
+          <div class="addk" id="kept-asks"></div>
+          <div id="other-wrap" class="opdet" hidden><input class="sel" id="other-text" placeholder="Tell us what you’re asking for" style="flex:1;min-width:220px" aria-label="Something else"></div>
+        </div></div></div></div>
 
         <div class="sec">
           <p class="ws-h">A · THE SKETCH, WITH ITS NUMBERS</p>
@@ -361,18 +391,7 @@
           <div class="box"><div class="bd" id="open-q"></div></div>
         </div>
 
-        <div class="sec">
-          <p class="ws-h">E · THE KNOBS FOR THIS JOB</p>
-          <p class="sub">This is Window Seat’s configurator: the knobs made for this job, and only this job. Made from the sketch, by hand where the sketch is silent, or derived by a stated rule. Each one is turned on the bench.</p>
-          <div class="box"><div class="bd scroll-x"><table class="pt" id="knob-table"></table></div></div>
-          <p class="ws-h" style="margin-top:12px">ADD A KNOB BY HAND, IF THIS JOB NEEDS IT</p>
-          <p class="sub">Adding one here is the only way it reaches the bench. Some knobs bring required facts with them: until those are filled on the bench, the job can’t go to the Store.</p>
-          <div class="addk" id="add-knobs"></div>
-          <p class="ws-h" style="margin-top:12px">ASKED FOR, BUT THE STORE HAS NO LINE FOR IT</p>
-          <p class="sub">Kept on the job and shown at every page. Not sent, and nothing ever claims they were done.</p>
-          <div class="addk" id="kept-asks"></div>
-          <div id="other-wrap" class="opdet" hidden><input class="sel" id="other-text" placeholder="Tell us what you’re asking for" style="flex:1;min-width:220px" aria-label="Something else"></div>
-        </div>
+
 
         <div class="sec">
           <p class="ws-h">F · WHO OWNS WHAT</p>
@@ -406,25 +425,7 @@
         <div class="cfg">
           <div class="stage">
             <div class="ws-draw"><svg id="elev" viewBox="0 0 520 400" role="img" aria-label="Window seat elevation: left tower, center window-seat module with upper storage, right tower"></svg></div>
-            <div class="matprice">
-              <div data-knob="WOOD"><p class="mat-h">Material</p><div id="species" class="swatches">
-                <button type="button" class="swatch" data-material="pine"><span class="dot" style="background:#C9A227"></span>Pine</button>
-                <button type="button" class="swatch" data-material="poplar"><span class="dot" style="background:#9FA678"></span>Poplar</button>
-                <button type="button" class="swatch" data-material="cherry"><span class="dot" style="background:#A6522C"></span>Cherry</button>
-                <button type="button" class="swatch" data-material="oak"><span class="dot" style="background:#C4A06A"></span>Oak</button>
-              </div></div>
-              <div data-knob="SPOTS" class="spotting">
-                <p class="mat-h">Drill spotting <span class="dim" style="font-weight:400;font-size:11px">3/16 in · <span id="v-spots">—</span></span></p>
-                <div class="spotgrid">
-                  <span>Tower sides <span class="dim">shelf pins</span></span>
-                  <div class="seg" id="c-spot-sides"><button type="button" data-k="">Off</button><button type="button" data-k="1.5">1½ in from edge</button><button type="button" data-k="2">2 in from edge</button></div>
-                  <span>Dividers <span class="dim">centered</span></span>
-                  <div class="seg" id="c-spot-div"><button type="button" data-k="">Off</button><button type="button" data-k="on">Centered</button></div>
-                </div>
-                <p class="spotnote">A small starter mark, 3/16 in wide and 3/16 in deep, that you drill through. <b>Tower sides:</b> one on each side board at every shelf height, 1½ or 2 in from the edge, so the shelf pins line up and the shelves sit level. <b>Dividers:</b> one centered where each divider meets the board above and below it, to place its fasteners. The Store spots and prices each one.</p>
-              </div>
-              <div class="pricebar" id="bench-money-box"><div id="bench-money" aria-live="polite"></div></div>
-            </div>
+            <p class="dim">Wood selected on Intent. <a href="#s-intent" data-to="intent">Change wood or tools →</a></p>
             <div class="card" style="margin:12px 0 0">
               <p class="lb">THE BENCH PRODUCES</p>
               <div id="produces"></div>
@@ -1689,6 +1690,7 @@ $('mfields').addEventListener('input',()=>{readFacts();changed()});
 $('mfields').addEventListener('change',()=>{readFacts();changed()});
 ['ws-pref','ws-off'].forEach(h=>$(h).addEventListener('click',e=>{const b=e.target.closest('.ws-chip');if(!b)return;
   const a=h==='ws-pref'?I.pref:I.off;a[+b.dataset.i].on=!a[+b.dataset.i].on;changed()}));
+window.STBIntentKit.mountWoodLookup({host:$('seat-wood-lookup'),projectId:TILE_ID,candidateRevisionId:()=>String(rev.n),requirementText:'This definition uses nominal 1×8 select boards.',accept:r=>r.form==='board'&&Number(r.nominalT)===1&&Number(r.nominalW)===8&&r.grade==='select'&&['pine','poplar','cherry','oak'].includes(r.species),onPick:r=>{P.wood=r.species;changed()}});
 $('add-knobs').addEventListener('change',e=>{const c=e.target.closest('[data-add]');if(!c)return;
   const k=c.dataset.add;I.added[k]=c.checked;
   /* A knob added by hand starts with its required facts empty. No hidden defaults. */
