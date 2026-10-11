@@ -537,6 +537,41 @@ test("a cut-package field the translator does not read reaches the Store, which 
   }
 });
 
+test("Outdoor option alternatives get independent Store receipts even when one wood is unavailable", async () => {
+  const window: Record<string, any> = {};
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window});
+  const leg = {partId:"LEG-01",lengthIn:31.375};
+  const endCut = {angleDeg:25,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face"};
+  const options = {
+    configurationId:"OUTDOOR-PICNIC-OPTIONS",configurationVersion:"independent-options",optionWood:"treated",
+    cutPackages:[
+      {packageId:"treated|LEGS",material:{species:"syp-treated",form:"board",nominalT:2,nominalW:6,grade:"above-ground"},endCut,parts:[leg]},
+      {packageId:"cherry|LEGS",material:{species:"cherry",form:"board",nominalT:2,nominalW:6,grade:"select"},endCut,parts:[leg]}
+    ],
+    itemLines:[{lineId:"COATED|S25",qty:100,requirement:{kind:"wood-screw",gauge:"#10",lengthIn:2.5,finish:"coated",unit:"piece"}}]
+  };
+  const variants = window.STBOutdoorOptionRequests.split(options);
+  const receipts = new Set<string>();
+  const answers = new Map<string, Record<string, any>>();
+  for (const variant of variants) {
+    const def = variant.definition;
+    const revision = def.configurationVersion;
+    const response = await answerPublishedWire(wireFor("outdoor","CUT_PACKAGE_V1",revision,{definition:def,definitionKind:"cut_package.v1",ruleVersion:"0.1"}),await storeOrigin());
+    assert.equal(response.httpStatus,200);
+    const body = response.body as Record<string, any>;
+    assert.equal(body.candidateRevisionId,revision);
+    assert.match(body.evaluationReceipt.manifestHash,/^[a-f0-9]{64}$/);
+    receipts.add(body.evaluationReceipt.receiptHash);
+    answers.set(variant.kind+":"+variant.key,body);
+  }
+  assert.equal(receipts.size,3);
+  assert.equal(answers.get("wood:treated")?.rawEvaluation.status,"SUPPORTABLE");
+  assert.notEqual(answers.get("wood:cherry")?.rawEvaluation.status,"SUPPORTABLE");
+  assert.equal(answers.get("wood:cherry")?.rawEstimate.totals.Q,null);
+  assert.equal(answers.get("tier:COATED")?.rawEvaluation.status,"SUPPORTABLE");
+  assert.ok(answers.get("tier:COATED")?.rawEvaluation.items[0].Q>0);
+});
+
 test("a missing angle, spot, or item line is not sent as a smaller job", async () => {
   const origin = await storeOrigin();
   const missingAngle = await answerPublishedWire(wireFor("outdoor", "CUT_PACKAGE_V1", "no-angle", {

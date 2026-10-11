@@ -586,6 +586,7 @@ tr:last-child td{border-bottom:0}
 <script src="stb-terms-flow.js?v=365d795c"></script>
 <script src="stb-build-guide-spec.js?v=e642d09a"></script>
 <script src="stb-trail-contract.js?v=aea2f84d"></script>
+<script src="stb-outdoor-option-requests.js?v=1"></script>
 <script>
 (function(){
 'use strict';
@@ -777,13 +778,12 @@ function definitionFor(cfg,prefix){
   return {definition:{configurationId:'OUTDOOR-PICNIC-'+cfg.plan.toUpperCase(),configurationVersion:prefix+sig,...body},record:rec,sig};
 }
 const buildRequest=()=>S.cfg?definitionFor(S.cfg,'od-r'+S.rev+'-'):null;
-/* One request for the option prices: every wood and, unless hardware is off, every hardware pack, for this table and
-   this work. These are the Store's own line prices; your call only ever uses the exact answer. The revision id is the
-   hash of exactly the body sent, so a different definition never shares an id. */
+/* Prepare alternatives for this table and work. askOptions sends each alternative as an independent Store job.
+   The options never enter the terms flow; your call only ever uses the exact selected definition's answer. */
 function optionsRequest(cfg,{hardware=true}={}){
   const body={cutPackages:packagesFor(cfg,WOODS.map(w=>w.key))};
   if(hardware)body.itemLines=itemsFor(cfg,TIERS.map(t=>t.key));
-  return {configurationId:OPTIONS_CONFIGURATION,configurationVersion:'od-options-'+hash(JSON.stringify(body)),...body};
+  return {configurationId:OPTIONS_CONFIGURATION,configurationVersion:'od-options-'+hash(JSON.stringify({body,wood:cfg.wood})),optionWood:cfg.wood,...body};
 }
 
 /* ═════ CONDITIONS: ours to settle, not the Store's ═════ */
@@ -861,6 +861,14 @@ function storeTransport(definition,got){
 /* Option and "From" prices: an OUTDOOR_OPTIONS inquiry. Its answer never reaches the terms flow. */
 async function askOptions(def){
   if(!C)throw new Error('TILE_HOST_CONTRACT_UNAVAILABLE');
+  const variants=window.STBOutdoorOptionRequests.split(def);
+  const answers=await Promise.all(variants.map(async variant=>({variant,body:await askOption(variant.definition)})));
+  return {rawEvaluation:{
+    packages:answers.filter(a=>a.variant.kind==='wood').flatMap(a=>a.body.rawEvaluation?.packages||[]),
+    items:answers.filter(a=>a.variant.kind==='tier').flatMap(a=>a.body.rawEvaluation?.items||[])
+  }};
+}
+async function askOption(def){
   const admission=C.admit({revision:optionsRevision(def),inquiryScope:OPTIONS_SCOPE});
   if(!admitted(admission))throw new Error('Not sent to the Store. Missing: '+ownerLine(admission));
   const got={};

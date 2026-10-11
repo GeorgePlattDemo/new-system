@@ -28,6 +28,8 @@ Do not add a word just to make the page longer. Add one when two trades would ot
 
 **Budgetary total (Q)** — The number the Store returned for a supportable job. Not a quote. A partial sum of supportable lines is not a full job Q. Discovery has no Q.
 
+**Outdoor option preview** — Each alternative wood is evaluated as a separate complete manufacturing job. Each hardware alternative is evaluated with the currently selected wood. Displayed option amounts come only from the corresponding fresh Store answer. Alternatives never share stock allocation or part identities in one inquiry, and their preview answers never enter the commercial terms flow. The selected definition receives its own independent evaluation before proceeding.
+
 **Your call** — Reviewing the current Store answer for this revision and receipt. A fully evaluated supportable answer permits simulated acceptance, once per revision and receipt. Alcove may also show a complete scoped budgetary estimate with every unevaluated requirement disclosed; that review cannot create an offer, acceptance, payment, yard entry, production or pickup. An older acceptance stays in the file and does not become the state of a later refusal.
 
 **Through-edge profile requirement** — A named feature on a finished part, stating its path length, position across the width and through depth. The cut-package inquiry carries these literal values in `parts[].edgeProfiles`. Store answers whether its parent-board preparation fulfills them; System does not substitute a different profile.
