@@ -193,6 +193,33 @@ tr:last-child td{border-bottom:0}
 @media (max-width:900px){.edge-grid{grid-template-columns:1fr}}
 @media (max-width:700px){.build{grid-template-columns:1fr}}
 .refusals li,.res p,#tried b{overflow-wrap:anywhere}
+
+/* Additions below the original two plan cards. Those cards and the Bench use their original styles. */
+.outdoor-intent-extras{margin-top:16px}
+.outdoor-intent-extras .stb-wood-search,.stb-add-tool-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.outdoor-intent-extras input{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:280px;max-width:100%}
+.outdoor-intent-extras button{font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--brand-soft);color:var(--ink);font-weight:700}
+.outdoor-intent-extras button:disabled{opacity:.5}
+.outdoor-intent-extras .stb-wood-result{font-size:12px;color:var(--ink2)}
+.outdoor-intent-extras .stb-wood-row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:1px solid var(--line);padding:6px 0;font-size:12px}
+.outdoor-intent-extras .stb-wood-row p{margin:0}
+.stb-added-tools{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.stb-added-tools span{border:1px solid var(--brand);border-radius:999px;padding:4px 10px;background:var(--brand-soft);font-size:12px;font-weight:700}
+.stb-added-tools .not-in-plan{opacity:.55;border-style:dashed}
+.stb-ops-list{margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--card)}
+.stb-ops-list[hidden]{display:none}
+.stb-ops-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stb-ops-head p.lead{margin:0}
+.stb-ops-note{font-size:11px;color:var(--ink2)}
+.stb-ops-sec{font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-top:1px solid var(--line);padding-top:8px}
+.stb-ops-cols{columns:3 180px;column-gap:16px}
+.stb-ops-g{break-inside:avoid;margin-bottom:8px}
+.stb-ops-g h4{font-size:10px;letter-spacing:.04em;margin:6px 0 2px;color:var(--brand)}
+.stb-ops-g ul{list-style:none;margin:0;padding:0}
+.stb-ops-g li{font-size:11px;line-height:1.35;color:var(--ink2)}
+.stb-ops-g li.in-job{font-weight:700;color:var(--brand)}
+.stb-ops-g label{display:flex;align-items:flex-start;gap:5px}
+.stb-ops-g input{margin:1px 0 0}
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
 <script src="stb-intent-kit.js?v=1"></script>
@@ -215,9 +242,9 @@ tr:last-child td{border-bottom:0}
   <section class="view" id="s-idea" data-section="idea">
     <div class="pg"><div class="main">
       <h1>Idea · the plans you brought</h1>
-      <p class="sub">Choose a picnic table idea. Its published plan and reference image travel to Intent.</p>
-      <div class="plans" id="plans"></div><details><summary>Published plan facts and sources</summary><div id="idea-plans"></div></details>
-      <p class="note"><b>Nobody types these again.</b> Choose a table above to carry its plan into Intent.</p>
+      <p class="sub">Two published picnic table plans land here and end at Intent. Idea is not a step.</p>
+      <div id="idea-plans"></div>
+      <p class="note"><b>Nobody types these again.</b> Intent opens with every value this project already has. Choose Intent above to go on.</p>
       <p class="hint">Idea makes no machine motion. It is where the job’s source material lives.</p>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-idea" aria-label="Build guide · developer notes"></aside></div>
   </section>
@@ -225,66 +252,50 @@ tr:last-child td{border-bottom:0}
   <!-- ═════ SCREEN 1 · STEP 1 · PICK A PLAN ═════ -->
   <section class="view" id="s-intent" data-section="intent" hidden>
     <div class="pg"><div class="main">
-      <h1>Intent · the plan as designed</h1>
-      <p class="sub">Choose your wood and hardware, then ask Store for the published plan as is—or bring added work to the Bench.</p>
-      <div class="build">
-        <div>
-          <img class="photo" id="intent-photo" alt="">
-          <p class="hint" style="margin:5px 2px 10px">A photo, not a drawing. The attached published plan supplies the parts.</p>
-          <table aria-label="Parts, as the published plan gives them">
-            <thead><tr><th>Part</th><th>Qty</th><th>Wood</th><th>Length</th><th>Ends</th></tr></thead>
-            <tbody id="intent-parts"></tbody>
-          </table>
-          <p class="hint" id="intent-source"></p>
-          <details class="card" style="margin-top:12px">
-            <summary>Known facts and published-plan authority</summary>
-            <p id="intent-known" class="note"></p>
-          </details>
+      <h1>Two proven plans. Pick one. Make it yours.</h1>
+      <p class="sub">Real public plans, turned into a project: every board cut to the plan. You build it.</p>
+      <div class="plans" id="plans"></div>
+      <div class="outdoor-intent-extras">
+        <div class="card">
+          <h3>ITEM LOOKUP</h3>
+          <div id="outdoor-wood-lookup"></div>
+          <p class="hint">An item lookup identifies Store material; only evaluation can answer whether the plan can be built.</p>
+          <p id="outdoor-sku-reference" class="note" aria-live="polite"></p>
         </div>
-        <div>
-          <div class="card kit">
-            <div style="flex:1 1 220px">
-              <h3>THE PROJECT: “The plan, as designed”</h3>
-              <p id="kit-text"></p>
-            </div>
-            <button class="cta" id="the-set" type="button">ONE CLICK: THE SET</button>
+        <div class="card">
+          <h3>Tools this plan brings to the Bench</h3>
+          <div class="stb-add-tool-row">
+            <input id="outdoor-add-tool-input" type="text" maxlength="40" autocomplete="off" aria-label="Find a tool this plan needs" placeholder="Type a tool, e.g. Taper">
+            <button id="outdoor-add-tool" type="button" aria-controls="outdoor-ops-list" aria-expanded="false">ADD TOOLS</button>
           </div>
-          <div class="card" data-knob="WOOD">
-            <h3>WOOD: one click</h3>
-            <div class="opts" id="woods"></div>
-            <p class="hint" id="wood-hint"></p>
-            <details style="margin-top:10px">
-              <summary>Look up an exact Store wood offering</summary>
-              <p class="hint">Catalog discovery is not a buildability answer.</p>
-              <div id="outdoor-wood-lookup"></div>
-            </details>
+          <div id="outdoor-known-tools" class="stb-added-tools" aria-label="Tools carried from the published plan">
+            <span>Hardware</span><span>Cut</span><span>At an angle</span><span>Wood species</span>
           </div>
-          <div class="card" data-knob="HARDWARE">
-            <h3>HARDWARE PACK: one click</h3>
-            <div class="opts" id="tiers"></div>
-            <p class="hint" id="tier-hint"></p>
+          <p id="outdoor-angle-note" class="hint">Angle cuts are included only for the plan that specifies them.</p>
+          <p class="hint">Spot drill is not selected: the plans do not supply hole locations. New locations may be added on the bigger Bench.</p>
+          <div class="stb-ops-list" id="outdoor-ops-list" hidden>
+            <div class="stb-ops-head"><p class="lead">Everything a job could ask for</p><button type="button" id="outdoor-ops-close">CLOSE</button></div>
+            <p class="stb-ops-note"><b>Ticked</b> = in this job. Everything else is under construction: shown so you can see where this is going, not offered yet. The drafting tools people already use will be brought to the bench through the files they already save. A few operations already run in other library projects.</p>
+            <h3 class="stb-ops-sec">Operations</h3>
+            <div class="stb-ops-cols"><section class="stb-ops-g"><h4>Setup</h4><ul><li class="in-job"><label><input type="checkbox" disabled checked> Wood species, carried to the bench</label></li><li><label><input type="checkbox" disabled> Layout toolset: grid, square, dimensions</label></li><li><label><input type="checkbox" disabled> Measure from a scan or photo</label></li><li><label><input type="checkbox" disabled> Import a cut list</label></li></ul></section><section class="stb-ops-g"><h4>Cutting</h4><ul><li class="in-job"><label><input type="checkbox" disabled checked> Cut to length</label></li><li><label><input type="checkbox" disabled> Angle, one end</label></li><li><label><input type="checkbox" disabled> Angle, both ends, same</label></li><li><label><input type="checkbox" disabled> Angle, both ends, different</label></li><li><label><input type="checkbox" disabled> Bevel</label></li><li><label><input type="checkbox" disabled> Compound miter</label></li><li><label><input type="checkbox" disabled> Rip to width</label></li><li><label><input type="checkbox" disabled> Taper</label></li><li><label><input type="checkbox" disabled> Notch</label></li><li><label><input type="checkbox" disabled> Dado</label></li><li><label><input type="checkbox" disabled> Rabbet</label></li><li><label><input type="checkbox" disabled> Half-lap</label></li><li><label><input type="checkbox" disabled> Kerf cuts</label></li></ul></section><section class="stb-ops-g"><h4>Drilling</h4><ul><li><label><input type="checkbox" disabled> Spot drill, top face</label></li><li><label><input type="checkbox" disabled> Spot drill, end grain</label></li><li><label><input type="checkbox" disabled> Through-hole</label></li><li><label><input type="checkbox" disabled> Countersink</label></li><li><label><input type="checkbox" disabled> Counterbore</label></li><li><label><input type="checkbox" disabled> Pocket holes</label></li><li><label><input type="checkbox" disabled> Dowel holes</label></li><li><label><input type="checkbox" disabled> Shelf-pin holes</label></li><li><label><input type="checkbox" disabled> Hinge cups</label></li></ul></section><section class="stb-ops-g"><h4>Routing and milling</h4><ul><li><label><input type="checkbox" disabled> Mill to width</label></li><li><label><input type="checkbox" disabled> Roundover</label></li><li><label><input type="checkbox" disabled> Chamfer</label></li><li><label><input type="checkbox" disabled> Edge profile</label></li><li><label><input type="checkbox" disabled> Groove</label></li><li><label><input type="checkbox" disabled> Slot</label></li><li><label><input type="checkbox" disabled> Cutout</label></li><li><label><input type="checkbox" disabled> Arch or curve</label></li><li><label><input type="checkbox" disabled> Mortise</label></li><li><label><input type="checkbox" disabled> Tenon</label></li><li><label><input type="checkbox" disabled> Finger joint</label></li></ul></section><section class="stb-ops-g"><h4>Surface</h4><ul><li><label><input type="checkbox" disabled> Plane to thickness</label></li><li><label><input type="checkbox" disabled> Joint an edge</label></li><li><label><input type="checkbox" disabled> Sand</label></li></ul></section><section class="stb-ops-g"><h4>Prefinish</h4><ul><li><label><input type="checkbox" disabled> Prime</label></li><li><label><input type="checkbox" disabled> Paint</label></li><li><label><input type="checkbox" disabled> Stain</label></li><li><label><input type="checkbox" disabled> Clear coat or seal</label></li></ul></section><section class="stb-ops-g"><h4>Marking</h4><ul><li><label><input type="checkbox" disabled> Part labels</label></li><li><label><input type="checkbox" disabled> Engrave or brand</label></li></ul></section><section class="stb-ops-g"><h4>Secondary work</h4><ul><li><label><input type="checkbox" disabled> Kit and bundle</label></li><li><label><input type="checkbox" disabled> Inspection</label></li><li><label><input type="checkbox" disabled> Hardware included</label></li><li><label><input type="checkbox" disabled> Hardware installed</label></li><li><label><input type="checkbox" disabled> Pre-assembly</label></li><li><label><input type="checkbox" disabled> Glue-up</label></li></ul></section><section class="stb-ops-g"><h4>Getting it to you</h4><ul><li><label><input type="checkbox" disabled> Stage for pickup</label></li><li><label><input type="checkbox" disabled> Delivery</label></li><li><label><input type="checkbox" disabled> Site measure</label></li><li><label><input type="checkbox" disabled> Installation</label></li></ul></section></div>
+            <h3 class="stb-ops-sec">Trim profiles</h3>
+            <div class="stb-ops-cols"><section class="stb-ops-g"><h4>Casing</h4><ul><li><label><input type="checkbox" disabled> Colonial casing</label></li><li><label><input type="checkbox" disabled> Ranch (clamshell) casing</label></li><li><label><input type="checkbox" disabled> Craftsman flat casing</label></li><li><label><input type="checkbox" disabled> Fluted casing</label></li><li><label><input type="checkbox" disabled> Back band</label></li></ul></section><section class="stb-ops-g"><h4>Base</h4><ul><li><label><input type="checkbox" disabled> Colonial base</label></li><li><label><input type="checkbox" disabled> Ranch base</label></li><li><label><input type="checkbox" disabled> Craftsman flat base</label></li><li><label><input type="checkbox" disabled> Ogee base</label></li><li><label><input type="checkbox" disabled> Base cap</label></li><li><label><input type="checkbox" disabled> Base shoe</label></li></ul></section><section class="stb-ops-g"><h4>Crown and ceiling</h4><ul><li><label><input type="checkbox" disabled> Cove crown</label></li><li><label><input type="checkbox" disabled> Ogee crown</label></li><li><label><input type="checkbox" disabled> Bed mould</label></li><li><label><input type="checkbox" disabled> Cove</label></li><li><label><input type="checkbox" disabled> Picture rail</label></li></ul></section><section class="stb-ops-g"><h4>Wall and panel</h4><ul><li><label><input type="checkbox" disabled> Chair rail</label></li><li><label><input type="checkbox" disabled> Panel mould</label></li><li><label><input type="checkbox" disabled> Quarter round</label></li><li><label><input type="checkbox" disabled> Half round</label></li><li><label><input type="checkbox" disabled> Corner guard</label></li><li><label><input type="checkbox" disabled> Lattice</label></li><li><label><input type="checkbox" disabled> Screen mould</label></li></ul></section><section class="stb-ops-g"><h4>Windows and doors</h4><ul><li><label><input type="checkbox" disabled> Window stool</label></li><li><label><input type="checkbox" disabled> Apron</label></li><li><label><input type="checkbox" disabled> Door stop</label></li><li><label><input type="checkbox" disabled> Glass bead</label></li><li><label><input type="checkbox" disabled> Brick mould</label></li><li><label><input type="checkbox" disabled> Plinth block</label></li><li><label><input type="checkbox" disabled> Rosette</label></li></ul></section><section class="stb-ops-g"><h4>Your own</h4><ul><li><label><input type="checkbox" disabled> Match an existing profile from a sample or photo</label></li></ul></section></div>
+            <h3 class="stb-ops-sec">Drafting tools, brought to the bench</h3>
+            <div class="stb-ops-cols"><section class="stb-ops-g"><h4>2D drawings · DXF, SVG</h4><ul><li><label><input type="checkbox" disabled> LibreCAD</label></li><li><label><input type="checkbox" disabled> QCAD</label></li><li><label><input type="checkbox" disabled> Inkscape</label></li><li><label><input type="checkbox" disabled> Any tool that saves DXF or SVG</label></li></ul></section><section class="stb-ops-g"><h4>3D models · STEP</h4><ul><li><label><input type="checkbox" disabled> FreeCAD</label></li><li><label><input type="checkbox" disabled> SolveSpace</label></li><li><label><input type="checkbox" disabled> Any tool that saves STEP</label></li></ul></section></div>
+            <h3 class="stb-ops-sec">Special order · through the yard’s own vendors</h3>
+            <div class="stb-ops-cols"><section class="stb-ops-g"><h4>Openings</h4><ul><li><label><input type="checkbox" disabled> Windows</label></li><li><label><input type="checkbox" disabled> Exterior doors</label></li><li><label><input type="checkbox" disabled> Interior doors</label></li><li><label><input type="checkbox" disabled> Storm and screen doors</label></li><li><label><input type="checkbox" disabled> Garage doors</label></li></ul></section><section class="stb-ops-g"><h4>Cabinets and millwork</h4><ul><li><label><input type="checkbox" disabled> Cabinet doors and drawer fronts</label></li><li><label><input type="checkbox" disabled> Custom millwork</label></li><li><label><input type="checkbox" disabled> Stair parts</label></li><li><label><input type="checkbox" disabled> Columns and porch posts</label></li></ul></section><section class="stb-ops-g"><h4>Exterior</h4><ul><li><label><input type="checkbox" disabled> Siding, by the bundle or truckload</label></li><li><label><input type="checkbox" disabled> Trim boards, composite or PVC</label></li><li><label><input type="checkbox" disabled> Decking and railing</label></li><li><label><input type="checkbox" disabled> Roofing</label></li></ul></section><section class="stb-ops-g"><h4>Structure</h4><ul><li><label><input type="checkbox" disabled> Engineered lumber: LVL, I-joists</label></li><li><label><input type="checkbox" disabled> Trusses</label></li><li><label><input type="checkbox" disabled> Specialty species or long lengths</label></li></ul></section><section class="stb-ops-g"><h4>Hardware</h4><ul><li><label><input type="checkbox" disabled> Hinges and pulls</label></li><li><label><input type="checkbox" disabled> Fasteners in bulk</label></li><li><label><input type="checkbox" disabled> Brackets and connectors</label></li></ul></section></div>
+            <h3 class="stb-ops-sec">For the yard</h3>
+            <div class="stb-ops-cols"><section class="stb-ops-g"><h4>Pricing</h4><ul><li><label><input type="checkbox" disabled> Dealer multiplier, set by the yard for its own margin</label></li></ul></section><section class="stb-ops-g"><h4>Ordering</h4><ul><li><label><input type="checkbox" disabled> Special orders combined into the yard’s regular vendor order</label></li></ul></section></div>
           </div>
-          <details class="card">
-            <summary><b>MORE WORK:</b> Spot holes or decorative end cuts</summary>
-            <p class="note">Choose the operation here. Place spots and adjust angles on the Bench. No location is invented from a plan photograph.</p>
-            <div id="intent-tools"></div>
-          </details>
-          <div class="actions">
-            <button class="cta ghost" id="ask-as-is" type="button">ASK STORE FOR THE PLAN AS IS →</button>
-            <button class="cta push" id="take-to-bench" type="button">TAKE IT TO THE BENCH →</button>
-          </div>
-          <p id="as-is-note" class="hint" aria-live="polite"></p>
         </div>
       </div>
-      <p class="note" style="margin-top:14px"><b>What travels to the Bench:</b> the published plan, named parts, chosen wood and hardware, original dimensions and any requested additional operations.</p>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-plan" aria-label="Build guide · developer notes"></aside></div>
   </section>
 
   <!-- ═════ SCREEN 2 · STEPS 2 AND 3 · THE PLAN, AS PUBLISHED ═════ -->
   <section class="view" id="s-build" data-section="build" hidden>
     <div class="pg"><div class="main">
-      <h1 id="build-title">The Bench: make it yours</h1>
-      <p class="sub">Turn the tools chosen at Intent. <a href="#" data-to-intent>Change wood, hardware or add tools on Intent →</a></p>
+      <h1 id="build-title">The bench: make it yours</h1>
       <div class="build">
         <div>
           <img class="photo" id="photo" alt="">
@@ -296,6 +307,12 @@ tr:last-child td{border-bottom:0}
           <p class="hint" id="plan-source"></p>
         </div>
         <div>
+          <div class="card kit">
+            <div style="flex:1 1 220px"><h3>THE PROJECT: “The plan, as designed”</h3><p id="kit-text"></p></div>
+            <button class="cta" id="the-set" type="button">ONE CLICK: THE SET</button>
+          </div>
+          <div class="card" data-knob="WOOD"><h3>WOOD: one click</h3><div class="opts" id="woods"></div><p class="hint" id="wood-hint"></p></div>
+          <div class="card" data-knob="HARDWARE"><h3>HARDWARE PACK: one click</h3><div class="opts" id="tiers"></div><p class="hint" id="tier-hint"></p></div>
           <div class="card" data-knob="SIZE">
             <h3>CUSTOM: grow or shrink</h3>
             <div class="len">
@@ -308,16 +325,14 @@ tr:last-child td{border-bottom:0}
             </div>
             <p class="hint" id="len-hint"></p>
           </div>
-          <details class="card">
-            <summary><b>WORK ON THE PARTS:</b> spots and end cuts</summary>
-            <p class="note">Only operations chosen at Intent appear here. The Store must answer their exact positions and angles.</p>
-            <div id="parts-bench"></div>
-          </details>
-          <button class="cta" id="bench-ask" type="button">ASK STORE →</button>
-          <p class="note" id="bench-status" aria-live="polite"></p>
-          <p class="more"><button class="quiet-more" type="button" id="to-edge">View operation details →</button></p>
+          <div class="answer" id="bench-answer"><button class="cta ghost" type="button" id="bench-ask" style="float:right">ASK STORE ↻</button>
+            <div id="bench-instant"></div>
+            <button class="cta" id="bench-confirm" type="button" disabled style="margin-top:8px">SEE THE STORE ANSWER →</button>
+          </div>
+          <p class="more"><button class="quiet-more" type="button" id="to-edge">Bring this to a bigger bench for more work →</button></p>
         </div>
       </div>
+      <div class="doctrine card" id="store-doctrine"></div>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-bench" aria-label="Build guide · developer notes"></aside></div>
   </section>
 
@@ -327,9 +342,9 @@ tr:last-child td{border-bottom:0}
       <div class="benchtop">
         <figure><img id="edge-photo" alt=""><figcaption>What you chose. A photo of a finished table, not a drawing.</figcaption></figure>
         <div>
-          <h2>Operation details</h2>
+          <h2>A bigger bench: more work, and where it stops</h2>
           <div class="edge-head">
-            <p><b>Each requested operation stays attached to its part.</b> Choose extra tools on Intent and set their values on the Bench. The Store answers what it can do. Where something can’t be done, this page says why, and who upstream could add it.</p>
+            <p><b>This is where the plan runs out, and where this app stops today.</b> Try the extra work below. The Store answers what it can do. Where something can’t be done, this page says why, and who upstream could add it.</p>
             <p>Information travels before atoms. What’s missing here is missing information: a plan that doesn’t say where the holes go, a machine that doesn’t declare a cut. Add it upstream, and the edge moves.</p>
           </div>
           <div class="answer" id="edge-answer"></div>
@@ -342,7 +357,7 @@ tr:last-child td{border-bottom:0}
 
       <h2>Try it: every board, on the bench</h2>
       <p class="note" style="margin:0 0 10px">Each board is drawn to its length, with its ends as cut. <b>Spot holes</b> marks a 3/16 in drill spot where you say. <b>Add a decorative cut</b> angles both ends of a square-cut board.</p>
-      <p class="note">Tools are chosen on <a href="#" data-to-intent>Intent</a>; their values are adjusted on the Bench.</p>
+      <div id="parts-bench"></div>
 
       <h2 style="margin-top:18px">What happened, and where it stops</h2>
       <div class="edge-grid">
@@ -544,7 +559,7 @@ function manifest(cfg){
 /* ═════ STATE: one definition ═════ */
 const START_LEN=72;
 const S={section:'idea',step:null,cfg:null,rev:1,answer:null,asking:false,error:null,token:0,blocked:null,
-  options:null,optionsKey:'',optionsAsking:false,optionsError:null,from:{}};
+  options:null,optionsKey:'',optionsAsking:false,optionsError:null,from:{},selectedOffering:null};
 const TERMS=window.STBTermsFlow.create({projectId:'outdoor',title:'Outdoor · picnic table'});
 const clone=v=>JSON.parse(JSON.stringify(v));
 
@@ -603,7 +618,7 @@ function work(cfg){
 function record(cfg){
   const p=PLANS[cfg.plan];
   return {plan:cfg.plan,source:p.source,lengthIn:cfg.lengthIn,wood:cfg.wood,hardware:cfg.tier,
-    work:work(cfg),angleConvention:p.angleNote,unresolved:RULE.unresolved.slice(),
+    work:work(cfg),referenceStoreSku:S.selectedOffering?.storeSku||null,angleConvention:p.angleNote,unresolved:RULE.unresolved.slice(),
     holeLocations:'not published by the plan; only where the customer places them'};
 }
 function definitionFor(cfg,prefix){
@@ -826,8 +841,8 @@ function boardSvg(len,board,angle,spots,deco){
 
 /* ═════ RENDER ═════ */
 function render(){
-  renderIdea();renderPlans();feedTerms();
-  if(S.cfg){renderIntent();renderBuild();renderEdge();}
+  renderIdea();renderPlans();renderIntent();feedTerms();
+  if(S.cfg){renderBuild();renderEdge();}
   renderCall();renderYard();renderRecord();renderTerms();syncNav();
 }
 /* Screen 1: each "From" is the Store's cheapest complete wood for that plan as published, at 6 ft, bring-your-own hardware. */
@@ -903,12 +918,12 @@ function answerHtml(){
     +v.bad.map(l=>'<li>'+esc(groupLabel(l.packageId||l.lineId,S.cfg.plan))+': '+esc((lineCodes(l).length?lineCodes(l):[l.status]).map(reasonText).join('; '))+'</li>').join('')+'</ul>'+ids;
 }
 function renderIntent(){
- const cfg=S.cfg,p=PLANS[cfg.plan];$('intent-photo').src=p.photo;$('intent-photo').alt='The '+p.title+' idea carried into Intent';
- $('intent-source').innerHTML='<a href="'+p.sourceUrl+'" target="_blank" rel="noopener">Attached published plan: '+esc(p.source)+'</a>. The photo is a reference; the attached plan supplies the parts.';
- $('intent-known').textContent=p.facts+' '+p.angleNote+' '+p.hardwareNote;
- $('intent-tools').innerHTML=kindsOf(cfg).map(({kind,n,g})=>{const part=partOf(cfg,kind);return '<div class="stb-tool-row" data-part="'+kind+'"><b>'+PART_NAMES[kind]+' × '+n+'</b><div class="tools"><button type="button" class="tool'+(part.spots.on?' on':'')+'" data-tool="spots" aria-pressed="'+part.spots.on+'">'+(part.spots.on?'✓ SPOT HOLES':'+ SPOT HOLES')+'</button>'+(g.angle===0?'<button type="button" class="tool'+(part.deco.on?' on':'')+'" data-tool="deco" aria-pressed="'+part.deco.on+'">'+(part.deco.on?'✓ DECORATIVE CUT':'+ DECORATIVE CUT')+'</button>':'<span class="meta">Published angled ends retained</span>')+'</div></div>'}).join('');
- const original=work(cfg).length===0&&cfg.lengthIn===planCfg(cfg.plan).lengthIn;
- $('ask-as-is').disabled=!original;$('as-is-note').textContent=original?'Keep the published dimensions and cut list, with the wood and hardware you selected. Store gives this definition its own answer.':'You have changed the plan or added tools. Take those choices to the Bench; every requested operation stays in the job.';
+  const selected=S.selectedOffering;
+  $('outdoor-sku-reference').textContent=selected?'Attached reference: '+selected.storeSku+' · '+selected.description+'. Store chooses actual parent stock for the complete job.':'';
+  const cfg=S.cfg,angle=$('outdoor-known-tools').querySelectorAll('span')[2];
+  const angled=cfg?PLANS[cfg.plan].groups(cfg.lengthIn).some(g=>g.angle>0):true;
+  angle.classList.toggle('not-in-plan',!angled);
+  $('outdoor-angle-note').textContent=cfg?(angled?'This published plan specifies angled ends.':'This plan has square cuts; an angle operation is not selected.'):'The angle tool applies only when the chosen plan specifies angled ends.';
 }
 function renderBuild(){
   const cfg=S.cfg,p=PLANS[cfg.plan];
@@ -916,7 +931,6 @@ function renderBuild(){
   const rows=[];
   PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'°, ends parallel':'square')+'</td></tr>')));
   $('parts').innerHTML=rows.join('');
-  $('intent-parts').innerHTML=rows.join('');
   $('plan-source').innerHTML='<a href="'+p.sourceUrl+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. The plan is the project’s; every board, cut, minute and price comes from Store Zero.';
   $('kit-text').textContent=p.kitText(cfg.lengthIn);
   optionButtons();
@@ -924,7 +938,8 @@ function renderBuild(){
   $('len-val').innerHTML=ftin(cfg.lengthIn)+'<small>'+cfg.lengthIn+' in · '+RULE.lengthIn.min+'–'+RULE.lengthIn.max+' in, to the inch</small>';
   $('len-hint').textContent='';
   const w=work(cfg).length;
-  $('instant').innerHTML=answerHtml()+(w?'<p class="status ask" style="margin-top:6px">This includes the extra work you tried on the bench. <a href="#" data-drop-work>Drop it and go back to the plan as is.</a></p>':'');
+  $('bench-instant').innerHTML=answerHtml()+(w?'<p class="status ask" style="margin-top:6px">This includes the extra work you tried on the bench. <a href="#" data-drop-work>Drop it and go back to the plan as is.</a></p>':'');
+  $('bench-confirm').disabled=!answerCurrent()||!usable().store;
   $('confirm').disabled=!TERMS.state().callOpen;
   const missing=blockedAdmission();$('bench-ask').disabled=!!missing||S.asking;
   $('bench-status').textContent=missing?'Before Store can answer: '+ownerLine(missing):S.error?'Store could not answer ('+S.error+').':S.asking?'Asking Store for this revision…':'Your identified parts and operations are ready for a Store inquiry.';
@@ -936,12 +951,16 @@ function partCard(kind,n,len,g){
   let h='<div class="part'+(worked?' worked':'')+'" data-part="'+kind+'">'
     +'<div class="ph"><b>'+PART_NAMES[kind]+' × '+n+'</b><span class="meta">'+g.board.join('×')+' · '+fmt(len)+' in'+(g.scales?' · follows the table length':'')+' · ends '+ends+'</span></div>'
     +'<div data-draw>'+boardSvg(len,g.board,angle,spots,da!=null)+'</div>'
-    ;
-  if(p.spots.on)h+='<div class="set" data-knob="SPOTS:'+kind+'"><b class="meta">Spot holes</b><input type="number" min="0" step="0.25" placeholder="in from each end" value="'+esc(p.spots.fromEndIn)+'" data-in="fromEndIn" style="width:150px" aria-label="Inches from each end">'
+    +'<div class="tools">'
+    +'<button type="button" class="tool'+(p.spots.on?' on':'')+'" data-knob="SPOTS:'+kind+'" data-tool="spots" aria-pressed="'+p.spots.on+'">'+(p.spots.on?'✓ SPOT HOLES':'+ SPOT HOLES')+'</button>'
+    +(g.angle===0?'<button type="button" class="tool'+(p.deco.on?' on':'')+'" data-knob="DECO:'+kind+'" data-tool="deco" aria-pressed="'+p.deco.on+'">'+(p.deco.on?'✓ DECORATIVE CUT':'+ ADD DECORATIVE CUT')+'</button>'
+      :'<span class="meta">No decorative cut: these ends are the plan’s '+g.angle+'°, not changed.</span>')
+    +'</div>';
+  if(p.spots.on)h+='<div class="set"><b class="meta">Spot holes</b><input type="number" min="0" step="0.25" placeholder="in from each end" value="'+esc(p.spots.fromEndIn)+'" data-in="fromEndIn" style="width:150px" aria-label="Inches from each end">'
     +'<select data-in="place" aria-label="Where across the board"><option value="">across the board…</option>'+SPOT_PLACES.map(x=>'<option value="'+x.k+'"'+(p.spots.place===x.k?' selected':'')+'>'+x.label+'</option>').join('')+'</select>'
     +'<label class="meta"><input type="checkbox" data-in="middle"'+(p.spots.middle?' checked':'')+'> one in the middle too</label>'
     +'<span class="meta">Your locations, not the plan’s: the plan doesn’t publish them.</span></div>';
-  if(p.deco.on&&g.angle===0)h+='<div class="set" data-knob="DECO:'+kind+'"><b class="meta">Decorative cut</b><input type="number" min="0" max="90" step="0.5" value="'+esc(p.deco.angle)+'" data-in="angle" style="width:90px" aria-label="Decorative cut angle in degrees"><span class="meta">° off square, both ends, parallel. The Store decides whether it can (<a href="'+ENVELOPE_DOC+'" target="_blank" rel="noopener">its envelope</a>).</span></div>';
+  if(p.deco.on&&g.angle===0)h+='<div class="set"><b class="meta">Decorative cut</b><input type="number" min="0" max="90" step="0.5" value="'+esc(p.deco.angle)+'" data-in="angle" style="width:90px" aria-label="Decorative cut angle in degrees"><span class="meta">° off square, both ends, parallel. The Store decides whether it can (<a href="'+ENVELOPE_DOC+'" target="_blank" rel="noopener">its envelope</a>).</span></div>';
   return h+'</div>';
 }
 /* What you tried, line by line, with the Store's own answer for the board it touches. */
@@ -1066,7 +1085,7 @@ function usableSteps(){
   return u;
 }
 function usable(){const u=usableSteps(),on=i=>u.includes(TRAIL.steps[i]);
-  return {idea:true,intent:!!S.cfg,build:on(1),edge:on(1),store:on(2),call:on(3),yard:on(4),record:on(5)}}
+  return {idea:true,intent:true,build:on(1),edge:on(1),store:on(2),call:on(3),yard:on(4),record:on(5)}}
 /* This tile's STB-TILE-HOST-0.1 message for the shared host: on Idea, Idea; from Intent on, the step the page on screen
    stands for (the last usable one at or before it). Always the usable steps. */
 function hostMessage(){
@@ -1091,8 +1110,16 @@ function syncNav(){
 const clampLen=n=>Math.min(RULE.lengthIn.max,Math.max(RULE.lengthIn.min,Math.round(Number(n))));
 function setLength(n){if(!S.cfg)return;n=clampLen(n);if(!isFinite(n)||n===S.cfg.lengthIn)return;S.cfg.lengthIn=n;changed()}
 function openPlan(plan){
-  if(!S.cfg||S.cfg.plan!==plan){S.cfg=planCfg(plan);partsSig=''}
-  changed();go('intent');
+  if(!S.cfg||S.cfg.plan!==plan){
+    S.cfg=planCfg(plan);partsSig='';
+    if(S.selectedOffering){
+      const offering=S.selectedOffering;
+      const wood=WOODS.find(w=>w.species===offering.species&&w.grade===offering.grade);
+      const fits=PLANS[plan].groups(S.cfg.lengthIn).some(g=>g.board[0]===Number(offering.nominalT)&&g.board[1]===Number(offering.nominalW));
+      if(wood&&fits)S.cfg.wood=wood.key;else S.selectedOffering=null;
+    }
+  }
+  changed();go('build');
 }
 /* Back to the plan as is: the extra work is dropped, and the Store is asked again for the plan. */
 function backToPlan(){
@@ -1103,11 +1130,11 @@ function backToPlan(){
 document.addEventListener('click',e=>{
   const pl=e.target.closest('[data-plan]');if(pl){openPlan(pl.dataset.plan);return}
   const sz=e.target.closest('#s-build [data-size]');if(sz){setLength(S.cfg.lengthIn+Number(sz.dataset.size));return}
-  const w=e.target.closest('#woods [data-wood]');if(w){if(S.cfg.wood!==w.dataset.wood){S.cfg.wood=w.dataset.wood;changed()}return}
+  const w=e.target.closest('#woods [data-wood]');if(w){if(S.cfg.wood!==w.dataset.wood){S.cfg.wood=w.dataset.wood;S.selectedOffering=null;changed()}return}
   const t=e.target.closest('#tiers [data-tier]');if(t){if(S.cfg.tier!==t.dataset.tier){S.cfg.tier=t.dataset.tier;changed()}return}
   if(e.target.closest('[data-to-intent]')){e.preventDefault();go('intent');return}
   if(e.target.closest('[data-to-bench]')){go('build');return}
-  const tool=e.target.closest('#intent-tools [data-tool]');if(tool){const kind=tool.closest('[data-part]').dataset.part,p=partOf(S.cfg,kind);
+  const tool=e.target.closest('#parts-bench [data-tool]');if(tool){const kind=tool.closest('[data-part]').dataset.part,p=partOf(S.cfg,kind);
     if(tool.dataset.tool==='spots'){p.spots.on=!p.spots.on;if(p.spots.on)p.spots={on:true,fromEndIn:'',place:'',middle:false}}
     else{p.deco.on=!p.deco.on;if(p.deco.on)p.deco={on:true,angle:String(DECO_START)}}
     changed();return}
@@ -1121,14 +1148,36 @@ $('parts-bench').addEventListener('input',e=>{const f=e.target.closest('[data-in
   const k=f.dataset.in;if(k==='angle')p.deco.angle=f.value;else if(k==='middle')p.spots.middle=f.checked;else p.spots[k]=f.value;changed()});
 $('parts-bench').addEventListener('change',e=>{const f=e.target.closest('[data-in]');if(!f)return;const kind=f.closest('[data-part]').dataset.part,p=partOf(S.cfg,kind);
   const k=f.dataset.in;if(k==='middle')p.spots.middle=f.checked;else if(k==='place')p.spots.place=f.value;else return;changed()});
-$('the-set').onclick=()=>{const plan=S.cfg.plan;S.cfg=planCfg(plan);partsSig='';changed()};
+$('the-set').onclick=()=>{const plan=S.cfg.plan;S.cfg=planCfg(plan);S.selectedOffering=null;partsSig='';changed()};
+$('bench-confirm').onclick=()=>{if(answerCurrent()&&usable().store)go('store')};
 $('confirm').textContent='YOUR CALL →';
 $('confirm').onclick=()=>{if(TERMS.state().callOpen)go('call')};
-$('take-to-bench').onclick=()=>go('build');
-async function openStoreAnswer(){clearTimeout(askTimer);await askExact();if(answerCurrent())go('store');else if(S.error)$('as-is-note').textContent='Store could not answer ('+S.error+'). Try again when it is available.'}
-$('ask-as-is').onclick=openStoreAnswer;
+const opsPanel=$('outdoor-ops-list'),opsAdd=$('outdoor-add-tool'),opsInput=$('outdoor-add-tool-input');
+function showToolList(open){
+  opsPanel.hidden=!open;opsAdd.setAttribute('aria-expanded',String(open));
+  if(open){
+    const query=opsInput.value.trim().toLowerCase();
+    opsPanel.querySelectorAll('li').forEach(li=>li.hidden=!!query&&!li.textContent.toLowerCase().includes(query));
+  }else opsAdd.focus();
+}
+opsAdd.addEventListener('click',()=>showToolList(true));
+opsInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();showToolList(true)}});
+$('outdoor-ops-close').addEventListener('click',()=>showToolList(false));
+async function openStoreAnswer(){clearTimeout(askTimer);await askExact();if(answerCurrent())go('store')}
 $('bench-ask').onclick=openStoreAnswer;
-window.STBIntentKit.mountWoodLookup({host:$('outdoor-wood-lookup'),projectId:TILE_ID,candidateRevisionId:()=>String(S.rev),requirementText:'This definition uses the plan’s nominal board sizes and a chosen wood class.',accept:r=>r.form==='board'&&PLANS[S.cfg.plan].groups(S.cfg.lengthIn).some(g=>g.board[0]===Number(r.nominalT)&&g.board[1]===Number(r.nominalW))&&WOODS.some(w=>w.species===r.species&&w.grade===r.grade),onPick:r=>{S.cfg.wood=WOODS.find(w=>w.species===r.species&&w.grade===r.grade).key;changed()}});
+window.STBIntentKit.mountWoodLookup({
+  host:$('outdoor-wood-lookup'),projectId:TILE_ID,candidateRevisionId:()=>String(S.rev),
+  requirementText:'This is a Store material reference, not approval to build.',
+  accept:r=>r.offered!==false&&r.form==='board'&&WOODS.some(w=>w.species===r.species&&w.grade===r.grade)&&
+    (S.cfg?[S.cfg.plan]:Object.keys(PLANS)).some(plan=>PLANS[plan].groups(S.cfg?.lengthIn||START_LEN).some(g=>g.board[0]===Number(r.nominalT)&&g.board[1]===Number(r.nominalW))),
+  onPick:r=>{
+    S.selectedOffering={storeSku:r.storeSku,description:r.description,species:r.species,grade:r.grade,nominalT:r.nominalT,nominalW:r.nominalW};
+    if(S.cfg){
+      const wood=WOODS.find(w=>w.species===r.species&&w.grade===r.grade);
+      if(wood&&S.cfg.wood!==wood.key){S.cfg.wood=wood.key;changed()}else renderIntent();
+    }else renderIntent();
+  }
+});
 $('to-edge').onclick=()=>go('edge');
 $('back-plan').onclick=backToPlan;$('back-plan-2').onclick=backToPlan;
 $('send-work').onclick=()=>{if(TERMS.state().callOpen)go('call')};
@@ -1136,12 +1185,11 @@ $('back-build').onclick=()=>go(work(S.cfg).length?'edge':'build');
 function afterTerms(action){render();if(action==='accept')go('yard');if(action==='yard')go('record')}
 for(const id of ['call-terms','yard-terms','record-terms'])TERMS.bind($(id),afterTerms);
 TERMS.onChange(()=>{renderTerms();syncNav()});
-$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=null;S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.rev++;partsSig='';render();go('idea')};
+$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=null;S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.selectedOffering=null;S.rev++;partsSig='';render();go('idea')};
 
 /* One trail step, by its index in the trail contract: the page that step opens here. */
 function goStep(i){
   const s=SECTION_OF_STEP[i];if(!s)return;
-  if(i===0&&!S.cfg){go('idea');return}
   if(s==='build'&&S.cfg&&!answerCurrent()&&!S.asking&&!blocked())askExact();
   go(s);
   if(i===2&&S.section==='store'){S.step=2;syncNav()}
