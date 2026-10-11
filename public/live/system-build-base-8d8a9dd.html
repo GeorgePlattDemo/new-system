@@ -339,7 +339,7 @@ function alcoveBoardSpecifications(x,stock=alcoveStock,finish=alcoveFinish){
   parents=[classes.find(p=>p.nominalW===Number(finish.first)),classes.find(p=>p.nominalW===Number(finish.second))];
  }else{
   const options=classes.flatMap(p=>[1,2].filter(n=>(finish.mode!=='ALL_EDGES'||n===2)&&p.actualW*n+1e-8>=x.d).map(n=>({p,n,waste:p.actualW*n-x.d})));
-  options.sort((a,b)=>a.n-b.n||a.waste-b.waste||a.p.nominalW-b.nominalW);
+  options.sort((a,b)=>a.n-b.n||a.waste-b.waste||a.p.nominalW-b.p.nominalW);
   parents=options.length?Array.from({length:options[0].n},()=>options[0].p):[];
  }
  // Even when the selected species does not OFFER the project's 1x8 source class,
