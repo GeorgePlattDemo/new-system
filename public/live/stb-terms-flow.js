@@ -299,13 +299,13 @@
     function renderReceipt(){
       const r = receipt();
       if (!r) return '';
-      return '<div class="stb-terms-receipt" data-terms-receipt><p class="stb-terms-hd">TERMS / HANDOFF RECEIPT</p>'
+      return '<details class="stb-terms-receipt" data-terms-receipt><summary class="stb-terms-hd">PICKUP RECEIPT · ' + esc(money(r.total)) + '</summary>'
         + '<div class="stb-terms-kv"><span>Order</span><b>' + esc(r.orderId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Version</span><b>' + esc(r.version) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Total (Store budgetary Q; simulated payment)</span><b>' + esc(money(r.total)) + ' · ' + esc(r.paymentId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Store</span><b>' + esc(String(r.storePin).slice(0,12)) + ' · request ' + esc(String(r.requestId).slice(0,8)) + '</b></div>'
         + r.events.map(e => '<div class="stb-terms-kv"><span>' + esc(EVENTS.find(d => d.id === e.id)?.label || e.id) + '</span><code>' + esc(e.hash || '—') + '</code></div>').join('')
-        + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></div>';
+        + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></details>';
     }
 
     function bind(host, after){
