@@ -1127,7 +1127,7 @@ function renderBuild(){
   $('bench-instant').innerHTML=answerHtml()+(w?'<p class="status ask" style="margin-top:6px">This includes the extra work you tried on the bench. <a href="#" data-drop-work>Drop it and go back to the plan as is.</a></p>':'');
   $('bench-confirm').disabled=!answerCurrent()||!usable().store;
   $('confirm').disabled=!TERMS.state().callOpen||servicePending();
-  const missing=blockedAdmission();$('bench-ask').disabled=!!missing||S.asking;
+  const missing=blockedAdmission();
   $('bench-status').textContent=missing?'Before Store can answer: '+ownerLine(missing):S.error?'Store could not answer ('+S.error+').':S.asking?'Asking Store for this revision…':'Your identified parts and operations are ready for a Store inquiry.';
 }
 
