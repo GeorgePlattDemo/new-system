@@ -32,7 +32,7 @@ A request type the adapter does not translate is refused as `LIVE_JOB_NOT_MIGRAT
 
 ## Coordinated operation and Intent integration
 
-The current Store pin is `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. All 332 System tests pass against that exact Git checkout, including the joint HTTP regression. The TypeScript check and Railway Node production build pass. The Store's shared manufacturing core supplies the current operation-ledger time and Q. Required facts, unsupported operations and unavailable material remain explicit; an incomplete answer cannot become a complete price or physical release.
+The current Store pin is `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. All 334 System tests pass against that exact Git checkout, including the joint HTTP regression and Job 1 demo checkout. The TypeScript check and Railway Node production build pass. The Store's shared manufacturing core supplies the current operation-ledger time and Q. Required facts, unsupported operations and unavailable material remain explicit; an incomplete answer cannot become a complete price or physical release.
 
 Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Intent declares the wood and tools; the Bench changes their values. Existing imagery, plan sources, measurements and controls are retained. Outdoor opens with an explicit Classic A-frame demo definition: 72 in, treated wood and coated hardware. Either published plan can be selected on Intent. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
 

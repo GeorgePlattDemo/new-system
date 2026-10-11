@@ -302,12 +302,69 @@ function publishedFunction(file: string, name: string, context: Record<string, u
   return runInNewContext(`(${match[0]})`, context);
 }
 
-function publishedTerms(projectId: string) {
+function publishedTerms(projectId: string, demoCommerce = false) {
   const window = { crypto: webcrypto } as Record<string, any>;
   runInNewContext(readFileSync(new URL("../../../public/live/stb-commercial-sequence.js",import.meta.url),"utf8"),{window,TextEncoder});
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-demo-commerce.js",import.meta.url),"utf8"),{window,TextEncoder});
   runInNewContext(readFileSync(new URL("../../../public/live/stb-terms-flow.js", import.meta.url), "utf8"), { window, TextEncoder });
-  return window.STBTermsFlow.create({ projectId });
+  return window.STBTermsFlow.create({ projectId, demoCommerce });
 }
+
+test("Job 1 demo checkout uses the current Store Q and one verified transaction through pickup", async () => {
+  const response=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","demo-checkout",{line:braceLineAt(16)}),await storeOrigin());
+  const body=response.body as any;
+  assert.equal(body.rawEvaluation.complete,true);
+  const terms=publishedTerms("start-own",true);
+  terms.setAnswer({version:"demo-checkout",status:"SUPPORTABLE",total:body.rawEstimate.totals.Q,body});
+  await terms.accept();
+  let state=terms.state();
+  assert.equal(state.stage,"QUEUED");
+  const offer=state.commercial.events.find((event:any)=>event.eventType==="OfferIssued");
+  const payment=state.commercial.events.find((event:any)=>event.eventType==="FinancialEventRecorded");
+  assert.equal(offer.payload.manufacturingQMinor,862);
+  assert.equal(offer.payload.amountMinor,862);
+  assert.equal(payment.payload.amountMinor,862);
+  assert.equal(offer.links.receiptHash,body.evaluationReceipt.receiptHash);
+  assert.equal(offer.payload.termsId,"STB-DEMO-TERMS");
+  const paidCount=state.commercial.sequence;
+  await terms.accept();
+  assert.equal(terms.state().commercial.sequence,paidCount,"a second click does not create a second order or payment");
+  await terms.runYard();
+  assert.equal(terms.state().stage,"READY");
+  await terms.pickup();
+  state=terms.state();
+  assert.equal(state.stage,"HANDED_OFF");
+  assert.equal(state.receipt.simulated,true);
+  assert.equal(state.commercial.events.at(-1).eventType,"ProjectCloseoutRecorded");
+  assert.equal(state.commercial.physicalAuthority,false);
+  assert.equal(state.commercial.paymentAuthority,false);
+  assert.equal(body.machineAdmission.status,"BLOCKED");
+  const contractContext={window:{crypto:webcrypto} as any,TextEncoder};
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-commercial-sequence.js",import.meta.url),"utf8"),contractContext);
+  assert.equal(await contractContext.window.STBCommercialSequence.verify(state.commercial.events),true);
+});
+
+test("Job 1 demo decline and revision changes cannot carry an older payment into new work", async () => {
+  const first=(await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","demo-first",{line:braceLineAt(16)}),await storeOrigin())).body as any;
+  const second=(await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","demo-next",{line:braceLineAt(18)}),await storeOrigin())).body as any;
+  const terms=publishedTerms("start-own",true);
+  terms.setAnswer({version:"demo-first",status:"SUPPORTABLE",total:first.rawEstimate.totals.Q,body:first});
+  await terms.decline();
+  await terms.runYard();
+  await terms.pickup();
+  assert.equal(terms.state().stage,"DECLINED");
+  assert.equal(terms.state().receipt,null);
+  terms.setAnswer({version:"demo-next",status:"SUPPORTABLE",total:second.rawEstimate.totals.Q,body:second});
+  await terms.accept();
+  const paid=terms.state().commercial.events.find((event:any)=>event.eventType==="FinancialEventRecorded");
+  assert.equal(paid.payload.amountMinor,913);
+  assert.equal(paid.links.receiptHash,second.evaluationReceipt.receiptHash);
+  terms.invalidate();
+  assert.equal(terms.state().yardOpen,false);
+  assert.equal(terms.state().receipt,null);
+  await terms.runYard();
+  assert.equal(terms.state().commercial,null);
+});
 
 test("Alcove's published gate opens Your call for a fully evaluated current Store answer", async () => {
   const definition = {
@@ -352,8 +409,8 @@ test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Id
   assert.match(idea,/<button[^>]*data-go="alcove-capture"[^>]*>NEXT → INTENT<\/button>/);
   const front=readFileSync(new URL("../../../public/live/system-build-front-door-0.5.html",import.meta.url),"utf8");
   const current=readFileSync(new URL("../../../public/live/system-build-current.html",import.meta.url),"utf8");
-  assert.match(front,/system-build-base-8d8a9dd\.html\?v=automatic-bench-20261011/);
-  assert.match(current,/system-build-front-door-0\.5\.html\?v=automatic-bench-20261011/);
+  assert.match(front,/system-build-base-8d8a9dd\.html\?v=demo-checkout-20261011/);
+  assert.match(current,/system-build-front-door-0\.5\.html\?v=demo-checkout-20261011/);
 });
 
 test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals instead of blocking admission", async () => {

@@ -98,7 +98,7 @@
     }
   }
 
-  function create({ projectId, title }){
+  function create({ projectId, title, demoCommerce = false }){
     if (!projectId) throw new Error('TERMS_FLOW_PROJECT_REQUIRED');
     let chain = null;
     let invalidatedIdentity = null;
@@ -110,6 +110,7 @@
     function last(){ return chain?.events[chain.events.length - 1] || null; }
 
     function invalidate(){
+      if (!chain) { closeDownstreamNav(projectId); return state(); }
       if (chain) {
         invalidatedIdentity = String(chain.version) + '|' + String(chain.requestId || '');
         history.push(chain);
@@ -139,15 +140,16 @@
         status: answer.status,
         total: answer.total,
         reasons: Array.isArray(answer.reasons) ? answer.reasons.slice() : [],
-        orderId: null, paymentId: null, source:JSON.parse(JSON.stringify(body)), commercial:null, recording:null, commercialError:null,
+        orderId: null, paymentId: null, source:JSON.parse(JSON.stringify(body)), commercial:null, demo:null, recording:null, commercialError:null,
         events: [
           { id:'sent', at: answer.sentAt || body.sentAt || null, hash: body.payloadDigest || null, detail: 'demand ' + String(body.demandSignature || '—').slice(0,16) + '…' },
           { id:'arrived', at: receipt?.evaluatedAt || null, hash: receipt?.receiptHash || null, detail: 'request ' + String(body.requestId || '—').slice(0,8) + ' · Store ' + String(body.storePin || '—').slice(0,7) },
           { id:'answered', at: receipt?.evaluatedAt || null, hash: body.calculationIdentity?.resultHash || receipt?.calculationIdentity?.resultHash || null,
-            detail: answer.status === 'SUPPORTABLE' ? 'SUPPORTABLE · ' + money(answer.total) + ' budgetary, not a quote or offer' : answer.status + ' · ' + (answer.reasons || []).map(r => r.code).join(', ') }
+            detail: answer.status === 'SUPPORTABLE' ? 'Store price · ' + money(answer.total) : answer.status + ' · ' + (answer.reasons || []).map(r => r.code).join(', ') }
         ]
       };
-      void ensureCommercial().then(notify).catch(error=>{if(chain){chain.commercialError=error.message;notify();}});
+      const current=chain;
+      void ensureCommercial().then(()=>{if(chain===current)notify();}).catch(error=>{if(chain===current){chain.commercialError=error.message;notify();}});
       notify();
       return state();
     }
@@ -164,28 +166,40 @@
         current.commercial=root.STBCommercialSequence.create({streamId:projectId+'|'+current.version+'|'+current.requestId,links});
         const at=receipt.evaluatedAt;
         await current.commercial.recordEvent({schema:root.STBCommercialSequence.schema,eventId:'answer:'+receipt.receiptHash,eventType:'StoreAnswerAttached',streamId:projectId+'|'+current.version+'|'+current.requestId,sequence:1,expectedPreviousSequence:0,causedByEventIds:[],idempotencyKey:'answer:'+receipt.receiptHash,occurredAt:at,recordedAt:at,actor:{partyId:'system',role:'system'},evidenceClass:'SIMULATED',authority:{sourceSystem:'store-zero',sourceRecordId:receipt.receiptHash,verificationRecordId:receipt.receiptHash,policyId:'PROTOTYPE-EVIDENCE-ONLY',policyVersion:'1'},links,payload:{status:answer.status,complete:answer.complete,manifestCoverageComplete:true}},0);
+        if(demoCommerce){
+          if(!root.STBDemoCommerce)throw Error('DEMO_COMMERCIAL_SOURCE_NOT_LOADED');
+          if(current.total!==answer.totals?.Q)throw Error('DEMO_STORE_AMOUNT_MISMATCH');
+          current.demo=root.STBDemoCommerce.create({body,read:()=>current.commercial.deriveTransactionState(),append:source=>appendCommercialEvent(current,source),isCurrent:()=>chain===current});
+          await current.demo.prepareOffer();
+        }
         return current.commercial;
       })();
       return current.recording;
     }
-    function canAccept(){return !!chain&&chain.status==='SUPPORTABLE'&&!event('decision')&&!!chain.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');}
-    async function recordCommercialEvent(source){
-      const current=chain,stream=await ensureCommercial();if(!stream||chain!==current)return state();
-      const stored=await stream.recordEvent(source,source.expectedPreviousSequence);
+    function canAccept(){const offer=chain?.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');return !!chain&&chain.status==='SUPPORTABLE'&&!event('decision')&&!!offer&&Date.parse(offer.payload.validUntil)>=Date.now();}
+    async function appendCommercialEvent(current,source){
+      if(chain!==current)return state();
+      const stored=await current.commercial.recordEvent(source,source.expectedPreviousSequence);
+      if(chain!==current)return state();
       const id=COMMERCIAL_ALIASES[stored.eventType],existing=chain.events.find(e=>e.sourceEventId===stored.eventId);
       if(id&&!existing&&stored.eventType!=='StoreAnswerAttached')chain.events.push({id,at:stored.recordedAt,hash:stored.hash,prevHash:stored.previousHash,sourceEventId:stored.eventId,detail:stored.eventType==='CustomerDecisionRecorded'?stored.payload.decision:stored.eventType+' · SIMULATED'});
       if(stored.eventType==='OrderAccepted')chain.orderId=stored.payload.orderId;
       if(stored.eventType==='FinancialEventRecorded'&&['CAPTURED','SETTLED'].includes(stored.payload.kind))chain.paymentId=stored.payload.financialEventId;
       notify();return state();
     }
+    async function recordCommercialEvent(source){
+      const current=chain,stream=await ensureCommercial();if(!stream||chain!==current)return state();
+      return appendCommercialEvent(current,source);
+    }
     async function decision(kind){
       const current=chain,stream=await ensureCommercial();if(!stream||chain!==current||!canAccept())return state();
       const snapshot=stream.deriveTransactionState(),offer=snapshot.events.find(e=>e.eventType==='OfferIssued'),at=now(),id=shortId('SIM-DECISION');
       return recordCommercialEvent({schema:root.STBCommercialSequence.schema,eventId:id,eventType:'CustomerDecisionRecorded',streamId:snapshot.streamId,sequence:snapshot.sequence+1,expectedPreviousSequence:snapshot.sequence,causedByEventIds:[offer.eventId],idempotencyKey:id,occurredAt:at,recordedAt:at,actor:{partyId:'prototype-customer',role:'customer'},evidenceClass:'SIMULATED',authority:{sourceSystem:'system-customer-action',sourceRecordId:id,verificationRecordId:id,policyId:offer.payload.policy.id,policyVersion:offer.payload.policy.version},links:offer.links,payload:{decisionId:id,offerId:offer.payload.offerId,offerVersion:offer.payload.offerVersion,decision:kind}});
     }
-    const accept=()=>decision('ACCEPTED'),decline=()=>decision('DECLINED');
-    // Legacy callers can request the view, but cannot manufacture missing source evidence.
-    const runYard=async()=>state(),pickup=async()=>state();
+    async function accept(){const current=chain;await decision('ACCEPTED');if(chain===current&&current?.demo)await current.demo.checkout();return state();}
+    const decline=()=>decision('DECLINED');
+    async function runYard(){const current=chain;await ensureCommercial();if(chain===current&&current?.demo)await current.demo.runYard();return state();}
+    async function pickup(){const current=chain;await ensureCommercial();if(chain===current&&current?.demo)await current.demo.pickup();return state();}
 
     function stage(){
       if (!chain) return 'NO_ANSWER';
@@ -251,8 +265,7 @@
       const reasons = s === 'REFUSED_BY_STORE' && chain.reasons.length
         ? '<ul class="stb-terms-reasons">' + chain.reasons.map(r => '<li><b>' + esc(r.code) + '</b>' + (r.text ? ' · ' + esc(r.text) : '') + '</li>').join('') + '</ul>'
         : '';
-      return '<div class="stb-terms" data-terms-stage="' + s + '"><p class="stb-terms-hd">TERMS · ' + esc(chain?.title || projectId) + (chain ? ' · ' + esc(chain.version) : '') + '</p>' + rows + reasons
-        + '<p class="stb-terms-note">Store answer ≠ simulated offer ≠ acceptance ≠ payment ≠ allocation ≠ release ≠ cut ≠ ready ≠ custody. Commerce and the yard are simulated: no money moves and no machine runs.</p></div>';
+      return '<details class="stb-terms" data-terms-stage="' + s + '"><summary class="stb-terms-hd">VIEW RECEIPTS · ' + esc(chain?.title || projectId) + '</summary>' + rows + reasons + '</details>';
     }
 
     function renderControls(step){
@@ -261,22 +274,22 @@
         if (s === 'NO_ANSWER') return '<p class="stb-terms-wait">Waiting on a current Store answer for this version.</p>';
         if (s === 'REVIEW_REQUIRED') return '<p class="stb-terms-wait" data-budgetary-review>Scoped Store budgetary estimate: ' + esc(money(chain.total))
           + '. The whole job is not fully supportable. Not evaluated: ' + chain.reasons.map(r => esc(r.text || r.code)).join('; ')
-          + '. Return to the Bench to revise the definition. Acceptance, payment, the yard and pickup remain blocked. Physical admission remains blocked.</p>';
+          + '. Return to the Bench to finish this definition.</p>';
         if (s === 'REFUSED_BY_STORE') return '<p class="stb-terms-refused" data-terms-refused>The Store did not support this version (' + esc(chain.status) + '). The refusal is the result. Change the definition to ask again.</p>';
-        if (s === 'DECLINED') return '<p class="stb-terms-declined">You declined the simulated offer for this answer. Change the definition to ask again.</p>';
-        if (s === 'SELLER_PENDING') return '<p class="stb-terms-wait">Your decision is recorded. Waiting for separate seller acceptance, payment evidence and a confirmed queue entry.</p>';
-        if(s==='ANSWERED'&&!canAccept())return '<p class="stb-terms-wait">The Store has answered this job. Waiting for a seller offer with identified terms and commercial policy. Q remains the Store manufacturing amount.</p>';
+        if (s === 'DECLINED') return '<p class="stb-terms-declined">You passed on this version. Return to the Bench to try another.</p>';
+        if (s === 'SELLER_PENDING') return '<p class="stb-terms-wait">Your choice is recorded. Waiting for the seller to confirm the order.</p>';
+        if(s==='ANSWERED'&&!canAccept())return '<p class="stb-terms-wait">'+(chain.commercialError?'This version is missing transaction evidence: '+esc(chain.commercialError)+'.':demoCommerce?'Preparing the offer for this version…':'Store price returned. A seller offer is not available for this version.')+'</p>';
         if (s !== 'ANSWERED') return '<p class="stb-terms-done">Seller order · ' + esc(chain.orderId) + '.</p>';
-        return '<div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="accept">RECORD ACCEPTANCE OF SIMULATED OFFER · ' + esc(money(chain.total)) + ' →</button>'
-          + '<button type="button" class="stb-terms-ghost" data-terms-action="decline">DECLINE SIMULATED OFFER</button></div>';
+        return '<p class="stb-terms-note">Demo · no money moves or machines run.</p><div class="stb-terms-actions"><button type="button" class="stb-terms-go" data-terms-action="accept">'+(demoCommerce?'ACCEPT &amp; PAY':'ACCEPT OFFER')+' · ' + esc(money(chain.total)) + ' →</button>'
+          + '<button type="button" class="stb-terms-ghost" data-terms-action="decline">NO THANKS</button></div>';
       }
       if (step === 'yard') {
-        if (!['QUEUED','READY','HANDED_OFF'].includes(s)) return '<p class="stb-terms-wait">Waiting for seller acceptance and a confirmed queue entry. A customer decision does not reserve stock or release production.</p>';
-        if (s === 'QUEUED') return '<p class="stb-terms-wait">Queue entry confirmed. Waiting for separate allocation, release, local admission, execution, inspection and staging evidence.</p>';
-        return '<p class="stb-terms-done">Simulated yard run reached READY · ' + esc(chain.orderId) + '.</p>';
+        if (!['QUEUED','READY','HANDED_OFF'].includes(s)) return '<p class="stb-terms-wait">This job has not entered the yard queue yet.</p>';
+        if (s === 'QUEUED') return demoCommerce?'<p class="stb-terms-done">Paid. Your job is in the yard queue.</p><button type="button" class="stb-terms-go" data-terms-action="yard">RUN THE YARD DEMO →</button>':'<p class="stb-terms-wait">Your job is queued. Waiting for the yard records.</p>';
+        return '<p class="stb-terms-done">Your parts are READY for pickup.</p>';
       }
       if (step === 'record') {
-        if (s === 'READY') return '<p class="stb-terms-wait">Ready notice recorded. Waiting for identified recipient and custody evidence.</p>';
+        if (s === 'READY') return demoCommerce?'<p class="stb-terms-done">Your parts and remnants are ready.</p><button type="button" class="stb-terms-go" data-terms-action="pickup">PICK UP MY PARTS →</button>':'<p class="stb-terms-wait">Ready for the pickup record.</p>';
         if (s === 'HANDED_OFF') return renderReceipt();
         return '<p class="stb-terms-wait">Nothing to pick up yet. This opens once the simulated yard run is READY.</p>';
       }
@@ -292,7 +305,7 @@
         + '<div class="stb-terms-kv"><span>Total (Store budgetary Q; simulated payment)</span><b>' + esc(money(r.total)) + ' · ' + esc(r.paymentId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Store</span><b>' + esc(String(r.storePin).slice(0,12)) + ' · request ' + esc(String(r.requestId).slice(0,8)) + '</b></div>'
         + r.events.map(e => '<div class="stb-terms-kv"><span>' + esc(EVENTS.find(d => d.id === e.id)?.label || e.id) + '</span><code>' + esc(e.hash || '—') + '</code></div>').join('')
-        + '<p class="stb-terms-note">This receipt records the simulated post-Store event chain and custody handoff; the project definition, Store calculation and cut plan remain in their own project records. Every event after the Store answer carries the hash of the one before it. SIMULATED: no money moved and no machine ran.</p></div>';
+        + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></div>';
     }
 
     function bind(host, after){
@@ -306,8 +319,8 @@
         const action = button.dataset.termsAction;
         const run = { accept, decline, yard: runYard, pickup }[action];
         if (!run) return;
-        const next = await run();
-        if (typeof after === 'function') after(action, next);
+        try{const next = await run();if (typeof after === 'function') after(action, next);}
+        catch(error){if(chain){chain.commercialError=String(error.message||error);notify();}button.disabled=false;}
       });
     }
 

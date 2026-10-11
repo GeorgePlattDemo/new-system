@@ -11,22 +11,23 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 </style>
 </head>
 <body>
-<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=automatic-bench-20261011"></iframe>
-<script src="stb-canonical-journey.js?v=automatic-bench-20261011"></script>
-<script src="stb-store-client.js?v=automatic-bench-20261011"></script>
-<script src="stb-user-defined-board-runtime-bridge.js?v=automatic-bench-20261011"></script>
+<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=demo-checkout-20261011"></iframe>
+<script src="stb-canonical-journey.js?v=demo-checkout-20261011"></script>
+<script src="stb-store-client.js?v=demo-checkout-20261011"></script>
+<script src="stb-user-defined-board-runtime-bridge.js?v=demo-checkout-20261011"></script>
 <script type="module">
-import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=automatic-bench-20261011";
+import * as startOwnAnswer from "./stb-start-own-answer.mjs?v=demo-checkout-20261011";
 window.STBStartOwnAnswer = startOwnAnswer;
 </script>
-<script src="stb-commercial-sequence.js?v=automatic-bench-20261011"></script>
-<script src="stb-terms-flow.js?v=automatic-bench-20261011"></script>
-<script src="store-zero-canonical-doctrine.js?v=automatic-bench-20261011"></script>
-<script src="stb-build-guide-spec.js?v=automatic-bench-20261011"></script>
-<script src="stb-trail-contract.js?v=automatic-bench-20261011"></script>
+<script src="stb-commercial-sequence.js?v=demo-checkout-20261011"></script>
+<script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
+<script src="stb-terms-flow.js?v=demo-checkout-20261011"></script>
+<script src="store-zero-canonical-doctrine.js?v=demo-checkout-20261011"></script>
+<script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
+<script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
 <script>
 // The shared tile host reads the one System contract (apps/stb/shared/tile-host-admission-contract.mjs, deployed byte for byte).
-import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').then(contract => {
+import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').then(contract => {
   window.STBTileHostAdmission = Object.freeze({ ...contract });
 });
 </script>
@@ -199,7 +200,6 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
 
     let activeJourneyProject = null;
     let proofHandoff = null;
-    let proofSimulation = null;
     const user1RuntimeBridge = window.STBUserDefinedBoardRuntimeBridge || null;
     // Opens a Start-your-own screen ('idea', 'intent' or 'bench') from anywhere in the shell.
     // The real switcher is scoped inside the Shared Home block below and assigns itself here.
@@ -264,7 +264,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=automatic-bench-20261011"
+                  src="three-frames.html?v=demo-checkout-20261011"
                 ></iframe>
               </div>
             `;
@@ -273,7 +273,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=automatic-bench-20261011';
+            liveFrame.src = 'three-frames.html?v=demo-checkout-20261011';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -890,7 +890,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                 setText('stb-price-basis', economics
                   ? 'Store-issued '+(economics.documentKind || 'BudgetaryEstimate')+' · material '+money(economics.material)
                     +(economics.hardware ? ' + items '+money(economics.hardware) : '')+' + modeled machine service '+money(economics.machineService)
-                    +' = Q '+money(economics.q)+' · '+(economics.qBasis || 'basis not stated')+' · not a commercial quote, acceptance or machine release.'
+                    +' = '+money(economics.q)+' · Store-modeled work.'
                   : status === 'NOT_ASKED' || status === 'ASKING'
                     ? 'LIVE STORE EVALUATION REQUIRED · Store Zero calculates capability, modeled time, economics, and Q for this exact definition.'
                     : statusWords+' · no Store price for this revision.');
@@ -923,13 +923,13 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                   VIEW_UNAVAILABLE:'The Store answer view did not load. No Store answer is shown, and nothing is reused.',
                   NOT_ADMITTED:'NOT SENT TO THE STORE · MISSING: '+(view?.blocking || []).map(b => b.title+' · owner '+b.owner).join('; ')+'. Nothing was sent and no prior Store answer was reused.',
                   NOT_ASKED:'No current Store answer is held in this browser for this revision. Confirm asks the Store to evaluate this exact revision. Nothing already on file is reused.',
-                  ASKING:'ASKING STORE ZERO · budgetary inquiry for '+definition.versionId+'. Not acceptance and not a physical release.',
+                  ASKING:'The Store is pricing this version…',
                   FAILED:String(view?.failureCode || 'STORE_ZERO_UNAVAILABLE')+' · Store Zero could not evaluate '+definition.versionId+'. No quote was kept and no prior Store answer was reused.',
                   REFUSED:reasons+' · The Store refused '+definition.versionId+'. There is no price, and nothing goes downstream.',
                   UNRESOLVED:reasons+(view?.offeredGrades?.length ? ' · offered grades: '+view.offeredGrades.join(', ') : '')+' · The Store did not return a current quote for '+definition.versionId+'. Nothing was sent downstream.',
                   INVALID:reasons+' · The Store answer for '+definition.versionId+' did not pass System checks, so it is not shown as a price.',
-                  BUDGETARY:'Store selected '+(selection?.sku || '')+' at '+(selection?.stockLengthIn ?? '')+' in for '+definition.versionId+' · request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Budgetary inquiry only: not a quote, acceptance or physical release. Confirm records this exact revision with a fresh Store answer. Machine admission stays blocked.',
-                  CONFIRMED:'Confirmed: '+definition.versionId+' carries Store request '+String(identity?.requestId || '')+' · calculation '+String(identity?.resultHash || 'unresolved')+'. Confirming is not payment, allocation, release or machine authorization. Machine admission stays blocked.'
+                  BUDGETARY:'The Store has priced this version. Confirm it to continue.',
+                  CONFIRMED:'This version is confirmed. Continue to the Store answer.'
                 };
                 setText('stb-before-send', beforeSend[status]+addedNote);
 
@@ -1284,6 +1284,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                       .filter(Boolean)
                   ));
                   const freshStoreReference = {
+                    body:freshStoreBody,
                     carriedNotAccepted:freshStoreBody.carriedNotAccepted || freshStoreBody.priceCompleteness?.carriedNotAccepted || [],
                     status:freshEvaluation.status,
                     complete:true,
@@ -1443,7 +1444,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=automatic-bench-20261011"
+                  src="stb-outdoor-picnic-0.4.html?v=demo-checkout-20261011"
                 ></iframe>
               </div>
             `;
@@ -1476,7 +1477,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=automatic-bench-20261011"
+                  src="stb-window-seat-0.9.html?v=demo-checkout-20261011"
                 ></iframe>
               </div>
             `;
@@ -2450,9 +2451,11 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
 
     ensureProjectJourneyPage('proof-store',
       '<p class="stage-tag">STORE ANSWER</p><h1 id="proof-store-title">STORE ANSWER · PROOF JOB</h1>'
-      +'<p class="sub" id="proof-store-summary">The confirmed definition reached the common Store actor boundary unchanged. Store material, capability and economics are shown only to the extent carried by the identified project answer.</p>'
+      +'<p class="sub" id="proof-store-summary">Your definition went to the Store. Here is what it takes to make your parts.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<h2 id="proof-store-lead">The Store is answering this version.</h2>'
+      +'<div class="start-own-terms-host" data-terms-step="call"></div>'
+      +'<details><summary>How the Store worked this out</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-store-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-store-version">—</span></div>'
@@ -2472,40 +2475,38 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         +'<div><b>MODELED JOB TIME</b><span id="proof-store-cycle">—</span></div>'
       +'</div>'
       +'<div class="proof-gap" id="proof-store-economics-note"><b>STORE ECONOMICS</b>The project answer will state whether a current Store budgetary estimate is present. A budgetary estimate is not a commercial quote, payment, allocation, release, or fabrication authorization.</div>'
-      +proofStoreDoctrine
-      +'<div class="proof-nav"><button type="button" data-proof-library>← PROJECT LIBRARY</button><button type="button" data-proof-return-source>← PROJECT DEFINITION</button><button class="next" type="button" data-proof-go="proof-accept">CONTINUE → ACCEPT / PAY</button></div>',
+      +proofStoreDoctrine+'</details>'
+      +'<div class="proof-nav"><button type="button" data-proof-library>← PROJECT LIBRARY</button><button type="button" data-proof-return-source>← PROJECT DEFINITION</button><button class="next" type="button" data-proof-go="proof-accept">YOUR CALL →</button></div>',
       '<p class="goal">Same definition, Store answers</p><div class="row"><b>Project truth stays fixed</b><span>The confirmed workpiece is not replaced by the procurement SKU.</span></div><div class="row"><b>Budgetary economics stay labeled</b><span>Q is modeled Store economics, not a payable offer.</span></div>'
     );
 
     ensureProjectJourneyPage('proof-accept',
-      '<p class="stage-tag">ACCEPT / PAY</p><h1>YOU ARE ALREADY AT THE YARD. DO YOU WANT THE YARD TO DO THE MACHINE WORK TOO?</h1>'
-      +'<p class="sub">You can take the board home and do the work yourself. Or carry this same identified job through the Yard.</p>'
+      '<p class="stage-tag">YOUR CALL</p><h1>LET THE YARD DO THE WORK?</h1>'
+      +'<p class="sub">Take the board home and do it yourself, or let the Yard make these parts. Your choice.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
-      +'<div class="proof-actor-grid">'
+      +'<div class="proof-actor-grid"><div><b>YOUR TOTAL</b><span id="proof-accept-q">—</span></div><div><b>MACHINE WORK</b><span id="proof-accept-service">—</span></div></div>'
+      +'<div class="start-own-terms-host" data-terms-step="call"></div>'
+      +'<details><summary>Version and transaction records</summary><div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-accept-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-accept-version">—</span></div>'
         +'<div><b>STORE SHA</b><span id="proof-accept-pin">—</span></div>'
         +'<div><b>INPUT HASH</b><span id="proof-accept-input-hash">—</span></div>'
         +'<div><b>RESULT HASH</b><span id="proof-accept-result-hash">—</span></div>'
         +'<div><b>STORE ANSWER</b><span id="proof-accept-store-status">RETURNED</span></div>'
-        +'<div><b>STORE Q</b><span id="proof-accept-q">—</span></div>'
-        +'<div><b>MODELED MACHINE SERVICE</b><span id="proof-accept-service">—</span></div>'
-        +'<div><b>SIMULATED OFFER</b><span id="proof-sim-offer-status">NOT CREATED</span></div>'
-        +'<div><b>SIMULATED ACCEPTANCE</b><span id="proof-sim-accept-status">NOT RECORDED</span></div>'
-        +'<div><b>SIMULATED PAYMENT</b><span id="proof-sim-pay-status">NOT RECORDED</span></div>'
-      +'</div>'
-      +'<div class="band"><b>THE USER CHOICE.</b> You already came to the yard for the board. The modeled machine-service portion for this exact definition is <b id="proof-accept-service-copy">—</b>. Owning a miter saw does not make setup, measuring, three angled cuts, spotting, cleanup and carrying the board home free. The choice is yours.</div>'
-      +'<div class="proof-gap"><b>PRACTICE RUN.</b>No money moves. No physical stock is reserved. No board is cut. Offer, acceptance and payment still get separate receipts.</div>'
-      +'<div class="start-own-terms-host" data-terms-step="call"></div>'
+        +'<div><b>OFFER</b><span id="proof-sim-offer-status">NOT CREATED</span></div>'
+        +'<div><b>ACCEPTANCE</b><span id="proof-sim-accept-status">NOT RECORDED</span></div>'
+        +'<div><b>PAYMENT</b><span id="proof-sim-pay-status">NOT RECORDED</span></div>'
+      +'</div></details>'
       +'<div class="proof-nav"><button type="button" data-proof-return-source>← GO BACK / CHANGE DEFINITION</button></div>',
-      '<p class="goal">A small service can still be useful</p><div class="row"><b>Machine service is visible</b><span>The customer sees the service portion separately from material.</span></div><div class="row"><b>Simulation stays labeled</b><span>Offer, acceptance and payment get receipts without pretending live commerce occurred.</span></div>'
+      '<p class="goal">Your board. Your parts. Your choice.</p><div class="row"><b>Store price</b><span>Material and machine work stay visible.</span></div><div class="row"><b>Demo checkout</b><span>Each transaction event keeps its own receipt.</span></div>'
     );
 
     ensureProjectJourneyPage('proof-yard',
-      '<p class="stage-tag">STORE / YARD · CONTINUOUS FULFILLMENT RECORD</p><h1>THE PAID DEFINITION BECOMES PHYSICAL WORK.</h1>'
+      '<p class="stage-tag">STORE / YARD · CONTINUOUS FULFILLMENT RECORD</p><h1>YOUR JOB IS IN THE YARD.</h1>'
       +'<p class="sub">One identified job travels through the Yard. The events stay separate and keep their own receipts.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<div class="start-own-terms-host" data-terms-step="yard"></div>'
+      +'<details><summary>How the yard works and records the job</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-yard-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-yard-version">—</span></div>'
@@ -2519,7 +2520,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         +'<div><b>MODELED JOB TIME</b><span id="proof-yard-cycle">—</span></div>'
       +'</div>'
       +'<div class="band"><b>DEFINE → VERIFY → QUOTE → PURCHASE → ALLOCATE → QUEUE → TRANSLATE → LOAD → CYCLE → INSPECT → STAGE → HANDOFF</b><br>The responsibility changes hands. The identified definition and evidence tied to it do not.</div>'
-      +'<div class="proof-gap"><b>SIMULATION BOUNDARY.</b>This page records a digital fulfillment simulation. It does not send controller code, reserve live inventory, establish commissioned-machine readiness, issue physical production authority, or create a live Cycle Start. Scrolling creates no event.</div>'
+      +'<p>Demo yard records follow the shared transaction contract.</p>'
 
       +'<div class="proof-gap"><b>01 · CUSTOMER — DEFINE THE WORK.</b>'
         +'<p>The customer defines the finished work: identified parts, dimensions, material intent, quantities, required cuts and part-relative features. The definition owns what the part must be. It does not choose a Store SKU or machine coordinate.</p>'
@@ -2612,7 +2613,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         +'<div class="kv"><span>READY</span><span id="proof-yard-ready-state">NOT RECORDED</span></div>'
         +'<div class="kv"><span>CUSTODY</span><span id="proof-yard-custody-state">NOT TRANSFERRED</span></div>'
       +'</div>'
-      +'<div class="proof-nav"><button class="next primary" id="proof-yard-handoff" type="button" data-proof-go="proof-record">PICK UP &amp; RECORD →</button></div>',
+      +'</details><div class="proof-nav"><button class="next primary" id="proof-yard-handoff" type="button" data-proof-go="proof-record">PICK UP &amp; RECORD →</button></div>',
       '<p class="goal">The whole circuit stays visible</p><div class="row"><b>One definition</b><span>Store, controller, operator and Yard add only the facts they own.</span></div><div class="row"><b>One audit chain</b><span>Every simulated receipt remains tied to the identified Store result.</span></div><div class="row"><b>One physical boundary</b><span>Cycle Start stays local; simulation never claims machine authority.</span></div>'
     );
 
@@ -2637,10 +2638,11 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
     );
 
     ensureProjectJourneyPage('proof-record',
-      '<p class="stage-tag">FINAL OWNER RECORD</p><h1>PICKED UP. GO FIX THAT BENCH.</h1>'
+      '<p class="stage-tag">FINAL OWNER RECORD</p><h1 id="proof-record-title">YOUR PARTS ARE READY.</h1>'
       +'<p class="sub">Everything that happened stays tied to the exact version you approved.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<div class="start-own-terms-host" data-terms-step="record"></div>'
+      +'<details><summary>Your project record</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-record-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-record-version">—</span></div>'
@@ -2655,7 +2657,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
       +'</div>'
       +'<div class="proof-gap"><b>HANDOFF IS THE CLOSE.</b> READY and custody stay separate in the record.</div>'
       +'<div class="band"><b>YOU BUILD.</b> The receipts below keep the whole trip attached to this version.</div>'
-      +'<div id="proof-record-ledger" class="reviewbox"><p class="dim">Simulation receipts will appear here.</p></div>',
+      +'<div id="proof-record-ledger" class="reviewbox"><p class="dim">Receipts will appear here.</p></div></details>',
       '<p class="goal">The record closes without rewriting history</p><div class="row"><b>READY ≠ custody</b><span>The handoff event remains separate.</span></div><div class="row"><b>Failures would remain</b><span>A later success would not erase an earlier attempt.</span></div><div class="row"><b>Same definition</b><span>The final record points back to the same identified work and Store answer.</span></div>'
     );
 
@@ -2676,86 +2678,20 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
       };
     }
 
-    function proofSimulationKey(){
-      if(proofHandoff?.source!=='start-own') return null;
-      const payload=proofHandoff.payload||{};
-      const economics=proofSimulationEconomics();
-      const version=proofHandoff.storeHandoff?.versionId||payload.id||payload.versionId||payload.normalizedPart?.versionId||'IDENTIFIED';
-      const receiptIdentity=economics.storeReceipt?.receiptHash||economics.storeReceipt?.requestId||economics.resultHash||'NO_STORE_RECEIPT';
-      return String(version)+'|'+String(receiptIdentity);
-    }
-
-    function ensureProofSimulation(){
-      const key=proofSimulationKey();
-      if(!key) return null;
-      if(!proofSimulation || proofSimulation.key!==key){
-        proofSimulation={key:key,receipts:[],createdAt:new Date().toISOString()};
-      }
-      return proofSimulation;
-    }
-
-    function proofSimulationReceipt(type,detail){
-      const sim=ensureProofSimulation();
-      if(!sim) return null;
-      const existing=sim.receipts.find(receipt=>receipt.type===type);
-      if(existing) return existing;
-      const economics=proofSimulationEconomics();
-      const base=String(economics.storeReceipt?.receiptHash||economics.storeReceipt?.requestId||economics.resultHash||'REFERENCE')
-        .replace(/[^a-z0-9]/gi,'').slice(0,12).toUpperCase() || 'REFERENCE';
-      const sequence=String(sim.receipts.length+1).padStart(2,'0');
-      const receipt={
-        type:type,
-        receiptId:'SIM-'+type.replace(/^SIMULATED_/,'').replace(/[^A-Z0-9]+/gi,'-')+'-'+base+'-'+sequence,
-        at:new Date().toISOString(),
-        detail:detail
-      };
-      sim.receipts.push(receipt);
-      return receipt;
-    }
-
-    function proofSimulationHas(type){
-      return !!ensureProofSimulation()?.receipts.some(receipt=>receipt.type===type);
-    }
-
-    function proofSimulationReceiptLabel(type){
-      return ensureProofSimulation()?.receipts.find(receipt=>receipt.type===type)?.receiptId || null;
-    }
-
-    function completeProofYardSimulation(){
-      const economics=proofSimulationEconomics();
-      if(!proofSimulationHas('SIMULATED_PAYMENT')) return false;
-      proofSimulationReceipt('SIMULATED_ALLOCATION','Simulated material allocation'+(economics.sku?' · '+economics.sku:'')+' · no live inventory reserved');
-      proofSimulationReceipt('SIMULATED_QUEUE','Simulated Yard queue entry for the same identified paid definition');
-      proofSimulationReceipt('SIMULATED_PRODUCTION_RELEASE','Simulated job release toward the local cell · no physical production authority created');
-      proofSimulationReceipt('SIMULATED_MACHINE_NEUTRAL_PLAN','Portable operation sequence represented for the accepted definition · no controller code emitted');
-      proofSimulationReceipt('SIMULATED_LOCAL_LOWERING','Candidate local lowering boundary represented · no commissioned postprocessor or CellProgramIdentity issued');
-      proofSimulationReceipt('SIMULATED_CELL_READINESS','Reference-cell readiness represented for simulation only · no commissioned-machine claim');
-      proofSimulationReceipt('SIMULATED_OPERATOR_LOAD','Operator load instruction represented for the identified Store material · no physical material handled');
-      proofSimulationReceipt('SIMULATED_CYCLE_START','Local Cycle Start represented as operator-owned · no live machine start');
-      proofSimulationReceipt('SIMULATED_EXECUTION','Simulated job completed'+(Number.isFinite(Number(economics.cycleMin))?' · modeled '+Number(economics.cycleMin).toFixed(4)+' min':'')+' · no live motion or controller command');
-      proofSimulationReceipt('SIMULATED_INSPECTION_STAGING','Simulated inspection, labeling, reconciliation and staging recorded');
-      proofSimulationReceipt('SIMULATED_READY_NOTICE','Simulated READY notice issued · staged is still not picked up');
-      return true;
-    }
-
+    // These views read the shared commercial stream; they do not create a second receipt chain.
+    const proofReceiptTypes={SIMULATED_OFFER:'OfferIssued',SIMULATED_ACCEPTANCE:'CustomerDecisionRecorded',SIMULATED_PAYMENT:'FinancialEventRecorded',SIMULATED_QUEUE:'QueueEntryConfirmed',SIMULATED_ALLOCATION:'MaterialAllocated',SIMULATED_PRODUCTION_RELEASE:'ProductionReleaseRecorded',SIMULATED_MACHINE_NEUTRAL_PLAN:'LocalPlanBound',SIMULATED_LOCAL_LOWERING:'LocalPlanBound',SIMULATED_CELL_READINESS:'LocalAdmissionRecorded',SIMULATED_OPERATOR_LOAD:'MaterialIssued',SIMULATED_CYCLE_START:'ExecutionEventRecorded',SIMULATED_EXECUTION:'ExecutionEventRecorded',SIMULATED_INSPECTION_STAGING:'StagingRecorded',SIMULATED_READY_NOTICE:'ReadyNoticeRecorded',SIMULATED_CUSTODY_TRANSFER:'CustodyTransferred'};
+    function proofSimulationEvents(){return startOwnTerms?.state().commercial?.events||[];}
+    function proofSimulationHas(type){return proofSimulationEvents().some(event=>event.eventType===proofReceiptTypes[type]&&(type!=='SIMULATED_ACCEPTANCE'||event.payload.decision==='ACCEPTED'));}
+    function proofSimulationReceiptLabel(type){return proofSimulationEvents().find(event=>event.eventType===proofReceiptTypes[type]&&(type!=='SIMULATED_ACCEPTANCE'||event.payload.decision==='ACCEPTED'))?.eventId||null;}
     function renderProofReceiptLedger(targetId){
-      const target=doc.getElementById(targetId);
-      if(!target) return;
-      const sim=ensureProofSimulation();
-      if(!sim || !sim.receipts.length){
-        target.innerHTML='<p class="dim">No simulated receipts yet.</p>';
-        return;
-      }
-      target.innerHTML=sim.receipts.map((receipt,index)=>
-        '<div class="kv"><span>'+(index+1)+' · '+receipt.type.replace(/^SIMULATED_/,'').replaceAll('_',' ')+'</span><span><b>'+receipt.receiptId+'</b><br><span class="dim">'+receipt.detail+' · '+receipt.at+'</span></span></div>'
-      ).join('');
+      const target=doc.getElementById(targetId);if(!target)return;
+      target.innerHTML=startOwnTerms?.renderChain()||'';
     }
 
     function syncProofSimulationUI(){
-      renderStartOwnTerms();
       if(proofHandoff?.source!=='start-own') return;
-      const sim=ensureProofSimulation();
-      if(!sim) return;
+      renderStartOwnTerms();
+      const events=proofSimulationEvents();
       const economics=proofSimulationEconomics();
       const money=value=>Number.isFinite(Number(value))?'$'+Number(value).toFixed(2):'UNRESOLVED';
       const set=(id,value)=>{ const el=doc.getElementById(id); if(el) el.textContent=value; };
@@ -2793,52 +2729,25 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
       status('proof-yard-stage-receipt','SIMULATED_INSPECTION_STAGING','NOT RECORDED');
       status('proof-yard-ready-receipt','SIMULATED_READY_NOTICE','NOT RECORDED');
 
-      const offer=proofSimulationHas('SIMULATED_OFFER');
-      const accepted=proofSimulationHas('SIMULATED_ACCEPTANCE');
-      const paid=proofSimulationHas('SIMULATED_PAYMENT');
-      const allocated=proofSimulationHas('SIMULATED_ALLOCATION');
-      const released=proofSimulationHas('SIMULATED_PRODUCTION_RELEASE');
-      const executed=proofSimulationHas('SIMULATED_EXECUTION');
-      const staged=proofSimulationHas('SIMULATED_INSPECTION_STAGING');
       const ready=proofSimulationHas('SIMULATED_READY_NOTICE');
       const custody=proofSimulationHas('SIMULATED_CUSTODY_TRANSFER');
 
-      const actionButton=action=>doc.querySelector('#proof-accept [data-proof-sim-action="'+action+'"],#proof-yard [data-proof-sim-action="'+action+'"],#proof-record [data-proof-sim-action="'+action+'"]');
-      const offerButton=actionButton('offer'); if(offerButton) offerButton.disabled=!economics.complete||!Number.isFinite(Number(economics.q))||offer;
-      const acceptButton=actionButton('accept'); if(acceptButton) acceptButton.disabled=!offer||accepted;
-      const payButton=actionButton('pay'); if(payButton){ payButton.disabled=!accepted||paid; payButton.textContent=paid?'✓ SIMULATED PAYMENT RECORDED':'SIMULATE PAYMENT · '+money(economics.q); }
-      const acceptPayYardButton=actionButton('accept-pay-yard');
-      if(acceptPayYardButton){
-        acceptPayYardButton.disabled=!economics.complete||!Number.isFinite(Number(economics.q))||paid;
-        acceptPayYardButton.textContent=paid?'✓ ACCEPTED / PAID / SENT TO YARD':'ACCEPT ESTIMATE / PAY / SEND TO YARD →';
-      }
-      const allocateButton=actionButton('allocate'); if(allocateButton) allocateButton.disabled=!paid||allocated;
-      const releaseButton=actionButton('release'); if(releaseButton) releaseButton.disabled=!allocated||released;
-      const runButton=actionButton('run'); if(runButton) runButton.disabled=!released||executed;
-      const stageButton=actionButton('stage'); if(stageButton) stageButton.disabled=!executed||staged;
-      const readyButton=actionButton('ready'); if(readyButton) readyButton.disabled=!staged||ready;
-      const pickupButton=actionButton('pickup'); if(pickupButton){ pickupButton.disabled=!ready||custody; pickupButton.textContent=custody?'✓ SIMULATED PICKUP RECORDED':'SIMULATE PICKUP / TRANSFER CUSTODY'; }
-      const handoffButton=actionButton('handoff-record');
-      if(handoffButton){
-        handoffButton.disabled=!ready||custody;
-        handoffButton.textContent=custody?'✓ CUSTOMER / YARD HANDOFF RECORDED':'CUSTOMER / YARD RECORD HANDOFF →';
-      }
-
       const termsNext=doc.getElementById('proof-terms-next'); if(termsNext) termsNext.disabled=!ready;
 
-      set('proof-sim-receipt-count',String(sim.receipts.length));
-      set('proof-yard-receipt-count',String(sim.receipts.length));
+      set('proof-sim-receipt-count',String(events.length));
+      set('proof-yard-receipt-count',String(events.length));
       set('proof-yard-ready-state',ready?'✓ SIMULATED READY NOTICE RECORDED':'NOT RECORDED');
       set('proof-yard-custody-state',custody?'✓ SIMULATED CUSTODY TRANSFERRED':'NOT TRANSFERRED');
       set('proof-record-ready',ready?'✓ SIMULATED READY NOTICE RECORDED':'NOT RECORDED');
       set('proof-record-custody',custody?'✓ SIMULATED CUSTODY TRANSFERRED':'NOT TRANSFERRED');
-      set('proof-record-status',custody?'✓ CLOSED · SIMULATED OWNER RECORD':'OPEN · SIMULATION');
+      set('proof-record-status',custody?'✓ CLOSED · DEMO OWNER RECORD':'OPEN · DEMO');
+      set('proof-record-title',custody?'PICKED UP. GO FIX THAT BENCH.':'YOUR PARTS ARE READY.');
       renderProofReceiptLedger('proof-receipt-ledger');
       renderProofReceiptLedger('proof-yard-receipt-ledger');
       renderProofReceiptLedger('proof-record-ledger');
     }
 
-    var startOwnTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'start-own', title:'Job 1 · X brace' }) : null;
+    var startOwnTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'start-own', title:'Job 1 · X brace', demoCommerce:true }) : null;
     window.STBTermsFlow?.installStyle(doc);
 
     // ── Start your own · on the shared tile host ──────────────────────────────────────────────────
@@ -3010,8 +2919,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         version:String(proofHandoff.storeHandoff?.versionId||proofHandoff.payload?.id||'job-1')+'|'+String(receipt?.requestId||ref.wire?.requestId||''),
         status:supportable?'SUPPORTABLE':(ref.status==='SUPPORTABLE'?'UNRESOLVED':ref.status||'UNRESOLVED'),
         total:economics.q, reasons,
-        body:{ payloadDigest:ref.wire?.payloadDigest||null, demandSignature:ref.wire?.demandSignature||null, requestId:receipt?.requestId||ref.wire?.requestId||null,
-          storePin:ref.source?.storePin||ref.wire?.storePin||null, evaluationReceipt:receipt, calculationIdentity:ref.calculationIdentity||null },
+        body:ref.body,
         sentAt:ref.wire?.sentAt||null
       });
     }
@@ -3026,10 +2934,11 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
       startOwnPublish();
     }
     if(startOwnTerms){
+      startOwnTerms.onChange(syncProofSimulationUI);
       doc.querySelectorAll('.start-own-terms-host').forEach(host=>startOwnTerms.bind(host,(action,t)=>{
-        if(action==='accept'&&t.stage==='QUEUED') handleProofSimulationAction('accept-pay-yard');
-        else if(action==='yard'&&t.stage==='READY'){ handleProofSimulationAction('run-yard'); syncProofSimulationUI(); }
-        else if(action==='pickup'&&t.stage==='HANDED_OFF'){ handleProofSimulationAction('handoff-record'); }
+        if(action==='accept'&&t.stage==='QUEUED'){originalShow.call(win,'proof-yard');tilePageShown('proof-yard');}
+        else if(action==='yard'&&t.stage==='READY'){originalShow.call(win,'proof-record');tilePageShown('proof-record');}
+        syncProofSimulationUI();
         renderStartOwnTerms();
       }));
     }
@@ -3044,66 +2953,6 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         answer:startOwnLive.answer ? { definitionRevisionId:startOwnLive.answer.definitionRevisionId, inquiryScope:startOwnLive.answer.inquiryScope, authority:startOwnLive.answer.authority } : null })),
       hostMessage:() => startOwnHostMessage()
     });
-
-    function handleProofSimulationAction(action){
-      if(proofHandoff?.source!=='start-own') return false;
-      const economics=proofSimulationEconomics();
-      const q=Number(economics.q);
-      const money=Number.isFinite(q)?'$'+q.toFixed(2):'UNRESOLVED';
-      if(action==='accept-pay-yard'){
-        if(economics.complete!==true || !Number.isFinite(q)) return true;
-        proofSimulationReceipt('SIMULATED_OFFER','Simulated offer created from the identified Store answer · total '+money);
-        proofSimulationReceipt('SIMULATED_ACCEPTANCE','Customer accepted the simulated offer for the same identified definition');
-        proofSimulationReceipt('SIMULATED_PAYMENT','Simulated payment recorded · '+money+' · no money moved');
-        proofSimulationReceipt('SIMULATED_QUEUE','Sent to the Store · in the yard queue for the same identified paid definition');
-        syncProofSimulationUI();
-        originalShow.call(win,'proof-yard');
-        tilePageShown('proof-yard');
-        return true;
-      } else if(action==='run-yard'){
-        if(!proofSimulationHas('SIMULATED_PAYMENT')) return true;
-        completeProofYardSimulation();
-      } else if(action==='offer'){
-        if(economics.complete!==true || !Number.isFinite(q)) return true;
-        proofSimulationReceipt('SIMULATED_OFFER','Simulated offer created from the identified Store answer · total '+money);
-      } else if(action==='accept'){
-        if(!proofSimulationHas('SIMULATED_OFFER')) return true;
-        proofSimulationReceipt('SIMULATED_ACCEPTANCE','Customer accepted the simulated offer for the same identified definition');
-      } else if(action==='pay'){
-        if(!proofSimulationHas('SIMULATED_ACCEPTANCE')) return true;
-        proofSimulationReceipt('SIMULATED_PAYMENT','Simulated payment recorded · '+money+' · no money moved');
-      } else if(action==='allocate'){
-        if(!proofSimulationHas('SIMULATED_PAYMENT')) return true;
-        proofSimulationReceipt('SIMULATED_ALLOCATION','Simulated material allocation'+(economics.sku?' · '+economics.sku:'')+' · no live inventory reserved');
-      } else if(action==='release'){
-        if(!proofSimulationHas('SIMULATED_ALLOCATION')) return true;
-        proofSimulationReceipt('SIMULATED_PRODUCTION_RELEASE','Simulated job release recorded · no physical production authority created');
-      } else if(action==='run'){
-        if(!proofSimulationHas('SIMULATED_PRODUCTION_RELEASE')) return true;
-        proofSimulationReceipt('SIMULATED_CELL_READINESS','Reference-cell readiness satisfied for simulation only · no commissioned-machine claim');
-        proofSimulationReceipt('SIMULATED_EXECUTION','Simulated job completed'+(Number.isFinite(Number(economics.cycleMin))?' · modeled '+Number(economics.cycleMin).toFixed(4)+' min':'')+' · no live motion or controller command');
-      } else if(action==='stage'){
-        if(!proofSimulationHas('SIMULATED_EXECUTION')) return true;
-        proofSimulationReceipt('SIMULATED_INSPECTION_STAGING','Simulated inspection, labeling and staging recorded');
-      } else if(action==='ready'){
-        if(!proofSimulationHas('SIMULATED_INSPECTION_STAGING')) return true;
-        proofSimulationReceipt('SIMULATED_READY_NOTICE','Simulated READY notice issued · staged is still not picked up');
-      } else if(action==='handoff-record'){
-        if(!proofSimulationHas('SIMULATED_READY_NOTICE')) return true;
-        proofSimulationReceipt('SIMULATED_CUSTODY_TRANSFER','Simulated customer pickup and Yard custody transfer recorded · demonstration job closed');
-        syncProofSimulationUI();
-        originalShow.call(win,'proof-record');
-        tilePageShown('proof-record');
-        return true;
-      } else if(action==='pickup'){
-        if(!proofSimulationHas('SIMULATED_READY_NOTICE')) return true;
-        proofSimulationReceipt('SIMULATED_CUSTODY_TRANSFER','Simulated pickup and custody transfer recorded · demonstration job closed');
-      } else {
-        return false;
-      }
-      syncProofSimulationUI();
-      return true;
-    }
 
     function syncProofHandoff(){
       startOwnPublish();
@@ -3196,7 +3045,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
             +(unevaluated.length ? 'Not evaluated, and still on this job: '+unevaluated.join('; ')+'. ' : '')
             +'The whole job is not fully supportable. Machine admission is blocked.';
         } else if(requirementsSatisfied){
-          storeLead.textContent='The Store evaluated the requirements on this version. Estimated total: $'+Number(q).toFixed(2)+'. Machine admission stays blocked.';
+          storeLead.textContent='The Store can make this version. Total: $'+Number(q).toFixed(2)+'.';
         } else {
           storeLead.textContent='The Store answered this version; complete economics are not available.';
         }
@@ -3206,7 +3055,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         ? '$'+Number(machineService).toFixed(2)
         : 'UNRESOLVED';
       if(qEl)qEl.textContent=Number.isFinite(Number(q))
-        ? '$'+Number(q).toFixed(2)+' · BudgetaryEstimate'
+        ? '$'+Number(q).toFixed(2)
         : 'NOT COMPLETE';
       if(cycleEl)cycleEl.textContent=Number.isFinite(Number(estimate?.cycle?.T_job_min))
         ? Number(estimate.cycle.T_job_min).toFixed(4)+' min · '+String(estimate.cycle.model || 'modeled')
@@ -3216,7 +3065,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         : 'NO CURRENT COMPLETE ECONOMICS MODEL ON THIS PROJECT ANSWER';
       if(economicsNote){
         economicsNote.innerHTML=complete
-        ? '<b>STORE ZERO BUDGETARY ESTIMATE RETURNED</b>Q is Store material plus Store-modeled machine service for this exact identified definition. The calculation identity is carried with the answer. It is not a commercial quote, payment, allocation, production release, machine readiness, or physical fabrication authority.'
+        ? '<b>STORE PRICE</b>Material and modeled machine work for this version. The receipt identifies the calculation.'
         : '<b>STORE ECONOMICS UNRESOLVED</b>The physical demand remains preserved exactly. No app-side capability decision, made-up cycle, guessed rate, or combined value is substituted.';
         const carried = storeReference?.carriedNotAccepted || [];
         if (carried.length) {
@@ -3233,7 +3082,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         ? '$'+Number(q).toFixed(2)+' · budgetary only'
         : 'NOT COMPLETE';
       if(termsNote)termsNote.innerHTML=complete
-        ? '<b>TERMS REMAIN REFERENCE-ONLY.</b>The Store Zero Q is a BudgetaryEstimate, not a commercial quote or seller-of-record offer. No acceptance, payment, allocation, release, or fabrication event is created from it.'
+        ? '<b>DEMO TRANSACTION</b>The offer uses this version’s Store price. View its receipts below.'
           +(quoteOnly?'<p>Accepting the simulated offer accepts this quote. It does not mean every job requirement was evaluated, and it does not admit a machine.</p>':'')
         : '<b>TERMS REMAIN REFERENCE-ONLY.</b>Economics remain incomplete on this project answer. No acceptance, payment, allocation, release, or fabrication event is invented.';
       if(recordEconomics)recordEconomics.textContent=Number.isFinite(Number(q))
@@ -3273,12 +3122,6 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
         event.preventDefault();
         // Back to the bench, through the same gate as the nav.
         if(proofHandoff && activeJourneyProject) showMappedProjectStage(activeJourneyProject,'configure');
-        return;
-      }
-      const simAction=event.target.closest?.('[data-proof-sim-action]');
-      if(simAction){
-        event.preventDefault();
-        handleProofSimulationAction(simAction.dataset.proofSimAction);
         return;
       }
       const go=event.target.closest?.('[data-proof-go]');
@@ -4380,7 +4223,7 @@ import('./shared/tile-host-admission-contract.mjs?v=automatic-bench-20261011').t
 
     function selectJourneyProject(projectId) {
       const nextJourneyProject = projectId || null;
-      if (activeJourneyProject !== nextJourneyProject) { proofHandoff = null; proofSimulation = null; }
+      if (activeJourneyProject !== nextJourneyProject) { proofHandoff = null; startOwnTerms?.invalidate(); }
       activeJourneyProject = nextJourneyProject;
       if (activeJourneyProject) doc.documentElement.dataset.activeJourneyProject = activeJourneyProject;
       else delete doc.documentElement.dataset.activeJourneyProject;
