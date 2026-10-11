@@ -274,6 +274,23 @@ tr:last-child td{border-bottom:0}
 .outdoor-reference-details summary{cursor:pointer;font-weight:650;font-size:12px;color:var(--ink2)}
 .outdoor-reference-details .doctrine{margin-top:10px}
 @media(max-width:650px){.idea-next-heading{align-items:flex-start}.idea-next-heading .idea-next{min-width:90px;padding:11px 13px}.outdoor-definition{padding:13px}.outdoor-definition .def-split{grid-template-columns:1fr}.outdoor-definition .def-row{gap:18px}}
+
+/* Optional Store-owned service requests, and full receipt evidence. */
+.outdoor-service-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin:14px 0}
+.outdoor-service-box h2{font-size:18px;margin:0 0 5px}
+.outdoor-service-box p{font-size:12px;color:var(--ink2)}
+.outdoor-service-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0}
+.outdoor-service-choices button{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;text-align:left;font-size:13px;font-weight:700;min-height:58px}
+.outdoor-service-choices button[aria-pressed=true]{background:var(--brand-soft);border:2px solid var(--brand)}
+.outdoor-service-choices button small{display:block;font-weight:400;margin-top:3px;color:var(--ink2);font-size:11px}
+.outdoor-service-status{border-left:3px solid var(--warn);background:var(--bg);padding:9px 12px;font-size:12.5px}
+.outdoor-evidence-grid{display:grid;grid-template-columns:minmax(145px,1fr) minmax(0,3fr);gap:7px 12px}
+.outdoor-evidence-grid dt{font-size:12px;color:var(--ink2)}
+.outdoor-evidence-grid dd{margin:0;font:11px/1.45 ui-monospace,Menlo,monospace;overflow-wrap:anywhere}
+.outdoor-event{border-top:1px solid var(--line);padding:7px 0;font-size:12px}
+.outdoor-event code{font:11px/1.5 ui-monospace,Menlo,monospace;overflow-wrap:anywhere;display:block}
+.outdoor-event small{color:var(--ink2)}
+@media(max-width:640px){.outdoor-service-choices{grid-template-columns:1fr}.outdoor-evidence-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
 <script src="stb-intent-kit.js?v=1"></script>
@@ -483,7 +500,29 @@ tr:last-child td{border-bottom:0}
 <section class="view" id="s-store" data-section="store" hidden><div class="pg"><div class="main"><h1>The Store answers · Outdoor build</h1><div class="answer" id="answer">
             <div id="instant"></div>
             <button class="cta" id="confirm" type="button" disabled style="margin-top:8px">CONFIRM &amp; SEND →</button>
-          </div><div class="doctrine card" id="store-doctrine"></div><div class="actions"><button class="cta ghost" data-to-bench type="button">← THE BENCH</button></div></div><aside class="rail"></aside></div></section>
+          </div>
+  <section class="outdoor-service-box" aria-label="Additional Store services">
+    <h2>Additional services &amp; handoff</h2>
+    <p>Each Store determines its own service range, prices, timing and conditions. These are customer requests, not Store-approved offerings. Store Zero has not yet declared them in its priced service catalog.</p>
+    <div class="outdoor-service-choices" role="group" aria-label="Requested Store services">
+      <button type="button" data-outdoor-service="sanding" aria-pressed="false">Sanding<small>Optional finishing request</small></button>
+      <button type="button" data-outdoor-service="cart" aria-pressed="false">Cart pickup<small>Yard handoff request</small></button>
+      <button type="button" data-outdoor-service="pallet" aria-pressed="false">Palletized<small>Packaging / handoff request</small></button>
+    </div>
+    <p>Cart pickup and palletized are alternative handoff requests. Nothing is added by default.</p>
+    <div class="outdoor-service-status" id="outdoor-service-status" aria-live="polite">No added services requested.</div>
+  </section>
+  <section class="outdoor-service-box" aria-label="Full Store and transaction evidence">
+    <h2>Verified request, Store &amp; transaction evidence</h2>
+    <p>These are the full existing cryptographic values, not shortened badges. A request ID or Store commit identifies a process; neither substitutes for its hash. Unperformed events have no hash.</p>
+    <dl class="outdoor-evidence-grid" id="outdoor-evidence-fields"></dl>
+    <div id="outdoor-service-digest"></div>
+    <h3 style="font-size:14px;margin:14px 0 4px">Transaction ledger</h3>
+    <div id="outdoor-event-hashes"></div>
+    <button type="button" class="cta ghost" id="outdoor-save-evidence" disabled>DOWNLOAD EVIDENCE JSON ↓</button>
+    <p>The export is a snapshot of this session. It is not a signed archive, a real order, or evidence of payment, allocation or machine operation.</p>
+  </section>
+<div class="doctrine card" id="store-doctrine"></div><div class="actions"><button class="cta ghost" data-to-bench type="button">← THE BENCH</button></div></div><aside class="rail"></aside></div></section>
   <!-- ═════ STEP 4 · YOUR CALL ═════ -->
   <section class="view" id="s-call" data-section="call" hidden>
     <div class="pg"><div class="main">
@@ -668,7 +707,7 @@ function manifest(cfg){
 /* ═════ STATE: one definition ═════ */
 const START_LEN=72;
 const S={section:'idea',step:null,cfg:null,rev:1,answer:null,asking:false,error:null,token:0,blocked:null,
-  options:null,optionsKey:'',optionsAsking:false,optionsError:null,from:{},selectedOffering:null,intentTools:[]};
+  options:null,optionsKey:'',optionsAsking:false,optionsError:null,from:{},selectedOffering:null,intentTools:[],serviceChoice:{sanding:false,handoff:null},serviceDigest:{basis:null,hash:null}};
 const TERMS=window.STBTermsFlow.create({projectId:'outdoor',title:'Outdoor · picnic table'});
 const clone=v=>JSON.parse(JSON.stringify(v));
 
@@ -955,7 +994,7 @@ function boardSvg(len,board,angle,spots,deco){
 function render(){
   renderIdea();renderPlans();renderIntent();feedTerms();
   if(S.cfg){renderBuild();renderDefinition();renderEdge();}
-  renderCall();renderYard();renderRecord();renderTerms();syncNav();
+  renderCall();renderYard();renderRecord();renderTerms();renderOutdoorServices();syncNav();
 }
 /* Screen 1: each "From" is the Store's cheapest complete wood for that plan as published, at 6 ft, bring-your-own hardware. */
 function askFrom(){
@@ -1069,7 +1108,7 @@ function renderBuild(){
   const w=work(cfg).length;
   $('bench-instant').innerHTML=answerHtml()+(w?'<p class="status ask" style="margin-top:6px">This includes the extra work you tried on the bench. <a href="#" data-drop-work>Drop it and go back to the plan as is.</a></p>':'');
   $('bench-confirm').disabled=!answerCurrent()||!usable().store;
-  $('confirm').disabled=!TERMS.state().callOpen;
+  $('confirm').disabled=!TERMS.state().callOpen||servicePending();
   const missing=blockedAdmission();$('bench-ask').disabled=!!missing||S.asking;
   $('bench-status').textContent=missing?'Before Store can answer: '+ownerLine(missing):S.error?'Store could not answer ('+S.error+').':S.asking?'Asking Store for this revision…':'Your identified parts and operations are ready for a Store inquiry.';
 }
@@ -1236,6 +1275,86 @@ function renderEdge(){
   $('send-work').disabled=!(w&&st.callOpen);
   $('edge-gate').textContent=!w?'Nothing tried yet.':st.callOpen?'Everything you tried is inside the edge. You can send it, or go back.':'Something you tried is past the edge, or waiting. Go back to the plan as is, or change what you tried.';
 }
+
+/* Store owns service capability. These selections create only a hashed customer request;
+   the existing CUT_PACKAGE_V1 request and pinned Store evaluation remain unchanged. */
+const exactHash=h=>/^[a-f0-9]{64}$/i.test(String(h||''))?String(h):null;
+function requestedServices(){
+  return [S.serviceChoice.sanding?'sanding':null,S.serviceChoice.handoff==='cart'?'cart pickup':S.serviceChoice.handoff==='pallet'?'palletized':null].filter(Boolean);
+}
+function servicePending(){return requestedServices().length!==0}
+function serviceRequest(){
+  const a=answerCurrent()?S.answer:null;
+  return {requestType:'CUSTOMER_SERVICE_REQUEST_NOT_SUBMITTED',projectId:TILE_ID,
+    definitionRevisionId:buildRequest()?.definition.configurationVersion||null,
+    fabricationRequestId:a?.requestId||null,fabricationPayloadDigest:a?.body?.payloadDigest||null,
+    selected:{sanding:!!S.serviceChoice.sanding,handoff:S.serviceChoice.handoff},
+    storeAuthority:'REQUIRED',storeOffer:'NOT_ESTABLISHED'};
+}
+function outdoorEvidence(){
+  const a=answerCurrent()?S.answer:null,b=a?.body||{},rec=a?.receipt||{},terms=TERMS.state();
+  const request=serviceRequest(),basis=JSON.stringify(request);
+  return {kind:'OUTDOOR_EVIDENCE_SNAPSHOT_0.1',snapshotAt:new Date().toISOString(),
+    definition:buildRequest()?.definition||null,ownerRecord:buildRequest()?.record||null,
+    store:{requestId:a?.requestId||null,pinnedCommit:a?.storePin||null,
+      demandSignature:exactHash(b.demandSignature),payloadDigest:exactHash(b.payloadDigest),
+      receiptHash:exactHash(rec.receiptHash),
+      resultHash:exactHash(b.calculationIdentity?.resultHash||a?.evaluation?.calculationIdentity?.resultHash||rec.calculationIdentity?.resultHash),
+      evaluationReceipt:a?.receipt||null,evaluation:a?.evaluation||null},
+    serviceRequest:{...request,hash:S.serviceDigest.basis===basis?S.serviceDigest.hash:null,
+      submittedToStore:false,storeReceipt:null,storePrice:null},
+    commercialLedger:{stage:terms.stage,simulated:true,events:terms.events.map(e=>({...e,hash:exactHash(e.hash),prevHash:exactHash(e.prevHash)}))}
+  };
+}
+function renderOutdoorServices(){
+  const choices=requestedServices(),pending=choices.length>0,st=TERMS.state();
+  const locked=['QUEUED','READY','HANDED_OFF','DECLINED'].includes(st.stage);
+  $('[data-outdoor-service]').forEach(btn=>{
+    const id=btn.dataset.outdoorService;
+    btn.disabled=locked;btn.setAttribute('aria-pressed',String(id==='sanding'?S.serviceChoice.sanding:S.serviceChoice.handoff===id));
+  });
+  $('outdoor-service-status').textContent=locked?
+    'The simulated decision for this version is already recorded. Services cannot be added to it retrospectively.':
+    pending?'Requested: '+choices.join(' · ')+'. These services have no Store-declared offer or price yet. The manufacturing answer remains, but a complete commercial offer is not available.':
+    'No additional services requested. The fabrication-only demonstration is unchanged.';
+  const e=outdoorEvidence(),f=e.store;
+  const rows=[
+    ['Definition version',e.definition?.configurationVersion||'Not yet selected'],
+    ['Demand SHA-256',f.demandSignature||'NOT RETURNED'],
+    ['Payload SHA-256',f.payloadDigest||'NOT RETURNED'],
+    ['Store receipt SHA-256',f.receiptHash||'NOT RETURNED'],
+    ['Store calculation result SHA-256',f.resultHash||'NOT RETURNED'],
+    ['Store request ID (identifier)',f.requestId||'NOT SENT'],
+    ['Pinned Store commit (identifier)',f.pinnedCommit||'NOT RETURNED']
+  ];
+  $('outdoor-evidence-fields').innerHTML=rows.map(([k,v])=>'<dt>'+esc(k)+'</dt><dd>'+esc(v)+'</dd>').join('');
+  const req=serviceRequest(),basis=JSON.stringify(req),digest=S.serviceDigest.basis===basis?S.serviceDigest.hash:null;
+  $('outdoor-service-digest').innerHTML=pending?
+    '<h3 style="font-size:14px;margin:14px 0 5px">Customer service request (not yet sent to Store)</h3><dl class="outdoor-evidence-grid">'+
+    '<dt>Customer request SHA-256</dt><dd>'+esc(digest||'CALCULATING')+'</dd><dt>Service offer, price &amp; receipt</dt><dd>NOT ESTABLISHED</dd></dl>':
+    '<p>No separate service request or service-request hash.</p>';
+  $('outdoor-event-hashes').innerHTML=e.commercialLedger.events.length?e.commercialLedger.events.map(event=>
+    '<div class="outdoor-event"><b>'+esc(event.id.toUpperCase())+'</b><small> · '+esc(event.at||'No timestamp')+
+    ' · '+esc(event.detail||'')+'</small><code>hash: '+esc(event.hash||'NOT RETURNED')+'</code>'+
+    (event.prevHash?'<code>previous: '+esc(event.prevHash)+'</code>':'')+'</div>').join(''):
+    '<p>No transaction events exist for the current definition.</p>';
+  $('outdoor-save-evidence').disabled=!f.receiptHash&&!(pending&&digest);
+  if(pending&&S.serviceDigest.basis!==basis){
+    S.serviceDigest={basis,hash:null};
+    window.STBStoreClient.sha256(req).then(hash=>{
+      if(S.serviceDigest.basis!==basis)return;
+      S.serviceDigest.hash=exactHash(hash);renderOutdoorServices();
+    }).catch(()=>{if(S.serviceDigest.basis===basis){S.serviceDigest.hash=null;$('outdoor-service-digest').textContent='Service request digest unavailable; no Store request was sent.'}});
+  }else if(!pending&&S.serviceDigest.basis!==null)S.serviceDigest={basis:null,hash:null};
+}
+function chooseOutdoorService(id){
+  if(['QUEUED','READY','HANDED_OFF','DECLINED'].includes(TERMS.state().stage))return;
+  if(id==='sanding')S.serviceChoice.sanding=!S.serviceChoice.sanding;
+  else if(id==='cart'||id==='pallet')S.serviceChoice.handoff=S.serviceChoice.handoff===id?null:id;
+  else return;
+  renderOutdoorServices();syncNav();
+}
+
 function renderTerms(){for(const id of ['call-terms','yard-terms','record-terms']){const h=$(id);if(h)h.innerHTML=TERMS.renderControls(h.dataset.termsStep)+TERMS.renderChain()}}
 function title(){const c=S.cfg;return PLANS[c.plan].title+' · '+ftin(c.lengthIn)+' · '+(WOODS.find(w=>w.key===c.wood)||{}).label+' · '+(TIERS.find(t=>t.key===c.tier)||{}).label+(work(c).length?' · with your extra work':'')}
 function renderCall(){
@@ -1293,9 +1412,9 @@ function usableSteps(){
   const steps=TRAIL.steps,t=TERMS.state();
   const u=C?[...C.availableSteps({trail:TRAIL,admission:S.blocked||currentAdmission(),freshAnswer:freshAnswer()})]:steps.slice(0,2);
   if(!S.cfg)u.splice(1);
-  if(u.includes(steps[3])&&!t.callOpen)u.splice(u.indexOf(steps[3]),1);
-  if(u.includes(steps[3])&&t.yardOpen)u.push(steps[4]);
-  if(u.includes(steps[3])&&t.recordOpen)u.push(steps[5]);
+  if(u.includes(steps[3])&&(!t.callOpen||servicePending()))u.splice(u.indexOf(steps[3]),1);
+  if(u.includes(steps[3])&&t.yardOpen&&!servicePending())u.push(steps[4]);
+  if(u.includes(steps[3])&&t.recordOpen&&!servicePending())u.push(steps[5]);
   return u;
 }
 function usable(){const u=usableSteps(),on=i=>u.includes(TRAIL.steps[i]);
@@ -1342,6 +1461,7 @@ function backToPlan(){
 }
 
 document.addEventListener('click',e=>{
+  const svc=e.target.closest('[data-outdoor-service]');if(svc){chooseOutdoorService(svc.dataset.outdoorService);return}
   const pl=e.target.closest('[data-plan]');if(pl){openPlan(pl.dataset.plan);return}
   const sz=e.target.closest('#s-build [data-size]');if(sz){setLength(S.cfg.lengthIn+Number(sz.dataset.size));return}
   const w=e.target.closest('#woods [data-wood]');if(w){if(S.cfg.wood!==w.dataset.wood){S.cfg.wood=w.dataset.wood;S.selectedOffering=null;changed()}return}
@@ -1363,6 +1483,12 @@ document.addEventListener('click',e=>{
   const nv=e.target.closest('[data-nav]');if(nv){goStep(NAV_STEPS.indexOf(nv.dataset.nav));return}
   if(e.target.closest('#nav-idea')){go('idea');return}
 });
+$('outdoor-save-evidence').onclick=()=>{
+  const data=outdoorEvidence();
+  const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  const el=document.createElement('a');el.href=url;el.download='outdoor-evidence-'+String(data.definition?.configurationVersion||'unanswered').replace(/[^a-z0-9_-]/gi,'_')+'.json';
+  document.body.append(el);el.click();el.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
 $('len').addEventListener('input',e=>setLength(e.target.value));
 $('parts-bench').addEventListener('input',e=>{const f=e.target.closest('[data-in]');if(!f)return;const kind=f.closest('[data-part]').dataset.part,p=partOf(S.cfg,kind);
   const k=f.dataset.in;if(k==='angle')p.deco.angle=f.value;else if(k==='middle')p.spots.middle=f.checked;else p.spots[k]=f.value;changed()});
@@ -1371,7 +1497,7 @@ $('parts-bench').addEventListener('change',e=>{const f=e.target.closest('[data-i
 $('the-set').onclick=()=>{const plan=S.cfg.plan;S.cfg=planCfg(plan);S.selectedOffering=null;S.intentTools=[];partsSig='';changed()};
 $('bench-confirm').onclick=()=>{if(answerCurrent()&&usable().store)go('store')};
 $('confirm').textContent='YOUR CALL →';
-$('confirm').onclick=()=>{if(TERMS.state().callOpen)go('call')};
+$('confirm').onclick=()=>{if(TERMS.state().callOpen&&!servicePending())go('call')};
 const opsPanel=$('outdoor-ops-list'),opsAdd=$('outdoor-add-tool'),opsInput=$('outdoor-add-tool-input'),opsStatus=$('outdoor-tool-status');
 function showToolList(open){
   opsPanel.hidden=!open;
@@ -1430,7 +1556,7 @@ $('back-build').onclick=()=>go(work(S.cfg).length?'edge':'build');
 function afterTerms(action){render();if(action==='accept')go('yard');if(action==='yard')go('record')}
 for(const id of ['call-terms','yard-terms','record-terms'])TERMS.bind($(id),afterTerms);
 TERMS.onChange(()=>{renderTerms();syncNav()});
-$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=null;S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.selectedOffering=null;S.intentTools=[];S.rev++;partsSig='';render();go('idea')};
+$('start-over').onclick=()=>{TERMS.setAnswer(null);S.cfg=null;S.answer=null;S.error=null;S.blocked=null;S.options=null;S.optionsKey='';S.selectedOffering=null;S.intentTools=[];S.serviceChoice={sanding:false,handoff:null};S.serviceDigest={basis:null,hash:null};S.rev++;partsSig='';render();go('idea')};
 
 /* One trail step, by its index in the trail contract: the page that step opens here. */
 function goStep(i){
