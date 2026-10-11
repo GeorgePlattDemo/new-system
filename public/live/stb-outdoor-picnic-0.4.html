@@ -325,14 +325,14 @@ tr:last-child td{border-bottom:0}
             </div>
             <p class="hint" id="len-hint"></p>
           </div>
-          <div class="answer" id="bench-answer"><button class="cta ghost" type="button" id="bench-ask" style="float:right">ASK STORE ↻</button>
+          <div class="answer" id="bench-answer"><button class="cta ghost" type="button" id="bench-ask" style="float:right">ASK STORE ↻</button><p class="note" id="bench-status" aria-live="polite"></p>
             <div id="bench-instant"></div>
             <button class="cta" id="bench-confirm" type="button" disabled style="margin-top:8px">SEE THE STORE ANSWER →</button>
           </div>
           <p class="more"><button class="quiet-more" type="button" id="to-edge">Bring this to a bigger bench for more work →</button></p>
         </div>
       </div>
-      <div class="doctrine card" id="store-doctrine"></div>
+      <div class="doctrine card" id="bench-doctrine"></div>
     </div><aside class="rail dev-build-guide" data-guide-id="outdoor-bench" aria-label="Build guide · developer notes"></aside></div>
   </section>
 
@@ -1219,6 +1219,7 @@ function renderStoreDoctrine(host){
   host.innerHTML=ok?'<div class="band">'+d.definitionHtml+'</div>'+d.processIntroHtml+d.processStepsHtml
     :'<div class="band warn"><b>Store Zero reference text unavailable.</b> '+((d&&d.unavailableMessage)||'The shared Store Zero text did not load, so none is shown in its place.')+'</div>';
 }
+renderStoreDoctrine($('bench-doctrine'));
 renderStoreDoctrine($('store-doctrine'));
 render();go('idea');
 window.STBOutdoorPicnic=Object.freeze({version:'0.4',rule:RULE,plans:Object.keys(PLANS),
