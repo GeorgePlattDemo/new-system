@@ -104,7 +104,7 @@ This reference explains the complete System application and its handoff. The [sh
 - [16. Source register and consolidation disposition](#16-source-register-and-consolidation-disposition)
   - [16.1 Exact System implementation sources](#161-exact-system-implementation-sources)
   - [16.2 Store Program and historical sources](#162-store-program-and-historical-sources)
-  - [16.3 Dependency decisions before retirement](#163-dependency-decisions-before-retirement)
+  - [16.3 Dependency decisions and retirement](#163-dependency-decisions-and-retirement)
   - [16.4 Completion verification record](#164-completion-verification-record)
 <!-- TOC END -->
 
@@ -995,15 +995,15 @@ The executable interface was checked at f7123a73 in `src/contracts/definitions.m
 
 Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish its investigation/validation scope. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
 
-### 16.3 Dependency decisions before retirement
+### 16.3 Dependency decisions and retirement
 
-Every tracked Markdown/HTML candidate was classified by present role, current imports/routes, literal and generated frame/navigation, tests/fixtures, platform build, saved-record mappings, source identity and current cross-repository links. The redundant candidates below have their useful explanation in this master. They are designated for deletion after the complete master/navigation check; the other rows identify concrete retention obligations. Store's frozen master links the three retirement candidates at immutable System revision ab09777; those source links remain resolvable in Git history and are not a current-main runtime dependency.
+Every tracked Markdown/HTML candidate was classified by present role, current imports/routes, literal and generated frame/navigation, tests/fixtures, platform build, saved-record mappings, source identity and current cross-repository links. The three redundant candidates below were deleted together after the complete master/navigation check; the other rows identify concrete retention obligations. Store's frozen master links the three retirement candidates at immutable System revision ab09777; those source links remain resolvable in Git history and are not a current-main runtime dependency.
 
 | Exact file or group | Decision and established reason |
 | --- | --- |
-| `docs/intent-imagery-brief.md` | Delete: continuing imagery/reference rules are in 2.6; only current README linked it; no runtime/test/shared-contract dependency |
-| `docs/rules/window-seat-layout.md` | Delete: complete named rule is in 5.2 and the actual extension source; no active import, build/test fixture or external current-main link to this prose file |
-| `public/live/stb-start-own-bench-leg-0.1.html` | Delete: superseded standalone editor; actual Job 1 frame is three-frames; no incoming current frame/navigation/generated route/test/Program/Store reference found. Its self-reported artifact name is source attribution, not an active saved-record loader target |
+| `docs/intent-imagery-brief.md` | Deleted: continuing imagery/reference rules are in 2.6; only the old README linked it; no runtime/test/shared-contract dependency |
+| `docs/rules/window-seat-layout.md` | Deleted: complete named rule is in 5.2 and the actual extension source; no active import, build/test fixture or external current-main link to this prose file |
+| `public/live/stb-start-own-bench-leg-0.1.html` | Deleted: superseded standalone editor; actual Job 1 frame is three-frames; no incoming current frame/navigation/generated route/test/Program/Store runtime reference found. Its self-reported artifact name is source attribution, not an active saved-record loader target |
 | `docs/verification/start-your-own.md` | Retain: Program README and EVIDENCE link its current path; it also holds dated independent observations. Program is frozen, so removal would break those links. The current explanation/history reconciliation is complete in this master |
 | `docs/commercial-sequence-template.md` | Retain unchanged: shared byte-identical contract copy; Store is frozen; correction requires both owners |
 | `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retain: observed live nested shell, page composition and saved-state dependencies |
