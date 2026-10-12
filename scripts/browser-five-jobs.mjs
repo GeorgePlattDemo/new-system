@@ -29,11 +29,22 @@ try {
     ['Window Seat', 'window-intake'],
     ['Outdoor', 'picnic-chooser']
   ];
-  for (const [label, destination] of tiles) {
-    // Navigate through the existing shell function, then click the user-facing tile.
-    await content.locator('body').evaluate(() => window.show('projects'));
+  for (const [index, [label, destination]] of tiles.entries()) {
+    if (index) await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Actual reader route: opening door -> New User -> Later -> project library.
+    await content.locator('#landing button[data-go="new-user"]').click({ timeout: 15000 });
+    await content.locator('#new-user button[data-canonical-go="projects"]').click({ timeout: 15000 });
     const tile = content.locator('#projects button.tile[data-go="' + destination + '"]');
-    await tile.waitFor({ state: 'visible', timeout: 10000 });
+    try {
+      await tile.waitFor({ state: 'visible', timeout: 12000 });
+    } catch (error) {
+      const details = await content.locator('body').evaluate(() => ({
+        current: [...document.querySelectorAll('.page.on')].map(p => p.id),
+        projectsDisplay: getComputedStyle(document.querySelector('#projects')).display,
+        hash: location.hash
+      }));
+      throw new Error(label + ': library did not open: ' + JSON.stringify(details) + '\\n' + error);
+    }
     await tile.click();
     const on = await content.locator('.page.on').count();
     assert.ok(on > 0, label + ': tile click left no visible page');
