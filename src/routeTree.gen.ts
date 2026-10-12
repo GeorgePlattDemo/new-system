@@ -10,9 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BenchRouteImport } from './routes/bench'
 import { Route as HealthzRouteImport } from './routes/healthz'
-import { Route as ProjectsProjectIdRouteImport } from './routes/projects/$projectId'
 import { Route as ApiStoreZeroJobRouteImport } from './routes/api/store-zero/job'
 import { Route as ApiStoreZeroOfferingRouteImport } from './routes/api/store-zero/offering'
 
@@ -21,19 +19,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BenchRoute = BenchRouteImport.update({
-  id: '/bench',
-  path: '/bench',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const HealthzRoute = HealthzRouteImport.update({
   id: '/healthz',
   path: '/healthz',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProjectsProjectIdRoute = ProjectsProjectIdRouteImport.update({
-  id: '/projects/$projectId',
-  path: '/projects/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStoreZeroJobRoute = ApiStoreZeroJobRouteImport.update({
@@ -49,26 +37,20 @@ const ApiStoreZeroOfferingRoute = ApiStoreZeroOfferingRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/bench': typeof BenchRoute
   '/healthz': typeof HealthzRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/bench': typeof BenchRoute
   '/healthz': typeof HealthzRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/bench': typeof BenchRoute
   '/healthz': typeof HealthzRoute
-  '/projects/$projectId': typeof ProjectsProjectIdRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
@@ -76,34 +58,26 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/bench'
     | '/healthz'
-    | '/projects/$projectId'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/bench'
     | '/healthz'
-    | '/projects/$projectId'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   id:
     | '__root__'
     | '/'
-    | '/bench'
     | '/healthz'
-    | '/projects/$projectId'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BenchRoute: typeof BenchRoute
   HealthzRoute: typeof HealthzRoute
-  ProjectsProjectIdRoute: typeof ProjectsProjectIdRoute
   ApiStoreZeroJobRoute: typeof ApiStoreZeroJobRoute
   ApiStoreZeroOfferingRoute: typeof ApiStoreZeroOfferingRoute
 }
@@ -117,25 +91,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/bench': {
-      id: '/bench'
-      path: '/bench'
-      fullPath: '/bench'
-      preLoaderRoute: typeof BenchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/healthz': {
       id: '/healthz'
       path: '/healthz'
       fullPath: '/healthz'
       preLoaderRoute: typeof HealthzRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/projects/$projectId': {
-      id: '/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/projects/$projectId'
-      preLoaderRoute: typeof ProjectsProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/store-zero/job': {
@@ -157,9 +117,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BenchRoute: BenchRoute,
   HealthzRoute: HealthzRoute,
-  ProjectsProjectIdRoute: ProjectsProjectIdRoute,
   ApiStoreZeroJobRoute: ApiStoreZeroJobRoute,
   ApiStoreZeroOfferingRoute: ApiStoreZeroOfferingRoute,
 }
