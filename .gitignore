@@ -11,3 +11,5 @@ dist
 .node_modules.lock
 .store-zero
 
+
+.output/

@@ -14,7 +14,8 @@
 -- in this one. For app tables, prefer snake_case and give per-user tables a
 -- `user_id TEXT NOT NULL` column (TEXT, not UUID — the preview dev user id is
 -- the string 'dev-user'), then scope every query to the authenticated user
--- server-side (see the `neon` + `auth` skills and src/lib/auth/verify.server.ts).
+-- server-side. The public application has no per-user server functions; any new
+-- account surface requires a verified session and isolation boundary.
 
 create table if not exists "user" (
   "id" text not null primary key,
