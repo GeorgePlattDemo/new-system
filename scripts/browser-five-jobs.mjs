@@ -12,6 +12,10 @@ let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
+  const configRequests = [];
+  page.on('request', r => {
+    if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
+  });
   page.on('response', r => {
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
   });
@@ -100,7 +104,12 @@ try {
   assert.equal(config.jobEndpoint, 'same-origin:/api/store-zero/job');
   assert.equal(config.offeringEndpoint, 'same-origin:/api/store-zero/offering');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
-  console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin, storeResponses: responses }));
+  // Five navigations create five fresh page sessions. Within each session
+  // repeated job/lookup calls share only the short-lived endpoint/pin config.
+  assert.ok(configRequests.length <= 12,
+    'Repeated runtime config fetches remain excessive: ' + configRequests.length);
+  console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
+    configRequests: configRequests.length, storeResponses: responses }));
   await page.close();
 } catch (error) {
   failed = true;

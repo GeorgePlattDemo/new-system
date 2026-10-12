@@ -15,6 +15,11 @@
   const OFFERING_LOOKUP = 'OFFERING_LOOKUP';
   const MAX_OFFERING_RESULTS = 20;
   let admissionModulePromise = null;
+  // Only the public endpoint/pin configuration is briefly shared between
+  // inquiries. Never cache Store catalog results, manufacturing Q or receipts.
+  const CONFIG_MAX_AGE_MS = 5000;
+  let configRead = null;
+  let configReadAt = 0;
 
   function admissionModule(){
     if(!admissionModulePromise) admissionModulePromise = import(ADMISSION_URL);
@@ -29,16 +34,27 @@
   }
 
   async function loadConfig(){
-    const response = await fetch(CONFIG_URL, {cache:'no-store'});
-    if(!response.ok) throw new Error('STORE_RUNTIME_CONFIGURATION_UNAVAILABLE');
-    const config = await response.json();
-    if(!config.jobEndpoint || !config.offeringEndpoint) throw new Error('STORE_RUNTIME_NOT_DEPLOYED');
-    if(!PIN_PATTERN.test(String(config.storePin || ''))) throw new Error('STORE_RUNTIME_PIN_MISSING');
-    // same-origin: is replacement plumbing. The screen does not call the old host.
-    const endpoint = checkedEndpoint(resolveConfiguredEndpoint(config.jobEndpoint), JOB_PATH);
-    const offeringEndpoint = checkedEndpoint(resolveConfiguredEndpoint(config.offeringEndpoint), OFFERING_PATH);
-    if(offeringEndpoint.origin !== endpoint.origin) throw new Error('STORE_RUNTIME_ENDPOINT_INVALID');
-    return {endpoint:endpoint.href, offeringEndpoint:offeringEndpoint.href, storePin:config.storePin};
+    const now = Date.now();
+    if(configRead && now - configReadAt < CONFIG_MAX_AGE_MS) return configRead;
+    const pending = (async () => {
+      const response = await fetch(CONFIG_URL, {cache:'no-store'});
+      if(!response.ok) throw new Error('STORE_RUNTIME_CONFIGURATION_UNAVAILABLE');
+      const config = await response.json();
+      if(!config.jobEndpoint || !config.offeringEndpoint) throw new Error('STORE_RUNTIME_NOT_DEPLOYED');
+      if(!PIN_PATTERN.test(String(config.storePin || ''))) throw new Error('STORE_RUNTIME_PIN_MISSING');
+      // same-origin: is replacement plumbing. The screen does not call the old host.
+      const endpoint = checkedEndpoint(resolveConfiguredEndpoint(config.jobEndpoint), JOB_PATH);
+      const offeringEndpoint = checkedEndpoint(resolveConfiguredEndpoint(config.offeringEndpoint), OFFERING_PATH);
+      if(offeringEndpoint.origin !== endpoint.origin) throw new Error('STORE_RUNTIME_ENDPOINT_INVALID');
+      return {endpoint:endpoint.href, offeringEndpoint:offeringEndpoint.href, storePin:config.storePin};
+    })();
+    configRead = pending;
+    configReadAt = now;
+    try { return await pending; }
+    catch (error) {
+      if(configRead === pending){configRead = null; configReadAt = 0;}
+      throw error;
+    }
   }
 
   function checkedEndpoint(value, pathname){
