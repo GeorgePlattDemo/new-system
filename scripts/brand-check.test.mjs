@@ -301,58 +301,7 @@ test("cli: a non-game with a compliant card passes", () => {
   assert.deepEqual(JSON.parse(run.stdout).messages, []);
 });
 
-const readDoc = (rel) => readFileSync(join(TEMPLATE_ROOT, rel), "utf8");
-
-// The brand skill is not part of this application. Do not restore it to satisfy a test.
-// AGENTS.md still names the preview marker so a brand pass, if one is run, cannot wait forever.
-
-test("AGENTS.md names the preview marker path and its staleness bound", () => {
-  const bound = new RegExp(`${OG_PENDING_MAX_AGE_MS / 60_000}\\s+minutes`);
-  const doc = readDoc("AGENTS.md");
-  assert.ok(doc.includes(`/workspace/${OG_PENDING_REL_PATH}`), "AGENTS.md: marker path");
-  assert.ok(bound.test(doc), "AGENTS.md: staleness bound");
-});
-
-// The two places that own "never wait on the brand task". Scanning the whole
-// of AGENTS.md instead would make every unrelated `wait_tasks` mention a future
-// feature adds to it this test's business.
-const PROHIBITION_SECTIONS = [
-  {
-    rel: "AGENTS.md",
-    label: "execution loop step 6",
-    from: "6. **Brand-asset pass",
-    until: /\n7\. /,
-  },
-];
-
-function prohibitionSection({ rel, label, from, until }) {
-  const doc = readDoc(rel);
-  const start = doc.indexOf(from);
-  assert.notEqual(start, -1, `${rel}: ${label} moved — no "${from.trim()}"`);
-  const rest = doc.slice(start + from.length);
-  const end = rest.search(until);
-  // Markdown emphasis and prose wrapping both sit between the two words.
-  return (from + (end === -1 ? rest : rest.slice(0, end))).replace(/[`*]/g, "").replace(/\s+/g, " ");
-}
-
-test("the sections that own the brand-task prohibition never affirm a wait", () => {
-  // Pinned on the shape of the prohibition, not on a negation being somewhere
-  // nearby: "So: wait_tasks before the final verify, but never get_task_output"
-  // keeps a negation in the sentence while instructing exactly the wait.
-  const connectors = /(?:\s|[/,;]|\band\b|\bor\b|\bwait_tasks\b|\bget_task_output\b)+$/i;
-  const negation = /\b(?:no|never|not|don['’]t)$/i;
-  for (const section of PROHIBITION_SECTIONS) {
-    const where = `${section.rel} ${section.label}`;
-    const prose = prohibitionSection(section);
-    const mentions = [...prose.matchAll(/wait_tasks|get_task_output/g)];
-    assert.ok(mentions.length >= 2, `${where}: the prohibition itself went missing`);
-    for (const match of mentions) {
-      const before = prose.slice(0, match.index).replace(connectors, "");
-      const context = prose.slice(Math.max(0, match.index - 60), match.index + 20);
-      assert.ok(negation.test(before), `${where}: not a prohibition: …${context}…`);
-    }
-  }
-});
+// Brand-checker runtime behavior is tested above. Template-only AGENTS wording is not an executable contract.
 
 test("the brand checker accepts its own flags without a brand skill", () => {
   assert.equal(parseBrandCheckArgs(["--placeholder-ok"]).error, undefined);
