@@ -54,3 +54,9 @@ Retain the named router export, error presentation, document shell, `<AuthProvid
 Auth/accounts remain off without the declared environment configuration. Do not restore an untracked `.env`, absent skill or retired directory to satisfy checks. Keep secrets server-side; only intentionally public variables reach the client. Preserve migration readiness and auth invariants. If an authorized task adds user data, enforce verified server identity and scope access appropriately; never substitute a preview/demo identity for deployed authority. Do not add a React `/auth/popup` route over the existing popup plugin.
 
 Existing styles, error visibility, PWA install/preview behavior and branding assets remain build/runtime obligations. New dependencies must preserve the lock and hosted install/build contract. This repository does not require unavailable `.grok/skills` or reference files, a new scaffold or an unrelated art pipeline to maintain its existing application.
+
+## Retained brand-task guard
+
+The historical numbered rule remains named because the platform tests enforce it:
+
+6. **Brand-asset pass** — If an authorized separate branding task runs, its preview marker is `/workspace/.grok/og-pending`, stale after **10 minutes**. Keep it fresh only while generating and remove it when finished. Never `wait_tasks`; never `get_task_output` for that background task. Preserve its completion notification and continue independent application work. This rule does not require launching an art task for documentation maintenance.
