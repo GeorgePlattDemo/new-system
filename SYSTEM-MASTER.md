@@ -878,7 +878,7 @@ test -f .output/server/index.mjs
 | Shared commercial text and gate | Both byte-identical to pinned Store copies | No unilateral shared-contract amendment |
 | Hosted page inspection | All five intake/Intent/Bench paths and current rails observed | Actual loaded application, beyond filename/test-name assertions |
 
-Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Node 22, installs the locked dependencies, checks out Store exactly at the runtime pin, runs the full suite, default build, typecheck and Node build. Exact post-cleanup checks and final source integrity are recorded in section 16.4 after execution.
+Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Node 22, installs the locked dependencies, checks out Store exactly at the runtime pin, runs the full suite, default build, typecheck and Node build. Master verification and deferred retirement are recorded in section 16.4. No cleanup is authorized in this pass.
 
 ### 14.2 What the test families prove
 
@@ -930,8 +930,8 @@ These are not repaired by this consolidation. The Outdoor issue concerns the mea
 
 | Location | Present discrepancy | Required correction or consolidation disposition |
 | --- | --- | --- |
-| `docs/DEFINITIONS.md` at the starting revision | Earlier inquiry/receipt vocabulary, blank statuses, retired lowering limitation, per-cut prohibition and repeated/general terms | Corrected in the concise dictionary: formal four-field inquiry, independent manifest, ten receipt fields, actual dispositions, all three modeled-evidence classes and Store-owned Q scope. It specifies meaning; the master explains behavior |
-| `AGENTS.md` at the starting revision | Assumed Grok-only chat, sole Vercel hosting, unavailable skill/reference files and unrelated scaffold/art pipeline | Removed inapplicable instructions; retained current Railway and default Vercel builds, owner/pin/records/main rules, startup, auth/env, branding/PWA/install, preview and test safeguards, including the tested ten-minute brand-task marker and nonblocking rule |
+| `docs/DEFINITIONS.md` at the starting revision | Earlier inquiry/receipt vocabulary, blank statuses, retired lowering limitation, per-cut prohibition and repeated/general terms | Pending a separate definitions reconciliation under System authority. The master explains actual protocol 2, independent manifest, receipt fields, dispositions and evidence classes without changing the dictionary in this pass |
+| `AGENTS.md` at the starting revision | Assumed Grok-only chat, sole Vercel hosting, unavailable skill/reference files and unrelated scaffold/art pipeline | Restored original maintainer instructions pending a separate dependency-sensitive review. Future streamlining must preserve active Railway/Vercel, owner/pin, startup, auth/env, branding/PWA/install, preview and tested brand-task rules |
 | Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Export preserved full request, pin and identities; reproduce without guessing or renaming request; distinguish fresh receipt time/hash |
 | `stb-build-guide-spec.js` | Alcove formal-knob-manifest gap can be confused with implemented protocol manifest; Window Seat fixed wood-list statement omits live discovery; Outdoor source coverage is incomplete | Correct each claim against its actual scope, distinguishing UI knob list, full protocol manifest and fixed buttons versus discovery; retain dev/rev guardrails |
 | Window Seat spot explanation | Says 3/16-inch deep without the drill-point/full-diameter distinction | State 3/16-inch full-diameter penetration beyond point consistently with the defined operation; do not alter actual tool requirement |
@@ -939,13 +939,13 @@ These are not repaired by this consolidation. The Outdoor issue concerns the mea
 | Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | Coordinated rewrite of both original copies; executable gate/envelope controls current serialization. This assignment retains both unchanged |
 | Active wrappers and Rule Book | Superseded embedded price/pin/request text and dated donor references remain shipped/reachable | Targeted future source/copy reconciliation after first-paint, direct-route and saved-state checks; current application language/layout stays unchanged here |
 | Program trial opening | Describes current virtual commands more broadly than its precise modeled-ledger paragraph | Program-owned evidence-stage edit; Program remains unchanged here |
-| Store master source register | Labels the standalone `stb-start-own-bench-leg-0.1.html` as current composition, while the observed Job 1 loads `three-frames.html` and the current wrapper | Store-owned explanatory correction; its immutable ab09777 links remain valid after System retirement. Store stays unchanged |
+| Store master source register | Labels the standalone `stb-start-own-bench-leg-0.1.html` as current composition, while the observed Job 1 loads `three-frames.html` and the current wrapper | Store-owned explanatory correction in a later pass. The standalone page remains in System pending approved retirement; Store stays unchanged |
 
 The dictionary and agent boilerplate can be corrected as documentary governance within System's authority. Protected live-page wording and actual code discrepancies remain documented, rather than being silently changed during a document retirement. Historical price/evidence text stays in its original context.
 
 ### 15.3 Authority after consolidation
 
-The README invites the reader into the current app and master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS is the sole concise shared-meaning authority. AGENTS carries active maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
+The original README remains the invitation into the current app, with one added link to this master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS remains the System-owned shared-meaning authority, pending a later editorial reconciliation. AGENTS retains its existing maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
 
 Current descriptive entry links name Program, new-system and store-zero. Immutable baseline source links are used for verification. A historical source mention explains the dated fact directly; it does not send the reader to a predecessor implementation for current behavior.
 
@@ -953,7 +953,7 @@ Current descriptive entry links name Program, new-system and store-zero. Immutab
 
 ### 16.1 Exact System implementation sources
 
-All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193abc8564ebce611746f`**. Consolidation preserves their bytes except the explicitly retired unused standalone page listed below. The single frozen commit identifies the exact revision of every linked path; no test fixture is relabeled as a public default.
+All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193abc8564ebce611746f`**. This master-creation and restoration pass preserves their bytes, including the standalone page listed below. The single frozen commit identifies the exact revision of every linked path; no test fixture is relabeled as a public default.
 
 | Current source | Function explained here | Meaningful verification |
 | --- | --- | --- |
@@ -985,7 +985,7 @@ All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193a
 | `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
 | `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
 
-The surviving current documentary authorities are [Definitions](docs/DEFINITIONS.md), [AGENTS](AGENTS.md) and the [shared commercial contract](docs/commercial-sequence-template.md). This master explains their actual current source relationship. Changes to dictionary/governance are identified by the consolidation commits; they do not redate the unchanged runtime baseline.
+The surviving current documentary authorities are [Definitions](docs/DEFINITIONS.md), [AGENTS](AGENTS.md) and the [shared commercial contract](docs/commercial-sequence-template.md). This master explains their actual current source relationship. The dictionary and governance documents are restored to their pre-cleanup bytes and await a separate approved consolidation decision.
 
 ### 16.2 Store Program and historical sources
 
@@ -995,26 +995,25 @@ The executable interface was checked at f7123a73 in `src/contracts/definitions.m
 
 Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish its investigation/validation scope. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
 
-### 16.3 Dependency decisions and retirement
+### 16.3 Dependency decisions and proposed retirement
 
-Every tracked Markdown/HTML candidate was classified by present role, current imports/routes, literal and generated frame/navigation, tests/fixtures, platform build, saved-record mappings, source identity and current cross-repository links. The three redundant candidates below were deleted together after the complete master/navigation check; the other rows identify concrete retention obligations. Store's frozen master links the three retirement candidates at immutable System revision ab09777; those source links remain resolvable in Git history and are not a current-main runtime dependency.
+The master documents the present file roles and potential redundancies; retirement decisions are deferred until the completed masters have been reviewed. The three previously deleted candidates have been restored to their pre-cleanup content. No archive or holding folder is introduced. A future disposal pass must verify source references, browser routes, public direct URLs, test fixtures, saved-record compatibility, deployment dependencies and cross-repository references before approved deletion.
 
-| Exact file or group | Decision and established reason |
+| Exact file or group | Current disposition and reason |
 | --- | --- |
-| `docs/intent-imagery-brief.md` | Deleted: continuing imagery/reference rules are in 2.6; only the old README linked it; no runtime/test/shared-contract dependency |
-| `docs/rules/window-seat-layout.md` | Deleted: complete named rule is in 5.2 and the actual extension source; no active import, build/test fixture or external current-main link to this prose file |
-| `public/live/stb-start-own-bench-leg-0.1.html` | Deleted: superseded standalone editor; actual Job 1 frame is three-frames; no incoming current frame/navigation/generated route/test/Program/Store runtime reference found. Its self-reported artifact name is source attribution, not an active saved-record loader target |
-| `docs/verification/start-your-own.md` | Retain: Program README and EVIDENCE link its current path; it also holds dated independent observations. Program is frozen, so removal would break those links. The current explanation/history reconciliation is complete in this master |
-| `docs/commercial-sequence-template.md` | Retain unchanged: shared byte-identical contract copy; Store is frozen; correction requires both owners |
-| `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retain: observed live nested shell, page composition and saved-state dependencies |
-| `three-frames.html`, `stb-window-seat-0.9.html`, `stb-outdoor-picnic-0.4.html` | Retain: actual project child pages, definitions and controls |
-| `stb-outdoor-reference-authority-0.3.html`, `STB-OUTDOOR-ANGLED-FRAME-RESEARCH-DOSSIER-0.1.html` | Retain: current Outdoor Rule Book route links authority, authority links dossier; unique dated source evidence; retirement would change public navigation |
-| `scripts/install-page.html`, platform public assets/plugins/middleware/auth/data/preview/startup | Retain: imported, generated/served or exercised by required tests/builds |
-| Runtime modules, images, contracts, test sources, fixtures, deployment/configuration/locks | Retain: application/verification obligations; old filenames or explanatory comments are not evidence of disuse |
-| README, DEFINITIONS, AGENTS | Rewrite concisely: front door, shared dictionary and active governance have distinct continuing roles |
+| `docs/intent-imagery-brief.md` | **Retained pending review.** Imagery rules are explained in 2.6; the preserved README still links this source |
+| `docs/rules/window-seat-layout.md` | **Retained pending review.** The named layout rule is also explained in 5.2 and implementation source |
+| `public/live/stb-start-own-bench-leg-0.1.html` | **Restored pending direct-route and dependency review.** The current Job 1 frame uses `three-frames.html`; do not infer that the historical standalone page has no external users |
+| `docs/verification/start-your-own.md` | Retained: Program README and EVIDENCE link its current path; dated independent observations remain available |
+| `docs/commercial-sequence-template.md` | Retained unchanged: shared copy; Store is frozen and coordinated contract revision is separate |
+| `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retained: working nested shell, page composition and saved-state dependencies |
+| `three-frames.html`, `stb-window-seat-0.9.html`, `stb-outdoor-picnic-0.4.html` | Retained: active project frames, definitions and controls |
+| `stb-outdoor-reference-authority-0.3.html`, `STB-OUTDOOR-ANGLED-FRAME-RESEARCH-DOSSIER-0.1.html` | Retained: current Outdoor Rule Book links and dated source evidence |
+| Platform files, runtime modules, images, executable contracts, test sources, fixtures and deployment files | Retained: working application, verification and operational obligations |
+| `README.md`, `docs/DEFINITIONS.md`, `AGENTS.md` | Original content preserved except one README link to `SYSTEM-MASTER.md`; any shortening awaits separate review |
 
-No archive directory, pointer replacement document, legacy tree or new chapter-file collection is created. Deleted narrative/artifact revisions remain in Git history. No undocumented external old-URL use is claimed impossible; the retirement decision follows the verified current application and source/record obligations rather than assuming every ever-served file must stay permanently.
+The objective remains one readable introduction, one complete System master and only genuinely necessary supporting files. Git history can preserve discarded explanatory revisions in the future, but deletion must follow an approved file-by-file dependency disposition.
 
 ### 16.4 Completion verification record
 
-The full sixteen-chapter master is completed and saved before deletion. Its internal contents are generated from the actual headings; every current source link is checked against the frozen tracked inventory. The runnable inquiry and real loader probe provide direct behavioral evidence. Retirement execution, resulting file/document counts, before/after source identity and post-cleanup checks are recorded here after the coherent cleanup group completes.
+The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. A subsequent premature cleanup pass modified the README, definitions and maintainer instructions and removed three files; this restoration returns those six paths to their pre-cleanup content, adds only the master link to the README and leaves executable source, Store pin, Program and Store unchanged. Retirement is deferred until a separate review. Required CI must pass against the exact pinned Store checkout.
