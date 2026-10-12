@@ -96,7 +96,7 @@ try {
       const seat = content.frameLocator('iframe#window-seat-frame');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await seat.locator('#s-hero button[data-to="intent"]').click({ timeout: 15000 });
-      await seat.locator('#s-intent button[data-to="bench"]').click({ timeout: 15000 });
+      await seat.locator('#s-intent .forward-heading button[data-to="bench"]').click({ timeout: 15000 });
       const money = seat.locator('#bench-money');
       await money.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       const quote = (await money.innerText()).trim();
