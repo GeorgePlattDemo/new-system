@@ -16,8 +16,6 @@ The engineering connection is reusable: the customer's resolved component requir
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
-> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–13. Verification, repair boundaries and the source/disposition register are completed next before any retirement.
-
 ## Contents
 
 <!-- TOC START -->
@@ -34,19 +32,80 @@ This reference explains the complete System application and its handoff. The [sh
   - [2.5 Additional services](#25-additional-services)
   - [2.6 References and imagery](#26-references-and-imagery)
 - [3. Start Your Own](#3-start-your-own)
+  - [3.1 Source and entry](#31-source-and-entry)
+  - [3.2 Controlling geometry and derivation](#32-controlling-geometry-and-derivation)
+  - [3.3 Components manifest and Store request](#33-components-manifest-and-store-request)
+  - [3.4 Fresh answer and visible consequences](#34-fresh-answer-and-visible-consequences)
+  - [3.5 Decision and verification](#35-decision-and-verification)
 - [4. Alcove and critical fit](#4-alcove-and-critical-fit)
+  - [4.1 Source context and controlling choices](#41-source-context-and-controlling-choices)
+  - [4.2 Stock-aware definition proposal](#42-stock-aware-definition-proposal)
+  - [4.3 Edge finish and features](#43-edge-finish-and-features)
+  - [4.4 Translation and coverage](#44-translation-and-coverage)
+  - [4.5 Response presentation and boundaries](#45-response-presentation-and-boundaries)
 - [5. Window Seat and space utilization](#5-window-seat-and-space-utilization)
+  - [5.1 Sources Intent and entry](#51-sources-intent-and-entry)
+  - [5.2 Starting values and named geometry](#52-starting-values-and-named-geometry)
+  - [5.3 Components tools and independent manifest](#53-components-tools-and-independent-manifest)
+  - [5.4 Inquiry identity and Store response](#54-inquiry-identity-and-store-response)
+  - [5.5 Decision records and verification limits](#55-decision-records-and-verification-limits)
 - [6. Outdoor and published plans](#6-outdoor-and-published-plans)
+  - [6.1 Source selection and fixed starting definition](#61-source-selection-and-fixed-starting-definition)
+  - [6.2 Bench control and revision](#62-bench-control-and-revision)
+  - [6.3 Option previews and the committed inquiry](#63-option-previews-and-the-committed-inquiry)
+  - [6.4 The unresolved end-meaning correspondence](#64-the-unresolved-end-meaning-correspondence)
+  - [6.5 Authority evidence and downstream flow](#65-authority-evidence-and-downstream-flow)
 - [7. Playhouse and the sheet stream](#7-playhouse-and-the-sheet-stream)
+  - [7.1 Source and ownership presentation](#71-source-and-ownership-presentation)
+  - [7.2 Geometry and selected tools](#72-geometry-and-selected-tools)
+  - [7.3 Definition manifest and boundary](#73-definition-manifest-and-boundary)
+  - [7.4 Store result and refusal presentation](#74-store-result-and-refusal-presentation)
 - [8. System compilation and shared meaning](#8-system-compilation-and-shared-meaning)
+  - [8.1 From source to an identified requirement](#81-from-source-to-an-identified-requirement)
+  - [8.2 Two active System surfaces](#82-two-active-system-surfaces)
+  - [8.3 Public admission and responsibility](#83-public-admission-and-responsibility)
+  - [8.4 Independent complete manifest](#84-independent-complete-manifest)
+  - [8.5 Translation rules and unresolved meaning](#85-translation-rules-and-unresolved-meaning)
 - [9. The Store communication boundary](#9-the-store-communication-boundary)
+  - [9.1 Public wire and formal inquiry](#91-public-wire-and-formal-inquiry)
+  - [9.2 Complete protocol-2 example](#92-complete-protocol-2-example)
+  - [9.3 Response and receipt](#93-response-and-receipt)
+  - [9.4 Public presentation and currentness](#94-public-presentation-and-currentness)
+  - [9.5 Reproduce preserved bytes](#95-reproduce-preserved-bytes)
 - [10. Customer decision and commercial progression](#10-customer-decision-and-commercial-progression)
+  - [10.1 The installed shared gate](#101-the-installed-shared-gate)
+  - [10.2 Source acts and the customer stages](#102-source-acts-and-the-customer-stages)
+  - [10.3 Identity and event custody](#103-identity-and-event-custody)
+  - [10.4 Start Your Own policy and other pending flows](#104-start-your-own-policy-and-other-pending-flows)
 - [11. Records identity and custody](#11-records-identity-and-custody)
+  - [11.1 What an owner record preserves](#111-what-an-owner-record-preserves)
+  - [11.2 Generic revisions and attempts](#112-generic-revisions-and-attempts)
+  - [11.3 Accepted packet and evidence](#113-accepted-packet-and-evidence)
+  - [11.4 History and correction](#114-history-and-correction)
 - [12. Refusals errors and unresolved work](#12-refusals-errors-and-unresolved-work)
+  - [12.1 Separate dispositions](#121-separate-dispositions)
+  - [12.2 Typical reasons and faithful translation](#122-typical-reasons-and-faithful-translation)
+  - [12.3 Failures after an answer](#123-failures-after-an-answer)
 - [13. Application architecture and deployment](#13-application-architecture-and-deployment)
+  - [13.1 Loaded pages and their responsibilities](#131-loaded-pages-and-their-responsibilities)
+  - [13.2 Shared runtime assets](#132-shared-runtime-assets)
+  - [13.3 Server adapter and development routes](#133-server-adapter-and-development-routes)
+  - [13.4 Build startup and hosting](#134-build-startup-and-hosting)
+  - [13.5 Platform infrastructure that remains active](#135-platform-infrastructure-that-remains-active)
 - [14. Testing and verification](#14-testing-and-verification)
+  - [14.1 Commands and observed results](#141-commands-and-observed-results)
+  - [14.2 What the test families prove](#142-what-the-test-families-prove)
+  - [14.3 Current and historical numbers](#143-current-and-historical-numbers)
+  - [14.4 Navigation and dependency verification](#144-navigation-and-dependency-verification)
 - [15. Discrepancies and repair boundaries](#15-discrepancies-and-repair-boundaries)
+  - [15.1 Implementation and meaning repairs still pending](#151-implementation-and-meaning-repairs-still-pending)
+  - [15.2 Explanation and reproduction drift](#152-explanation-and-reproduction-drift)
+  - [15.3 Authority after consolidation](#153-authority-after-consolidation)
 - [16. Source register and consolidation disposition](#16-source-register-and-consolidation-disposition)
+  - [16.1 Exact System implementation sources](#161-exact-system-implementation-sources)
+  - [16.2 Store Program and historical sources](#162-store-program-and-historical-sources)
+  - [16.3 Dependency decisions before retirement](#163-dependency-decisions-before-retirement)
+  - [16.4 Completion verification record](#164-completion-verification-record)
 <!-- TOC END -->
 
 ## 1. Source baseline and ownership
@@ -791,3 +850,170 @@ The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes
 The repository retains authentication, app-data, database/migration, preview bridge, PWA/branding, install tutorial, browser smoke and related test infrastructure. Examples include `public/__grok/`, `server/middleware/grok-pwa.ts`, `scripts/grok-pwa-*`, `scripts/install-page.html`, `src/lib/auth/`, `src/lib/app-data/`, `src/lib/db.ts` and `PreviewHostBridge` in the root. Vite imports the plugins; test/build/deployment paths exercise them.
 
 The source-derived defaults keep accounts off without enabled configuration. No new env file, account flow, database, brand replacement, deployment scaffold or substitute tool is added during consolidation. Old agent prose about unavailable `.grok/references`/skills, a Grok-only conversation environment or Vercel as the sole present host can be removed from governance after checking those facts. The still-operative startup, auth, preview, branding, serverDir, migration and test safeguards remain.
+
+## 14. Testing and verification
+
+### 14.1 Commands and observed results
+
+Run System checks against a **clean exact pinned Store checkout**, not Store's later documentation HEAD:
+
+```sh
+STORE_ZERO_ROOT=/absolute/path/to/f7123a73-store-checkout npm test
+npm run build
+npm run typecheck
+NITRO_PRESET=node-server npm run build
+test -f .output/server/index.mjs
+```
+
+| Verification at the frozen source | Observed result | What it establishes |
+| --- | --- | --- |
+| Required System suite, actual Store HEAD f7123a73 | 334 passed, zero failures | Repository/platform, typed System, real HTTP integration and public-wire behaviors covered by those tests |
+| Default production build | Passed | Retained Vercel build path and environment/migration wrapper |
+| Railway Node production build | Passed; server output present | Current Node production packaging |
+| TypeScript | Passed | Type/route checks for the installed source |
+| Five hosted starting inquiries | $8.62 / $379.11 / $1,193.10 / $293.16 / $76.56 | Fresh automatic Q presented for the exact public definitions in chapter 1 |
+| Hosted 16 → 18-inch brace change | Fresh $9.13, 72-inch parent and 35⅝-inch returned remainder | Geometry change/current-answer invalidation and Store-selected parent presentation |
+| Master's complete protocol-2 example | SUPPORTABLE, Q $8.62 | Example includes the independent manifest and is executable against the real pinned core |
+| Generic current-packet loader probe | Pre-acceptance record loads; genuine packet-2 record returns MALFORMED | Reproduced outstanding compatibility defect |
+| Shared commercial text and gate | Both byte-identical to pinned Store copies | No unilateral shared-contract amendment |
+| Hosted page inspection | All five intake/Intent/Bench paths and current rails observed | Actual loaded application, beyond filename/test-name assertions |
+
+Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Node 22, installs the locked dependencies, checks out Store exactly at the runtime pin, runs the full suite, default build, typecheck and Node build. Exact post-cleanup checks and final source integrity are recorded in section 16.4 after execution.
+
+### 14.2 What the test families prove
+
+`system.test.ts` covers named rule compilation, geometry/input blockers, preserved undefined fields, explicit counts, discovery versus Q, partial-result labeling, revision/currentness, real receipt constraints, reopening/schema handling, historical fixture identity, later refusal and machine-authority rejection. Its saved-record tests do not prove that the actual packet-2 producer and packet loader round-trip correctly; the direct probe exposes that missing correspondence.
+
+`playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, default/changed Store answers, alternative queries, unsupported fields, scoped-review/commercial constraints and demo sequence. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
+
+The 252 repository/library support tests protect PWA branding/install paths, preview/process handling, migration/auth/environment invariants, app-data/readiness and related platform functions. Their size is not a reason to remove those dependencies; a consolidation must preserve the build and test contract.
+
+A passing suite is necessary, but cannot establish faithful external-plan interpretation, physical stock, commissioned movement or every direct-link obligation. Test names retaining an older adjective/price do not supersede their actual assertions. Browser observations of declared modeled prices do not constitute paid orders or inspected physical parts.
+
+### 14.3 Current and historical numbers
+
+Current prices belong to exact definitions, request identities, catalog, model and executable release. Changing a dimension/material/feature initiates a new inquiry; retaining a project title does not retain its price. A price decrease after a change is not inherently a defect if Store's complete selected plan changed; the returned requirements, stock and ledger must explain it. System has no authority to force a monotonic local price.
+
+The retained verification note supplies dated historical observations:
+
+| Original observation | Original Store identity/context | Continuing meaning |
+| --- | --- | --- |
+| 8 October: 16/18-inch SPF $8.54/$9.07; treated specimen $11.09/$11.08 | `4cb0c625ac00c62390129b55a52596b52f10decd`; end facts then carried unevaluated | Earlier integration state, not current full-job support |
+| 9 October: 16/18-inch parent change and refusal/currentness checks | `1cea72c8223b2c738180b230c584c4ab557267ca` | Dated UI/receipt behavior under that release |
+| 10 October: SPF $8.54/$9.07; Alcove $449.85; Window Seat Pine/Poplar $1,489.09/$2,005.89; Outdoor $275.52; Playhouse $76.57 | `81d958482bd25e784f122c97ffb11174013395af`; deployed initial repair `a722fc4cf0490b364d1fae1be520dd3a318a5a1e` | Dated earlier engine/definition/commercial demonstrations |
+| 11 October: five current starts and altered Bench values | Exact current f7123a73 Store; adopted shared core/gate | Baseline observations repeated for starting values on 12 October |
+
+The sealed original Project 1 result is **$11.09**, 85.5001-second Store time and a separate 86.46953628299116-second virtual sequence. The adopted-core equivalent is **$10.81**, with different selected stock and calculation identity. The public 16-inch SPF demonstration is **$8.62**. These identify three distinct inquiries/evidence states and must not be substituted for one another. The full manufacturing comparison remains in Store's master.
+
+### 14.4 Navigation and dependency verification
+
+Inspection begins with imports/generated routes, frames/scripts/styles, selected project sources/assets, tests/fixtures, deployment, saved-record mappings, direct current links and Markdown anchors. Live HTML was inspected in the loaded browser as well as source. The current outer/child graph, exact image assets, project-state IDs and Store runtime configuration are retained.
+
+The project entry observation covered all five Idea/Intent/Bench paths. Start Your Own lands at Intent; the other Idea pages expose NEXT → INTENT; every Intent exposes BRING IT TO THE BENCH →. Addl svcs triggers appeared on each Bench; the installed common source and open/Close behavior were checked. The deployed five starting prices matched the frozen record. Final confirmation uses both unchanged source identities and renewed application observations after cleanup.
+
+## 15. Discrepancies and repair boundaries
+
+### 15.1 Implementation and meaning repairs still pending
+
+| Finding and owner | Actual current state | Testable repair criterion |
+| --- | --- | --- |
+| **Outdoor source-to-demand end meaning — System** | Source says long-short; public and generic demand state long-long/miter-face with the same numbers; no transformation witness | Each angled class has identified source datum/plane and an explicit verified transformation or unsupported disposition; regression checks outgoing meaning. No silently changed lengths or expanded Store capability |
+| **Outdoor material pedigree — System** | All-treated default is labeled the plan's wood; audit distinguishes source's untreated top/seat recommendation and optional treated legs | Keep any chosen treated variant as an explicit application/customer selection; correct source attribution and retain source versus inferred hardware counts |
+| **Generic saved packet — System** | Producer emits packet2; loader accepts packet1; genuine current packet fails loading | Valid produced packet2 round-trips with unchanged demand/manifest/answer/decision; unknown or malformed versions remain rejected; reopening still retires current price/evidence |
+| **Generic machine presentation — System** | `machine.ts` reports only board lowering; pinned Store evidence supports board/cut/sheet | Presentation matches all three inspected classes and actual endpoint results; unsupported/evidence failures remain explicit; physical admission remains BLOCKED |
+| **Generic optional-field contract — System** | Typed `shape.ts` omits optional fields supported by public/Store protocol2 | Deliberate reconciliation of shared meanings and exact supported fields, with no Store capability/pricing duplicate and no silent drop of supplied requirements |
+| **Exception recovery and broader source integration — shared contract owners** | Earlier unresolved exception remains a hold after later RESOLVED; source authentication/durable commercial integrations remain absent | Coordinated event correction/recovery policy and tests in both owners; exact byte alignment retained; actual evidence requires its commissioned source adapters |
+
+These are not repaired by this consolidation. The Outdoor issue concerns the meaning of the defined job, not whether Store can correctly price the bytes it receives. The packet/machine findings affect the generic development/record path, not proof that every published tile fails. The shared-gate findings are coordinated work that cannot be amended while Store is frozen.
+
+### 15.2 Explanation and reproduction drift
+
+| Location | Present discrepancy | Required correction or consolidation disposition |
+| --- | --- | --- |
+| `docs/DEFINITIONS.md` | Earlier inquiry/receipt vocabulary, blank statuses, retired lowering limitation, per-cut prohibition and repeated/general terms | Reconcile the surviving concise dictionary with actual protocol2/manifest/receipt and Q scope. It specifies meaning; the master explains behavior |
+| Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Export preserved full request, pin and identities; reproduce without guessing or renaming request; distinguish fresh receipt time/hash |
+| `stb-build-guide-spec.js` | Alcove formal-knob-manifest gap can be confused with implemented protocol manifest; Window Seat fixed wood-list statement omits live discovery; Outdoor source coverage is incomplete | Correct each claim against its actual scope, distinguishing UI knob list, full protocol manifest and fixed buttons versus discovery; retain dev/rev guardrails |
+| Window Seat spot explanation | Says 3/16-inch deep without the drill-point/full-diameter distinction | State 3/16-inch full-diameter penetration beyond point consistently with the defined operation; do not alter actual tool requirement |
+| Page reason maps | Some retained-control/profile/sheet reasons belong to retired engine vocabulary | Explain current codes faithfully and retain unknown codes; do not manufacture success or conceal negative results |
+| Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | Coordinated rewrite of both original copies; executable gate/envelope controls current serialization. This assignment retains both unchanged |
+| Active wrappers and Rule Book | Superseded embedded price/pin/request text and dated donor references remain shipped/reachable | Targeted future source/copy reconciliation after first-paint, direct-route and saved-state checks; current application language/layout stays unchanged here |
+| Program trial opening | Describes current virtual commands more broadly than its precise modeled-ledger paragraph | Program-owned evidence-stage edit; Program remains unchanged here |
+| Store master source register | Labels the standalone `stb-start-own-bench-leg-0.1.html` as current composition, while the observed Job 1 loads `three-frames.html` and the current wrapper | Store-owned explanatory correction; its immutable ab09777 links remain valid after System retirement. Store stays unchanged |
+
+The dictionary and agent boilerplate can be corrected as documentary governance within System's authority. Protected live-page wording and actual code discrepancies remain documented, rather than being silently changed during a document retirement. Historical price/evidence text stays in its original context.
+
+### 15.3 Authority after consolidation
+
+The README invites the reader into the current app and master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS is the sole concise shared-meaning authority. AGENTS carries active maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
+
+Current descriptive entry links name Program, new-system and store-zero. Immutable baseline source links are used for verification. A historical source mention explains the dated fact directly; it does not send the reader to a predecessor implementation for current behavior.
+
+## 16. Source register and consolidation disposition
+
+### 16.1 Exact System implementation sources
+
+All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193abc8564ebce611746f`**. Consolidation preserves their bytes except the explicitly retired unused standalone page listed below. The single frozen commit identifies the exact revision of every linked path; no test fixture is relabeled as a public default.
+
+| Current source | Function explained here | Meaningful verification |
+| --- | --- | --- |
+| [Current shell](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/system-build-current.html) | Current composition, Job 1 and Playhouse definitions, host registration | Loaded five-job browser; public-wire and Bench tests |
+| [Front-door wrapper](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/system-build-front-door-0.5.html) | Base frame, project-copy/state restoration | Loaded nested graph and Playhouse ownership presentation |
+| [Base and Alcove](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/system-build-base-8d8a9dd.html) | Landing/library, stock-aware Alcove geometry/component programs | Actual extracted public programs and Store tests |
+| [Start Your Own child](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/three-frames.html) | Existing active Job 1 screens/reference | Loaded frame and Start Own Bench regression |
+| [Window Seat](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-window-seat-0.9.html) | Sources/status, geometry, inquiry and session audit | Public-wire, generic extension checks and browser |
+| [Outdoor](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-outdoor-picnic-0.4.html) | Selected plans, controls, previews/committed request, export | Public-wire alternative/spot/currentness checks and browser |
+| [Trail](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-trail-contract.js) | Idea, six labels, tile pages and declared exceptions | Host contract/public navigation |
+| [Tile admission](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/shared/tile-host-admission-contract.mjs) | Nested scope readiness, nav and historical reopen | Published-wire and Playhouse admission tests |
+| [Responsibility contract](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/shared/definition-contract.mjs) | Ledger status/owner/basis and boundary readiness | Public admission/System checks |
+| [Browser client](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-store-client.js) | Same-origin transport, discovery and outer correlation | Store-client/public-wire tests |
+| [Published translator](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/store/published-wire.ts) | Preserve original obligations and consume verified Store answers | Actual published inputs plus real pinned HTTP |
+| [Manifest](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/manifest.ts) | Independent expected component/feature/item identities | Coverage/drop/mismatch regressions |
+| [Interpreter](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/store/interpret.ts) | Exact bytes, request/receipt/currentness and money/evidence presentation | System/HTTP integrity and failure cases |
+| [Generic compiler](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/compile.ts) and [Window Seat extension](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/window-seat.ts) | Named derivations and blockers | System rule/input/geometry tests |
+| [Recipes](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/recipes/library.ts), `recipe.ts`, `shape.ts`, `hash.ts`, `ids.ts` | Generic source rules/types, structural admission and content/instance identity | Compilation, malformed/version and unknown-field tests |
+| [Session](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/session.ts), [acceptance](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/acceptance.ts), `machine.ts` | Generic custody, packet2, inspected evidence and presentation | System/HTTP tests plus actual loader discrepancy probe |
+| [Shared commercial gate](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-commercial-sequence.js), `stb-terms-flow.js`, `stb-demo-commerce.js` | Stream validation/presentation and explicit Job 1 sources | Shared byte equality; commercial/public-wire demo regressions |
+| `stb-start-own-answer.mjs`, `stb-user-defined-board-runtime-bridge.js`, `stb-alcove-store-bridge.js` | Current public job bridges and verified Bench facts | Start Own Bench and published-wire tests |
+| `stb-outdoor-option-requests.js`, `stb-intent-kit.js`, `stb-intent-kit.css` | Independent alternatives and offered-material discovery UI | Public-wire/Store-client tests and loaded Intent |
+| `stb-additional-services.js` | 62 planning choices, mount/Close and per-project state | All five triggers; actual open/Close; unchanged common source |
+| `stb-build-guide-spec.js`, `store-zero-canonical-doctrine.js`, `stb-canonical-journey.js` | Reviewer rails and shared reference/navigation presentation | Loaded pages, script reachability and unchanged source |
+| `src/routes/api/store-zero/`, `src/system/store/forward.ts`, `src/routes/bench.tsx`, `src/routes/projects/$projectId.tsx`, `src/components/use-record.ts` | Public server adapter, generic forwarding/record UI and local storage | Type/build, HTTP behavior and generic currentness |
+| `src/routes/index.tsx`, `src/routes/healthz.ts`, root/router/generated routes | Front-door redirect, liveness and route composition | Build and hosted navigation |
+| `src/lib/`, components, `scripts/`, `server/`, migrations, `public/__grok/` | Active platform/auth/data/PWA/preview/install helpers | 252 support tests and both production builds |
+| `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh`, workflow, `vercel.json` | Dependency/runtime/build/deployment contracts | Locked install, baseline build/type/tests and Railway source read |
+| `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
+| `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
+
+The surviving current documentary authorities are [Definitions](docs/DEFINITIONS.md), [AGENTS](AGENTS.md) and the [shared commercial contract](docs/commercial-sequence-template.md). This master explains their actual current source relationship. Changes to dictionary/governance are identified by the consolidation commits; they do not redate the unchanged runtime baseline.
+
+### 16.2 Store Program and historical sources
+
+The [completed Store master at cd08aff](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md) is the canonical deeper explanatory destination. Its chapters 3/8 explain the current boundary/examples; 5/6 manufacturing and machine functions; 7 the preserved Project 1 trail; 9 evidence; 10 commerce; 11 refusals; and 14 exact primary source identities. System does not duplicate those manufacturing chapters.
+
+The executable interface was checked at f7123a73 in `src/contracts/definitions.mjs`, `src/requests/store-request.mjs`, accepted-packet/machine contracts, HTTP service and shared commercial gate. The same commit was used by real joint tests and the complete master example. Store documentary HEAD cd08aff and runtime pin f7123a73 remain distinct.
+
+Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish its investigation/validation scope. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
+
+### 16.3 Dependency decisions before retirement
+
+Every tracked Markdown/HTML candidate was classified by present role, current imports/routes, literal and generated frame/navigation, tests/fixtures, platform build, saved-record mappings, source identity and current cross-repository links. The redundant candidates below have their useful explanation in this master. They are designated for deletion after the complete master/navigation check; the other rows identify concrete retention obligations. Store's frozen master links the three retirement candidates at immutable System revision ab09777; those source links remain resolvable in Git history and are not a current-main runtime dependency.
+
+| Exact file or group | Decision and established reason |
+| --- | --- |
+| `docs/intent-imagery-brief.md` | Delete: continuing imagery/reference rules are in 2.6; only current README linked it; no runtime/test/shared-contract dependency |
+| `docs/rules/window-seat-layout.md` | Delete: complete named rule is in 5.2 and the actual extension source; no active import, build/test fixture or external current-main link to this prose file |
+| `public/live/stb-start-own-bench-leg-0.1.html` | Delete: superseded standalone editor; actual Job 1 frame is three-frames; no incoming current frame/navigation/generated route/test/Program/Store reference found. Its self-reported artifact name is source attribution, not an active saved-record loader target |
+| `docs/verification/start-your-own.md` | Retain: Program README and EVIDENCE link its current path; it also holds dated independent observations. Program is frozen, so removal would break those links. The current explanation/history reconciliation is complete in this master |
+| `docs/commercial-sequence-template.md` | Retain unchanged: shared byte-identical contract copy; Store is frozen; correction requires both owners |
+| `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retain: observed live nested shell, page composition and saved-state dependencies |
+| `three-frames.html`, `stb-window-seat-0.9.html`, `stb-outdoor-picnic-0.4.html` | Retain: actual project child pages, definitions and controls |
+| `stb-outdoor-reference-authority-0.3.html`, `STB-OUTDOOR-ANGLED-FRAME-RESEARCH-DOSSIER-0.1.html` | Retain: current Outdoor Rule Book route links authority, authority links dossier; unique dated source evidence; retirement would change public navigation |
+| `scripts/install-page.html`, platform public assets/plugins/middleware/auth/data/preview/startup | Retain: imported, generated/served or exercised by required tests/builds |
+| Runtime modules, images, contracts, test sources, fixtures, deployment/configuration/locks | Retain: application/verification obligations; old filenames or explanatory comments are not evidence of disuse |
+| README, DEFINITIONS, AGENTS | Rewrite concisely: front door, shared dictionary and active governance have distinct continuing roles |
+
+No archive directory, pointer replacement document, legacy tree or new chapter-file collection is created. Deleted narrative/artifact revisions remain in Git history. No undocumented external old-URL use is claimed impossible; the retirement decision follows the verified current application and source/record obligations rather than assuming every ever-served file must stay permanently.
+
+### 16.4 Completion verification record
+
+The full sixteen-chapter master is completed and saved before deletion. Its internal contents are generated from the actual headings; every current source link is checked against the frozen tracked inventory. The runnable inquiry and real loader probe provide direct behavioral evidence. Retirement execution, resulting file/document counts, before/after source identity and post-cleanup checks are recorded here after the coherent cleanup group completes.
