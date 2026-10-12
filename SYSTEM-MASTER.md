@@ -16,7 +16,7 @@ The engineering connection is reusable: the customer's resolved component requir
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
-> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–9. Further coherent groups are appended to this same file on `main` before any retirement.
+> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–13. Verification, repair boundaries and the source/disposition register are completed next before any retirement.
 
 ## Contents
 
@@ -619,3 +619,175 @@ JS
 ```
 
 This evaluates the original request rather than constructing a guessed manifest. With identical governing inputs the calculation identities can be compared. A new real evaluation time changes the receipt identity, so do not require its fresh receipt hash to equal an earlier timestamp's receipt. Reproducing raw transport bytes is a separate HTTP check. A saved answer remains historical after reproduction until System binds a fresh exchange to the current project revision.
+
+## 10. Customer decision and commercial progression
+
+### 10.1 The installed shared gate
+
+`public/live/stb-commercial-sequence.js` is byte-identical to pinned Store's `src/contracts/commercial-sequence.js`. Its schema is `STB-COMMERCIAL-EVENT-1`. It declares twenty event types and validates an identified source event stream. `stb-terms-flow.js` presents that stream and closes dependent navigation when the definition changes. The six customer trail stages are a presentation of this fuller sequence, not six combined events that can create all subsequent facts automatically.
+
+The gate accepts SIMULATED records. ACTUAL input is refused with `ACTUAL_SOURCE_ADAPTER_NOT_INSTALLED`. It has no financial, inventory, notification or machine side effect. Seller policy, customer decision, finance, stock assignment and local/quality/fulfillment evidence remain distinct even in a simulation.
+
+The documentary `docs/commercial-sequence-template.md` remains the shared installed copy. Its opening says proposed/not adopted while its later section describes the adopted gate; its broad illustrative envelope differs from the executable envelope. It is retained unchanged because Store is frozen and unilateral amendment would break shared-contract alignment. This chapter explains actual behavior and records the coordinated repair in chapter 15.
+
+### 10.2 Source acts and the customer stages
+
+| Customer stage | Executable records and responsible source | What System presents |
+| --- | --- | --- |
+| Store answers | `StoreAnswerAttached`, System retaining the verified Store result | Complete current answer, manifest and receipt binding |
+| Your call | `OfferIssued` by seller; `CustomerDecisionRecorded` by customer; `OrderAccepted` by seller | Actual offered scope/amount/terms and the separate accepted/declined/deferred/revision decision |
+| Commercial entry | `FinancialEventRecorded`, `ReservationConfirmed`, `CapacityCommitmentRecorded`, `QueueEntryConfirmed` from their named roles | Policy-specific finance/stock/capacity conditions and queue |
+| We cut it, preparation | `MaterialAllocated`, `MaterialIssued`, `ProductionReleaseRecorded`, `LocalPlanBound`, `LocalAdmissionRecorded` | Named stock, packet/plan, applicable release and local-admission evidence |
+| We cut it, result | `ExecutionEventRecorded`, `InspectionDispositionRecorded` | Recorded execution kind and component disposition |
+| Pick up & build | `StagingRecorded`, `ReadyNoticeRecorded`, `CustodyTransferred`, `ProjectCloseoutRecorded` | Packages, notice, recipient, handoff and owner closeout |
+| Across the stream | `ExceptionRecorded` | Hold/disposition and affected history |
+
+A manufacturing budgetary answer is not the seller's offer. The offer carries seller/location, offer ID/version, currency, manufacturing reference, complete offered amount, scope, terms, expiry, fulfillment, policy and extras. System keeps Store Q unchanged. Additional seller services, tax or delivery must receive explicit dispositions; an unresolved extra cannot silently become zero. The demo's manufacturing-only scope is an explicit choice.
+
+Customer acceptance names the offer/version actually shown. Seller acceptance then supplies its own order identity and availability/capability assertions. Finance uses safe integer minor units and distinct AUTHORIZED/CAPTURED/SETTLED/FAILED/VOIDED/REFUNDED kinds. Policy states which kind is required and whether reservations/capacity are required. Queue position cannot be inferred from the user's acceptance or Store's selected stock.
+
+Allocation identifies material, parent, lot, location, condition, quantities and compatible definition. Issue, release, local plan and admission bind that allocation and packet. Execution/inspection/staging/notice/custody each add their own identities and prerequisites. A simulated local `admitted:true` event does not override the machine evidence boundary's physical BLOCKED result.
+
+### 10.3 Identity and event custody
+
+The executable stream has ten fixed links: `projectId`, `definitionId`, `revisionId`, `manifestHash`, `requestId`, `receiptHash`, `storeRevision`, `modelHash`, `inputHash`, `resultHash`. Those values remain equal across the stream. Offer/order/packet/allocation identities belong in the corresponding event payload; the broader template example is not a valid instruction to add extra executable link fields.
+
+Each source event supplies event/stream identity, sequence and expected previous sequence, causes, idempotency key, real UTC instants, attributed actor/authority, evidence class, links and payload. The stored event adds `previousHash` and `hash`. Replaying the shared verifier rechecks the gate and hash chain. Exact duplicate delivery returns the existing event; changed content under the same idempotency key is refused. Stale sequence and overlapping in-memory appends are blocked.
+
+This validates content and causal consistency. It does not authenticate all asserted source actors or implement durable multi-process stock/order transactions. The gate's current exception handling also keeps an earlier unresolved exception blocking normal events even after a later RESOLVED record. Those limits require coordinated source/contract work; they are not hidden by presenting a successful demo.
+
+### 10.4 Start Your Own policy and other pending flows
+
+Start Your Own explicitly creates its terms flow with demo commerce enabled. `stb-demo-commerce.js` supplies **`STB-DEMO-TERMS / 1`**, **`STB-DEMO-PICKUP / 1`**, seller `store-zero-demo`, Demo yard, USD, pickup fulfillment and a 24-hour offer. Its amount is the complete current Store manufacturing Q. Tax, delivery and additional services are OUTSIDE_SCOPE. Policy requires CAPTURED and no reservation/capacity.
+
+Accept & Pay records a customer decision, then separate simulated seller order acceptance, capture and queue entry. Run the Yard Demo generates explicitly simulated allocation/issue/release/plan/admission/execution/inspection/staging/notice records. Pickup appends custody and closeout with OWNER_BUILDS assembly status. The helper checks current revision and stream before and after appending. A revised definition cannot continue the old checkout.
+
+The other four projects use the shared gate and terms presentation without that automatically installed seller policy. A complete manufacturing answer can open review; missing offer/order/financial evidence stays pending. The previous verification note's broad claims of simulated fulfillment must retain their earlier date and pin rather than being presented as current behavior for all tiles.
+
+The complete transaction design and exact manufacturing/commercial qualifications are developed in [Store master chapter 10](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md#10-commercial-sequence-and-full-transaction). The shared executable remains the sole gate, rather than this explanation becoming another implementation.
+
+## 11. Records identity and custody
+
+### 11.1 What an owner record preserves
+
+An owner-held record connects the original declaration/source, controlling definition, derivations, unresolved facts, independent manifest, inquiry attempts, returned answers, decisions and applicable later evidence. Each consequential fact retains its issuing owner. Reopening restores the retained definition and history; it does not create a newly evaluated Store fact, commercial decision or manufacturing outcome.
+
+The installed record paths differ. The generic typed record is not the schema of every public tile's local state or session evidence export. The inherited term `stb-owner-archive`/`.stb.json` describes the broader owner-archive concept; this repository does not implement it as a universal importer across all five published tiles.
+
+| Installed path | Actual stored/exported form | Current custody and limits |
+| --- | --- | --- |
+| Generic `/bench` and `/projects/$projectId` | `STB-SYSTEM-RECORD-2`, local key `stb-new-system-record-1`; JSON download | Revisions, inquiries, decisions, packets and evidence attempts; strict schema validation |
+| Start Your Own public demo | `stb-start-own-user1-definition`, `stb-start-own-user1-bench`, `stb-proof-handoff-job1` localStorage keys | Definition/Bench settings and confirmed handoff; current answer must be obtained again |
+| Published project-copy host, especially Playhouse | `stb-canonical-saved-projects-v1` keyed by demonstration owner | Captured controls, heights/material/format and registered state parts; opening/read-only/editing state is separate |
+| Window Seat | Identified record and readable audit text for the session | Sources/status/knobs/kept asks and exchange evidence; its reproduction text currently has the manifest defect |
+| Outdoor | `outdoor-evidence-<revision>.json` download | Session definition, demand/response/receipt and service/chain facts; explicitly an unsigned session snapshot |
+| Shared terms flow | Revision-bound in-memory source/stream plus retained previous chains | Does not by itself provide durable commercial storage across reloads |
+| Additional services menu | Project-keyed sessionStorage | Planning-only selections; no universal owner-record serialization |
+
+The public project-copy host captures controls by DOM ID and separately registered non-DOM state such as Playhouse's sheet/tools. It restores those values through the project synchronization functions and recalculates current availability. It does not load an old page because a stored source string happens to name it. The loaded wrapper/page chain and named project mappings remain necessary compatibility surfaces.
+
+### 11.2 Generic revisions and attempts
+
+`session.ts` records `Project` identity, recipe/version, title/class, definition identity, current inputs, dirty state, revisions, current revision, inquiries, active attempt, price currentness, decisions, packets and optional machine-evidence attempts. A revision retains saved time, input snapshot, request type/demand, carried end requirements, derivation trace and blockers.
+
+Generic revision identity is a truncated canonical content digest of recipe ID/version, inputs and demand. It identifies the local definition snapshot; it is not Store's result hash. `setInput` marks the project dirty, retires active inquiry/evidence and sets `pricesCurrent:false`. Saving compiles the new definition and preserves earlier snapshots. `beginInquiry` requires a saved, unblocked demand and retains exact serialized bytes/digest. Applying a reply checks the active project/attempt/revision before interpreting its content.
+
+Project switch, park-for-reopen and reopen retire price/evidence currentness. Earlier attempts and accepted decisions remain in history. A later refused definition is displayed as refused, not still accepted because the project once had a favorable answer.
+
+`use-record.ts` preserves malformed/unsupported raw files for recovery and exposes storage errors. A failed write does not replace the user's visible file with an empty one. Unknown version does not acquire a current schema merely by reopening. Resetting a malformed record is an explicit user action; there is no silent conversion.
+
+### 11.3 Accepted packet and evidence
+
+`acceptance.ts` emits **`STB-ACCEPTED-JOB-PACKET-2`** with packet/project identity, definition/revision/type, demand, independent manifest, carried requirements, unchanged Store answer, accepted simulated decision and false physical release. It requires fresh supportable status, a receipt bound to the same demand/manifest, and a decision instant no earlier than evaluation. Duplicate acceptance for the same revision/receipt is identified rather than producing another decision.
+
+Machine evidence consumes that packet plus the inspected configuration ID/hash through `/v1/machine-evidence`. System preserves the request bytes/digest and response; an edited definition or changed current acceptance rejects late evidence. The interpreter requires VIRTUAL_EVIDENCE_READY with records/run/local job, false physical authority and BLOCKED admission with zero physical motion commands. It does not generate its own virtual operations when Store is missing.
+
+The generic loader's `packetOk` currently accepts schema **1**, while the producer emits schema **2**. A direct probe on the exact baseline created a valid current packet from a real pinned-Store answer: the record loaded before adding the packet, but returned **MALFORMED** after the genuine packet was saved. Thus current accepted packets cannot safely round-trip through that loader as written. This is an executable compatibility defect, not a documentation spelling issue. Its repair remains pending under System authority.
+
+### 11.4 History and correction
+
+The append-only principle applies to consequential issued evidence: retain the original answer, decision and event identities, then add a new identified revision or correction. Current working input state and UI projections can change; they do not retroactively change a sealed historical result. An exported digest establishes content consistency, not authorship or a newly performed event.
+
+System's two historical Project 1 JSON fixtures retain original specimen identities. Full manuscripts, patents and executable historical package remain in Store custody. Store's $11.09 historical result and the current $10.81 equivalent inquiry are separate evidence records; neither is the current 16-inch SPF public price. The reader does not need old repositories to understand that distinction.
+
+## 12. Refusals errors and unresolved work
+
+### 12.1 Separate dispositions
+
+| Boundary/state | Meaning and presentation | Permitted consequence |
+| --- | --- | --- |
+| System admission BLOCKED | Missing, unsettled, malformed or undeclared required fact; names field and owner | No Store call; return to the controlling definition |
+| Store SUPPORTABLE | Complete evaluated manufacturing scope and Q under that Store's facts | Present current result; commercial prerequisites remain separate |
+| Store UNRESOLVED | Required meaning/evidence or complete calculation remains unsettled | Preserve reasons; no complete Q |
+| Store REFUSED | Unsupported or invalid request/geometry/operation | Show actual reasons; close dependent continuation |
+| Store UNAVAILABLE | No complete eligible supply plan from declared available inventory | Preserve supply disposition; no substitute stock/Q |
+| Transport failure | Unreachable service, timeout or failing HTTP | Show transport error; do not attribute a made-up Store refusal |
+| Protocol failure | Wrong release/bytes/identity/receipt or malformed response | Reject current-answer use and retain the failed attempt |
+| Late response | Inactive project/revision/attempt | Reject as current; retain its attempt history |
+| Commercial hold/pending | Required source act or policy is missing/invalid | Keep the responsible later stage pending |
+| Physical admission BLOCKED | Local commissioned authority is absent | No physical motion |
+
+### 12.2 Typical reasons and faithful translation
+
+System reasons include `REQUIRED_FACT_UNSETTLED`, `INQUIRY_SCOPE_UNDECLARED`, `DEFINITION_REVISION_REQUIRED`, `PUBLISHED_DEFINITION_INCOMPLETE`, `UNSAVED_EDITS` and `ADMISSION_BLOCKED`. Store reasons include `INDEPENDENT_SYSTEM_MANIFEST_REQUIRED`, `MANIFEST_COVERAGE_MISMATCH`, `JOB_REQUIREMENTS_REMAIN_UNEVALUATED`, `GRADE_CHOICE_REQUIRED`, unoffered material, unsupported operation/geometry, and `SPLIT_TAB_POSITIONS_REQUIRED`. Current retained-length wording is `RETAINED_CONTROL_LENGTH_TOO_SHORT`; `LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL` belongs to the older specimen/engine vocabulary.
+
+The application retains raw reason codes and disclosed context. Some page-specific human-readable maps still name retired engine reasons; a new reason can fall through visibly as a raw code. That is explanation drift, not permission to soften it into supportable status. Unknown reasons must remain available with their source rather than being replaced with a guessed reassuring sentence.
+
+Missing means unsupplied, not zero. Zero is valid where the requirement explicitly allows it, such as a pattern offset or zero tower shelves. A missing cut angle is not square. An absent grade is not a customer's selection. A disabled empty spotting requirement is different from an enabled feature whose position is missing.
+
+### 12.3 Failures after an answer
+
+A new definition closes old downstream authority before another answer arrives. The shared terms flow listens for consequential control input/change and invalidates its current chain. Receipt content disagreement, a caller pin override or a failed Store service cannot reopen it. An older accepted record survives as history but is not the current state of a refused revision.
+
+Commercial exceptions remain attributable records. The current shared gate's conservative exception hold does not yet implement general recovery from an earlier unresolved event. System may present the hold; repairing its semantics requires the shared contract owner and coordinated Store changes. Local physical interruption/readiness/recovery remain outside System's price/definition authority and are explained in Store's machine chapter and Program's trial.
+
+## 13. Application architecture and deployment
+
+### 13.1 Loaded pages and their responsibilities
+
+| Loaded surface | Actual dependency and function | Retention obligation |
+| --- | --- | --- |
+| `/` | `src/routes/index.tsx` redirects to `/live/system-build-current.html` | Public application front door |
+| `system-build-current.html` | Loads front-door frame; injects current definitions, active bridges, tile registration, journey reconciliation and guides | Current shell and active application code |
+| `system-build-front-door-0.5.html` | Loads base frame; project-copy host, demonstration owner, saved control/state restoration and page composition | Live wrapper and saved-project compatibility |
+| `system-build-base-8d8a9dd.html` | Root pages, landing/library, Alcove definition/drawing/controls and inherited routes | Live base plus active Alcove code |
+| `three-frames.html` | Active Start Your Own child; current wrapper augments its screens and definition | Published Job 1 |
+| `stb-window-seat-0.9.html` | Full Window Seat source/status/geometry/controls/requests/session record | Published Window Seat |
+| `stb-outdoor-picnic-0.4.html` | Selected plans, public/source imagery, option/committed requests, bigger Bench and evidence export | Published Outdoor |
+| Playhouse injected pages in wrappers | Current sheet/tool/admission/drawing and read-only/working state | Published Playhouse and saved state parts |
+
+The default release query marker is `v=demo-checkout-20261011` on page/script URLs where declared. The marker is a cache-loading identity, not the inspected Store commit. Keeping a current Store pin while loading an old response reader can still misdescribe an answer, so page/script identities and deployment verification matter.
+
+The public application uses nested same-origin documents. Child frames own project state and definition; the host owns shared navigation. Messages are checked for origin, source/schema, project identity, stage and correlation. A host navigation message carries no demand or inquiry admission. Restoring the same page chain preserves DOM IDs and registered state parts used by saved copies.
+
+Some base/front-door legacy text is overridden in the current composition but remains reachable through direct URLs or inherited page roots. Removing a hidden-looking block can alter first paint, navigation, restoring state or a direct public view. This consolidation therefore leaves active HTML bodies unchanged and records stale visible claims for a separate targeted source repair.
+
+### 13.2 Shared runtime assets
+
+The browser uses `stb-store-client.js`, `stb-store-runtime.json`, `stb-public-admission.mjs` and the two shared contract modules. Start Your Own's bridge/answer reader and Alcove's bridge carry their current definitions. `stb-trail-contract.js` and `stb-canonical-journey.js` declare/present the common trail. `stb-build-guide-spec.js` supplies the developer/reviewer rails, including admitted gaps.
+
+`stb-intent-kit.js` and CSS mount compact offering lookup without holding a catalog or selecting Store parents. `stb-outdoor-option-requests.js` separates alternative manufacturing inquiries. `stb-terms-flow.js`, the shared commercial gate and `stb-demo-commerce.js` provide the event presentation and explicit Job 1 policy. `stb-additional-services.js` mounts planning menus across the nested documents. `store-zero-canonical-doctrine.js` supplies the shared Store reference/next-action text in the published children. These are live runtime dependencies, even when part of their content is explanatory.
+
+Image assets and SVG/data-URL drawings remain at their existing identities. The two public Outdoor authority/research pages remain linked from the working Rule Book and contain dated independent source evidence. Their retention does not grant their exploratory designs a Store evaluator or make a historical donor the current source.
+
+### 13.3 Server adapter and development routes
+
+The public API routes parse the outer wire and call `answerPublishedWire`, using server-side `STORE_ZERO_ORIGIN` (local default `http://127.0.0.1:8091`). The adapter forwards only to the identified replacement Store. `/healthz` is System liveness; it does not attest Store availability or physical authority.
+
+The generic development routes `/bench` and `/projects/$projectId` use `storeHealth`, `forwardStoreRequest` and `forwardMachineEvidence` server functions. These forward the already serialized bytes with bounded body length/timeouts and preserve the HTTP body/status. They are installed development/record surfaces, not replacements for the public project screens. Tests, accepted-packet/evidence behavior and stored generic files depend on them.
+
+`src/system/machine.ts` currently reports lowering registered only for USER_DEFINED_BOARD_V1. Store's current protocol-2 evidence accepts all three manufacturing classes; this generic presentation helper is stale and affects its displayed explanation. Actual HTTP cut-package evidence tests return VIRTUAL_EVIDENCE_READY with physical BLOCKED. The helper is retained and its separate acceptance criterion is recorded in chapter 15.
+
+### 13.4 Build startup and hosting
+
+The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes through `scripts/with-app-env.mjs`; this preserves the inherited auth/environment wrapper. Vite dev binds `0.0.0.0:8080`; preview uses strict `127.0.0.1:8081`. Default `npm run build` selects the retained Vercel preset; `NITRO_PRESET=node-server` selects Railway's Node output. CI checks both. Present Railway hosting does not make the alternative build or its platform middleware safe to delete.
+
+`Dockerfile.railway` installs the locked packages, builds Node output, runs typecheck and requires `.output/server/index.mjs`. The runtime stage runs that server with production, HOST=0.0.0.0 and PORT=8080. Railway config points to this Dockerfile, `main`, `/healthz` and the identified production service. The Store runs in its own service; System does not bundle its manufacturing engine.
+
+`startup.sh` is the existing `/workspace` preview/restart contract. It verifies an actual clean Store checkout HEAD before starting or recognizing a local Store process under the inspected release; a label is not sufficient. A mismatched/dirty checkout is not advertised. It preserves the user-configured Store origin and starts through `npm run dev`. Local development and Railway production have separate startup mechanisms; neither proves the other was deployed.
+
+### 13.5 Platform infrastructure that remains active
+
+The repository retains authentication, app-data, database/migration, preview bridge, PWA/branding, install tutorial, browser smoke and related test infrastructure. Examples include `public/__grok/`, `server/middleware/grok-pwa.ts`, `scripts/grok-pwa-*`, `scripts/install-page.html`, `src/lib/auth/`, `src/lib/app-data/`, `src/lib/db.ts` and `PreviewHostBridge` in the root. Vite imports the plugins; test/build/deployment paths exercise them.
+
+The source-derived defaults keep accounts off without enabled configuration. No new env file, account flow, database, brand replacement, deployment scaffold or substitute tool is added during consolidation. Old agent prose about unavailable `.grok/references`/skills, a Grok-only conversation environment or Vercel as the sole present host can be removed from governance after checking those facts. The still-operative startup, auth, preview, branding, serverDir, migration and test safeguards remain.
