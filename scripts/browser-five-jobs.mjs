@@ -63,6 +63,11 @@ try {
       console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13, liveStore: true }));
     }
     if (label === 'Alcove') {
+      // The Alcove project tile opens its unnumbered Idea page first.
+      if (await content.locator('#alcove-idea').isVisible()) {
+        await content.locator('#alcove-idea button[data-go="alcove-capture"]').first().click();
+      }
+      await content.locator('#alcove-capture').waitFor({ state: 'visible', timeout: 15000 });
       await content.locator('#alcove-capture button[data-go="alcove-config"]').first().click();
       const price = content.locator('#alcove-bench-store-price');
       await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
