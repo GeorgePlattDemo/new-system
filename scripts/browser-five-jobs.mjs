@@ -92,6 +92,30 @@ try {
       assert.ok(after > before, 'Alcove species change did not receive a new Store answer');
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
+    if (label === 'Window Seat') {
+      const seat = content.frameLocator('iframe#window-seat-frame');
+      const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await seat.locator('#s-hero button[data-to="intent"]').click({ timeout: 15000 });
+      await seat.locator('#s-intent button[data-to="bench"]').click({ timeout: 15000 });
+      const money = seat.locator('#bench-money');
+      await money.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      const quote = (await money.innerText()).trim();
+      assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
+        'Window Seat Bench displayed no fresh Store response');
+      console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true }));
+    }
+    if (label === 'Outdoor') {
+      const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
+      const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await outdoor.locator('#idea-next').click({ timeout: 15000 });
+      await outdoor.locator('#s-intent [data-to-bench]').click({ timeout: 15000 });
+      const money = outdoor.locator('#outdoor-definition-price');
+      await money.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      const quote = (await money.innerText()).trim();
+      assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
+        'Outdoor Bench displayed no fresh Store response');
+      console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true }));
+    }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
 
