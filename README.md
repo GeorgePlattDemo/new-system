@@ -20,7 +20,7 @@ The seam matters. Your idea should not lose its meaning when it leaves the scree
 
 ## Start with the Bench
 
-This repository is the replacement candidate. Its working application is deployed on Railway, while the original GitHub Pages demonstration remains separately available until formal promotion.
+The five-project application runs on Railway and sends each defined job to the independently deployed, pinned Store Zero.
 
 [Open the currently deployed application](https://system-candidate-production.up.railway.app/) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
 
@@ -58,21 +58,21 @@ The confirmed definition supplies the required result. Store adds identified mat
 
 That is the connection this work investigates: the customer defines the result, and software carries it toward cut, mill, and drill without a second design entry.
 
-Project 1 evidence stays with this candidate as fixtures and the joint Store test. It is evidence of one board path, not a second application.
+Project 1 evidence is exercised here as fixtures and by the joint Store test. It is evidence of one board path, not a second application.
 
 ## Three connected homes
 
 | Repository | Contribution |
 | --- | --- |
 | [**Program**](https://github.com/GeorgePlattDemo/3d-solutions-program) | The economic opportunity, research, candidate engineering, and questions worth testing. |
-| **This candidate** | The five published job screens, their definitions, and the request each one sends. |
+| **System** | The five published job screens, their definitions, and the request each one sends. |
 | [**Store**](https://github.com/GeorgePlattDemo/store-zero) | Material, capability, modeled work, economics, and machine evidence for a bounded request. |
 
 System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate.ts). That record is an inspected commit, not a production release. The Store evaluates the request; the application presents that answer and preserves its identity.
 
 Read the [complete System reference](SYSTEM-MASTER.md) for the working application, definition semantics and Store handoff.
 
-## What this candidate actually contains
+## Where the executable work lives
 
 The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for the five jobs, and what has not.
 
