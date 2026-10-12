@@ -30,3 +30,40 @@ jobs:
         run: npm run typecheck
       - name: Railway Node production build
         run: NITRO_PRESET=node-server npm run build && test -f .output/server/index.mjs
+
+  browser:
+    name: Published five-project Chromium smoke
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/checkout@v4
+        with:
+          repository: GeorgePlattDemo/store-zero
+          ref: f7123a73c1ca60aa7eb180a86a1c365eaffe95db
+          path: .store-zero
+      - name: Install Chromium with system dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Build the published System application
+        run: NITRO_PRESET=node-server npm run build && test -f .output/server/index.mjs
+      - name: Start the two separate pinned services
+        run: |
+          STORE_ZERO_RELEASE=f7123a73c1ca60aa7eb180a86a1c365eaffe95db HOST=127.0.0.1 PORT=8091 node .store-zero/src/service/server.mjs >/tmp/stb-store-ci.log 2>&1 &
+          STORE_ZERO_ORIGIN=http://127.0.0.1:8091 HOST=127.0.0.1 PORT=8080 NODE_ENV=production node .output/server/index.mjs >/tmp/stb-system-ci.log 2>&1 &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8091/health >/dev/null && curl -fsS http://127.0.0.1:8080/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/stb-store-ci.log /tmp/stb-system-ci.log
+          exit 1
+      - name: Exercise five published projects in Chromium
+        run: node scripts/browser-five-jobs.mjs
+      - name: Display service logs on failure
+        if: failure()
+        run: cat /tmp/stb-store-ci.log /tmp/stb-system-ci.log || true
