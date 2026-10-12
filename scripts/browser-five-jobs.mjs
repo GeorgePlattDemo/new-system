@@ -27,7 +27,8 @@ try {
     ['Start Your Own', '[data-start-own-artifact="three-frames.html"]'],
     ['Alcove', '[data-go="alcove-capture"]'],
     ['Window Seat', '[data-window-seat-artifact="stb-window-seat-0.9.html"]'],
-    ['Outdoor', '[data-outdoor-build-artifact="stb-outdoor-picnic-0.4.html"]']
+    ['Outdoor', '[data-outdoor-build-artifact="stb-outdoor-picnic-0.4.html"]'],
+    ['Playhouse', '[data-go="window-parts"]']
   ];
   for (const [index, [label, destination]] of tiles.entries()) {
     if (index) await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -46,8 +47,13 @@ try {
       throw new Error(label + ': library did not open: ' + JSON.stringify(details) + '\\n' + error);
     }
     await tile.click();
-    const on = await content.locator('.page.on').count();
-    assert.ok(on > 0, label + ': tile click left no visible page');
+    const activePages = await content.locator('.page.on').evaluateAll(nodes => nodes.map(n => n.id));
+    assert.ok(activePages.length > 0, label + ': tile click left no visible page');
+    assert.ok(!activePages.includes('projects'), label + ': tile click stayed on Project Library');
+    if (label === 'Playhouse') {
+      assert.ok(activePages.some(id => id.startsWith('playhouse-')),
+        'Playhouse click did not open its project: ' + JSON.stringify(activePages));
+    }
     if (label === 'Start Your Own') {
       const bench = content.frameLocator('iframe#start-own-proof-frame');
       await bench.locator('#stb-intent-next').click({ timeout: 15000 });
@@ -84,11 +90,7 @@ try {
     }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
-  // Playhouse is authored in the published System shell rather than the four
-  // original project-library tiles. Check that its actual page exists.
-  const playhouse = content.locator('#playhouse-intent, #playhouse-idea, #playhouse-record');
-  await playhouse.first().waitFor({ state: 'attached', timeout: 10000 });
-  console.log(JSON.stringify({ project: 'Playhouse', mounted: true }));
+
   const config = await page.evaluate(async () => {
     const r = await fetch('/live/stb-store-runtime.json', { cache: 'no-store' });
     if (!r.ok) throw new Error('Published Store config failed: ' + r.status);
