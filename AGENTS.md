@@ -1,6 +1,6 @@
 # System — engineering rules for agents and maintainers
 
-This repository runs the five published Scan-to-Build project experiences. The public entry is `/` → `public/live/system-build-current.html`; the child pages, assets and browser integrations are under `public/live/`. The generic `/bench` and `/projects/:projectId` routes are separate internal application surfaces; never substitute them for the published five jobs.
+This repository runs the five published Scan-to-Build project experiences. The public entry is `/` → `public/live/system-build-current.html`; the child pages, assets and browser integrations are under `public/live/`. The former generic React `/bench` and `/projects/$projectId` pages have been retired. Keep customer-facing changes in the five published projects; typed recipe and record modules retained for contract tests are not a second UI.
 
 ## Objective and method
 
@@ -20,7 +20,7 @@ This repository runs the five published Scan-to-Build project experiences. The p
 | Published request conversion | `src/routes/api/store-zero/job.ts`, `offering.ts` → `src/system/store/published-wire.ts` |
 | Response receipt and identity interpretation | `src/system/store/interpret.ts`; Store alone calculates Q and owns its calculation identity |
 | Independent component/feature coverage | `src/system/manifest.ts`; incomplete requirements remain visible and unfulfilled |
-| Generic recipe / owner record path | `src/system/compile.ts`, `recipes/library.ts`, `session.ts` and related `src/system/` modules |
+| Typed recipe and owner-record contract fixtures (not a published UI) | `src/system/compile.ts`, `src/system/recipes/library.ts`, `src/system/session.ts` and their direct tests |
 | Store host and inspected revision | `src/system/store-candidate.ts`, `public/live/stb-store-runtime.json`, `startup.sh`, `.github/workflows/verify.yml` |
 | Public five-project Chromium proof | `scripts/browser-five-jobs.mjs`, required by `.github/workflows/verify.yml` |
 | System verification | `src/system/**/*.test.ts`, `scripts/**/*.test.mjs`, and `npm test` |
