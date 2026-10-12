@@ -65,12 +65,12 @@ try {
     if (label === 'Alcove') {
       await content.locator('#alcove-capture button[data-go="alcove-config"]').first().click();
       const price = content.locator('#alcove-bench-store-price');
-      await price.filter({ hasText: /\\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       const pine = (await price.innerText()).trim();
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await content.locator('#alcove-config button[data-material="poplar"]').click();
       await price.filter({ hasNotText: pine }).waitFor({ state: 'visible', timeout: 45000 });
-      await price.filter({ hasText: /\\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       const poplar = (await price.innerText()).trim();
       assert.notEqual(poplar, pine, 'Changing Alcove species failed to update the visible Store Q');
       const after = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
