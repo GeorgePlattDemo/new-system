@@ -1,91 +1,37 @@
 # Scan-to-Build System
 
-**Your idea should reach the cut, mill, and drill.**
+**Define it once. Carry what you meant to the material and work.**
 
-Define it once. Nobody downstream should have to redraw it.
-
-<a href="https://system-candidate-production.up.railway.app/"><kbd>▶ OPEN THE APP</kbd></a>
+[▶ Open the working application](https://system-candidate-production.up.railway.app/)
 
 3D Solutions LLC · Greensboro, North Carolina
 
-## Make what you meant
+Bring an idea, photo, sketch, scan, description, existing plan or previous work. System helps you establish that particular job's requirements, work their values and ask an identified Store what it can supply. The dimensions, features and required operations travel together; a second designer should not have to reconstruct your intention downstream.
 
-A replacement brace. Shelves that fit an opening. A window seat that uses the space. The pieces for a picnic table. A panel with an arched opening.
+Choose **Start your own**, take the starting definition from Intent to the Bench and change the brace length. Its angle and spot location follow the same geometry. Store evaluates the changed definition and returns its own fresh answer.
 
-The useful result is something you can build with. Scan-to-Build connects the person defining that result to the local Store that can supply the material and work.
+**Idea → Intent → The Bench → The Store answers → Your call → We cut it → Pick up & build.**
 
-Bring an idea, photo, sketch, scan, description, or prior work. Establish the project’s requirements at **Intent**, then work them on **the Bench**. The definition carries the dimensions, feature locations, and required operations forward to the Store. Cut, mill, and drill each have a place in that description: what the part must become, where the work belongs, and what material it needs.
+Idea is unnumbered intake. Intent establishes the job's meaningful controls; the Bench changes their values. The six numbered trail steps begin at Intent. A picture supplies context until its measurements and requirements are established. A changed definition requires a new Store answer.
 
-The seam matters. Your idea should not lose its meaning when it leaves the screen and reaches the yard. The definition can travel to suitable local material before that material has to travel to distant processing.
-
-## Start with the Bench
-
-This repository is the replacement candidate. Its working application is deployed on Railway, while the original GitHub Pages demonstration remains separately available until formal promotion.
-
-[Open the currently deployed application](https://system-candidate-production.up.railway.app/) and choose **Start your own**. It opens on Intent, with the job’s wood, cuts, and spot operation together. Take that definition to the Bench and adjust the part length. Watch the angle and spot location follow the same job.
-
-One meaningful change, with its consequences visible. The Store evaluates the resulting request and supplies its own answer.
-
-The library offers five bounded project classes:
-
-| Project | What you work on |
+| Project | What it demonstrates |
 | --- | --- |
-| **Start your own** | A user-defined board job with cuts and a bounded spot operation. |
-| **Critical fit** | An alcove/shelf insert shaped by the opening it must fit. |
-| **Space utilization** | A window-seat assembly that makes use of available space. |
-| **Outdoor build** | A picnic-table project starting from a published plan. |
-| **Playhouse arched window** | A sheet opening through the S-001 path, with retained tabs. |
+| **Start your own** | Two board braces with related length, angle and center spots |
+| **Critical fit / Alcove** | Shelves and uprights derived from an opening, offered stock and selected edge finish |
+| **Space utilization / Window Seat** | A complete assembly defined by site measurements and selected tools |
+| **Outdoor / Picnic Table** | A bounded published plan with material, hardware and feature choices |
+| **Playhouse / Arched Opening** | A sheet opening with named geometry, retained tabs and added cuts |
 
-Each keeps its own project facts while using the same journey.
+Each keeps its own definition and existing screens. Every Bench automatically asks Store on opening and relevant changes; its compact **Addl svcs** control exposes further planning requirements. Refusals, missing facts and unavailable answers remain visible. System preserves the current definition, returned answer and customer decision together.
 
-## One trail from Intent to build
+**Program investigates why. System defines what the job means. Store determines what its identified Store can provide.**
 
-**Intent → The bench → The Store answers → Your call → We cut it → Pick up & build**
+System supplies the complete manufacturing definition and independent manifest. Store supplies material selection, modeled work, budgetary Q and attributable evidence. System presents and preserves those facts. Registered local machine engineering supplies the equipment-specific manufacturing side.
 
-**Idea** is the unnumbered intake before those steps: the source material and context you bring. **Intent** establishes this job’s requirements and meaningful controls. **The Bench** changes tool values and shows the resulting definition. **The Store answers** from its material, capability, modeled work, and economics. **Your call** records your decision; the later steps carry the job through the demonstrated yard and handoff sequence.
+Read the [complete System master](SYSTEM-MASTER.md) for all five paths, compilation, protocol, records, commercial progression, source identities, verification and remaining discrepancies. [Shared definitions](docs/DEFINITIONS.md) specify the handoff's meaning.
 
-Alcove, Window Seat, Outdoor and Playhouse carry the idea reference into a shared Intent layout: **Grab your wood**, **Bring your tools**, and **What travels to the Bench**. Wood lookup discovers Store offerings; it does not evaluate a job. Material choices and added tools are established on Intent, and the Bench adjusts their values. Outdoor can ask for its attached published plan as it stands, or take selected tools to the Bench. [The imagery brief](docs/intent-imagery-brief.md) gives Claude the existing references and rules for any missing asset.
+For manufacturing algorithms, machine models, patents, Project 1 evidence and economics, use the [completed Store master](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md). The separate [Program repository](https://github.com/GeorgePlattDemo/3d-solutions-program) holds the research and supervised laboratory proposition.
 
-Known information travels with the job. A changed definition gets a fresh Store evaluation. The identified revision, its answer, your next decision, and the consequential record remain together.
-
-The [trail contract](public/live/stb-trail-contract.js) declares the shared journey. Start your own opens on Intent with Idea one back control away; Window Seat can also offer a full-scroll presentation from its Idea line. [Shared definitions](docs/DEFINITIONS.md) explain the terms used here.
-
-## How the definition reaches the work
-
-**System defines what the job means. Store determines what that yard can provide. Local machine engineering translates the accepted requirements for its equipment.**
-
-The confirmed definition supplies the required result. Store adds identified material, supported operations, modeled work, and price. In the intended production chain, a registered local compiler translates the requirements and machine facts into ordered instructions and coordinates. The operator verifies the stock, loading, references, tooling, and readiness; inspection checks the parts against the same definition.
-
-That is the connection this work investigates: the customer defines the result, and software carries it toward cut, mill, and drill without a second design entry.
-
-Project 1 evidence stays with this candidate as fixtures and the joint Store test. It is evidence of one board path, not a second application.
-
-## Three connected homes
-
-| Repository | Contribution |
-| --- | --- |
-| [**Program**](https://github.com/GeorgePlattDemo/3d-solutions-program) | The economic opportunity, research, candidate engineering, and questions worth testing. |
-| **This candidate** | The five published job screens, their definitions, and the request each one sends. |
-| [**Store**](https://github.com/GeorgePlattDemo/store-zero) | Material, capability, modeled work, economics, and machine evidence for a bounded request. |
-
-System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate.ts). That record is an inspected commit, not a production release. The Store evaluates the request; the application presents that answer and preserves its identity.
-
-## What this candidate actually contains
-
-The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for the five jobs, and what has not.
-
-| Question | Where the answer is |
-| --- | --- |
-| What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
-| Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
-| What has been shown for the five jobs? | [Verification note](docs/verification/start-your-own.md) |
-| What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs) |
-| What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](docs/commercial-sequence-template.md) |
-
-Store owns the active manufacturing core. System submits the complete definition manifest and consumes its answers. The commercial specification and executable event gate are shared with Store; each simulated stage requires explicit source evidence. Physical and financial authority remain blocked.
-
-All five jobs ask the pinned Store for a fresh answer to the revision on screen. An answer can be yes, no, or not yet: a refusal or an unresolved requirement is the result, not a failure to hide. Work the Store did not evaluate stays on the job, and the job is not presented as fully supportable. The [verification note](docs/verification/start-your-own.md) lists what each job sends, what was exercised, and what is still open.
-
-Store prices are budgetary estimates. Machine time is modeled. Commercial and yard events are simulated. Physical production is not commissioned. A quote is not machine admission.
+This is the replacement candidate deployed on Railway. Prices are budgetary, machine evidence is modeled and commercial/yard events are simulated. Physical production remains blocked. A Store answer supplies no physical release authority.
 
 **NO BLOOD ON WOOD.**
