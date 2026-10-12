@@ -48,6 +48,20 @@ try {
     await tile.click();
     const on = await content.locator('.page.on').count();
     assert.ok(on > 0, label + ': tile click left no visible page');
+    if (label === 'Start Your Own') {
+      const bench = content.frameLocator('iframe#start-own-proof-frame');
+      await bench.locator('#stb-intent-next').click({ timeout: 15000 });
+      await bench.locator('#stb-start-bench-screen').waitFor({ state: 'visible', timeout: 15000 });
+      // Both values must be from live Store replies, never from test fixtures.
+      await bench.locator('#stb-price-total').filter({ hasText: '$8.62' })
+        .waitFor({ state: 'visible', timeout: 30000 });
+      await bench.locator('button[data-length="18"]').click();
+      await bench.locator('#stb-price-total').filter({ hasText: '$9.13' })
+        .waitFor({ state: 'visible', timeout: 30000 });
+      assert.ok(responses.some(r => r.path === '/api/store-zero/job' && r.status === 200),
+        'Project 1 knob change did not reach the live pinned Store');
+      console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13, liveStore: true }));
+    }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
   // Playhouse is authored in the published System shell rather than the four
