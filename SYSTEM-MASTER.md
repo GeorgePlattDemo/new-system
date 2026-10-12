@@ -847,7 +847,7 @@ The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes
 
 ### 13.5 Platform infrastructure that remains active
 
-The repository retains build-connected authentication, database/migration, preview bridge, PWA/branding, install tutorial, browser smoke and related test infrastructure. The unused app-data connector subsystem was retired; the root preview bridge now owns its sole remaining event value. Build dependencies include `public/__grok/`, `server/middleware/grok-pwa.ts`, `scripts/grok-pwa-*`, `scripts/install-page.html`, `src/lib/auth/`, `src/lib/db.ts` and the root preview bridge.
+The repository retains build-connected authentication, database/migration, preview bridge, browser smoke and related tests. Grok PWA/branding injection, the install tutorial and `public/__grok/` assets were retired with their exclusive tests and plugin code after no consumer was found in the published five-project path.
 
 The source-derived defaults keep accounts off without enabled configuration. No new env file, account flow, database, brand replacement, deployment scaffold or substitute tool is added during consolidation. Old agent prose about unavailable `.grok/references`/skills, a Grok-only conversation environment or Vercel as the sole present host can be removed from governance after checking those facts. The still-operative startup, auth, preview, branding, serverDir, migration and test safeguards remain.
 
@@ -886,7 +886,7 @@ Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Nod
 
 `playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, default/changed Store answers, alternative queries, unsupported fields, scoped-review/commercial constraints and demo sequence. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
 
-Current repository tests protect the active PWA/branding/install paths, environment and authentication invariants, process handling and Store request boundaries. Obsolete tests tied only to removed Grok instruction text, unmounted sign-in UI and unused connector clients were retired with their owners; independent business and evidence checks remain.
+Current repository tests protect required environments, authentication invariants, browser/process checks and Store request boundaries. The retired PWA/branding/install feature and its exclusive tests no longer form part of the published System build.
 
 A passing suite is necessary, but cannot establish faithful external-plan interpretation, physical stock, commissioned movement or every direct-link obligation. Test names retaining an older adjective/price do not supersede their actual assertions. Browser observations of declared modeled prices do not constitute paid orders or inspected physical parts.
 
@@ -980,7 +980,7 @@ All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193a
 | `stb-build-guide-spec.js`, `store-zero-canonical-doctrine.js`, `stb-canonical-journey.js` | Reviewer rails and shared reference/navigation presentation | Loaded pages, script reachability and unchanged source |
 | `src/routes/api/store-zero/`, `src/system/store/published-wire.ts` | Active published Store request translation, transport and correlation | Type/build, pinned-Store HTTP, refusal and public Chromium verification |
 | `src/routes/index.tsx`, `src/routes/healthz.ts`, root/router/generated routes | Front-door redirect, liveness and route composition | Build and hosted navigation |
-| Active `src/lib/`, browser-test `scripts/`, PWA `server/`, migrations and `public/__grok/` | Build-connected host services and their verification | Production builds, five-project browser CI and relevant environment invariants |
+| Active `src/lib/`, browser-test `scripts/`, migrations and Vite/Nitro configuration | Build-connected host functions and verification; former Grok PWA injection and asset directory retired | Production builds, five-project Chromium CI and relevant environment invariants |
 | `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh`, workflow, `vercel.json` | Dependency/runtime/build/deployment contracts | Locked install, baseline build/type/tests and Railway source read |
 | `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
 | `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
