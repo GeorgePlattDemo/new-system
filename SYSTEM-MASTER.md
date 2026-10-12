@@ -231,7 +231,7 @@ Selections are keyed by project in `sessionStorage` as `stb-addl-svcs-review-v1:
 
 The existing project reference and its smaller Intent representation describe the same object. Start Your Own retains its crossed-brace repair reference and board geometry. Alcove retains its room SVG, fireplace, wall bow and floor slope. Window Seat retains `window-seat-hero-0.9.webp` and the separate controlling `window-seat-elevation-0.9.webp`. Outdoor retains each plan's own photograph under `assets/outdoor/`. Playhouse retains the sheet/opening/tab SVG.
 
-Numbers, arrows, features, prices and manufacturing claims remain code/text-owned information. An illustrative raster image establishes neither fit nor processing capability. The former imagery brief's continuing rule is to use the existing references first, identify an actual missing asset before proposing a replacement, and preserve the same project through Idea and Intent. This consolidation supplies no new art, crops or layout.
+Numbers, arrows, features, prices and manufacturing claims remain code/text-owned information. An illustrative raster image establishes neither fit nor processing capability. Use existing references first, identify an actual missing asset before proposing a replacement, and preserve the same project through Idea and Intent. This consolidation supplies no new art, crops or layout.
 
 ## 3. Start Your Own
 
@@ -997,12 +997,10 @@ Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-progr
 
 ### 16.3 Dependency decisions and proposed retirement
 
-The master documents the present file roles and potential redundancies; retirement decisions are deferred until the completed masters have been reviewed. The three previously deleted candidates have been restored to their pre-cleanup content. No archive or holding folder is introduced. A future disposal pass must verify source references, browser routes, public direct URLs, test fixtures, saved-record compatibility, deployment dependencies and cross-repository references before approved deletion.
+The master documents the present file roles and potential redundancies; retirement decisions are deferred until the completed masters have been reviewed. Two superseded editorial notes are retired after their continuing rules are retained in chapters 2.6 and 5.2. The standalone Start Your Own page remains under review. No archive or holding folder is introduced. A future disposal pass must verify source references, browser routes, public direct URLs, test fixtures, saved-record compatibility, deployment dependencies and cross-repository references before approved deletion.
 
 | Exact file or group | Current disposition and reason |
 | --- | --- |
-| `docs/intent-imagery-brief.md` | **Retained pending review.** Imagery rules are explained in 2.6; the preserved README still links this source |
-| `docs/rules/window-seat-layout.md` | **Retained pending review.** The named layout rule is also explained in 5.2 and implementation source |
 | `public/live/stb-start-own-bench-leg-0.1.html` | **Restored pending direct-route and dependency review.** The current Job 1 frame uses `three-frames.html`; do not infer that the historical standalone page has no external users |
 | `docs/verification/start-your-own.md` | Retained: Program README and EVIDENCE link its current path; dated independent observations remain available |
 | `docs/commercial-sequence-template.md` | Retained unchanged: shared copy; Store is frozen and coordinated contract revision is separate |
@@ -1016,4 +1014,4 @@ The objective remains one readable introduction, one complete System master and 
 
 ### 16.4 Completion verification record
 
-The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. A subsequent premature cleanup pass modified the README, definitions and maintainer instructions and removed three files; this restoration returns those six paths to their pre-cleanup content, adds only the master link to the README and leaves executable source, Store pin, Program and Store unchanged. Retirement is deferred until a separate review. Required CI must pass against the exact pinned Store checkout.
+The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. The README, definitions, maintainer safeguards, executable application and pinned Store interface remain protected. Two short duplicate editorial notes were retired after their enduring rules were reconciled with this master. Further retirement requires a file-specific dependency review. Required CI must pass against the exact pinned Store checkout.
