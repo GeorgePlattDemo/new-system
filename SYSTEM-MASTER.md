@@ -89,7 +89,7 @@ This reference explains the complete System application and its handoff. The [sh
 - [13. Application architecture and deployment](#13-application-architecture-and-deployment)
   - [13.1 Loaded pages and their responsibilities](#131-loaded-pages-and-their-responsibilities)
   - [13.2 Shared runtime assets](#132-shared-runtime-assets)
-  - [13.3 Server adapter and development routes](#133-server-adapter-and-development-routes)
+  - [13.3 Server adapter and liveness](#133-server-adapter-and-liveness)
   - [13.4 Build startup and hosting](#134-build-startup-and-hosting)
   - [13.5 Platform infrastructure that remains active](#135-platform-infrastructure-that-remains-active)
 - [14. Testing and verification](#14-testing-and-verification)
@@ -239,7 +239,7 @@ Numbers, arrows, features, prices and manufacturing claims remain code/text-owne
 
 The first tile demonstrates the replacement of two damaged picnic-bench crossmembers. Its reference image circles the 2×4 being replaced. It opens on Intent, where the wood, two parts, angled ends and center-spot tool are already stated. Idea is accessible behind it. The visible forward action is BRING IT TO THE BENCH →.
 
-The active child is `three-frames.html`, augmented by `system-build-current.html`. The separate `stb-start-own-bench-leg-0.1.html` is an earlier standalone surface; it is not the child loaded by the current shell. Current answering and Bench presentation are also supported by `stb-user-defined-board-runtime-bridge.js` and `stb-start-own-answer.mjs`. A historical-looking filename does not identify the active route; the actual frame and bridge do.
+The active child is `three-frames.html`, augmented by `system-build-current.html`. The predecessor `stb-start-own-bench-leg-0.1.html` was retired from the active tree after route/reference verification; its exact source remains in Git at commit `6e3738219204dd2c3ffff0a57a06b5495042e1bb`. Current answering and Bench presentation are supported by `stb-user-defined-board-runtime-bridge.js` and `stb-start-own-answer.mjs`. The actual live frame, not a historical filename, establishes the active route.
 
 The populated specimen starts at two 16-inch SPF nominal 2×4 parts, 30° parallel face miters, one centered 3/16-inch spot per part and a minimum 60-inch workpiece requirement. Intent offers material lookup and tools. Other named material/tool entries do not, by their labels alone, widen this specimen into arbitrary machining. Display-only additions remain separately identified.
 
@@ -502,9 +502,9 @@ Derivations retain the named rule, formula, inputs and output. For example, the 
 
 ### 8.2 Two active System surfaces
 
-The **published five-project surface** uses the existing HTML/JavaScript definitions, shared public admission, browser Store client and server published-wire adapter. The **generic `/bench` development surface** uses typed recipes, `compileRecipe`, `session.ts` and server functions. Both ask the same pinned Store; they can state different source definitions. A passing generic recipe result is not evidence that its corresponding public page sends identical geometry or defaults.
+The **published five-project surface** uses the HTML/JavaScript definitions, shared public admission, browser Store client and server published-wire adapter. The separate generic React UI at `/bench` and `/projects/$projectId` was retired from the active source tree. Typed recipe, definition and session modules remain as independently exercised contract/reference tests; their answers and starting geometry cannot substitute for the published pages.
 
-The generic library contains seven recipes, including Project 1 and Closet cleats in addition to the five named experiences. Closet cleats is not a public sixth tile. Historical Project 1 is an explicitly identified input, not a duplicate live screen or price source.
+The retained typed test/reference library contains seven recipes, including Project 1 and Closet cleats; it is not a second published project chooser. Closet cleats is not a public sixth tile. Historical Project 1 is explicitly identified test input, not a second active screen or price source.
 
 | Module | System-owned function | Boundary |
 | --- | --- | --- |
@@ -735,7 +735,7 @@ The installed record paths differ. The generic typed record is not the schema of
 
 | Installed path | Actual stored/exported form | Current custody and limits |
 | --- | --- | --- |
-| Generic `/bench` and `/projects/$projectId` | `STB-SYSTEM-RECORD-2`, local key `stb-new-system-record-1`; JSON download | Revisions, inquiries, decisions, packets and evidence attempts; strict schema validation |
+| Retired generic React routes `/bench` and `/projects/$projectId` | Former `STB-SYSTEM-RECORD-2` local record and JSON-download UI; source preserved in Git | Typed record fixtures and tests remain as technical reference; no active public React record page |
 | Start Your Own public demo | `stb-start-own-user1-definition`, `stb-start-own-user1-bench`, `stb-proof-handoff-job1` localStorage keys | Definition/Bench settings and confirmed handoff; current answer must be obtained again |
 | Published project-copy host, especially Playhouse | `stb-canonical-saved-projects-v1` keyed by demonstration owner | Captured controls, heights/material/format and registered state parts; opening/read-only/editing state is separate |
 | Window Seat | Identified record and readable audit text for the session | Sources/status/knobs/kept asks and exchange evidence; its reproduction text currently has the manifest defect |
@@ -829,11 +829,11 @@ The browser uses `stb-store-client.js`, `stb-store-runtime.json`, `stb-public-ad
 
 Image assets and SVG/data-URL drawings remain at their existing identities. The two public Outdoor authority/research pages remain linked from the working Rule Book and contain dated independent source evidence. Their retention does not grant their exploratory designs a Store evaluator or make a historical donor the current source.
 
-### 13.3 Server adapter and development routes
+### 13.3 Server adapter and liveness
 
 The public API routes parse the outer wire and call `answerPublishedWire`, using server-side `STORE_ZERO_ORIGIN` (local default `http://127.0.0.1:8091`). The adapter forwards only to the identified replacement Store. `/healthz` is System liveness; it does not attest Store availability or physical authority.
 
-The generic development routes `/bench` and `/projects/$projectId` use `storeHealth`, `forwardStoreRequest` and `forwardMachineEvidence` server functions. These forward the already serialized bytes with bounded body length/timeouts and preserve the HTTP body/status. They are installed development/record surfaces, not replacements for the public project screens. Tests, accepted-packet/evidence behavior and stored generic files depend on them.
+The former generic React routes and their private `storeHealth`, `forwardStoreRequest`, `forwardMachineEvidence` transport and `useRecord` hook were retired together. Their executable source and historical record behavior remain in Git. The live five-project application uses only `/api/store-zero/job`, `/api/store-zero/offering` and the published-wire adapter; those APIs retain their own bounded request handling and pinned Store answer checks.
 
 `src/system/machine.ts` currently reports lowering registered only for USER_DEFINED_BOARD_V1. Store's current protocol-2 evidence accepts all three manufacturing classes; this generic presentation helper is stale and affects its displayed explanation. Actual HTTP cut-package evidence tests return VIRTUAL_EVIDENCE_READY with physical BLOCKED. The helper is retained and its separate acceptance criterion is recorded in chapter 15.
 
@@ -847,7 +847,7 @@ The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes
 
 ### 13.5 Platform infrastructure that remains active
 
-The repository retains authentication, app-data, database/migration, preview bridge, PWA/branding, install tutorial, browser smoke and related test infrastructure. Examples include `public/__grok/`, `server/middleware/grok-pwa.ts`, `scripts/grok-pwa-*`, `scripts/install-page.html`, `src/lib/auth/`, `src/lib/app-data/`, `src/lib/db.ts` and `PreviewHostBridge` in the root. Vite imports the plugins; test/build/deployment paths exercise them.
+The repository retains build-connected authentication, database/migration, preview bridge, PWA/branding, install tutorial, browser smoke and related test infrastructure. The unused app-data connector subsystem was retired; the root preview bridge now owns its sole remaining event value. Build dependencies include `public/__grok/`, `server/middleware/grok-pwa.ts`, `scripts/grok-pwa-*`, `scripts/install-page.html`, `src/lib/auth/`, `src/lib/db.ts` and the root preview bridge.
 
 The source-derived defaults keep accounts off without enabled configuration. No new env file, account flow, database, brand replacement, deployment scaffold or substitute tool is added during consolidation. Old agent prose about unavailable `.grok/references`/skills, a Grok-only conversation environment or Vercel as the sole present host can be removed from governance after checking those facts. The still-operative startup, auth, preview, branding, serverDir, migration and test safeguards remain.
 
@@ -886,7 +886,7 @@ Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Nod
 
 `playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, default/changed Store answers, alternative queries, unsupported fields, scoped-review/commercial constraints and demo sequence. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
 
-The 252 repository/library support tests protect PWA branding/install paths, preview/process handling, migration/auth/environment invariants, app-data/readiness and related platform functions. Their size is not a reason to remove those dependencies; a consolidation must preserve the build and test contract.
+Current repository tests protect the active PWA/branding/install paths, environment and authentication invariants, process handling and Store request boundaries. Obsolete tests tied only to removed Grok instruction text, unmounted sign-in UI and unused connector clients were retired with their owners; independent business and evidence checks remain.
 
 A passing suite is necessary, but cannot establish faithful external-plan interpretation, physical stock, commissioned movement or every direct-link obligation. Test names retaining an older adjective/price do not supersede their actual assertions. Browser observations of declared modeled prices do not constitute paid orders or inspected physical parts.
 
@@ -931,7 +931,7 @@ These are not repaired by this consolidation. The Outdoor issue concerns the mea
 | Location | Present discrepancy | Required correction or consolidation disposition |
 | --- | --- | --- |
 | `docs/DEFINITIONS.md` at the starting revision | Earlier inquiry/receipt vocabulary, blank statuses, retired lowering limitation, per-cut prohibition and repeated/general terms | Pending a separate definitions reconciliation under System authority. The master explains actual protocol 2, independent manifest, receipt fields, dispositions and evidence classes without changing the dictionary in this pass |
-| `AGENTS.md` at the starting revision | Assumed Grok-only chat, sole Vercel hosting, unavailable skill/reference files and unrelated scaffold/art pipeline | Restored original maintainer instructions pending a separate dependency-sensitive review. Future streamlining must preserve active Railway/Vercel, owner/pin, startup, auth/env, branding/PWA/install, preview and tested brand-task rules |
+| `AGENTS.md` at the starting revision | Assumed Grok-only chat, Vercel-only deployment, unavailable skills and generic scaffolding | Replaced with a concise map of current executable owners, preservation boundaries and required CI; inherited template instructions were retired along with their exclusive tests |
 | Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Export preserved full request, pin and identities; reproduce without guessing or renaming request; distinguish fresh receipt time/hash |
 | `stb-build-guide-spec.js` | Alcove formal-knob-manifest gap can be confused with implemented protocol manifest; Window Seat fixed wood-list statement omits live discovery; Outdoor source coverage is incomplete | Correct each claim against its actual scope, distinguishing UI knob list, full protocol manifest and fixed buttons versus discovery; retain dev/rev guardrails |
 | Window Seat spot explanation | Says 3/16-inch deep without the drill-point/full-diameter distinction | State 3/16-inch full-diameter penetration beyond point consistently with the defined operation; do not alter actual tool requirement |
@@ -939,7 +939,7 @@ These are not repaired by this consolidation. The Outdoor issue concerns the mea
 | Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | Coordinated rewrite of both original copies; executable gate/envelope controls current serialization. This assignment retains both unchanged |
 | Active wrappers and Rule Book | Superseded embedded price/pin/request text and dated donor references remain shipped/reachable | Targeted future source/copy reconciliation after first-paint, direct-route and saved-state checks; current application language/layout stays unchanged here |
 | Program trial opening | Describes current virtual commands more broadly than its precise modeled-ledger paragraph | Program-owned evidence-stage edit; Program remains unchanged here |
-| Store master source register | Labels the standalone `stb-start-own-bench-leg-0.1.html` as current composition, while the observed Job 1 loads `three-frames.html` and the current wrapper | Store-owned explanatory correction in a later pass. The standalone page remains in System pending approved retirement; Store stays unchanged |
+| Store master source register | Historical source register identified `stb-start-own-bench-leg-0.1.html` as current at its recorded revision; published Job 1 actually loads `three-frames.html` | Earlier standalone System HTML now retired; original preserved in Git; source register remains dated evidence, not a runtime selector |
 
 The dictionary and agent boilerplate can be corrected as documentary governance within System's authority. Protected live-page wording and actual code discrepancies remain documented, rather than being silently changed during a document retirement. Historical price/evidence text stays in its original context.
 
@@ -978,9 +978,9 @@ All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193a
 | `stb-outdoor-option-requests.js`, `stb-intent-kit.js`, `stb-intent-kit.css` | Independent alternatives and offered-material discovery UI | Public-wire/Store-client tests and loaded Intent |
 | `stb-additional-services.js` | 62 planning choices, mount/Close and per-project state | All five triggers; actual open/Close; unchanged common source |
 | `stb-build-guide-spec.js`, `store-zero-canonical-doctrine.js`, `stb-canonical-journey.js` | Reviewer rails and shared reference/navigation presentation | Loaded pages, script reachability and unchanged source |
-| `src/routes/api/store-zero/`, `src/system/store/forward.ts`, `src/routes/bench.tsx`, `src/routes/projects/$projectId.tsx`, `src/components/use-record.ts` | Public server adapter, generic forwarding/record UI and local storage | Type/build, HTTP behavior and generic currentness |
+| `src/routes/api/store-zero/`, `src/system/store/published-wire.ts` | Active published Store request translation, transport and correlation | Type/build, pinned-Store HTTP, refusal and public Chromium verification |
 | `src/routes/index.tsx`, `src/routes/healthz.ts`, root/router/generated routes | Front-door redirect, liveness and route composition | Build and hosted navigation |
-| `src/lib/`, components, `scripts/`, `server/`, migrations, `public/__grok/` | Active platform/auth/data/PWA/preview/install helpers | 252 support tests and both production builds |
+| Active `src/lib/`, browser-test `scripts/`, PWA `server/`, migrations and `public/__grok/` | Build-connected host services and their verification | Production builds, five-project browser CI and relevant environment invariants |
 | `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh`, workflow, `vercel.json` | Dependency/runtime/build/deployment contracts | Locked install, baseline build/type/tests and Railway source read |
 | `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
 | `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
@@ -997,11 +997,11 @@ Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-progr
 
 ### 16.3 Dependency decisions and proposed retirement
 
-The master documents the present file roles and potential redundancies; retirement decisions are deferred until the completed masters have been reviewed. Two superseded editorial notes are retired after their continuing rules are retained in chapters 2.6 and 5.2. The standalone Start Your Own page remains under review. No archive or holding folder is introduced. A future disposal pass must verify source references, browser routes, public direct URLs, test fixtures, saved-record compatibility, deployment dependencies and cross-repository references before approved deletion.
+The master preserves historical source/reconciliation facts while describing current ownership. The generic React UI and standalone Job 1 predecessor were retired after consumer checks; their source remains in Git. Further removals require dependency proof for public links, saved records, production assets and original evidence.
 
 | Exact file or group | Current disposition and reason |
 | --- | --- |
-| `public/live/stb-start-own-bench-leg-0.1.html` | **Restored pending direct-route and dependency review.** The current Job 1 frame uses `three-frames.html`; do not infer that the historical standalone page has no external users |
+| Historical `public/live/stb-start-own-bench-leg-0.1.html` | Retired from current tree; retained in Git at System commit `6e3738219204dd2c3ffff0a57a06b5495042e1bb`; live Job 1 loads `three-frames.html` |
 | `docs/verification/start-your-own.md` | Retained: Program README and EVIDENCE link its current path; dated independent observations remain available |
 | `docs/commercial-sequence-template.md` | Retained unchanged: shared copy; Store is frozen and coordinated contract revision is separate |
 | `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retained: working nested shell, page composition and saved-state dependencies |
