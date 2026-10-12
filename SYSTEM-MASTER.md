@@ -16,7 +16,7 @@ The engineering connection is reusable: the customer's resolved component requir
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
-> Incremental publication: this first save contains the opening, full chapter outline and completed chapters 1–2. Further coherent groups are appended to this same file on `main` before any retirement.
+> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–7. Further coherent groups are appended to this same file on `main` before any retirement.
 
 ## Contents
 
@@ -173,3 +173,260 @@ Selections are keyed by project in `sessionStorage` as `stb-addl-svcs-review-v1:
 The existing project reference and its smaller Intent representation describe the same object. Start Your Own retains its crossed-brace repair reference and board geometry. Alcove retains its room SVG, fireplace, wall bow and floor slope. Window Seat retains `window-seat-hero-0.9.webp` and the separate controlling `window-seat-elevation-0.9.webp`. Outdoor retains each plan's own photograph under `assets/outdoor/`. Playhouse retains the sheet/opening/tab SVG.
 
 Numbers, arrows, features, prices and manufacturing claims remain code/text-owned information. An illustrative raster image establishes neither fit nor processing capability. The former imagery brief's continuing rule is to use the existing references first, identify an actual missing asset before proposing a replacement, and preserve the same project through Idea and Intent. This consolidation supplies no new art, crops or layout.
+
+## 3. Start Your Own
+
+### 3.1 Source and entry
+
+The first tile demonstrates the replacement of two damaged picnic-bench crossmembers. Its reference image circles the 2×4 being replaced. It opens on Intent, where the wood, two parts, angled ends and center-spot tool are already stated. Idea is accessible behind it. The visible forward action is BRING IT TO THE BENCH →.
+
+The active child is `three-frames.html`, augmented by `system-build-current.html`. The separate `stb-start-own-bench-leg-0.1.html` is an earlier standalone surface; it is not the child loaded by the current shell. Current answering and Bench presentation are also supported by `stb-user-defined-board-runtime-bridge.js` and `stb-start-own-answer.mjs`. A historical-looking filename does not identify the active route; the actual frame and bridge do.
+
+The populated specimen starts at two 16-inch SPF nominal 2×4 parts, 30° parallel face miters, one centered 3/16-inch spot per part and a minimum 60-inch workpiece requirement. Intent offers material lookup and tools. Other named material/tool entries do not, by their labels alone, widen this specimen into arbitrary machining. Display-only additions remain separately identified.
+
+### 3.2 Controlling geometry and derivation
+
+The project keeps an **eight-inch horizontal span** while the person changes brace length. The current bounded demonstration admits lengths from 16 through 18 inches. Its derivation is:
+
+$$\theta=\arcsin(8/L)\,180/\pi,\qquad rise=\sqrt{L^2-8^2},\qquad x_{spot}=L/2.$$
+
+| Definition fact | 16-inch starting setting | 18-inch setting | Authority |
+| --- | ---: | ---: | --- |
+| Finished part length, each | 16 in | 18 in | Customer setting |
+| Fixed horizontal span | 8 in | 8 in | Named project rule |
+| Derived end angle | 30° | 26.387799961243° | System derivation |
+| Derived rise | 13.856406 in | 16.124515 in | System derivation, rounded for display |
+| Center spot from either finished end | 8 in | 9 in | System derivation |
+| Required part count | 2 | 2 | Bounded specimen definition |
+| Declared saw operations | 3 | 3 | One reference cut plus part separations |
+| Workpiece minimum | 60 in | 60 in | Project requirement |
+
+End meaning is explicit: `parallel`, `miter-face`, `long-long-outer-edge`, and `REFERENCE_CUT`. The public line also carries `endIdentity: "both"`. The published translator records its supplied value and the named `REDUNDANT_WITH_PRICED_LENGTH_DATUM` reconciliation, sending `endIdentity:null` when the existing parallel/long-long convention already states the same endpoint meaning. This retained canonicalization is different from deleting a supplied independent end requirement. A nonredundant supplied value remains in the demand and can be refused.
+
+The controlling configuration is `SYO-USER1-XBRACE`. The endpoints use configuration versions `0.1` and `0.2`; intermediate settings use the declared review-intermediate label. The owner definition is `SYO-USER1-XBRACE-0.1`, with a separate incremented `versionId`. Configuration version, owner revision, request ID and receipt hash serve different purposes and are not interchangeable.
+
+### 3.3 Components manifest and Store request
+
+System emits `PART-1` and `PART-2`, each with its own length and feature. With spotting selected, the features are `SPOT-1` and `SPOT-2`, kind `SPOT_ON_LOCATION`, longitudinal coordinate `L/2`, `CENTERED_ON_PART` and `CENTERED_ON_WIDE_FACE`. The independent manifest lists both part IDs, both feature IDs, no sheet packages and no sourced item lines.
+
+The public inquiry type and Store type are both `USER_DEFINED_BOARD_V1`. The public line's `definedWorkpieceLength` is normalized into finite `definedWorkpieceLengthIn`; System supplies the required operations and declared counts. An established selected board class may supply `form:"board"`. Grade travels when already specified. Store, rather than System, determines whether a missing grade is ambiguous.
+
+Changing wood is a job tool when enabled, not a generic label to be treated as a species selector. An omitted spot coordinate is not converted to zero. A declared spot lacking a technical identifier receives a retained stable identity `declared:<partId>:feature:<index>`; that identity assignment does not supply missing geometry. Admission and the Store contract still enforce complete requirements.
+
+### 3.4 Fresh answer and visible consequences
+
+The current 16-inch SPF inquiry returns Q **$8.62**, comprising $2.61 material and $6.01 modeled service. Store selects `STB-ZERO-SPF-2X4-60-001` and returns 27.625 inches remaining. System's drawing follows those returned values; it does not calculate a substitute retained-control decision.
+
+At 18 inches the current result is **$9.13**, $3.13 material plus $6.00 modeled service. Store selects `STB-ZERO-SPF-2X4-72-001` and returns 35.625 inches. The Bench displays that Store selected the longer board while the customer still requires at least 60 inches. A returned remainder and the declared 24-inch model screen are separate from verified physical roller contact.
+
+`stb-start-own-answer.mjs` checks whether returned money, component/feature identities, receipt and material information agree before producing the unified Bench view. Its amount reconciliation detects contradictory returned totals; it is validation of Store facts, not a price engine. It also escapes Store text before rendering. Missing Q or machine service, a contradictory total, foreign feature identity, wrong pin or request receipt cannot become a visible complete price.
+
+The automatic Bench inquiry is budgetary. Confirm & Send retains the identified definition and matching exchange for the Store-answer/decision path. Confirmation is not implicit acceptance of a previous automatic answer for another request. A later definition or failed inquiry cannot continue the earlier commercial stream.
+
+### 3.5 Decision and verification
+
+This tile alone explicitly enables the demo commerce source. A complete current Store answer can yield the 24-hour simulated offer, Accept & Pay, simulated seller order/capture/queue, yard demonstration and pickup/closeout described in chapter 10. All generated commercial source records remain SIMULATED.
+
+`src/system/start-own-bench.test.ts` exercises the 16/18/16 sequence against the exact pinned Store; selected parents, spots and money; contradictory/missing answers; definition admission; pin/receipt/feature mismatch; revision-bound failure; and escaped Store text. `published-wire.test.ts` covers the same-end reconciliation and current public translation. Historical Project 1 fixtures remain separate evidence of their issued specimen, not a live price source.
+
+## 4. Alcove and critical fit
+
+### 4.1 Source context and controlling choices
+
+Idea preserves the room SVG and the supplied observations: 94½-inch floor-to-ceiling height, 45½-inch opening width, 14½-inch available face depth, 45-inch mantel, 65-inch shelf-top preference, ½-inch wall bow and 1.2° floor slope. The scan is context. The measured controlling values and customer choices determine the unit. Bow and slope are recorded rather than automatically corrected.
+
+Intent carries the smaller same-room reference, material selection, offering lookup and the optional shelf-elevation spotting tool. The Bench retains the existing dimension sliders/exact entries, species buttons, shelf count/elevations, edge-finish options and compact additional-services control. Exact dimensions are read back to the nearest 1/32 inch. The starting unit is **72 H × 45½ W × 14 D**, five shelves at **12, 24, 36, 45 and 65 inches**, Pine/select, spotting off.
+
+The full-width starting preference includes no concealed fit allowance. With two ¾-inch side members, shelf span is `45.5 - 1.5 = 44` inches. Reducing configured width creates an explicit clearance, rather than changing a fit number inside the Store inquiry. Structural adequacy and installation execution remain distinct questions from manufacturing the stated components.
+
+### 4.2 Stock-aware definition proposal
+
+`alcoveBoardSpecifications` reads a complete current Store lookup for the chosen select species. It groups offered nominal 1× width classes by returned actual width, considers one or two equal source boards, then sorts proposals by fewest pieces, least excess width and nominal width. System is proposing the customer's finished-part arrangement from discovered classes. Store still selects parent lengths, SKUs and quantities during job evaluation.
+
+The fourteen-inch default uses nominal **1×8 throughout**, including the four upright boards. The two shelf strips finish at 7¼ and 6¾ inches. Together they retain exactly fourteen inches. Ten shelf strips and four upright boards are separately identified. The chosen class's full-width 7¼-inch strip is a defined requirement; it is not an assertion of unoffered physical stock.
+
+When the complete lookup lacks the requested default 1×8 class, the narrowly declared starting request can still be formed as **requested, not offered**, so Store can give its own refusal. The code does not attribute that request-only 7¼-inch strip to discovered stock. An incomplete lookup, incompatible species result, unavailable service or unsupported alternative proposal is not permission to invent stock. The explicit default refusal path is bounded to the known fourteen-inch requirement and corresponding source choice.
+
+The user may override source widths, including the mixed nominal 1×10/1×6 proposal. Those dimensions become stated per-component requirements. A mixed proposal still has to satisfy positive widths, source-width compatibility, stated fractional resolution and the exact depth sum. It does not transfer parent selection to System.
+
+### 4.3 Edge finish and features
+
+| Bench mode | Finished shelf pieces | Declared edge preparation | System meaning |
+| --- | --- | --- | --- |
+| ECONOMY, 1 · default | 7¼ + 6¾ in | ½-inch removal from one free edge | Preserve one full strip and exact total depth |
+| BALANCED, 2 · even | 7 + 7 in | ¼-inch removal on one edge of each strip | Equal finished strip widths |
+| ALL_EDGES, 4 · all | 7 + 7 in | `farEdgeRemovalIn:0.125`, `fenceEdgeRemovalIn:0.125` on each strip | Two separately declared surfaces per strip |
+
+System emits a `MILL_LONGITUDINAL_PROFILE` identity for a narrowed strip, with literal shelf-span path length, finished-width Y and through depth 0.75 inch. ALL_EDGES additionally carries the explicit two-edge preparation. The translator retains that geometry; Store decides whether parent preparation fulfills it and returns the associated processing plan/time. System does not add a local per-edge surcharge or duplicate the machine-time calculation.
+
+Enabling shelf-elevation spotting produces one feature for every selected elevation on every upright board. With five shelves and four uprights that is **20 spots**. The inset is 1½ or 2 inches from the edge. Each feature names its target component, FROM_BASE coordinate, `DERIVED_FROM_SHELF_ELEVATION` basis, 3/16-inch diameter and 3/16-inch **full-diameter** penetration beyond the drill point. The inset control is disabled while spots are off.
+
+### 4.4 Translation and coverage
+
+Alcove's public scope remains `ALCOVE_INSERT_V1` as a System-facing definition label. `cutDemandFromAlcoveInsert` translates it to the actual Store class **`CUT_PACKAGE_V1`**. There is no restored Store-native Alcove evaluator.
+
+The source definition contains `materialDemand`, `boardRequirements`, `componentPrograms`, `hardwareDemand`, `spotDemand`, configuration identity and unresolved conditions. Each component states its own `nominalW` and finished geometry. A blanket nominal width in material demand is blocked because it would override the component requirements.
+
+The translator groups compatible components by requirement, nominal width, finished width and edge preparation. It requires the named parent operation to state CROSSCUT before supplying a square `angleDeg:0`. Spot identity/location and profile geometry remain literal. The hardware demand travels as the functional `ALCOVE-PINS-AND-SCREWS` requirement, quantity one; Store chooses its offering.
+
+The independent manifest originates from all fourteen source component programs, the five default profile IDs and the one hardware requirement. With spotting enabled it includes the twenty additional spot IDs. The spot summary is consumed only if its identities, target components, coordinates, placement and constraints agree with the component features. An enabled contradictory summary remains a carried unresolved requirement. An explicitly disabled empty summary with no component spots is faithfully treated as no requested spotting.
+
+### 4.5 Response presentation and boundaries
+
+The current default returns **$379.11**: material $283.64, modeled service $77.47 and hardware $18.00; modeled total time is about **18.5924 minutes**. BALANCED and ALL_EDGES are separate evaluated definitions, recorded in Store's master at $439.28 and $499.24 for this baseline. Those figures illustrate returned variations; they are not System formulas or permanently assigned option prices.
+
+The Bench presents selected SKUs, quantities, available counts, material/kit/service amounts and Store operation-ledger time. The time display reads current returned categories rather than the retired single-machine timing shape. A refused or incomplete definition has no complete displayed cycle.
+
+A fully evaluated manufacturing scope can show `REQUIREMENTS_SATISFIED`. The shared contract also describes a terminal scoped budgetary-review state when a complete manufacturing estimate accompanies disclosed unevaluated requirements. That review cannot create an offer, acceptance, payment, queue, production or pickup. The current protocol manifest carries unresolved requirements, so a clean whole-job Store evaluation normally withholds Q for an actually incomplete manifest. The compatibility review gate does not manufacture a scope exception.
+
+The shared terms flow is installed, but this tile does not inherit Start Your Own's demo seller policy. Missing offer/order/financial sources remain pending. `published-wire.test.ts` evaluates the actual public component programs, default profiles, spots, species/refusal cases, mixed/edge choices and unequal or missing requirements against the pinned Store. The generic library Alcove recipe is a separate definition and can return a different amount; its test figure $378.68 is not the public starting Q.
+
+## 5. Window Seat and space utilization
+
+### 5.1 Sources Intent and entry
+
+Idea preserves the customer's own description and the existing finished-room photo. Intent carries the smaller photo, the elevation sketch, source/status fields, preferences, site observations and open questions. The sketch reads **103 W × 94 H**, with **24/55/24-inch** modules, fourteen-inch depth, upper storage/window/seat/cubbies and four shelves per tower. Seat and upper-storage heights are separately adopted values where the sketch is silent.
+
+Measured facts have both a source and a governing status. Current examples include widths 104.5/104.25/104.5, with the narrowest controlling width 104.25; the controlling right height is 94.75, while the scanned left height is context. The source sketch's width, window head and source image do not silently replace those measurements. Sill height needs checking. Floor slope, baseboard, on-site fastening and the pictured hexagonal trim retain their respective noted/context/deferred roles.
+
+The Idea presentation fork provides Intent or One full scroll. The full-scroll view shares the same definition and evaluation state and is not a second implementation. Intent's wood controls, offering lookup, side/divider spotting and optional front/extra-spot/screw tools carry into the Bench. The visible forward action is BRING IT TO THE BENCH →.
+
+### 5.2 Starting values and named geometry
+
+| Control | Starting value |
+| --- | --- |
+| Overall height | 94 in |
+| Left / center / right width | 24 / 55 / 24 in |
+| Desired depth | 14 in |
+| Seat height | 22 in |
+| Upper storage clear height | 14 in |
+| Upper bays / lower cubbies | 2 / 2 |
+| Tower shelves, left / right | 4 / 4 |
+| Clearance per side | 0 in |
+| Wood | Pine/select |
+| Optional front / added extra spot / screw requirement | Not added |
+| Side and divider spots | Off |
+
+`window-seat-layout/1` is a named geometry extension. Editing recipe data alone cannot create its tower/seat/cubby rules. The public child supplies the full UI-specific version; `src/system/window-seat.ts` supplies the generic recipe extension.
+
+Design thickness is **0.75 inch**. Overall width is the sum of module widths. Horizontal parts fit between their two sides: tower spans 22.5 inches and center spans 53.5. The window-head/upper-shelf datum is `H - T - upperClear - T`, 78.5 inches in the starting definition. Tower shelves under that datum divide the available height using their declared count and thickness. Lower divider length is `seat - 2T`, 20.5 inches. Upper divider length is the fourteen-inch clear upper height.
+
+Depth uses the fewest integer runs from one through six for which `depth/runs ≤ 11.25`. Run width is rounded to 0.001 inch. An exact dressed width uses its matching nominal class; otherwise the next wider class carries an explicit finished-width requirement. Dressed width meanings used by this rule are nominal 2/3/4/6/8/10/12 → actual 1.5/2.5/3.5/5.5/7.25/9.25/11.25 inches. Fourteen-inch depth becomes two seven-inch runs, each from nominal 1×8. This establishes part geometry; Store judges the preparation and selects stock.
+
+### 5.3 Components tools and independent manifest
+
+The starting assembly has **24 finished assembly parts and 48 separately identified board runs**. Six full-height sides, each tower's top/bottom/four shelves, the center top/bottom/upper shelf/seat and one divider in each center storage area account for the assembly. Runs are identified beneath their assembly feature, such as `L-UPRIGHT-01-R1` and `C-SEAT-01-R2`. Every source run appears in the manufacturing manifest.
+
+The optional FRONT value is stored as true in starting Bench state, but Intent's `added.front` is false. The controlling optional-tool manifest therefore excludes it. Reading that boolean in isolation incorrectly adds a front board and changes the quoted job. The current public default includes neither that board nor screw item lines.
+
+Side spots attach to every tower-side run at derived shelf datums, using the chosen inset. Divider spots attach to the adjacent horizontal members at each divider center. An extra spot names its target finished part, X offset and centered/1½/2-inch across-width placement, then reaches the corresponding runs. These are separate features, not one unexplained aggregate hole count.
+
+An added screw requirement requires gauge, positive length, finish and whole positive quantity. It is sent as a sourced item requirement; System does not choose the item SKU. Labels, inspection, bundling, packing and other retained asks use a separate displayed **kept, not sent** list. They do not enter manufacturing Q or become claimed completed work. That disclosed separation does not excuse dropping a manufacturing component or selected machining feature from the independent manifest.
+
+### 5.4 Inquiry identity and Store response
+
+The public `buildRequest` groups identified runs into SIDES/SHELVES/FRONT packages by nominal and finished widths. Packages over 120 parts are split into identified package groups. The job uses configuration `WINDOW-SEAT`; its revision combines an incrementing UI revision and a local change signature covering the identified record and request body. This short local signature is not Store's canonical calculation identity or an actor signature.
+
+The source record includes the customer's idea, source filenames/roles, measurement source/status, taste, site observations, open questions, knob list, kept asks and derived width/run facts. The Store receives **`CUT_PACKAGE_V1`** plus a separately derived complete manifest of run/spot/item identities. The default has 48 board IDs, no spots, no sheet packages and no sourced items.
+
+Current Q is **$1,193.10**: $795.59 material plus $397.51 modeled work, approximately **95.40 minutes**. The same fresh answer is presented on Intent and the Bench, with a link to the full line-by-line answer. Edited material or dimensions invalidate it and initiate a new inquiry; incomplete optional tools remain blockers.
+
+The dated 11 October check recorded depth 13¾ inches at $1,192.91. It also recorded a Poplar variation without a complete estimate because every line could not be fulfilled. These are identified observations of that definition/pin, not a promise that every species button yields a price. Store chooses parents and can refuse or report unavailable work.
+
+### 5.5 Decision records and verification limits
+
+The later customer stages use the shared terms/event gate. A supportable budgetary answer permits review, while absent seller offer and policy records leave acceptance and fulfillment pending. Earlier simulations documented under earlier pins do not prove current commercial progression.
+
+The public page exposes a project/audit record containing source interpretation, revisions, request and response information. Its current **Check it yourself** text saves demand alone and supplies an old three-field `evaluateStoreRequest` command. Protocol 2 requires the independent manifest; the command therefore does not reproduce the current answer. Its new `my-check` request ID would also change calculation input identity even if the missing manifest were supplied. Chapter 15 sets the exact repair criterion. This document gives the valid complete-request reproduction pattern in chapter 9 without modifying the protected page.
+
+`system.test.ts` verifies the named geometry extension, positive/count requirements, invalid spot choices, genuine zero shelf counts, revision/late reply behavior and saved-record handling. Public-wire/joint tests verify actual public requests, extra spots and Store refusal of unhandled declarations. Source and record correctness are assessed separately from a successful manufacturing Q; seat strength and local attachment remain attributed unresolved/deferred questions.
+
+## 6. Outdoor and published plans
+
+### 6.1 Source selection and fixed starting definition
+
+Idea names two published plans. Intent retains both photographs and source links. The current selected starting definition is **Classic A-frame**, 72-inch slats, above-ground treated SYP and coated hardware. The alternate **Table + two benches** is selectable at Intent. A small Item lookup and Add tools surface supplements the plan choices; known tools include hardware, cut, angle and wood species. No spot locations are presumed merely because the assembly uses fasteners.
+
+| Source project | Fixed part classes | Length-controlled class | Hardware requirement in this application |
+| --- | --- | --- | --- |
+| Classic A-frame, Ana White | Four nominal 2×6 legs, 31.375 in at 25°; two 2×4 braces, 32.875 in at 25°; two 2×4 supports at 61; two 2×2 end cleats at 34.25 and one middle cleat at 29.25 | Six tabletop and six seat nominal 2×6 slats | 100 #10 × 2½-in wood screws; selected finish |
+| Table + two benches, MyOutdoorPlans | Four table legs at 26; four table supports at 27.5; eight bench legs at 16.5; eight bench supports at 11.5; all nominal 2×4 and square | Seven table and six bench 2×4 slats | 26 #10 × 4½-in screws, 48 #10 × 2½-in screws, eight 3/8 × 5-in carriage-bolt assemblies; selected finish |
+
+Only long slats follow the chosen table length. End-frame lengths and published angles stay in their named source classes. The alternate plan's hardware totals and screw gauge are application interpretations where its source supplies no count/gauge. Source, adopted choice, derivation and unresolved correspondence retain separate identities.
+
+### 6.2 Bench control and revision
+
+The Bench offers the existing set, wood and hardware choices, inch/foot length adjustments, automatic current Q and a bigger Bench for explicit part-class spotting or decorative cuts. Wood choices map to exact species/grade pairs: construction SPF, above-ground treated, ground-contact treated, cedar-tone ground-contact and cedar S4S. Hardware is BYO, coated, hot-dip galvanized, stainless or silicon bronze. BYO omits purchased item lines; it does not assert that assembly needs no fasteners.
+
+Optional spots require a positive from-end distance, an admitted across-width placement, and the selected symmetric or middle arrangement. System assigns stable `<partId>-SPOT-<number>` IDs. Missing locations block submission rather than becoming zero. Decorative face-angle changes apply only to the declared square-cut class; the plan's angled classes retain their given angles.
+
+A newly typed tool name has no implicit machine representation. When selected it remains a missing defined operation and blocks the inquiry until actual work is explicitly defined or the unsupported addition is removed. The project records that added tool, reference offering and source meaning rather than manufacturing a favorable empty operation.
+
+`record`, `definitionFor`, `packagesFor` and `itemsFor` build one identified selected job. Configuration names identify the plan, such as `OUTDOOR-PICNIC-A-FRAME`; configuration revision includes the UI revision and local record/body change signature. Each piece receives a stable class/count ID. The starting A-frame has **23 part IDs**, five packages, no spots and one sourced hardware line.
+
+### 6.3 Option previews and the committed inquiry
+
+Wood/finish previews are separate complete manufacturing inquiries, not an offering lookup and not a shared allocation of all variants in one job. `stb-outdoor-option-requests.js` separates alternatives. The preview for a hardware tier uses the currently selected wood; the selected definition receives its own committed evaluation. Preview answers never enter the customer terms flow.
+
+The page permits one manufacturing inquiry at a time. The committed current job has priority over queued alternatives; transport failure releases the queue without supplying a price. Intent starts previews, including the displayed From amounts. The Bench automatically asks the selected job without requiring another plan choice or Ask Store prompt.
+
+Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. For the default, Q is **$293.16**, material $200.05, modeled work $74.23 and hardware $18.88, about **17.8151 minutes**. Store selects its parents and enough actual hardware packages; System preserves the distinction between requested pieces and purchased packs. The dated 11 October length-73 check returned $293.26 for its revised request.
+
+### 6.4 The unresolved end-meaning correspondence
+
+The public source text states that A-frame legs and cross supports are measured **long point to short point**. Both public `packagesFor` and the generic compiler currently send **`long-long-outer-edge`**, parallel ends and `miter-face`, using the same numerical lengths. No explicit transformation witness reconciles those conventions. The source's cross-support bevel wording also requires an identified plane/orientation interpretation.
+
+The current Q is an answer to that encoded demand. It does not prove source-faithful transcription. System owns the required source datum/plane declaration and explicit transformation or unsupported disposition. This consolidation changes no lengths, angle, cut plane, material choice or refusal. The acceptance criteria are in chapter 15.
+
+The Idea label **the plan's wood** similarly overattributes the all-treated default. The audit records the source's untreated tabletop/seat recommendation with treated legs as an option. The present all-treated variant can remain an explicit application/customer choice, but its source pedigree requires correction. That is separate from the datum question.
+
+### 6.5 Authority evidence and downstream flow
+
+The live Rule Book opens `stb-outdoor-reference-authority-0.3.html`, which links `STB-OUTDOOR-ANGLED-FRAME-RESEARCH-DOSSIER-0.1.html`. They remain reachable public references. Their unique dated source comparisons are retained; their exploratory designs are not additional admitted tiles.
+
+The continuing interpretation rules are complete here: identify a named design family before transferring geometry; include datum, plane and angle convention in each dimension; retain published/derived/project-specific/inferred/unknown status; do not derive connection-hole coordinates from a picture; and defer structural relationship changes without a verified transform. An X frame is a dependent leg/brace/stretcher system, not a generic shape from which any new angle/height can be asserted. An exploratory donor and its September prices remain evidence of that captured revision.
+
+Current committed answers reach the shared review/terms surface. Missing seller terms/order/finance remain pending; no Job 1 demo policy is silently inherited. `published-wire.test.ts` verifies alternative isolation, committed priority, stable spot identity, incomplete/off-board spots, revised answers, preserved unknown fields and Store evaluation. These checks prove the transmitted definition, not the unresolved external-plan correspondence.
+
+## 7. Playhouse and the sheet stream
+
+### 7.1 Source and ownership presentation
+
+The fifth tile demonstrates a playhouse wall panel with an arched opening and retained useful pieces. Idea states the starting half-inch 48 × 96 sheet, opening 36 W × 24 straight height × 12 rise, kept center, returned remnants, owner trimming of retained tabs and no hardware purchase. Intent carries the same sheet/opening reference, an identified Store offering and the tools.
+
+The published library copy is **read only**. Its price is already evaluated automatically. MAKE CHANGES creates the working presentation and enables controls; SAVE stores the copy for the demonstration owner. Opening is different from owning, and leaving an unsaved preview restores the library state. The other tiles do not all implement this same read-only copy mechanism.
+
+### 7.2 Geometry and selected tools
+
+The Bench starts at opening width 36 inches, straight-side height 24 and rise 12, giving total height 36. Its circular-segment radius derives from the customer's opening values:
+
+$$R=w^2/(8r)+r/2=19.5\ \text{in at }w=36,r=12.$$
+
+This is System's opening geometry. Cutter compensation, tab placement, processing capability, returned bounds, timing and Q remain Store-owned. The visible drawing identifies routed profile, retained tabs, split and straight-cut requests, including work outside the local routed field. A blue requested cut is still sent for Store's judgment.
+
+The admitted Intent sheet fact includes positive thickness/length/width and selected Store species, grade and SKU. The opening fact requires positive width, straight height and rise. Tools include the two eighteen-inch end cuts, each added manual cut with orientation/end-or-edge datum/distance, and an optional pattern with both offsets. Zero is a valid pattern offset. Missing one offset or an added cut distance blocks admission; the interface does not fill an edited or saved job with demonstration values.
+
+### 7.3 Definition manifest and boundary
+
+`s001DefinitionFrom` builds **`SHEET_PACKAGE_V1`**, configuration `PLAYHOUSE-ARCHED-WINDOW`. Its revision identifies selected material, opening dimensions, requested tabs, end cuts and every added tool. The default feature list is:
+
+| Feature ID | Required meaning |
+| --- | --- |
+| `OPENING` | Centered `ARCHED_APERTURE`, width 36, straight height 24, rise 12, retained with TABS, requested minimum four |
+| `CENTER-SPLIT` | `STRAIGHT_SPLIT` within OPENING on its vertical centerline |
+| `CUT-LEFT` | `CROSSCUT`, eighteen inches from the left sheet end |
+| `CUT-RIGHT` | `CROSSCUT`, eighteen inches from the right sheet end |
+
+Added cuts receive `CUT-M<n>` identities; a selected placement tool adds `PATTERN` within OPENING with literal offsets. `returnAllPieces:true` is preserved. The independent manifest has the configuration ID as its sheet-package identity, all feature IDs, no board parts and no sourced hardware. The selected SKU remains on System's job to check attribution, while the Store demand states its material dimensions/species/grade for Store matching.
+
+Sheet translation copies the stated definition fields instead of maintaining a second list that could omit a retention operand. Thus a custom split's `splitTabMode` and `splitTabPositionsIn` reach Store unchanged. Missing required custom positions remains **UNRESOLVED / `SPLIT_TAB_POSITIONS_REQUIRED`**, with no Q. The screen does not currently expose a custom-split-position control; that boundary is exercised by endpoint/translation tests, not claimed as a clickable control.
+
+### 7.4 Store result and refusal presentation
+
+The default fresh answer is **$76.56**: material $26.55, hourly modeled work $30.01 and two separately charged full cuts totaling $20.00. Total modeled occupancy is about **9.34 minutes**, including the separately billed saw time. System does not charge those seconds a second time or replace the valid material-only $26.55 label with the whole job total.
+
+Store's answer retains all modeled returned pieces, including the tab-retained center halves. The exact planned retention and returned bounds come from that answer. Geometric tabs are not a physically inspected release or a completed trim service.
+
+A definition admitted by System can still exceed Store's routed field, contour, stock, material, split or panel-staging capability. Admission checks completeness, not Store limits. Oversized supplied openings reach Store and receive its refusal. A revised refusal removes the earlier supported amount and closes dependent stages. Unknown fields remain stated and receive Store's named contract refusal; the caller cannot obtain a favorable answer by dropping them.
+
+The shared terms flow distinguishes customer review from absent seller offer/order/finance. MAKE CHANGES enables definition controls, not production. `playhouse-admission.test.ts` verifies exact required facts, missing material identity, added-cut datums/distances, zero pattern offsets and oversized admitted inputs. Public-wire/joint tests exercise the default and changed prices, complete feature coverage, custom-split requirements, field violations, additional panel work and preserved unhandled declarations. The dated width-35 check returned $76.43 against this Store baseline.
