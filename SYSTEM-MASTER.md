@@ -847,9 +847,9 @@ The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes
 
 ### 13.5 Platform infrastructure that remains active
 
-The repository retains build-connected authentication, database/migration, preview bridge, browser smoke and related tests. Grok PWA/branding injection, the install tutorial and `public/__grok/` assets were retired with their exclusive tests and plugin code after no consumer was found in the published five-project path.
+The repository retains build-connected authentication, database/migration and browser smoke checks. The Grok-specific preview bridge, preview-thumbnail hook and brand-asset writer were retired with their exclusive source and tests. Grok PWA/branding injection, the install tutorial and `public/__grok/` assets were likewise retired after verifying the five published project path.
 
-The source-derived defaults keep accounts off without enabled configuration. No new env file, account flow, database, brand replacement, deployment scaffold or substitute tool is added during consolidation. Old agent prose about unavailable `.grok/references`/skills, a Grok-only conversation environment or Vercel as the sole present host can be removed from governance after checking those facts. The still-operative startup, auth, preview, branding, serverDir, migration and test safeguards remain.
+The source-derived defaults keep accounts off without enabled configuration. The application root now supplies only its document shell and live public redirect; the separate React project UI, no-op auth provider and Grok preview chrome are retired. The actual auth server and database build paths remain until a separate complete dependency retirement can preserve the relevant invariants.
 
 ## 14. Testing and verification
 
@@ -980,7 +980,7 @@ All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193a
 | `stb-build-guide-spec.js`, `store-zero-canonical-doctrine.js`, `stb-canonical-journey.js` | Reviewer rails and shared reference/navigation presentation | Loaded pages, script reachability and unchanged source |
 | `src/routes/api/store-zero/`, `src/system/store/published-wire.ts` | Active published Store request translation, transport and correlation | Type/build, pinned-Store HTTP, refusal and public Chromium verification |
 | `src/routes/index.tsx`, `src/routes/healthz.ts`, root/router/generated routes | Front-door redirect, liveness and route composition | Build and hosted navigation |
-| Active `src/lib/`, browser-test `scripts/`, migrations and Vite/Nitro configuration | Build-connected host functions and verification; former Grok PWA injection and asset directory retired | Production builds, five-project Chromium CI and relevant environment invariants |
+| Active `src/lib/`, browser-test `scripts/`, migrations and Vite/Nitro configuration | Build-connected auth/host services and verification; inherited preview, brand-asset and Grok PWA machinery retired | Production builds, five-project Chromium CI and relevant environment invariants |
 | `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh`, workflow, `vercel.json` | Dependency/runtime/build/deployment contracts | Locked install, baseline build/type/tests and Railway source read |
 | `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
 | `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
