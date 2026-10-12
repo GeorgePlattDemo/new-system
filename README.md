@@ -16,6 +16,8 @@ The useful result is something you can build with. Scan-to-Build connects the pe
 
 Bring an idea, photo, sketch, scan, description, or prior work. Establish the project’s requirements at **Intent**, then work them on **the Bench**. The definition carries the dimensions, feature locations, and required operations forward to the Store. Cut, mill, and drill each have a place in that description: what the part must become, where the work belongs, and what material it needs.
 
+These are not drawings handed to another programmer. Intent establishes the required operations; the Bench sets their values. For supported work, those values become the job-specific inputs to registered machine functions, without a second person programming the order.
+
 The seam matters. Your idea should not lose its meaning when it leaves the screen and reaches the yard. The definition can travel to suitable local material before that material has to travel to distant processing.
 
 ## Start with the Bench
@@ -52,11 +54,13 @@ The [trail contract](public/live/stb-trail-contract.js) declares the shared jour
 
 ## How the definition reaches the work
 
-**System defines what the job means. Store determines what that yard can provide. Local machine engineering translates the accepted requirements for its equipment.**
+**System defines what the job means. Store determines what that yard can provide. Local machine engineering registers the equipment once, in advance; a compiler then turns each accepted definition into instructions for it.**
 
 The confirmed definition supplies the required result. Store adds identified material, supported operations, modeled work, and price. In the intended production chain, a registered local compiler translates the requirements and machine facts into ordered instructions and coordinates. The operator verifies the stock, loading, references, tooling, and readiness; inspection checks the parts against the same definition.
 
 That is the connection this work investigates: the customer defines the result, and software carries it toward cut, mill, and drill without a second design entry.
+
+You define what the job requires. The registered machine and its compiler decide the safe movements that do it. You are never commanding axes directly.
 
 Project 1 evidence is exercised here as fixtures and by the joint Store test. It is evidence of one board path, not a second application.
 
