@@ -116,6 +116,19 @@ try {
         'Outdoor Bench displayed no fresh Store response');
       console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true }));
     }
+    if (label === 'Playhouse') {
+      const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await content.locator('#playhouse-idea button[data-canonical-go="playhouse-s001"]').click({ timeout: 15000 });
+      await content.locator('#playhouse-s001').waitFor({ state: 'visible', timeout: 15000 });
+      await content.locator('#ph-to-bench').click({ timeout: 15000 });
+      await content.locator('#playhouse-machine').waitFor({ state: 'visible', timeout: 15000 });
+      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click({ timeout: 15000 });
+      const quote = content.locator('#s001-live-q');
+      await quote.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
+        'Playhouse sheet definition received no current Store answer');
+      console.log(JSON.stringify({ project: label, benchPrice: (await quote.innerText()).trim(), liveStore: true }));
+    }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
 
