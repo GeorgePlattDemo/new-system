@@ -24,17 +24,17 @@ try {
   // Exercise the actual published tile buttons. The unmodified shell remains
   // responsible for routing their Idea/Intent/Bench experiences.
   const tiles = [
-    ['Start Your Own', 'start-own'],
-    ['Alcove', 'alcove-capture'],
-    ['Window Seat', 'window-intake'],
-    ['Outdoor', 'picnic-chooser']
+    ['Start Your Own', '[data-start-own-artifact="three-frames.html"]'],
+    ['Alcove', '[data-go="alcove-capture"]'],
+    ['Window Seat', '[data-window-seat-artifact="stb-window-seat-0.9.html"]'],
+    ['Outdoor', '[data-outdoor-build-artifact="stb-outdoor-picnic-0.4.html"]']
   ];
   for (const [index, [label, destination]] of tiles.entries()) {
     if (index) await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
     // Actual reader route: opening door -> New User -> Later -> project library.
     await content.locator('#landing button[data-go="new-user"]').click({ timeout: 15000 });
     await content.locator('#new-user button[data-canonical-go="projects"]').click({ timeout: 15000 });
-    const tile = content.locator('#projects button.tile[data-go="' + destination + '"]');
+    const tile = content.locator('#projects button.tile' + destination);
     try {
       await tile.waitFor({ state: 'visible', timeout: 12000 });
     } catch (error) {
