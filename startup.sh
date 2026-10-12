@@ -1,7 +1,6 @@
 #!/bin/sh
 set -eu
 cd /workspace
-node scripts/preview.mjs stop || true
 want=f7123a73c1ca60aa7eb180a86a1c365eaffe95db
 root=${STORE_ZERO_ROOT:-/tmp/store-zero-main}
 head=""

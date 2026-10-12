@@ -1,8 +1,4 @@
 node_modules
-.grok
-.vercel
-screenshots
-artifacts
 dist
 *.log
 .env
@@ -10,6 +6,4 @@ dist
 .DS_Store
 .node_modules.lock
 .store-zero
-
-
 .output/

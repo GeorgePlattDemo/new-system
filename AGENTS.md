@@ -23,8 +23,8 @@ This repository runs the five published Scan-to-Build project experiences. The p
 | Typed recipe and owner-record contract fixtures (not a published UI) | `src/system/compile.ts`, `src/system/recipes/library.ts`, `src/system/session.ts` and their direct tests |
 | Store host and inspected revision | `src/system/store-candidate.ts`, `public/live/stb-store-runtime.json`, `startup.sh`, `.github/workflows/verify.yml` |
 | Public five-project Chromium proof | `scripts/browser-five-jobs.mjs`, required by `.github/workflows/verify.yml` |
-| System verification | `src/system/**/*.test.ts`, `scripts/**/*.test.mjs`, and `npm test` |
-| App host infrastructure still connected to build | `vite.config.ts`, `src/lib/auth/`, `src/lib/db.ts` |
+| System verification | `src/system/**/*.test.ts` and `npm test` |
+| Application build and Railway host | `vite.config.ts`, `Dockerfile.railway` |
 
 The concise public introduction is `README.md`. Shared vocabulary is `docs/DEFINITIONS.md`. Full technical explanation is `SYSTEM-MASTER.md`; the current commercial event contract is exercised by `public/live/stb-commercial-sequence.js` and the Store's `src/contracts/commercial-sequence.js`. Deep explanation does not override executable behavior: discrepancies require source-level reconciliation and appropriate tests.
 
@@ -41,9 +41,8 @@ The concise public introduction is `README.md`. Shared vocabulary is `docs/DEFIN
 
 ## Verification and safe consolidation
 
-- Before and after changing executable code, run `npm test` with `STORE_ZERO_ROOT` pointing to a checkout whose HEAD is the exact Store pin. Run the Vercel and Railway production builds and TypeScript acceptance defined in `.github/workflows/verify.yml`. Published five-project Chromium navigation, default/revised Q and refusal/correlation protections are mandatory, not replaced by screenshots.
+- Before and after changing executable code, run `npm test` with `STORE_ZERO_ROOT` pointing to a checkout whose HEAD is the exact Store pin. Run the Railway production build and TypeScript acceptance defined in `.github/workflows/verify.yml`. Published five-project Chromium navigation, default/revised Q and refusal/correlation protections are mandatory, not replaced by screenshots.
 - For performance changes measure representative fresh Store evaluation time, search nodes, stock, operations, Q and refusal/search-completion identity. Optimize the *same* algorithm/contract; do not cache quotations or weaken search bounds to advertise speed. Browser endpoint-config reuse never caches a customer answer.
 - Trace both static and runtime consumers before removing a page, provider, endpoint, file or test. Distinguish an active child frame, a public direct link, a test fixture, an original artifact and a genuine unused module. A passing build alone is insufficient proof that an externally linked page has no readers.
-- The unused generic React auth client, server-function middleware and exclusive sign-out helper/tests are retired; their security rationale remains in SYSTEM-MASTER.md section 13.6. The retained Vite popup/server/gate/database graph is still active.
-- Grok PWA/branding injection and its app-builder tutorial are retired. The Grok preview host bridge is retired with its exclusive code; authentication and database infrastructure remain while their active development/build chains and security checks require them. Do not restore unrelated platform scaffolding.
+- The published application has no account interface, account-specific server functions, database or migration layer. Do not restore retired app-builder authentication, popup, environment-injection, preview or Vercel infrastructure.
 - Keep one implementation per responsibility, one source for governing facts, and one useful test per distinct invariant. Prefer simplifying the current path over creating a parallel replacement. Update imports, routes, tests, README/master references and deployment configuration together when their underlying owner changes.
