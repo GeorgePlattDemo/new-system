@@ -16,7 +16,7 @@ The engineering connection is reusable: the customer's resolved component requir
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
-> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–7. Further coherent groups are appended to this same file on `main` before any retirement.
+> Incremental publication: this save contains the opening, full chapter outline and completed chapters 1–9. Further coherent groups are appended to this same file on `main` before any retirement.
 
 ## Contents
 
@@ -430,3 +430,192 @@ Store's answer retains all modeled returned pieces, including the tab-retained c
 A definition admitted by System can still exceed Store's routed field, contour, stock, material, split or panel-staging capability. Admission checks completeness, not Store limits. Oversized supplied openings reach Store and receive its refusal. A revised refusal removes the earlier supported amount and closes dependent stages. Unknown fields remain stated and receive Store's named contract refusal; the caller cannot obtain a favorable answer by dropping them.
 
 The shared terms flow distinguishes customer review from absent seller offer/order/finance. MAKE CHANGES enables definition controls, not production. `playhouse-admission.test.ts` verifies exact required facts, missing material identity, added-cut datums/distances, zero pattern offsets and oversized admitted inputs. Public-wire/joint tests exercise the default and changed prices, complete feature coverage, custom-split requirements, field violations, additional panel work and preserved unhandled declarations. The dated width-35 check returned $76.43 against this Store baseline.
+
+## 8. System compilation and shared meaning
+
+### 8.1 From source to an identified requirement
+
+System compilation converts a sufficiently established requirement into a complete manufacturing definition while retaining its meaning. Its inputs are attributed source facts, current customer choices, named project rules and unresolved responsibilities. Its outputs are component geometry, feature identity/location, material requirements, derivation witnesses, blockers and revision identity. Catalog allocation, machine occupancy and Q are later Store outputs.
+
+A source fact needs its object, extent, units, datum, plane, source status and applicable rule. A length without its endpoints is incomplete. A 25° number without face/bevel convention, reference to square and end relation cannot govern an angled part. A user preference may be carried without becoming a cut. A source interpretation must remain identified as System's work rather than being rewritten as the customer's original declaration.
+
+Derivations retain the named rule, formula, inputs and output. For example, the Start Your Own rule takes finished length and a fixed horizontal span and derives angle/rise/spot X; Window Seat takes module widths and design thickness and derives clear spans. These System transformations establish what is wanted. Store's subsequent neutral manufacturing conversion is its representation of how to supply that requirement, not another project design.
+
+### 8.2 Two active System surfaces
+
+The **published five-project surface** uses the existing HTML/JavaScript definitions, shared public admission, browser Store client and server published-wire adapter. The **generic `/bench` development surface** uses typed recipes, `compileRecipe`, `session.ts` and server functions. Both ask the same pinned Store; they can state different source definitions. A passing generic recipe result is not evidence that its corresponding public page sends identical geometry or defaults.
+
+The generic library contains seven recipes, including Project 1 and Closet cleats in addition to the five named experiences. Closet cleats is not a public sixth tile. Historical Project 1 is an explicitly identified input, not a duplicate live screen or price source.
+
+| Module | System-owned function | Boundary |
+| --- | --- | --- |
+| `recipe.ts` | Input kinds, literal/input bindings, recipe requirements and trace shape | Missing input remains missing |
+| `recipes/library.ts` | Named project recipes, starting values and declared source/rule data | Data cannot create an unimplemented geometry rule |
+| `compile.ts` | Check inputs; derive board, grouped parts, depth strips, plan groups and sheet opening; produce trace/blockers | Supplies no Store stock plan or time/Q |
+| `window-seat.ts` | Named `window-seat-layout/1` engine extension | Its geometry requires code, not just new recipe data |
+| `shape.ts` | Generic System interface shape/type/undeclared-field checks | Structural admission; not a capability evaluator |
+| `manifest.ts` | Source component/feature/item coverage expectation | Constructed from controlling source, independently of translated demand |
+| `store/published-wire.ts` | Normalize published definitions, preserve stated obligations and ask Store | Translation and presentation only |
+| `session.ts` | Revisions, attempts, decisions, packets, currentness and reopening | Preserves issued evidence; no fabricated new facts |
+
+`compileRecipe` recognizes `board-workpiece`, `part-groups`, `depth-strips`, `plan-groups` and `sheet-opening` as supported named rules; Window Seat is an explicit extension. An unknown operation returns `ENGINE_EXTENSION_REQUIRED`. Required choice values, finite numbers, whole counts and lower bounds are checked. An explicit allowed zero count differs from a blank required value. Unknown fields or failed shape checks leave demand null with blockers, rather than quietly discarding the information.
+
+### 8.3 Public admission and responsibility
+
+`shared/definition-contract.mjs` supplies the responsibility ledger vocabulary: CANDIDATE, CONFIRMED, DERIVED, UNRESOLVED, DEFERRED, NOT_REQUIRED; owners USER, PROJECT, RULE, STORE, QUALIFIED_PERSON and GOVERNED; boundaries DEFINITION, STORE_SUBMISSION and PHYSICAL_RELEASE. Resolved values require a basis; DERIVED requires its rule and inputs. A classified ledger can explain supplied responsibilities without proving that its producing project identified every required responsibility.
+
+`shared/tile-host-admission-contract.mjs` keeps two interfaces separate. `STB-TILE-HOST-0.1` states tile, current stage, usable steps and navigation request. `STB-DEFINITION-STORE-0.1` admits one identified revision for one declared inquiry scope. The latter checks the profile's required facts, including nested fields and conditional requirements; it does not merely check whichever rows a page happened to emit.
+
+| Tile/profile at this baseline | Inquiry scope | Principal required facts |
+| --- | --- | --- |
+| Start Your Own 0.5 | `USER_DEFINED_BOARD_V1` | Material, minimum workpiece length, identified positive parts, operations, cut/datum meaning; complete selected spot demand |
+| Alcove 0.3 | `ALCOVE_INSERT_V1` | Unit/opening, material/grade, both parent responsibilities, per-component source widths/finished sizes, spot on/off; Store-owned hardware demand may remain open |
+| Window Seat 0.3 | `WINDOW_SEAT_COMMITTED` | Overall width/height/depth, all positive identified runs, selected optional-tool operands and retained-ask count |
+| Outdoor 0.4 | `OUTDOOR_OPTIONS`, `OUTDOOR_COMMITTED` | Complete package/part declarations; committed scope also requires plan and explicit Bench work |
+| Playhouse 0.3 | `SHEET_PACKAGE_V1` | Selected Store sheet identity/dimensions/species/grade, positive opening and every tool operand |
+
+CONFIRMED or DERIVED facts that pass the profile's form travel as settled input. A missing USER/PROJECT/RULE fact blocks and names its owner. An unsettled STORE-owned requirement becomes an open demand for Store to resolve, such as Alcove hardware selection. A complete out-of-capability definition is admitted and reaches Store for an honest answer.
+
+`inquire` calls its transport only after ADMITTED and stamps the reply with the admitted revision/scope. `isCurrentAnswer` requires that stamp and CURRENT authority. `availableSteps` draws navigation from admission/current answer and the review disposition. Saved usable-step flags do not create authority on reopening.
+
+The browser client also retains `sendJob`, which uses `stb-public-admission.mjs` and the responsibility-ledger readiness seam. `sendAdmittedJob` is the transport for an already admitted tile-profile request and does not run that admission again. These are structural readiness interfaces serving installed call sites; neither supplies a second Store capability or price answer. The exact call site and inquiry scope, rather than a boolean supplied by a caller, control admission.
+
+### 8.4 Independent complete manifest
+
+The manifest states what **the controlling definition** requires, independently of what the adapter managed to translate. Store compares its consumed demand and planned coverage to that expectation.
+
+| Field | Meaning |
+| --- | --- |
+| `jobId` | Source `configurationId` |
+| `revision` | Source manufacturing `configurationVersion` |
+| `boardPartIds` | Every identified dimensional part/run |
+| `sheetPackageIds` | Every sheet package; the one-sheet public path uses its configuration ID |
+| `featureIds` | Every named spot, profile, aperture, split, cut and pattern feature |
+| `items` | Each sourced `lineId` and requested whole quantity |
+| `unresolvedRequirements` | Declared unresolved source conditions and unevaluated carried requirements |
+
+In `answerPublishedWire`, translation is called first to identify the supported mapping and any carried problems. The manifest is then constructed from the **original public line/definition**, not the translated demand. That actual call order should not be misreported as a temporal pre-translation calculation. The independent source basis is what prevents translation loss from redefining success. The generic recipe path builds the manifest from its compiled controlling demand before serialization.
+
+Store's complete coverage comparison checks identities and quantities, not just equal counts. A missing spot cannot disappear because two parts still price. A duplicate identity cannot stand for two different components. A nonempty unresolved list prevents complete whole-job Q. The manifest establishes coverage of System's declared facts; it does not independently verify capture, external source interpretation, structural adequacy or a requirement never identified by System.
+
+### 8.5 Translation rules and unresolved meaning
+
+The board translator normalizes finite stated values, establishes a selected board form where its nominal material class permits it, retains grade if supplied, records redundant-end canonicalization and stable technical feature IDs. It does not supply a missing coordinate or grade choice. The cut translator requires explicit angle, part/spot/item identity and sends other stated fields unchanged for Store's own contract to accept or refuse. The Alcove mapping explicitly consumes its source component programs and reconciles summaries. The sheet mapping preserves the entire definition.
+
+`unconsumed` fields on the cut/part/item paths travel to Store rather than being excluded. An undeclared bore or bevel consequently produces a named Store contract refusal. A sheet custom-retention field cannot disappear through a narrower System whitelist. Any obligation that has no valid mapping blocks or remains a named carried requirement. It is not hidden to obtain a supportable answer.
+
+The generic System shape currently represents a narrower set of optional fields than Store's protocol-2 definition contract. It lacks some profile, two-edge, explicit spot-constraint and sheet-tool fields used by the public path. That is a separate generic-interface limitation, recorded in chapter 15; the explanation does not silently widen it or appoint it as the Store schema owner.
+
+## 9. The Store communication boundary
+
+### 9.1 Public wire and formal inquiry
+
+The browser's outer transport is **`stb-store-zero-http/1`**. It retains project and customer revision identity around the original public payload. Its job envelope contains:
+
+```js
+{
+  protocolVersion: 'stb-store-zero-http/1',
+  requestId, projectId, candidateRevisionId, requestType, scope,
+  demandSignature, querySignature: null, payloadDigest,
+  expectedStorePin, attemptId, attemptNumber: 1, sentAt,
+  payload // original identified line or definition
+}
+```
+
+This is sent to same-origin `POST /api/store-zero/job`. Offering discovery uses `/api/store-zero/offering`, `OFFERING_LOOKUP`, `querySignature` and a search payload. The browser validates the configured endpoint path, protocol, origin and pin from `stb-store-runtime.json`. It uses no-store requests and bounded timeouts.
+
+The server reads the original payload, translates it and sends Store's formal four-field job inquiry to `POST /v1/requests`. **`STORE-ZERO-REQUEST-2` identifies the response transport; it is not an extra field to insert into the formal request.** A caller's conflicting expected pin is rejected with `CALLER_PIN_DOES_NOT_GOVERN`; the server's inspected pin governs.
+
+### 9.2 Complete protocol-2 example
+
+The following is a complete valid inquiry for the 16-inch SPF specimen. Its example request ID is deliberate, so its calculation identities need not equal another inquiry with identical geometry. The baseline Q is $8.62 when evaluated against the identified runtime catalog/model.
+
+```json
+{
+  "requestType": "USER_DEFINED_BOARD_V1",
+  "requestId": "SYSTEM-MASTER-SYO-16",
+  "demand": {
+    "title": "Start your own",
+    "configurationId": "SYO-USER1-XBRACE",
+    "configurationVersion": "0.1",
+    "classId": "user_defined_board",
+    "materialDemand": {"species":"spf","form":"board","nominalT":2,"nominalW":4},
+    "definedWorkpieceLengthIn": 60,
+    "requiredOps": ["MITER_LIMITED","SPOT_ON_LOCATION"],
+    "sawAngleDeg": 30,
+    "cutPlane": "miter-face",
+    "datumCMethod": "REFERENCE_CUT",
+    "endRelation": "parallel",
+    "lengthDatum": "long-long-outer-edge",
+    "endIdentity": null,
+    "declaredSawCuts": 3,
+    "declaredSpotCount": 2,
+    "unresolvedConditions": [],
+    "parts": [
+      {"partId":"PART-1","lengthIn":16,"features":[{"featureId":"SPOT-1","kind":"SPOT_ON_LOCATION","xIn":8,"locationRule":"CENTERED_ON_PART","acrossWidthRule":"CENTERED_ON_WIDE_FACE"}]},
+      {"partId":"PART-2","lengthIn":16,"features":[{"featureId":"SPOT-2","kind":"SPOT_ON_LOCATION","xIn":8,"locationRule":"CENTERED_ON_PART","acrossWidthRule":"CENTERED_ON_WIDE_FACE"}]}
+    ]
+  },
+  "manifest": {
+    "jobId":"SYO-USER1-XBRACE", "revision":"0.1",
+    "boardPartIds":["PART-1","PART-2"], "sheetPackageIds":[],
+    "featureIds":["SPOT-1","SPOT-2"], "items":[], "unresolvedRequirements":[]
+  }
+}
+```
+
+For CUT_PACKAGE_V1, demand contains configuration identity, `cutPackages` and optional `itemLines`. Every package names material, end angle/meaning and positive identified parts; optional finished width, two-edge preparation, spots and profiles remain literal. Item quantity means the requested selector's unit: a structured screw requirement uses pieces; exact SKU/functional kit uses its declared selling unit. For SHEET_PACKAGE_V1, demand contains configuration, selected material dimensions/species/grade, complete named features and `returnAllPieces`. Chapters 4–7 fully explain those System definitions; the immutable Store master provides its exact large baseline inquiry examples and manufacturing interpretation.
+
+OFFERING_LOOKUP is discovery: `{requestType, requestId, demand:{searchText}}`, without a manifest. Its result contains attributable offerings, catalog identity and returned limits, but no job Q, operation plan or quotation receipt. Attaching an offering must be followed by a complete job inquiry.
+
+### 9.3 Response and receipt
+
+Store's HTTP response wraps `{protocol, storeRelease, payloadDigest, respondedAt, answer}`. `payloadDigest` identifies the **exact serialized formal request bytes**. The outer browser payload digest identifies the canonical public payload instead; the two layers do not hash the same object.
+
+The evaluated answer contains disposition, completeness, current configuration/job identity, selected stock, parent/work/coverage records, time, totals, calculation identity, freshness and receipt. Store is the issuer of those facts. Its receipt has exactly these fields:
+
+| Receipt field | Binding or function |
+| --- | --- |
+| `freshnessRule` | `STB-STORE-FRESH-EVALUATION-0.1` |
+| `requestType`, `requestId` | The actual evaluated inquiry |
+| `evaluatedAt` | Real UTC evaluation instant |
+| `authority` | Store revision, catalog hash, manufacturing model ID/hash and machine configuration ID/hash |
+| `demandHash` | Canonical demand content |
+| `manifestHash` | Canonical independent manifest content |
+| `status` | Same disposition as the answer |
+| `calculationIdentity` | Same `inputHash`/`resultHash` as the evaluated result |
+| `receiptHash` | Canonical hash of the other receipt fields |
+
+`interpretStoreHttp` checks HTTP 200, parseable JSON, protocol, expected release, raw-byte digest, request/type identity, sent demand/manifest agreement, required receipt shape/hash, freshness rule, status, real UTC timestamp, Store revision, catalog-hash shape and calculation-identity agreement. A receipt can attest a fresh negative evaluation; freshness does not mean supportability. A contract/admission rejection before evaluation carries no fresh receipt or calculation identity.
+
+The model/configuration identities are preserved within the receipt authority and its hash. Machine-evidence requests separately compare the inspected configuration ID/hash. The HTTP interpreter's listed checks should not be inflated into an independent manufacturing-model evaluator or a cryptographic source authenticator.
+
+### 9.4 Public presentation and currentness
+
+The server returns the original outer correlation fields plus verified Store facts, `rawEvaluation`, `rawEstimate`, `evaluationReceipt`, material resolution, calculation identity and `mappedCallInputs:{requestType,demand,manifest}`. Its presentation projections read Store's operations/time/totals; they do not supply a new calculation. A conversion from returned seconds to displayed minutes/hours is presentation of Store time.
+
+The browser verifies echoed protocol, request, attempt, project, customer revision, request type/scope, signatures/digest and Store pin. Tile and session code additionally reject a reply for an inactive attempt or changed revision. The browser can render a named pre-evaluation contract refusal through the explicitly bounded path; it remains a refusal without price or receipt, never a fresh supportable answer.
+
+System distinguishes returned price completeness, requirement satisfaction and physical admission. `REQUIREMENTS_SATISFIED` means that the current translated manufacturing scope is fully answered with complete Store Q and no carried unevaluated requirement. `NOT_FULLY_SUPPORTABLE` exposes a scoped complete estimate with separately disclosed unresolved requirements where that compatibility path applies. Physical machine admission remains BLOCKED in both cases.
+
+`presentMoney` reads Store totals. It retains older partial-result compatibility with an explicit partial-only label. The current whole-job core withholds complete Q for incomplete work; a sum of priced lines cannot stand for it. Network/protocol failure supplies no Q and no manufactured Store refusal.
+
+### 9.5 Reproduce preserved bytes
+
+A reproducible inquiry keeps **request ID, demand and independent manifest**, as well as its applicable release. A changed request ID can change calculation input identity even when Q stays equal. To check a saved complete `request.json`, run the following from a clean checkout of Store's exact runtime pin:
+
+```sh
+node --input-type=module <<'JS'
+import fs from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {evaluateStoreRequest} from './src/requests/store-request.mjs';
+const release=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+if(release!=='f7123a73c1ca60aa7eb180a86a1c365eaffe95db') throw Error('Wrong Store checkout');
+const request=JSON.parse(fs.readFileSync('request.json','utf8'));
+const answer=evaluateStoreRequest(request,{release});
+console.log(JSON.stringify({status:answer.status,Q:answer.Q,
+  calculationIdentity:answer.calculationIdentity,evaluationReceipt:answer.evaluationReceipt},null,2));
+JS
+```
+
+This evaluates the original request rather than constructing a guessed manifest. With identical governing inputs the calculation identities can be compared. A new real evaluation time changes the receipt identity, so do not require its fresh receipt hash to equal an earlier timestamp's receipt. Reproducing raw transport bytes is a separate HTTP check. A saved answer remains historical after reproduction until System binds a fresh exchange to the current project revision.
