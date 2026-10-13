@@ -12,7 +12,9 @@ Each Bench asks an identified Store for a fresh answer automatically. Store sele
 
 The customer can examine what was entered, what System derived, what reached Store and what came back. The same identities carry the job toward the customer's decision and the subsequent commercial and fulfillment records. Start Your Own includes an explicitly enabled simulated offer, Accept & Pay, yard queue and pickup demonstration. Other projects retain their own pending commercial requirements.
 
-The engineering connection is reusable: the customer's resolved component requirements meet a registered Store and machine model. System establishes what the parts must become; Store determines the material and processing it can provide. Registered local machine engineering supplies the equipment-specific transformations. The deeper manufacturing explanation, issued-patent correspondence, full historical Project 1 trail, stock search, timing and economics belong in the [completed Store master](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md). Program owns the [research and supervised laboratory proposition](https://github.com/GeorgePlattDemo/3d-solutions-program).
+Machine functions are registered before the customer arrives. Intent and the Bench supply required operations and values; System derives their meaning, geometry, component/feature identity, manifest and revision. Store resolves stock, capability, the manufacturing plan, modeled time and Q. The compilation chain absorbs job-specific programming burden: the accepted job lowers through the verified Store plan and registered configuration into identified virtual instructions, without a second person redrawing the parts or entering the modeled coordinates for each supported order.
+
+Reusable controller-oriented export remains a further mapping stage. The complete manufacturing walkthrough and historical Project 1 evidence are in the [Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md#82-start-your-own); Program owns [research and laboratory validation](https://github.com/GeorgePlattDemo/3d-solutions-program).
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
@@ -122,7 +124,7 @@ This reference explains the complete System application and its handoff. The [sh
 
 ### 1.1 Frozen revisions
 
-The remote `main` heads were read before writing. System and Program match the attached audit. Store has added its completed explanatory master since the audit; its executable source is still consumed at System's existing pin. No Store or Program file is changed by this consolidation.
+The original consolidation used the frozen revisions in the table below. Compiler integration is based on current System `1939e809ba931ff6a848e4c747bd73e795820d32`, Store `ca6d3c2768cc7741d34daa81ea45bf44acdf6a3f` and Program `ae1ea61ebc56f631b9a642e1b38f3d6ba0ebdc65`. The runtime pin remains `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. Earlier source and verification records retain their dates and identities; Store main's later bounded cycle-reuse optimization is not a repin.
 
 | Role | Repository | Exact revision inspected | Relationship to the audit |
 | --- | --- | --- | --- |
@@ -153,7 +155,7 @@ The seller, financial source, inventory authority, scheduler, local machine auth
 
 At the starting revision System contains **162 tracked files**, including **17 Markdown/HTML explanatory or presentation files**. The latter count includes executable public HTML and the installation page; it is a stated inventory measure, not a deletion list.
 
-Baseline verification on 12 October 2026 used Node `v24.19.0` locally. `npm test` passed **334 tests** in four groups: 197 repository/platform checks, 55 library/auth checks, 36 System checks and 46 published-wire/joint checks. `NITRO_PRESET=node-server npm run build` and `npm run typecheck` passed. The build produced `.output/server/index.mjs`; the database migration script skipped external migration because no `DATABASE_URL` was supplied. Hosted verification uses Node 22; `Dockerfile.railway` specifies Node `22.23.2-slim`.
+Original master verification on 12 October 2026, at System ab09777d and Store f7123a73, used Node `v24.19.0` locally. `npm test` passed **334 tests** in four groups: 197 repository/platform checks, 55 library/auth checks, 36 System checks and 46 published-wire/joint checks. `NITRO_PRESET=node-server npm run build` and `npm run typecheck` passed. The build produced `.output/server/index.mjs`; the database migration script skipped external migration because no `DATABASE_URL` was supplied. Hosted verification uses Node 22; `Dockerfile.railway` specifies Node `22.23.2-slim`.
 
 The hosted application was opened through its real front door and all five project paths were examined. Idea and Intent navigation, Bench controls, imagery, developer/reviewer rails and fresh starting answers were observed. The current starting amounts are:
 
@@ -173,7 +175,7 @@ The loaded frame chain is **`system-build-current.html` → `system-build-front-
 
 ### 1.4 Evidence and editorial scope
 
-This master consolidates current System knowledge. Detailed Store manufacturing, machine parameters, patent arrangements, controller-oriented historical evidence and complete economics remain explained in Store's completed master. Program's trial remains the research authority. The shared commercial executable and its two documentary copies remain aligned and unchanged during this assignment.
+This master consolidates current System knowledge. Detailed Store manufacturing, machine parameters, patent arrangements, controller-oriented historical evidence and complete economics remain explained in Store's completed master. Program's trial remains the research authority. The shared executable gate remains byte-identical between System and Store. The original commercial design map and incorporated excerpts retain their source context.
 
 Application behavior, images, customer wording, geometry, controls, timing readers, Store responses, runtime pin, commercial gates and saved-record code are protected baseline behavior. An implementation defect found while writing is recorded with its owner and testable acceptance criteria. Documentation does not silently amend a cut datum or repair an unsupported field by omitting it.
 
@@ -284,9 +286,9 @@ Changing wood is a job tool when enabled, not a generic label to be treated as a
 
 ### 3.4 Fresh answer and visible consequences
 
-The current 16-inch SPF inquiry returns Q **$8.62**, comprising $2.61 material and $6.01 modeled service. Store selects `STB-ZERO-SPF-2X4-60-001` and returns 27.625 inches remaining. System's drawing follows those returned values; it does not calculate a substitute retained-control decision.
+The current 16-inch SPF inquiry returns Q **$8.62**, comprising $2.61 material and $6.01 modeled service, with `STB-ZERO-SPF-2X4-60-001`, 27.625 inches remaining and 86.51908661063948 seconds of modeled occupancy. At 18 inches, Q is **$9.13**, comprising $3.13 material and $6.00 service, with `STB-ZERO-SPF-2X4-72-001`, 35.625 inches remaining and 86.46953628299116 seconds. The shallower angle changes the state-dependent saw/angle benchmark, so the slightly lower service is consistent with the complete ledger. A larger requested part is not automatically a longer modeled cycle.
 
-At 18 inches the current result is **$9.13**, $3.13 material plus $6.00 modeled service. Store selects `STB-ZERO-SPF-2X4-72-001` and returns 35.625 inches. The Bench displays that Store selected the longer board while the customer still requires at least 60 inches. A returned remainder and the declared 24-inch model screen are separate from verified physical roller contact.
+The customer's minimum remains 60 inches. Under the adopted longitudinal kerf convention, a hypothetical 60-inch parent with two 18-inch parts leaves `60 − 2×18 − 3×0.125 = 23.625` inches, below the declared 24-inch retained-length screen. Store selects the eligible 72-inch parent; System displays that choice and never changes the requested components to fit the shorter stock. The [complete current Job 1 walkthrough](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md#82-start-your-own) follows both revisions through operations, Q, decision, packet, configuration, lowering and replay, separately from the historical treated-lumber specimen.
 
 `stb-start-own-answer.mjs` checks whether returned money, component/feature identities, receipt and material information agree before producing the unified Bench view. Its amount reconciliation detects contradictory returned totals; it is validation of Store facts, not a price engine. It also escapes Store text before rendering. Missing Q or machine service, a contradictory total, foreign feature identity, wrong pin or request receipt cannot become a visible complete price.
 
@@ -504,11 +506,19 @@ The shared terms flow distinguishes customer review from absent seller offer/ord
 
 ### 8.1 From source to an identified requirement
 
-System compilation converts a sufficiently established requirement into a complete manufacturing definition while retaining its meaning. Its inputs are attributed source facts, current customer choices, named project rules and unresolved responsibilities. Its outputs are component geometry, feature identity/location, material requirements, derivation witnesses, blockers and revision identity. Catalog allocation, machine occupancy and Q are later Store outputs.
+System compilation resolves what the customer's components must become. Its inputs are attributed source facts, Intent operations, current Bench values, named project rules and unresolved responsibilities. Its outputs are identified geometry/features, material requirements, derivation witnesses, blockers, the independently sourced manifest and revision. The manufacturing compilation chain preserves those requirements through three responsibilities:
+
+| Stage | Governing output | Owner |
+| --- | --- | --- |
+| Definition compilation | Identified geometry, features, derivations, independent manifest and revision | System |
+| Manufacturing planning | Neutral manufacturing job, selected stock, capability result, ordered operations, modeled time and Q | Store |
+| Accepted-job lowering | Verified plan bound to the registered configuration and traceable virtual instructions | Store; local execution mappings require qualification |
+
+The Store plan already contains nominal station-specific moves. Lowering verifies and binds that plan; a future controller export adds registered execution mappings without deriving another component geometry, selecting different stock or computing another Q.
 
 A source fact needs its object, extent, units, datum, plane, source status and applicable rule. A length without its endpoints is incomplete. A 25° number without face/bevel convention, reference to square and end relation cannot govern an angled part. A user preference may be carried without becoming a cut. A source interpretation must remain identified as System's work rather than being rewritten as the customer's original declaration.
 
-Derivations retain the named rule, formula, inputs and output. For example, the Start Your Own rule takes finished length and a fixed horizontal span and derives angle/rise/spot X; Window Seat takes module widths and design thickness and derives clear spans. These System transformations establish what is wanted. Store's subsequent neutral manufacturing conversion is its representation of how to supply that requirement, not another project design.
+Derivations retain rule, formula, inputs and output. Start Your Own's selected length and fixed span determine angle, rise and spot X; Window Seat's module dimensions determine clear spans. Those are System geometry facts. A station transform such as `C = 36 − feature X` belongs to the registered Store model, while local axis scaling and retained-face registration belong to the machine mapping. Reusing these rules absorbs the supported job's programming burden without creating another geometry authority or asking a person to re-enter the derived values.
 
 ### 8.2 Two active System surfaces
 
@@ -551,7 +561,7 @@ The browser client also retains `sendJob`, which uses `stb-public-admission.mjs`
 
 ### 8.4 Independent complete manifest
 
-The manifest states what **the controlling definition** requires, independently of what the adapter managed to translate. Store compares its consumed demand and planned coverage to that expectation.
+The manifest independently states every part, feature, sheet, sourced item and unresolved obligation required by the controlling definition. Store reconciles the consumed demand and planned coverage against it, and its receipt binds both hashes. Accepted-job lowering preserves that same manifest identity so dropped work cannot become a successful instruction export.
 
 | Field | Meaning |
 | --- | --- |
@@ -563,7 +573,7 @@ The manifest states what **the controlling definition** requires, independently 
 | `items` | Each sourced `lineId` and requested whole quantity |
 | `unresolvedRequirements` | Declared unresolved source conditions and unevaluated carried requirements |
 
-In `answerPublishedWire`, translation is called first to identify the supported mapping and any carried problems. The manifest is then constructed from the **original public line/definition**, not the translated demand. That actual call order should not be misreported as a temporal pre-translation calculation. The independent source basis is what prevents translation loss from redefining success. The generic recipe path builds the manifest from its compiled controlling demand before serialization.
+In `answerPublishedWire`, translation is called first to identify the supported mapping and any carried problems. The manifest is then constructed from the **original public line/definition**, not the translated demand. The independence is a source relationship, not a claim about call order: translation loss cannot redefine the required coverage. The generic recipe path builds the manifest from its compiled controlling demand before serialization.
 
 Store's complete coverage comparison checks identities and quantities, not just equal counts. A missing spot cannot disappear because two parts still price. A duplicate identity cannot stand for two different components. A nonempty unresolved list prevents complete whole-job Q. The manifest establishes coverage of System's declared facts; it does not independently verify capture, external source interpretation, structural adequacy or a requirement never identified by System.
 
@@ -938,13 +948,13 @@ Generic revision identity is a truncated canonical content digest of recipe ID/v
 
 Project switch, park-for-reopen and reopen retire price/evidence currentness. Earlier attempts and accepted decisions remain in history. A later refused definition is displayed as refused, not still accepted because the project once had a favorable answer.
 
-`use-record.ts` preserves malformed/unsupported raw files for recovery and exposes storage errors. A failed write does not replace the user's visible file with an empty one. Unknown version does not acquire a current schema merely by reopening. Resetting a malformed record is an explicit user action; there is no silent conversion.
+The retained `session.ts` load/store functions preserve malformed or unsupported raw records and expose errors to their caller. The former React `use-record.ts` UI has been retired; its behavior is historical implementation context. Unknown schemas do not acquire current authority through reopening, and recovery must not fabricate a current answer or decision.
 
 ### 11.3 Accepted packet and evidence
 
-`acceptance.ts` emits **`STB-ACCEPTED-JOB-PACKET-2`** with packet/project identity, definition/revision/type, demand, independent manifest, carried requirements, unchanged Store answer, accepted simulated decision and false physical release. It requires fresh supportable status, a receipt bound to the same demand/manifest, and a decision instant no earlier than evaluation. Duplicate acceptance for the same revision/receipt is identified rather than producing another decision.
+The retained typed `acceptance.ts` emits **`STB-ACCEPTED-JOB-PACKET-2`** with packet/project identity, exact definition/revision/type, demand, independent manifest, carried requirements, unchanged Store answer/receipt, accepted simulated decision and false physical release. Fresh supportability, demand/manifest binding and decision time no earlier than evaluation are required. The published Job 1 demo checkout separately records decision/order/payment/queue events through the shared commercial gate. These installed paths must not be conflated: a successful C03 event is not proof that the published application exported packet2 to machine evidence.
 
-Machine evidence consumes that packet plus the inspected configuration ID/hash through `/v1/machine-evidence`. System preserves the request bytes/digest and response; an edited definition or changed current acceptance rejects late evidence. The interpreter requires VIRTUAL_EVIDENCE_READY with records/run/local job, false physical authority and BLOCKED admission with zero physical motion commands. It does not generate its own virtual operations when Store is missing.
+Store machine evidence consumes packet2 and expected configuration ID/hash. It verifies current Store authority and the accepted plan, binds the exact ledger into a local job and virtual operation records, then replays those records. The retained typed System evidence client preserves request bytes/digest and response and rejects late evidence for changed acceptance. It requires VIRTUAL_EVIDENCE_READY, false physical authority and BLOCKED admission. No missing Store response is replaced with locally generated operations. A future controller export must extend this chain while retaining receipt/calculation, parent/SKU, part/feature, configuration and source-operation identities.
 
 The generic loader's `packetOk` currently accepts schema **1**, while the producer emits schema **2**. A direct probe on the exact baseline created a valid current packet from a real pinned-Store answer: the record loaded before adding the packet, but returned **MALFORMED** after the genuine packet was saved. Thus current accepted packets cannot safely round-trip through that loader as written. This is an executable compatibility defect, not a documentation spelling issue. Its repair remains pending under System authority.
 
@@ -1024,7 +1034,7 @@ The former generic React routes and their private `storeHealth`, `forwardStoreRe
 
 ### 13.4 Build startup and hosting
 
-The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes through `scripts/with-app-env.mjs`; this preserves the inherited auth/environment wrapper. Vite dev binds `0.0.0.0:8080`; preview uses strict `127.0.0.1:8081`. Default `npm run build` selects the retained Vercel preset; `NITRO_PRESET=node-server` selects Railway's Node output. CI checks both. Present Railway hosting does not make the alternative build or its platform middleware safe to delete.
+Current hosting uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` invokes Vite directly at `0.0.0.0:8080`; `npm run build` builds the Node server. The inherited auth/environment wrapper, Vercel preset, preview/popup plugins, embedded database and migrations are retired from the current tree. Historical build observations in chapter 14 refer to their recorded revisions and do not describe today's dependency graph.
 
 `Dockerfile.railway` installs the locked packages, builds Node output, runs typecheck and requires `.output/server/index.mjs`. The runtime stage runs that server with production, HOST=0.0.0.0 and PORT=8080. Railway config points to this Dockerfile, `main`, `/healthz` and the identified production service. The Store runs in its own service; System does not bundle its manufacturing engine.
 
@@ -1032,46 +1042,41 @@ The project uses React/TanStack Start/Router, Vite and Nitro. `npm run dev` goes
 
 ### 13.5 Platform infrastructure that remains active
 
-The repository retains build-connected authentication, database/migration and browser smoke checks. The Grok-specific preview bridge, preview-thumbnail hook and brand-asset writer were retired with their exclusive source and tests. Grok PWA/branding injection, the install tutorial and `public/__grok/` assets were likewise retired after verifying the five published project path.
-
-The source-derived defaults keep accounts off without enabled configuration. The application root now supplies only its document shell and live public redirect; the separate React project UI, no-op auth provider and Grok preview chrome are retired. The actual auth server and database build paths remain until a separate complete dependency retirement can preserve the relevant invariants.
+The current active platform is the public application, its same-origin Store API, Node build and pinned-Store development startup. `package.json` identifies `scan-to-build-system`. Current `AGENTS.md`, `vite.config.ts` and package scripts no longer load account authentication, embedded database/migration, Grok preview/branding, OAuth popup or Vercel-specific infrastructure. This documentary correction follows the already completed source retirement; it changes no build, deployment or runtime behavior.
 
 ### 13.6 Retirement basis for unused authentication modules
 
-This subsequent structural pass starts at System **20b01b55f6d1ccdf275285f075bfc2cfe1bdad31**. The previous chapter and source register preserve the earlier inspection's identity; the present dependency disposition updates only the surviving tree. All five public projects retain their existing definitions, records, API routes and Store pin.
+At System **20b01b55f6d1ccdf275285f075bfc2cfe1bdad31**, a partial structural pass retired the unused browser/account chain: middleware, client, server verification/isolation helpers, sign-out planner and its exclusive test. The published Store APIs had no consumer of that chain. Source remains reproducible from that exact revision; this is a historical dependency explanation.
 
-The former generic React pages and their account controls have already been retired. Static imports, dynamic imports, generated routes, Vite plugin loads, package scripts and public HTML were checked for consumers of the remaining browser/account chain. `src/lib/auth/middleware.ts` has no application call site. Its only subordinate client is `client.ts`; its server branches alone import `verify.server.ts` and `isolation.server.ts`. The client alone uses `scripts/sign-out-plan.mjs`; the associated test exclusively exercises that retired helper. The other occurrences are comments explaining the former template. Neither published Store API imports this chain, and the public project files contain no login, logout or per-user server-function call using it. These six files can therefore be retired together after the existing baseline suite is recorded. Keeping a dormant client merely so its exclusive tests still run would leave unused application scaffolding.
-
-The retired modules' security reasoning remains engineering context:
+The retired modules' distinct security reasoning remains engineering context:
 
 - `client.ts` kept a preview bearer in sessionStorage, attached it to Better Auth requests and used a synchronous popup for an embedded preview, while deployed sign-in used a full-page redirect. A sign-out had to clear the local preview token; a deployed cookie session required server confirmation. The pre-sign-in sequence cleared the previous identity before changing provider. A blocked/dismissed popup or failed sign-in was an error rather than successful identity.
 - `sign-out-plan.mjs` separated the preview's bounded local-token cleanup from deployed server-confirmed logout. A rejected or timed-out deployed logout could not report that the session had ended. The now-exclusive tests exercised that difference, repeat invocation, provider switching and timeout/error handling.
 - `verify.server.ts` resolved a user only through the server's session API. Missing authentication with a real `DATABASE_URL` failed closed instead of using one shared development user for real per-user records. Client-supplied user IDs were never proof of identity.
 - `isolation.server.ts` checked Fetch Metadata before a per-user server function. It admitted same-origin/direct navigation, non-browser requests without that header, and a top-level GET OAuth/navigation response, while refusing scripted cross-site or sibling-site requests. Its `.server.ts` identity prevented Node request-context infrastructure from entering a browser bundle. These controls protected an account surface that is no longer installed in the five-project application; their removal does not create an unguarded replacement endpoint.
 
-The development Vite popup handler still imports `popup.server.ts`, which requires the actual auth server, provider/configuration, gate-session, PGLite and database modules. That active graph, auth migration, environment-default checks and gate-identity tests remain. No auth dependency, database migration, route, configured environment or deployment mechanism is removed by this narrower retirement. A future authenticated product surface would require its own explicitly installed and verified isolation/session boundary; the archived modules do not silently become authority for it.
+At current System **1939e809ba931ff6a848e4c747bd73e795820d32**, the subsequent retirement also removed the remaining auth server, embedded database, migrations, Vite OAuth popup/environment plugins, supporting scripts/packages and Vercel configuration. The public application has no account-specific server functions. Its legitimate pinned-Store development responsibility remains in startup.sh; Railway uses the existing Node production build. No authentication or deployment change is made by this document integration.
 
-Original source is reproducible from the baseline commit above. This explanation preserves its rationale without retaining an unused second browser/account surface.
+Future account-specific functionality would require explicitly installed and verified identity/isolation boundaries. The archived modules do not silently become authority for a new product surface.
 
 ## 14. Testing and verification
 
 ### 14.1 Commands and observed results
 
-Run System checks against a **clean exact pinned Store checkout**, not Store's later documentation HEAD:
+Run current System checks against a **clean exact pinned Store checkout**:
 
 ```sh
 STORE_ZERO_ROOT=/absolute/path/to/f7123a73-store-checkout npm test
 npm run build
-npm run typecheck
-NITRO_PRESET=node-server npm run build
 test -f .output/server/index.mjs
+npm run typecheck
 ```
 
-| Verification at the frozen source | Observed result | What it establishes |
+| Original master verification at System ab09777d / Store f7123a73 | Observed result | What it establishes at that revision |
 | --- | --- | --- |
 | Required System suite, actual Store HEAD f7123a73 | 334 passed, zero failures | Repository/platform, typed System, real HTTP integration and public-wire behaviors covered by those tests |
-| Default production build | Passed | Retained Vercel build path and environment/migration wrapper |
-| Railway Node production build | Passed; server output present | Current Node production packaging |
+| Original default production build | Passed | Historical Vercel build path and environment/migration wrapper; retired from the current tree |
+| Original Railway Node production build | Passed; server output present | Node production packaging at the recorded baseline |
 | TypeScript | Passed | Type/route checks for the installed source |
 | Five hosted starting inquiries | $8.62 / $379.11 / $1,193.10 / $293.16 / $76.56 | Fresh automatic Q presented for the exact public definitions in chapter 1 |
 | Hosted 16 → 18-inch brace change | Fresh $9.13, 72-inch parent and 35⅝-inch returned remainder | Geometry change/current-answer invalidation and Store-selected parent presentation |
@@ -1080,7 +1085,7 @@ test -f .output/server/index.mjs
 | Shared commercial text and gate | Both byte-identical to pinned Store copies | No unilateral shared-contract amendment |
 | Hosted page inspection | All five intake/Intent/Bench paths and current rails observed | Actual loaded application, beyond filename/test-name assertions |
 
-Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Node 22, installs the locked dependencies, checks out Store exactly at the runtime pin, runs the full suite, default build, typecheck and Node build. Master verification and deferred retirement are recorded in section 16.4. No cleanup is authorized in this pass.
+Local baseline Node was v24.19.0. These recorded results remain historical evidence. The current `.github/workflows/verify.yml` runs Node 22, installs locked dependencies, checks out Store exactly at the runtime pin, runs the System suite, builds the Railway Node server and runs typecheck. Its dependent Chromium job builds and starts the separate pinned services and exercises all five published projects. Current publication results must be read at their own commit in [System Actions](https://github.com/GeorgePlattDemo/new-system/actions); the original 334-pass result is not a new run. Navigation and preservation obligations are recorded in section 16.4.
 
 ### 14.2 What the test families prove
 
@@ -1088,7 +1093,7 @@ Local baseline Node was v24.19.0. Hosted `.github/workflows/verify.yml` runs Nod
 
 `playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, default/changed Store answers, alternative queries, unsupported fields, scoped-review/commercial constraints and demo sequence. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
 
-Current repository tests protect required environments, authentication invariants, browser/process checks and Store request boundaries. The retired PWA/branding/install feature and its exclusive tests no longer form part of the published System build.
+Current repository tests protect the required environment, browser/process checks and Store request boundaries. Authentication invariants in the original baseline concern the retired account modules described in section 13.6. The retired PWA/branding/install feature and its exclusive tests no longer form part of the published System build.
 
 A passing suite is necessary, but cannot establish faithful external-plan interpretation, physical stock, commissioned movement or every direct-link obligation. Test names retaining an older adjective/price do not supersede their actual assertions. Browser observations of declared modeled prices do not constitute paid orders or inspected physical parts.
 
@@ -1126,28 +1131,28 @@ The project entry observation covered all five Idea/Intent/Bench paths. Start Yo
 | **Generic optional-field contract — System** | Typed `shape.ts` omits optional fields supported by public/Store protocol2 | Deliberate reconciliation of shared meanings and exact supported fields, with no Store capability/pricing duplicate and no silent drop of supplied requirements |
 | **Exception recovery and broader source integration — shared contract owners** | Earlier unresolved exception remains a hold after later RESOLVED; source authentication/durable commercial integrations remain absent | Coordinated event correction/recovery policy and tests in both owners; exact byte alignment retained; actual evidence requires its commissioned source adapters |
 
-These are not repaired by this consolidation. The Outdoor issue concerns the meaning of the defined job, not whether Store can correctly price the bytes it receives. The packet/machine findings affect the generic development/record path, not proof that every published tile fails. The shared-gate findings are coordinated work that cannot be amended while Store is frozen.
+These executable discrepancies remain open after document integration. Outdoor's source-to-demand meaning requires a verified transformation or unsupported disposition. The generic packet defect is caused by `session.ts:packetOk` accepting packet1 while `acceptance.ts` emits packet2; correction must validate packet2 and test an unchanged accepted-record round trip plus malformed/unknown-version rejection. The narrow `machine.ts` presentation must consume the inspected three-class capability and be tested against actual accepted packets and refusals, without assuming complete sheet controller motion. Neither repair is applied here. Shared commercial recovery remains a coordinated executable change.
 
 ### 15.2 Explanation and reproduction drift
 
 | Location | Present discrepancy | Required correction or consolidation disposition |
 | --- | --- | --- |
-| `docs/DEFINITIONS.md` at the starting revision | Earlier inquiry/receipt vocabulary, blank statuses, retired lowering limitation, per-cut prohibition and repeated/general terms | Pending a separate definitions reconciliation under System authority. The master explains actual protocol 2, independent manifest, receipt fields, dispositions and evidence classes without changing the dictionary in this pass |
+| `docs/DEFINITIONS.md` | Earlier three-field inquiry, incomplete receipt fields, retired board-only lowering, per-cut prohibition and retained-control overclaim | Reconciled here against protocol2, packet2, manufacturing core and machine-evidence contracts; duplicate definitions removed. Runtime code remains unchanged |
 | `AGENTS.md` at the starting revision | Assumed Grok-only chat, Vercel-only deployment, unavailable skills and generic scaffolding | Replaced with a concise map of current executable owners, preservation boundaries and required CI; inherited template instructions were retired along with their exclusive tests |
-| Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Export preserved full request, pin and identities; reproduce without guessing or renaming request; distinguish fresh receipt time/hash |
+| Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Required executable correction: export the full request, pin and identities; reproduce without guessing or renaming the request; distinguish fresh receipt time/hash |
 | `stb-build-guide-spec.js` | Alcove formal-knob-manifest gap can be confused with implemented protocol manifest; Window Seat fixed wood-list statement omits live discovery; Outdoor source coverage is incomplete | Correct each claim against its actual scope, distinguishing UI knob list, full protocol manifest and fixed buttons versus discovery; retain dev/rev guardrails |
 | Window Seat spot explanation | Says 3/16-inch deep without the drill-point/full-diameter distinction | State 3/16-inch full-diameter penetration beyond point consistently with the defined operation; do not alter actual tool requirement |
 | Page reason maps | Some retained-control/profile/sheet reasons belong to retired engine vocabulary | Explain current codes faithfully and retain unknown codes; do not manufacture success or conceal negative results |
-| Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | Coordinated rewrite of both original copies; executable gate/envelope controls current serialization. This assignment retains both unchanged |
+| Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | The original design map is preserved as source context in chapter 10 and at its established System path. The shared executable gate/envelope controls serialization; its bytes remain unchanged |
 | Active wrappers and Rule Book | Superseded embedded price/pin/request text and dated donor references remain shipped/reachable | Targeted future source/copy reconciliation after first-paint, direct-route and saved-state checks; current application language/layout stays unchanged here |
-| Program trial opening | Describes current virtual commands more broadly than its precise modeled-ledger paragraph | Program-owned evidence-stage edit; Program remains unchanged here |
+| Program trial opening | Current modeled ledger and historical controller source had been conflated | Program trial and evidence now distinguish implemented definition/planning, modeled replay, proposed export and physical validation |
 | Store master source register | Historical source register identified `stb-start-own-bench-leg-0.1.html` as current at its recorded revision; published Job 1 actually loads `three-frames.html` | Earlier standalone System HTML now retired; original preserved in Git; source register remains dated evidence, not a runtime selector |
 
-The dictionary and agent boilerplate can be corrected as documentary governance within System's authority. Protected live-page wording and actual code discrepancies remain documented, rather than being silently changed during a document retirement. Historical price/evidence text stays in its original context.
+The shared dictionary now describes the same compilation, manifest, receipt, pricing and evidence stages as the masters. Protected live-page wording and executable discrepancies remain identified at their owning files. Historical prices, commands and proof records retain their original context.
 
 ### 15.3 Authority after consolidation
 
-The original README remains the invitation into the current app, with one added link to this master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS remains the System-owned shared-meaning authority, pending a later editorial reconciliation. AGENTS retains its existing maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
+The original README remains the invitation into the current app, with one added link to this master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS remains the reconciled System-owned shared-meaning authority. AGENTS retains its existing maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
 
 Current descriptive entry links name Program, new-system and store-zero. Immutable baseline source links are used for verification. A historical source mention explains the dated fact directly; it does not send the reader to a predecessor implementation for current behavior.
 
@@ -1155,9 +1160,9 @@ Current descriptive entry links name Program, new-system and store-zero. Immutab
 
 ### 16.1 Exact System implementation sources
 
-All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193abc8564ebce611746f`**. This master-creation and restoration pass preserves their bytes, including the standalone page listed below. The single frozen commit identifies the exact revision of every linked path; no test fixture is relabeled as a public default.
+This register preserves links to **original System source `ab09777d6f27d4b70a2193abc8564ebce611746f`**, supplemented by explicitly current entries. Subsequent runtime disposition is described in chapters 13 and 16.3; the original modules remain accessible in Git. Each frozen link identifies its source revision. A historical path is not a runtime selector, and a test fixture is not a public default.
 
-| Current source | Function explained here | Meaningful verification |
+| Original source or explicitly current entry | Function explained here | Meaningful verification |
 | --- | --- | --- |
 | [Current shell](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/system-build-current.html) | Current composition, Job 1 and Playhouse definitions, host registration | Loaded five-job browser; public-wire and Bench tests |
 | [Front-door wrapper](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/system-build-front-door-0.5.html) | Base frame, project-copy/state restoration | Loaded nested graph and Playhouse ownership presentation |
@@ -1182,20 +1187,20 @@ All runtime paths in the table describe **System source `ab09777d6f27d4b70a2193a
 | `stb-build-guide-spec.js`, `store-zero-canonical-doctrine.js`, `stb-canonical-journey.js` | Reviewer rails and shared reference/navigation presentation | Loaded pages, script reachability and unchanged source |
 | `src/routes/api/store-zero/`, `src/system/store/published-wire.ts` | Active published Store request translation, transport and correlation | Type/build, pinned-Store HTTP, refusal and public Chromium verification |
 | `src/routes/index.tsx`, `src/routes/healthz.ts`, root/router/generated routes | Front-door redirect, liveness and route composition | Build and hosted navigation |
-| Active `src/lib/`, browser-test `scripts/`, migrations and Vite/Nitro configuration | Build-connected auth/host services and verification; inherited preview, brand-asset and Grok PWA machinery retired | Production builds, five-project Chromium CI and relevant environment invariants |
-| `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh`, workflow, `vercel.json` | Dependency/runtime/build/deployment contracts | Locked install, baseline build/type/tests and Railway source read |
+| Original `src/lib/`, migrations and host/preview configuration | Historical account/host dependencies at ab09777d; subsequent retirement is documented in 13.6 | Original builds and environment checks; not current runtime dependencies |
+| Current `package.json`, lock, Vite/TypeScript config, `Dockerfile.railway`, `startup.sh` and workflow | Dependency/runtime/build/deployment contracts; original `vercel.json` is historical | Locked install, current Node build/type/tests and five-project Chromium CI |
 | `public/live/assets/`, Window Seat WebP files, embedded SVG/data imagery | Existing reference and working geometric representations | Loaded screenshots and byte-preservation check |
 | `src/system/fixtures/definition-and-demand.json`, `review-summary.json` | Original Project 1 specimen custody | Historical fixture identity checks; not current prices |
 
-The surviving current documentary authorities are [Definitions](docs/DEFINITIONS.md), [AGENTS](AGENTS.md) and the [shared commercial contract](docs/commercial-sequence-template.md). This master explains their actual current source relationship. The dictionary and governance documents are restored to their pre-cleanup bytes and await a separate approved consolidation decision.
+The surviving current documentary authorities are [Definitions](docs/DEFINITIONS.md), [AGENTS](AGENTS.md) and the [shared commercial contract](docs/commercial-sequence-template.md). This master explains their actual current source relationship. The dictionary reconciles shared terms with the current executable contracts and these masters. Original documentary revisions remain available in Git; governance and the shared commercial source are preserved independently.
 
 ### 16.2 Store Program and historical sources
 
-The [completed Store master at cd08aff](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md) is the canonical deeper explanatory destination. Its chapters 3/8 explain the current boundary/examples; 5/6 manufacturing and machine functions; 7 the preserved Project 1 trail; 9 evidence; 10 commerce; 11 refusals; and 14 exact primary source identities. System does not duplicate those manufacturing chapters.
+The [current Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md) is the canonical manufacturing explanation. Its [original publication at cd08aff](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md) preserves the earlier consolidation baseline. Its chapters 3/8 explain the current boundary/examples; 5/6 manufacturing and machine functions; 7 the preserved Project 1 trail; 9 evidence; 10 commerce; 11 refusals; and 14 exact primary source identities. System does not duplicate those manufacturing chapters.
 
-The executable interface was checked at f7123a73 in `src/contracts/definitions.mjs`, `src/requests/store-request.mjs`, accepted-packet/machine contracts, HTTP service and shared commercial gate. The same commit was used by real joint tests and the complete master example. Store documentary HEAD cd08aff and runtime pin f7123a73 remain distinct.
+The executable interface was checked at f7123a73 in `src/contracts/definitions.mjs`, `src/requests/store-request.mjs`, accepted-packet/machine contracts, HTTP service and shared commercial gate. The same commit was used by real joint tests and the complete master example. The original Store documentary publication cd08aff, the current documentation and executable pin f7123a73 have distinct identities.
 
-Program's current [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish its investigation/validation scope. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
+Program's original consolidation [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish that original investigation/validation scope. Current [evidence](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/EVIDENCE.md) and [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/SUPERVISED-LABORATORY-CELL-TRIAL.md) distinguish implemented planning, modeled replay, proposed controller export and laboratory validation. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
 
 ### 16.3 Dependency decisions and proposed retirement
 
@@ -1204,16 +1209,17 @@ The master preserves historical source/reconciliation facts while describing cur
 | Exact file or group | Current disposition and reason |
 | --- | --- |
 | Historical `public/live/stb-start-own-bench-leg-0.1.html` | Retired from current tree; retained in Git at System commit `6e3738219204dd2c3ffff0a57a06b5495042e1bb`; live Job 1 loads `three-frames.html` |
-| `docs/verification/start-your-own.md` | Retained: Program README and EVIDENCE link its current path; dated independent observations remain available |
+| `docs/verification/start-your-own.md` | Retained and reconciled: Program references its current path; dated observations and source diagnostics keep their separate evidence status |
 | `docs/commercial-sequence-template.md` | Retained unchanged: shared copy; Store is frozen and coordinated contract revision is separate |
 | `system-build-current.html`, `system-build-front-door-0.5.html`, `system-build-base-8d8a9dd.html` | Retained: working nested shell, page composition and saved-state dependencies |
 | `three-frames.html`, `stb-window-seat-0.9.html`, `stb-outdoor-picnic-0.4.html` | Retained: active project frames, definitions and controls |
 | `stb-outdoor-reference-authority-0.3.html`, `STB-OUTDOOR-ANGLED-FRAME-RESEARCH-DOSSIER-0.1.html` | Retained: current Outdoor Rule Book links and dated source evidence |
 | Platform files, runtime modules, images, executable contracts, test sources, fixtures and deployment files | Retained: working application, verification and operational obligations |
-| `README.md`, `docs/DEFINITIONS.md`, `AGENTS.md` | Original content preserved except one README link to `SYSTEM-MASTER.md`; any shortening awaits separate review |
+| `README.md`, `AGENTS.md` | Preserved unchanged during compiler integration; earlier publication history remains in Git |
+| `docs/DEFINITIONS.md` | Shared meanings reconciled with current contracts; duplicate entries consolidated without removing distinct qualifications |
 
 The objective remains one readable introduction, one complete System master and only genuinely necessary supporting files. Git history can preserve discarded explanatory revisions in the future, but deletion must follow an approved file-by-file dependency disposition.
 
 ### 16.4 Completion verification record
 
-The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. The README, definitions, maintainer safeguards, executable application and pinned Store interface remain protected. Two short duplicate editorial notes were retired after their enduring rules were reconciled with this master. Further retirement requires a file-specific dependency review. Required CI must pass against the exact pinned Store checkout.
+The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. Compiler integration revises this master, the shared definitions and the existing verification note. The README, maintainer safeguards, executable application and pinned Store interface remain unchanged. Two short duplicate editorial notes were retired after their enduring rules were reconciled with this master. Further retirement requires a file-specific dependency review. Required CI must pass against the exact pinned Store checkout.

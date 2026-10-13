@@ -2,7 +2,7 @@
 
 This note is not part of the job. The five project screens do not link here.
 
-Current as of 2026-10-11, against Store release `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
+Current runtime relationship, retained through 2026-10-12, against Store release `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`: the commit in `STORE_CANDIDATE`, `public/live/stb-store-runtime.json`, the CI Store checkout and `startup.sh`. Physical admission stays blocked. Earlier observations against earlier Store commits are kept under [History](#history); they are not current findings.
 
 ## What supplies a current answer
 
@@ -32,9 +32,11 @@ A request type the adapter does not translate is refused as `LIVE_JOB_NOT_MIGRAT
 
 ## Coordinated operation and Intent integration
 
-The current Store pin is `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. All 334 System tests pass against that exact Git checkout, including the joint HTTP regression and Job 1 demo checkout. The TypeScript check and Railway Node production build pass. The Store's shared manufacturing core supplies the current operation-ledger time and Q. Required facts, unsupported operations and unavailable material remain explicit; an incomplete answer cannot become a complete price or physical release.
+The current Store pin remains `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. The previously recorded 334-test, TypeScript and Railway build results describe their original check date and source; they are not rerun claims for this document integration. The Store core generates the evaluated operation-ledger time and Q. System supplies the current definition and independent manifest; later packet verification and lowering bind that exact plan to registered machine facts. Required missing or unsupported work stays explicit, and physical admission remains blocked.
 
-Alcove, Window Seat, Outdoor and Playhouse share the smaller reference / wood / tools layout. Intent declares the wood and tools; the Bench changes their values. Existing imagery, plan sources, measurements and controls are retained. Outdoor opens with an explicit Classic A-frame demo definition: 72 in, treated wood and coated hardware. Either published plan can be selected on Intent. The shared Intent helper only presents live offering lookup results; it contains no catalog, evaluator, capability check or price calculation.
+Compiler source evidence on 12 October 2026 used System `1939e809ba931ff6a848e4c747bd73e795820d32` and Store `ca6d3c2768cc7741d34daa81ea45bf44acdf6a3f`. Executing the published Job 1 derivation, bridge, translator and independent manifest for 16/18 inches produced fresh local Store evaluations and bound occupancy replay: 30°/26.387799961243°, 8/9-inch center spots, 60/72-inch SPF parents and Q $8.62/$9.13. First-spot C targets were +28/+27 inches; second-spot targets +11.875/+8.875; cutoff targets −16/−18. Each case had 51 occupancy records and 22 modeled moves. The diagnostic used a simulated browser context, fixed clock, explicit source-snapshot release label and review-constructed accepted packets; it did not observe a new live acceptance, HTTP request or controller execution. Full current and historical derivations belong in [Store's current Job 1 explanation](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md#82-start-your-own).
+
+Alcove, Window Seat, Outdoor and Playhouse retain the smaller reference / wood / tools layout. Intent declares wood and tools; the Bench changes values. Outdoor's starting Classic A-frame definition is 72 inches, treated wood and coated hardware. The shared Intent helper presents live offering lookup without a catalog, capability evaluator or price engine.
 
 Alcove's cycle display sums the timings in the current Store's complete, supportable cut-package answer. It does not read the retired single-machine answer shape or estimate missing timings. A partial or refused job has no complete displayed cycle. Outdoor's length adjustments and Store-answer button are on the Bench; Intent retains the wood, hardware and tool choices and the unchanged-plan inquiry. Job 1's returned-remainder boundary follows the declared cut angle, so the retained-control outline does not cross the cut. The diagram still uses only the current Store's selected board and returned remainder.
 
@@ -105,7 +107,7 @@ The deployed `/api/store-zero/job` route was also exercised for custom Playhouse
 
 Railway deployed System repair `a722fc4cf0490b364d1fae1be520dd3a318a5a1e` for these initial live checks. Store remained `81d958482bd25e784f122c97ffb11174013395af`; its live shipped-source digest matched the pinned checkout. Commercial and yard events above are simulations; no money moved and no machine ran.
 
-## History
+### Earlier 2026-10-08 and 2026-10-09 observations
 
 These were observed against earlier Store commits. They are kept as history and are not current findings.
 

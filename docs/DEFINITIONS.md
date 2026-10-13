@@ -8,7 +8,7 @@ Store Zero answers the job. This page does not price, and it does not redefine a
 
 Do not add a word just to make the page longer. Add one when two trades would otherwise use it differently, or when a record exposes it.
 
-## What this candidate adds
+## Current application behavior
 
 **Automatic Bench pricing** — Each published Bench requests its current definition from the pinned Store when it opens and again when a price-relevant control changes. Its visible number is the Store's complete budgetary Q for that revision; no extra request or confirmation button is required to see it. Pending, refused, incomplete and unavailable answers retain their actual status. Confirmation and later commercial acts remain separate.
 
@@ -20,13 +20,13 @@ The five starting demo definitions are explicit. Outdoor starts with the Classic
 
 **One definitions authority** — This System page defines common words and design-to-Store handoff meanings. Program records why and Store implements its catalog, declared machine limits, evaluations, handling time and Q. Store's operational specification documents its actual evaluator and is not a second definitions authority. System, Store and Program must agree before presenting a job as answered; neither System nor Program contains a duplicate Store evaluator or economic fallback. This rule is enforced through the one pinned Store commit and the deployed Railway connection.
 
-**Job-definition revision** — The identified record of this job's requirements, values, derivations and unresolved facts. It is not the object sent to the Store. What goes to the Store is the Store inquiry.
+**Job-definition revision** — The identified record of this job's current requirements, values, derivations, unresolved facts and responsibilities. It is not the object sent to Store; that object is the Store inquiry.
 
-**Store inquiry** — One request: type, request id, and demand. The bytes are kept. A later edit does not reuse their answer.
+**Store inquiry** — One attributable request to Store. A manufacturing inquiry contains exactly `requestType`, `requestId`, `demand` and the independently derived `manifest`; offering discovery carries no manufacturing manifest. The transmitted bytes are preserved. A changed definition requires a new evaluation.
 
-**Admissible** — The facts this job's rule requires are present and the demand fits the declared shape. Admissible is not supportable. Supportable is the Store's answer.
+**Admissible** — The facts required for the stated inquiry scope are present and the definition is representable in its declared shape. Admissibility does not establish supportability; capability and the manufacturing answer belong to Store.
 
-**Evaluation receipt** — The Store's frozen record of one fresh evaluation: freshness rule `STB-STORE-FRESH-EVALUATION-0.1`, request type and id, evaluation time, authority (including the Store release and catalog hash), demand hash, status, calculation identity, and the hash of those fields. A receipt that contradicts the answer, names another release, or carries a time that is not a real UTC instant is not an answer. System checks that agreement. System does not rebuild the receipt to make it pass.
+**Evaluation receipt** — Store's frozen identity for one fresh evaluation: freshness rule `STB-STORE-FRESH-EVALUATION-0.1`, request type/ID, evaluation time, authority (Store release, catalog hash, manufacturing-model ID/hash and machine-configuration ID/hash), demand hash, manifest hash, status, calculation identity and receipt hash. System verifies its agreement with the requested definition and returned answer, including the expected Store release and a real UTC evaluation instant; it does not rebuild the receipt to make it pass. Hash identity establishes content consistency, not actor authentication or physical readiness.
 
 **Payload digest** — SHA-256 of the exact request bytes. It is not a price and not a signature.
 
@@ -46,32 +46,25 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 **Explicit spot constraints** — The required tool diameter and full-diameter depth, when the job states them. They travel with the named spot and its location. Store checks them against its registered operation; a placement is not a generic drilled-hole specification.
 
-**Virtual evidence** — What `POST /v1/machine-evidence` returns for an accepted packet against the advertised machine configuration. System does not invent the records. Physical authority on that answer is false.
+**Virtual evidence** — Identified local-job, operation records, replay and blocked-admission result returned by Store's machine-evidence entry point for a verified accepted packet and expected registered configuration. Current schema `STB-MODELED-OPERATIONS-1` has evidence class `PREDICTED_OCCUPANCY_ONLY`. Dimensional records carry nominal moves/tool states; sheet occupancy does not establish a complete XY controller trajectory. System preserves this evidence rather than inventing it.
 
 **Physical admission** — Always blocked in this candidate. No physical command is issued. Supportable is not permission to cut.
 
 ## End identity
 
-Three System facts can ride with a job. The Store does not price them. The reference cell may refuse them.
+End geometry is part of the priced manufacturing definition. `endRelation` states how the ends relate; `lengthDatum` states where length is measured; `cutPlane` distinguishes face miter from other cutting planes. Current user-board and angled cut-package mappings use parallel ends, the long-long outer edge and miter-face plane. The model cannot change these meanings to obtain a price.
 
-- **endRelation** — How the two ends relate. The reference cell registers `parallel` for a board.
-- **lengthDatum** — Where the length is measured. The reference cell registers `long-long-outer-edge` for a board. That name already means the long point of the outer edge.
-- **endIdentity** — A further name for which point the length reaches, only when the length datum does not already say it.
+`endIdentity` is an additional endpoint statement. The public board translator records a supplied redundant value such as `both` under `REDUNDANT_WITH_PRICED_LENGTH_DATUM` and sends null when parallel/long-long already expresses it. A nonredundant value travels unchanged. The current Store board compiler requires `endIdentity == null`; incompatible geometry is refused as `END_GEOMETRY_NOT_DECLARED`. This is the current contract, rather than the retired `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` narrative.
 
-A face-miter board in this library does **not** send `endIdentity: "miter-face-long-point"`. That string is the same fact as `lengthDatum: "long-long-outer-edge"`. The reference cell has no registered mapping for a separate end-identity string, and it refuses any non-null `endIdentity` with `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` before it will emit a command. Omitting the unregistered string is the reconciliation. Deleting the explanation, or stripping a string that was actually supplied, is not. If a packet carries a non-null end identity, this candidate sends it and shows the refusal.
-
-Square cuts, plan ends and the sheet's factory edge keep their own end identity. Those jobs are not boards. The reference cell answers `LOWERING_NOT_REGISTERED_FOR` for their request type. Their identity is not removed to avoid that refusal, and a supportable price is not machine evidence.
+Square cuts and sheet edges retain their own defined geometry. Current Store machine evidence accepts board, cut-package and sheet-package classes; it does not return the retired board-only `LOWERING_NOT_REGISTERED_FOR` disposition. Coverage means modeled ledger binding and replay, not a universally implemented controller program. The retained typed System machine helper's narrower presentation is an unresolved executable discrepancy, recorded in the System master.
 
 ## Shared terms
 
+General and capitalized domain terms describe their stated concepts. They do not assert that every named record type is implemented in the current application. Current serialization and behavior follow the specifically identified executable contracts and schemas.
 
 **Trail** — The one six-step path every project follows: **Intent → The bench → The Store answers → Your call → We cut it → Pick up & build.** Idea comes before it, unnumbered. Declared in `public/live/stb-trail-contract.js` (`STB-TRAIL-CONTRACT-0.2`) and drawn by the shared tile host in `public/live/system-build-current.html`. This repository has no separate trail test.
 
-**Job-definition revision** — The identified record of this job's current requirements, values, derivations and unresolved responsibilities. It is not "the object sent to Store"; what goes to Store is the Store inquiry.
-
-**Admissible** — Sufficiently defined and representable for the stated Store inquiry. Admissible is not supportable: whether the job is supportable is the Store's answer.
-
-**Admission profile** — Per tile and inquiry scope, the facts a job-definition revision must settle before a Store inquiry, each with its owner. Admission checks these declared requirements, never the rows a tile happened to emit, and never Store capability. Spec: [tile/host and definition/Store contract](../application/TILE-HOST-ADMISSION-CONTRACT.md) (`STB-DEFINITION-STORE-0.1`); used by all five public tiles before their Store inquiries.
+**Admission profile** — Per tile and inquiry scope, the facts a job-definition revision must settle before a Store inquiry, each with its owner. Admission checks these declared requirements, never the rows a tile happened to emit, and never Store capability. Spec: [tile/host and definition/Store contract](../SYSTEM-MASTER.md#83-public-admission-and-responsibility) (`STB-DEFINITION-STORE-0.1`); used by all five public tiles before their Store inquiries.
 
 **Tile-host message** — What a tile tells its host: tile id, interface version, current stage, usable steps, navigation request (`STB-TILE-HOST-0.1`, same spec). A usable step does not authorize a Store inquiry.
 
@@ -93,13 +86,13 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Store request type** — The kind of question System asks the Store. The names are `OFFERING_LOOKUP`, `BOARD_SQUARE_V1`, `USER_DEFINED_BOARD_V1`, `ALCOVE_INSERT_V1`, `CUT_PACKAGE_V1`, and `SHEET_PACKAGE_V1`. `BOARD_SQUARE_V1` and `ALCOVE_INSERT_V1` are retired names. The Store refuses them. They are not library jobs. The accepted types are `USER_DEFINED_BOARD_V1`, `CUT_PACKAGE_V1`, `SHEET_PACKAGE_V1`, and `OFFERING_LOOKUP`.
 
-**Store answer status** — `STORE_JOB_STATUSES`:
+**Store answer status** — Current whole-job dispositions include `SUPPORTABLE`, `REFUSED` and `UNRESOLVED`; unknown request types are refused at Store admission. System transport unavailability is a separate condition and supplies no Store answer. A complete manufacturing Q requires the whole admitted job to be supportable. Preserve the actual returned status and reason; do not reinterpret a favorable subset as completion.
 
-**Cut-package line status** — `SUPPORTABLE`, `NOT_ALL_LINES_SUPPORTABLE`, `UNRESOLVED`. Each line of a cut package is answered on its own.
+**Cut-package line status** — Historical evaluators returned line-level statuses including `NOT_ALL_LINES_SUPPORTABLE`. Current cut packages feed the one whole-job manufacturing engine, which either supplies complete evaluated coverage and Q or reports its actual refusal/unresolved result. A parent/package contribution is not an independent full-job quote.
 
-**Q** — The Store's budgetary total: `Q = Σ stock/sourced selling price + machine service price`, where machine service price = modeled machine hours × the Store's declared machine sell rate. No per-cut fees, placeholders or browser estimates may stand in. Missing input → no complete Q.
+**Q** — Store's complete budgetary manufacturing total: material + sourced hardware + modeled hourly service + separately billed panel-saw cuts. Hourly service uses the evaluated ledger's hourly-billed seconds and Store sell rate; per-cut panel occupancy is excluded from hourly billing. Whole-job service and Q round at their defined boundaries. Browser estimates, placeholders and partial line sums cannot replace the complete Store result.
 
-**Retained control** — The length of board the two rollers must still hold through the last cut: 24 in on D-001 (the roller spacing). A board that would leave less is refused for that job (`LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL`), and the Store moves to the next longer board.
+**Retained control** — A declared material/control limit. Current D-001 planning requires at least 24 inches remaining after the final part and nominal kerf consumption. Parent patterns enforce this capacity; specific cycle checks can return `RETAINED_CONTROL_LENGTH_TOO_SHORT`. The historical `LAST_REMAIN_BELOW_TWO_ROLLER_CONTROL` label remains dated evidence. Retained length does not establish both rollers' contact, restraint or traction at every indexed position; the current model preserves those physical gaps.
 
 **Datum A / B / C** — D-001 references. A: the fixed fence (`Y = 0`). B: the fixed table (`Z = 0`). C: the workpiece's own lengthwise origin, set per loaded board by a declared reference event such as a cleanup cut.
 
@@ -123,7 +116,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Secondary work option** — Who finishes work the machine does not: `YARD_SECONDARY`, `CUSTOMER_COMPLETES`, `THIRD_PARTY_COMPLETES`.
 
-**Owner archive** — The exported project file (`stb-owner-archive`, `.stb.json`). It reopens the same project with its revisions, Store requests, answers and records.
+**Owner archive** — An exported project record preserving its identified definition, revisions, requests, answers and subsequent records. Schema and reopening behavior belong to the producing surface: `stb-owner-archive` / `.stb.json` is not a universal schema for every current project. See [record custody](../SYSTEM-MASTER.md#111-what-an-owner-record-preserves).
 
 **Simulated** — Shown in the app but not performed: offer, acceptance, payment, the yard queue and the cut. Always labelled.
 
@@ -135,21 +128,21 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Model** — May mean a 3D model, data model, mathematical model, simulation model, machine model, or language model.
 
-**Stock** — May mean raw material, merchandise at a yard, supplier inventory, or one particular physical piece.
+**Stock** — Raw material, merchandise, supplier inventory or a particular physical piece. State the location or supply channel and whether the record describes an offering, on-hand inventory, allocation or an identified parent.
 
-**Available** — May mean on hand, obtainable, unreserved, machine-capable, or ready. The word alone is insufficient when the distinction matters.
+**Available** — May mean on hand, obtainable, unreserved, machine-capable or ready. State the relevant source, status and scope, including local, supplier, special-order or reserved status; commercial availability alone does not establish machine readiness or authority.
 
-**Hardwood** — Botanical/commercial grouping. Not a species and not a guarantee that the wood is physically hard.
+**Hardwood** — Botanical/commercial grouping associated with angiosperm wood. It is not a species identity or a guarantee of physical hardness.
 
-**Grade** — Classification under a particular grading rule or commercial system. The governing system matters.
+**Grade** — Classification under a named grading rule or commercial system. The governing system must be identified.
 
-**Scan** — A capture method. A scan is not automatically a verified measurement or fabrication definition.
+**Scan** — A capture method, including spatial capture. Capture does not automatically establish a verified measurement or fabrication definition. Scan-to-Build does not require a laser scan: attributed manual measurements, drawings, laser instruments, 3D capture and other source evidence can define the job.
 
-**Measurement** — A value produced by a stated measurement process. Not exact truth merely because it contains numbers.
+**Measurement** — A value obtained by a stated measurement process. Its method, reference and applicable uncertainty matter; numerical precision alone does not establish exact truth.
 
 **Verified** — Established through an applicable verification act. Not synonymous with plausible, repeated, high-confidence, or machine-readable.
 
-**Datum** — Engineering reference with a specific meaning. Do not use it casually for every zero, stop, edge, or convenient reference.
+**Datum** — An engineering reference defined under the applicable dimensioning and tolerancing system. A convenient zero, stop or edge is not automatically a datum; its role must be declared.
 
 **Fixture** — May mean physical manufacturing workholding or controlled software test data. Qualify when necessary.
 
@@ -157,13 +150,13 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Mode** — May mean machine operating mode, process choice, software state, or other unrelated conditions. Qualify it.
 
-**State** — May describe software, machine condition, inventory, lifecycle, commercial status, or knowledge status.
+**State** — An identified condition in software, machine operation, inventory, lifecycle, commerce or knowledge. Qualify the domain and whether the condition is declared, derived or observed.
 
-**Capability** — Ability within a stated envelope. Not availability, readiness, acceptance, or authorization.
+**Capability** — Declared ability to perform specified operations within a stated envelope and limits. It is distinct from availability, readiness, customer acceptance and authorization.
 
 **Release** — May mean software release, material release, packet release, operator release, or permission for another act.
 
-**Authorization** — Permission from a defined authority for a defined act. Not validation, readiness, authentication, or eligibility.
+**Authorization** — Permission from a defined actor for a defined act and scope. Validation, authentication, eligibility and readiness do not alone supply that permission.
 
 **Execution** — May mean running software, running a simulation, or performing physical work.
 
@@ -173,11 +166,11 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Need** — Something a person wants changed, supplied, repaired, made, learned, or resolved. It does not require a known product.
 
-**Idea** — Defined once, in [The trail](#the-trail): the unnumbered workspace before the steps.
+**Idea** — Defined once, in [The trail](../SYSTEM-MASTER.md#21-one-intake-and-six-trail-steps): the unnumbered workspace before the steps.
 
 **Interest** — Something a person cares about before a specific project is necessarily formed.
 
-**Intent** — Defined once, in [The trail](#the-trail): step 1, where this job's scope and permissible controls are established.
+**Intent** — Defined once, in [The trail](../SYSTEM-MASTER.md#21-one-intake-and-six-trail-steps): step 1, where this job's scope and permissible controls are established.
 
 **Requirement** — Condition that must be satisfied for the applicable result.
 
@@ -188,8 +181,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 **Selection** — Choice deliberately made by the person or actor entitled to make it. Selection is not verification.
 
 **Confirmation** — Explicit acknowledgment of information or a choice. Confirmation does not automatically establish physical truth.
-
-**Measurement** — Observed dimensional or other value produced through a stated method.
 
 **Dimension** — Measurable extent such as width, height, depth, thickness, diameter, angle, or position. Consequential dimensions require units.
 
@@ -215,8 +206,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Capture** — Acquisition of project or site evidence using an identified method.
 
-**Scan** — Spatial capture method. Useful evidence, but not automatically verified fabrication geometry.
-
 **Laser measurement** — Measurement using a laser-based instrument. The instrument alone does not establish authority or verification.
 
 **Tape measurement** — Measurement using a tape or rule. A legitimate capture method when properly recorded.
@@ -233,8 +222,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Wood** — Material derived from woody plants. Does not by itself establish species, grade, moisture, properties, or suitability.
 
-**Hardwood** — Wood from the angiosperm grouping. Not necessarily physically hard.
-
 **Softwood** — Wood generally associated with gymnosperms/conifers. Not necessarily physically soft.
 
 **Hardwood tree** — Legitimate broad description of a tree in the hardwood grouping. Insufficient as exact material identity.
@@ -245,9 +232,9 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Pine** — Common or commercial grouping that may refer to multiple species. Do not automatically treat it as one exact species.
 
-**MaterialClass** — Governed material-identity layer describing what the material is independently of merchant SKU.
+**MaterialClass** — Governed material identity describing what the material is, independent of a merchant SKU or a particular physical stock identity.
 
-**MaterialSpec** — Material specified for a particular use and form. Not a SKU.
+**MaterialSpec** — Governed material requirement for the intended use and form. It is not a merchant SKU or a physical stock identity.
 
 **Form** — Physical commercial/manufacturing form such as dimensional lumber, board, sheet, panel, or hardware.
 
@@ -266,8 +253,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 **S2S** — Surfaced on two sides.
 
 **S4S** — Surfaced on four sides.
-
-**Grade** — Classification under a named grading system or declared commercial rule.
 
 **Moisture content** — Amount of water present in wood under the applicable measurement convention.
 
@@ -305,11 +290,11 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Operation** — Bounded manufacturing action such as crosscut, bore, trim, rout, or spot.
 
-**Process plan** — Structured description of the operations and resources required to produce the result.
+**Process plan** — Store's identified choice of stock, resources and ordered manufacturing work for the complete customer definition. Current `operations` are the same occupancy ledger used for time and Q. The verified plan is the input to accepted-job lowering, not an invitation for a second planner to reconstruct or replace it.
 
 **Sequence** — Ordered arrangement of operations or events.
 
-**Station** — Defined physical location or function within a machine or cell where work occurs.
+**Station** — An identified tooling location or function in a machine/cell, with registered coordinates, tools, permissible actions and references. Its geometry is a configuration fact established before routine customer orders, not a coordinate invented by the job exporter.
 
 **Machine** — Physical equipment performing or supporting manufacturing operations.
 
@@ -335,8 +320,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Machine reference** — Fixed machine-side geometric reference.
 
-**Datum** — Formal engineering reference under the applicable dimensional/tolerancing system.
-
 **Origin** — Defined zero point of a coordinate system. Not automatically a formal datum.
 
 **Origin face / establishing feature** — Physical feature used to establish a working reference for subsequent operations.
@@ -361,13 +344,13 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Controller** — Hardware/software responsible for executing machine-control logic.
 
-**Machine program / cell program** — Machine-runtime representation of operations. Downstream from project and process definition.
+**Machine program / cell program** — Controller-runtime representation produced from a verified accepted job and registered mappings. Distinct from the current `PREDICTED_OCCUPANCY_ONLY` ledger and from generated but uncompiled Structured Text. The original Project 1 controller-oriented reference is historical evidence; physical execution remains blocked.
 
 **Numerical control (NC) / computer numerical control (CNC)** — Machine control using programmed numerical instructions.
 
 **G-code** — Common CNC programming representation. Not a generic synonym for WorkPacket, process plan, or machine-readable instructions.
 
-**Postprocessor / lowering** — Transformation from a neutral/process representation into machine- or controller-specific instructions.
+**Postprocessor / lowering** — Binding or transformation of an accepted, verified manufacturing plan under a registered machine configuration. Current Store lowering binds the exact accepted occupancy ledger into local-job and modeled-operation records. A future controller-oriented export extends this layer with registered axis/tool/datum mappings; it cannot change System geometry, select new stock, silently omit operations or recalculate Q.
 
 **Operator release** — Human act making an applicable machine/program step available within the defined operating process.
 
@@ -421,15 +404,13 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Adapter** — Boundary component translating between external and internal representations without becoming the source of domain authority.
 
-**Service** — Software component providing a defined function through an interface.
+**Service** — A bounded manufacturing or yard operation, or a software component exposing an interface. Qualify the meaning: a software service is not itself evidence that physical work has been performed. Prefer the specific manufacturing service name.
 
 **Module** — Cohesive software or domain unit with a defined responsibility.
 
 **Package** — Versioned or repository-local software unit.
 
 **Dependency** — Component, package, contract, or resource required by another component.
-
-**State** — Current condition within a defined software or domain state model.
 
 **Event** — Recorded occurrence that happened and may explain or produce a state change.
 
@@ -441,7 +422,7 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Software build** — Process of producing/checking executable or distributable software from source.
 
-**Compile** — Translate source into another executable or intermediate representation.
+**Compile** — Derive an identified representation from source requirements under declared rules. System compilation establishes customer meaning, geometry, features and the independent manifest; Store conversion normalizes those facts into its internal neutral job; Store planning generates the admitted stock/operation ledger; accepted-job lowering binds that ledger to registered machine facts. These are stages in one authority chain. A controller-oriented export is a further mapping stage, not a second project compiler, manufacturing planner or price engine.
 
 **Deploy** — Place/configure software into an environment where it can operate.
 
@@ -487,15 +468,13 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **Authentication** — Establishing identity.
 
-**Authorization** — Permission to perform a particular act.
-
 **Eligibility** — Determination that prerequisites for a possible next act are satisfied. Not authorization.
 
 **Authority** — Right or responsibility to make a particular decision, declaration, refusal, verification, or authorization within stated scope.
 
 **Issuer** — Actor or component entitled to create a particular authoritative record.
 
-**Replay** — Reuse of a previously issued artifact or request in another time or context.
+**Replay** — Re-evaluation or execution of a preserved representation in a stated context. Current virtual replay validates the bound ordered ledger, nominal positions, tool states and durations. Replaying a request obtains a fresh evaluation; it does not renew an old receipt or establish physical execution.
 
 **DeclaredRecord** — Preserves a person's declared interest or intent without replacing it with system interpretation.
 
@@ -507,27 +486,21 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **ObservationSet** — Structured output from a capture method containing observations, coverage, unresolved conditions, and status.
 
-**MaterialClass** — Governed material identity.
-
-**MaterialSpec** — Governed specification of material for a particular use/form. Not a merchant SKU.
-
 **OfferingRecord** — Merchant/location/channel representation of an offered material or product.
 
 **InventoryAssertion** — Time-bounded statement about quantity or availability.
 
 **CapabilityCard** — Holder-declared capability, limits, prerequisites, and refusals. Not availability, quotation, or execution authorization.
 
-**MachineEnvelope** — Versioned representation of machine operations and limits.
-
 **GateResult** — Structured result of a named rule evaluation: pass, fail, unresolved, or inapplicable.
 
 **RefusalRecord** — Preserved structured refusal and its basis.
 
-**WorkPacket** — Versioned make-path description of governed work. Does not authorize machine motion.
+**WorkPacket** — General versioned make-path description of governed work. Current accepted-job serialization is `STB-ACCEPTED-JOB-PACKET-2`, retaining exact demand, independent manifest, Store answer/receipt and simulated accepted decision. The general term neither replaces that contract nor authorizes machine motion.
 
 **SimulationAuthorization** — Authorization for the specified simulation context only.
 
-**ProductionExecutionAuthorization** — Production authority type. Not currently issuable by the governed v0.2.x runtime.
+**ProductionExecutionAuthorization** — Governed production authority concept. Its v0.2.x reference is historical terminology; the current Store evidence contract always returns physical admission BLOCKED and grants no production authority.
 
 **SimulatedExecutionEvent** — Record that simulated execution occurred. Does not establish physical fabrication or production readiness.
 
@@ -536,8 +509,6 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 **OutcomeRecord** — Preserved result including what changed and what remains unresolved.
 
 **Scan-to-Build** — Governed path intended to let a sufficiently resolved requirement reach relevant material and bounded productive capability, receive an honest result or refusal, and preserve the consequential record.
-
-**Scan** — In the name Scan-to-Build, does not mean a laser or 3D scan is mandatory. Manual measurement, drawings, laser instruments, spatial capture, or other governed evidence may establish the needed information.
 
 **Demand as Architecture** — Proposition that incomplete human or commercial demand can become an earlier system input before it has necessarily become a SKU, RFQ, or fully specified order.
 
@@ -563,11 +534,9 @@ Square cuts, plan ends and the sheet's factory edge keep their own end identity.
 
 **A saved answer ≠ a current answer** — a saved Store answer is history, not current authority.
 
-
 ## Store terms
 
 These are Store-owned. A change in a yard word does not rewrite a job.
-
 
 **Product** — Commercially recognizable good or service. A need does not have to begin as a product.
 
@@ -585,13 +554,9 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 
 **Inventory** — General commercial concept for goods held or represented for sale or use.
 
-**Stock** — Physical material represented at a location or through a supply channel.
-
 **Stock snapshot / InventoryAssertion** — Time-bounded assertion about quantity or availability associated with an offering.
 
 **On hand** — Represented as physically present at the applicable location and time. Not necessarily reserved or usable for a particular job.
-
-**Available** — Commercial status whose source and meaning must be known: local, supplier, special-order, reserved, or another defined basis.
 
 **Reserved / allocated** — Quantity deliberately held for a particular customer, order, project, or commitment.
 
@@ -623,10 +588,6 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 
 **Fulfillment** — Completion of the applicable physical/commercial supply path. Not necessarily fabrication.
 
-**Service** — Bounded work supplied by a yard or another holder. Prefer the specific service name.
-
-**Capability** — Declared ability to perform specified work within stated limits.
-
 **Refusal boundary** — Condition under which a holder states that it will not accept or perform the requested work.
 
 **Store Zero** — Deliberately fictional reference lumberyard used to make Store behavior testable and auditable.
@@ -634,8 +595,6 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 **Store Zero fact** — Declared synthetic fact about Store Zero's assets, stock, supplier relationships, equipment, capability, or limitations.
 
 **Fixture fact** — Controlled assumption used for testing. Not an observed industry fact.
-
-**Store inquiry** — Structured question asking what a Store can truthfully report about material, offering, stock, supply route, fulfillment, or capability.
 
 **Store response** — Structured answer containing applicable Store facts, limitations, freshness, provenance, and unresolved conditions.
 
@@ -653,9 +612,7 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 
 **Machine capability reference** — Store-visible declaration or reference to machine or cell capability conforming to governed `MachineEnvelope` semantics. A Store may declare a machine-specific envelope instance but does not redefine those semantics or infer new capability from observed success. Not machine readiness or authorization.
 
-
 ## Never equate
-
 
 **User declaration ≠ system interpretation**
 
@@ -773,10 +730,7 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 
 **Fixture fact ≠ industry fact**
 
-
 **A saved answer ≠ a current answer**
-
-**Admissible ≠ supportable**
 
 **Supportable ≠ machine-ready**
 
