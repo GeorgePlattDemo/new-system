@@ -130,7 +130,10 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
     assert.equal(windowSeat.status, "SUPPORTABLE");
     const windowMoney = presentMoney(windowSeat);
     assert.equal(windowMoney.kind, "full");
-    if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1193.1);
+    // Retaining shorter eligible stock changes the traversal of the same
+    // bounded search. This is the pinned Store's complete feasible plan,
+    // not an optimum claim or an instruction to preserve the former price.
+    if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1313.61);
 
     const aFrame = await ask("outdoor", { planId: "a-frame", wood: "treated", hardwareTier: "BYO" });
     assert.equal(aFrame.status, "SUPPORTABLE");

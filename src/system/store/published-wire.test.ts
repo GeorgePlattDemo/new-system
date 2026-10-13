@@ -413,12 +413,12 @@ test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Id
   assert.match(current,/system-build-front-door-0\.5\.html\?v=demo-checkout-20261011/);
 });
 
-test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals instead of blocking admission", async () => {
+test("Alcove submits actual 1x8 demands: Store mills stocked Oak and refuses missing Cherry stock", async () => {
   const page="system-build-base-8d8a9dd.html";
   const starting={depthIn:14,nominalW:8,requiredFullStripIn:7.25};
   for(const [species,offered,expected] of [
     ["cherry",[{nominalW:4,actualW:3.5},{nominalW:6,actualW:5.5}],"NO_MATCHING_BOARD_OFFERING"],
-    ["oak",[{nominalW:6,actualW:5.5},{nominalW:8,actualW:7.25}],"OPERATIONS_NOT_ON_OFFERING:CROSSCUT,MILL_LONGITUDINAL_PROFILE"],
+    ["oak",[{nominalW:6,actualW:5.5},{nominalW:8,actualW:7.25}],null],
   ] as const){
     const stock={species,status:"READY",offers:offered.map(o=>({...o,species,offered:true,form:"board",nominalT:1,grade:"select"})),pin:release};
     const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
@@ -444,8 +444,16 @@ test("Alcove must submit defined 1x8 Cherry and Oak jobs for Store refusals inst
     const result=(await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1",`alcove-${species}-material-check`,{definition}),await storeOrigin()));
     assert.equal(result.httpStatus,200,`${species}: did not reach Store Zero`);
     const evaluation=(result.body as Record<string,any>).rawEvaluation;
-    assert.equal(evaluation.Q,null);
-    assert.ok(evaluation.reasonCodes.includes(expected),`${species}: expected real Store refusal ${expected}; got ${evaluation.reasonCodes}`);
+    if(expected){
+      assert.equal(evaluation.Q,null);
+      assert.ok(evaluation.reasonCodes.includes(expected),`${species}: expected real Store refusal ${expected}; got ${evaluation.reasonCodes}`);
+    }else{
+      assert.equal(evaluation.status,"SUPPORTABLE");
+      assert.ok(evaluation.Q>0);
+      assert.equal(evaluation.manifestCoverage.boardPartIds.length,14);
+      assert.ok(evaluation.operations.some((op:Record<string,any>)=>op.category==="MILL"&&op.seconds>0));
+      assert.equal(evaluation.freshEvaluation,true);
+    }
   }
 });
 

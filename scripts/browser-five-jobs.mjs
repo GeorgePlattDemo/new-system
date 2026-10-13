@@ -6,18 +6,21 @@ import assert from 'node:assert/strict';
 import { chromium } from 'playwright';
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
-const expectedPin = 'f7123a73c1ca60aa7eb180a86a1c365eaffe95db';
+const expectedPin = 'e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2';
 const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
+  const evaluations = [], responseReads = [];
   const configRequests = [];
+  let extendedSeatConfigReads = 0;
   page.on('request', r => {
     if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
   });
   page.on('response', r => {
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
+    if (new URL(r.url()).pathname === '/api/store-zero/job') responseReads.push(r.json().then(body=>evaluations.push(body)));
   });
   const entry = await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   assert.equal(entry.status(), 200, 'public route should load');
@@ -102,7 +105,67 @@ try {
       const quote = (await money.innerText()).trim();
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Window Seat Bench displayed no fresh Store response');
-      console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true }));
+      const currentAnswer = async () => {
+        await Promise.all(responseReads);
+        const revision=await seat.locator('body').evaluate(()=>window.STBWindowSeat.request().configurationVersion);
+        return evaluations.filter(body=>body.projectId==='window-seat'&&body.candidateRevisionId===revision).at(-1);
+      };
+      const waitAnswer = async () => {
+        await money.filter({hasText:'STORE ZERO',hasNotText:'UPDATING'}).waitFor({state:'visible',timeout:45000});
+        return currentAnswer();
+      };
+      const pine = await currentAnswer();
+      assert.equal(pine.rawEvaluation.status,'SUPPORTABLE');
+      const configReadsBeforeSpeciesChecks=configRequests.length;
+      await seat.locator('#bench-species [data-material="poplar"]').click();
+      const poplar = await waitAnswer();
+      assert.equal(poplar.rawEvaluation.status,'SUPPORTABLE','Poplar mixed-length stock must complete the published job');
+      assert.equal(poplar.rawEvaluation.manifestCoverage.boardPartIds.length,48);
+      assert.ok(poplar.mappedCallInputs.demand.cutPackages.every(p=>p.material.species==='poplar'));
+      assert.notEqual(poplar.evaluationReceipt.receiptHash,pine.evaluationReceipt.receiptHash);
+      assert.notEqual(poplar.evaluationReceipt.demandHash,pine.evaluationReceipt.demandHash);
+      const poplarPrice=(await money.innerText()).trim();
+      assert.ok(poplarPrice.includes(new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(poplar.rawEvaluation.Q)));
+      await seat.locator('#bench-species [data-material="oak"]').click();
+      const shortage = await waitAnswer();
+      assert.equal(shortage.rawEvaluation.status,'UNAVAILABLE');
+      assert.ok(shortage.rawEvaluation.reasonCodes.includes('ON_HAND_SHORT'));
+      assert.equal(shortage.rawEvaluation.Q,null);
+      assert.equal(shortage.rawEvaluation.stockShortage.requiredParts,12);
+      assert.equal(shortage.rawEvaluation.stockShortage.availablePartCapacity,8);
+      assert.ok((await money.innerText()).includes('ON_HAND_SHORT'),'The Store shortage must be visible at the Bench');
+      await seat.locator('#btn-ask').click();
+      assert.ok((await seat.locator('#store-panel').innerText()).includes('ON_HAND_SHORT'));
+      assert.ok(!(await seat.locator('#store-panel').innerText()).includes('0 line(s) not supportable'));
+      assert.ok((await seat.locator('#audit-text').textContent()).includes('ON_HAND_SHORT'));
+      const refused = await seat.locator('body').evaluate(()=>window.STBWindowSeat.state());
+      assert.equal(refused.terms.callOpen,false);
+      assert.ok(refused.terms.reasons.some(r=>r.code==='ON_HAND_SHORT'));
+      await seat.locator('#s-store button[data-to="bench"]').click();
+      await seat.locator('#v-H').fill('70');
+      await seat.locator('#v-H').press('Enter');
+      await waitAnswer();
+      await seat.locator('#v-wC').fill('30');
+      await seat.locator('#v-wC').press('Enter');
+      await waitAnswer();
+      await seat.locator('#v-shL').fill('1');
+      await seat.locator('#v-shL').press('Enter');
+      await waitAnswer();
+      await seat.locator('#v-shR').fill('1');
+      await seat.locator('#v-shR').press('Enter');
+      const oak = await waitAnswer();
+      assert.equal(oak.rawEvaluation.status,'SUPPORTABLE','A stocked oak job must use the same milling model: '+JSON.stringify(oak.rawEvaluation.reasonCodes));
+      assert.ok(oak.rawEvaluation.operations.some(e=>e.category==='MILL'&&e.seconds>0));
+      assert.ok(oak.mappedCallInputs.demand.cutPackages.every(p=>p.material.species==='oak'));
+      assert.notEqual(oak.evaluationReceipt.receiptHash,shortage.evaluationReceipt.receiptHash);
+      await seat.locator('#bench-species [data-material="cherry"]').click();
+      const missing = await waitAnswer();
+      assert.ok(missing.rawEvaluation.reasonCodes.includes('NO_MATCHING_BOARD_OFFERING'));
+      assert.equal(missing.rawEvaluation.Q,null);
+      assert.ok((await money.innerText()).includes('NO_MATCHING_BOARD_OFFERING'));
+      extendedSeatConfigReads=configRequests.length-configReadsBeforeSpeciesChecks;
+      console.log(JSON.stringify({project:label,benchPrice:quote,poplar:poplarPrice,oakStockShortageVisible:true,
+        oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
     }
     if (label === 'Outdoor') {
       const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
@@ -141,12 +204,13 @@ try {
   assert.equal(config.jobEndpoint, 'same-origin:/api/store-zero/job');
   assert.equal(config.offeringEndpoint, 'same-origin:/api/store-zero/offering');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
-  // Five navigations create five fresh page sessions. Within each session
-  // repeated job/lookup calls share only the short-lived endpoint/pin config.
-  assert.ok(configRequests.length <= 12,
+  // Keep the original five-project navigation allowance. The extended species
+  // and geometry inquiries may legitimately cross the client's five-second
+  // configuration expiry; count those extra reads separately.
+  assert.ok(configRequests.length-extendedSeatConfigReads <= 12,
     'Repeated runtime config fetches remain excessive: ' + configRequests.length);
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
-    configRequests: configRequests.length, storeResponses: responses }));
+    configRequests: configRequests.length, extendedSeatConfigReads, storeResponses: responses }));
   await page.close();
 } catch (error) {
   failed = true;

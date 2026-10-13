@@ -1245,12 +1245,14 @@ async function askStore(rv){
 }
 /* Store reason codes in plain words. The code is the Store's; the words are only a reading of it. */
 const REASONS={
+  NO_COMPLETE_PLAN_WITH_AVAILABLE_INVENTORY:'the available parent stock cannot complete every required part',
+  SEARCH_LIMIT_WITHOUT_COMPLETE_PLAN:'the bounded stock search found no complete plan',
+  NO_MATCHING_BOARD_OFFERING:'the Store does not stock this board in the selected wood and grade',
   PART_NOT_HALF_INCH_UNDER_BOARD:'a part is too long for the boards the Store stocks in this wood',
   COMPONENT_LENGTH_EXCEEDS_D001_TWO_SAW_SPAN:'on a board this short, a part is longer than the cell’s saw span',
   COMPONENT_LENGTH_BELOW_TWO_ROLLER_CONTROL:'a part is too short for the rollers to hold',
   PART_LONGER_THAN_LONGEST_STOCKED_BOARD:'a part is longer than the longest board stocked in this wood',
   ON_HAND_SHORT:'not enough of that board on hand',
-  NO_MATCHING_BOARD_OFFERING:'the Store doesn’t stock that board in that wood',
   GRADE_CHOICE_REQUIRED:'more than one grade is stocked; a grade must be picked',
   NO_MATCHING_HARDWARE_OFFERING:'the Store offers nothing that matches every field of that hardware requirement',
   HARDWARE_REQUIREMENT_INCOMPLETE:'the hardware requirement is missing a field',
@@ -1269,7 +1271,14 @@ function storeView(){
   const pk=ev.packages||[],it=ev.items||[],lines=[...pk,...it];
   const allOk=ev.status==='SUPPORTABLE'&&lines.length>0&&lines.every(l=>l.status==='SUPPORTABLE');
   const t=ev.totals||{};
-  return {ev,pk,it,lines,allOk,t,
+  const reasons=(ev.reasonRecords||[]).length?ev.reasonRecords.map(r=>({code:r.code,subject:r.subject,text:plain(r.code)}))
+    :(ev.reasonCodes||[]).length?ev.reasonCodes.map(code=>({code,subject:'job',text:plain(code)}))
+    :lines.filter(l=>l.status!=='SUPPORTABLE').flatMap(l=>(l.reasonCodes||[l.status]).map(code=>({code,subject:l.packageId||l.lineId,text:plain(code)})));
+  const shortage=ev.stockShortage;
+  if(shortage&&[shortage.partLengthIn,shortage.requiredParts,shortage.availablePartCapacity].every(Number.isFinite)){
+    reasons.filter(r=>r.code==='ON_HAND_SHORT').forEach(r=>{r.text+='; '+shortage.requiredParts+' parts at '+fmt(shortage.partLengthIn)+' in required; available parent stock can produce at most '+shortage.availablePartCapacity;});
+  }
+  return {ev,pk,it,lines,allOk,t,reasons,
     /* The complete budgetary estimate exists only when every line is supportable. */
     estimate:allOk?(t.Q!=null?t.Q:t.sumOfSupportableLines):null,
     minutes:pk.reduce((n,p)=>n+Number(p.time?.T_MACHINE_min||0),0),spots:pk.reduce((n,p)=>n+Number(p.spotCount||0),0)};
@@ -1285,10 +1294,9 @@ function identities(){
 function feedTerms(){
   const v=storeView();
   if(!v||!answerCurrent()||S.asking||S.error){TERMS.setAnswer(null);return}
-  const bad=v.lines.filter(l=>l.status!=='SUPPORTABLE');
   const status=v.allOk?'SUPPORTABLE':(v.ev.status==='SUPPORTABLE'?'UNRESOLVED':(v.ev.status||'REFUSED'));
   const st=TERMS.setAnswer({version:S.answer.definition.configurationVersion,status,total:v.estimate,
-    reasons:bad.map(l=>({code:l.reasonRecord?.code||(l.reasonCodes||[])[0]||l.status,text:lineLabel(l.packageId||l.lineId)+': '+plain(l.reasonRecord?.code||(l.reasonCodes||[])[0]||l.status)})),
+    reasons:v.reasons.map(r=>({code:r.code,text:(r.subject==='job'?'Whole job':lineLabel(r.subject))+': '+r.text})),
     body:S.answer.body,sentAt:S.answer.sentAt});
   /* A bench touch that changed nothing can still close the terms chain for this answer. The answer is then
      treated as used: ask again for the same version, and a new request starts a new chain. */
@@ -1413,6 +1421,7 @@ function render(){
    While the Store answers a change, the last number stays on screen faded and marked as updating; it is never shown
    as the answer for a version it wasn't given. Nothing here is computed: no Store answer, no number. */
 function mainRefusal(v){
+  if(v.reasons.length){const r=v.reasons[0];return {line:r.subject==='job'?'Whole job':lineLabel(r.subject),why:r.text,more:v.reasons.length-1};}
   const bad=v.lines.filter(l=>l.status!=='SUPPORTABLE');if(!bad.length)return null;
   const l=bad[0],codes=(l.reasonCodes||[]).length?l.reasonCodes:((l.considered||[]).map(c=>c.reason).filter(Boolean));
   const why=codes.length?(REASONS[codes[0]]||codes[0]):'not supportable';
@@ -1467,7 +1476,8 @@ function renderStore(req,cond){
     h='<p class="lb">'+(stale?(a.reused?'ANSWER USED · ASK AGAIN FOR REVISION '+rev.n:'OLD ANSWER · REVISION '+a.rev+' · YOUR DEFINITION HAS CHANGED'):'STORE BUDGETARY ANSWER · STORE ZERO · REVISION '+a.rev)+'</p>'
       +(v.estimate!=null?'<div class="big" style="'+(stale?'opacity:.5':'')+'">'+money(v.estimate)+'</div><p class="small" style="margin:0 0 6px">Complete budgetary estimate: wood '+money(t.material)+' + machine work '+money(t.machine_service)+(t.items?' + hardware '+money(t.items):'')+' · '+Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+'</p>'
         :'<div class="big none" style="'+(stale?'opacity:.5':'')+'">No complete budgetary estimate</div><p class="small" style="margin:0 0 6px">Not every line is supportable, so there is no complete price for this version. Each line’s own answer is below.</p>')
-      +'<p class="status '+(v.allOk?'good':'bad')+'">'+(v.allOk?'Every line answered: SUPPORTABLE.':(t.linesNotSupportable||v.lines.filter(l=>l.status!=='SUPPORTABLE').length)+' line(s) not supportable. The refusal is the result.')+'</p>'
+      +'<p class="status '+(v.allOk?'good':'bad')+'">'+(v.allOk?'Every line answered: SUPPORTABLE.':esc(v.ev.status)+' · No complete budgetary estimate.')+'</p>'
+      +(v.reasons.length?'<div class="store-reasons">'+v.reasons.map(r=>'<p class="small"><b>'+esc(r.subject==='job'?'Whole job':lineLabel(r.subject))+':</b> '+esc(r.text)+'</p>').join('')+'</div>':'')
       +'<p class="small dim" style="margin:6px 0 0">A Store budgetary answer from a declared reference lumberyard. Not a quote and not an offer.</p>'
       +'<p class="ids">SENT '+esc(String(id.sent||'—').slice(0,16))+'… · ARRIVED '+esc(String(id.arrived||'—').slice(0,16))+'… · ANSWERED '+esc(String(id.answered||'—').slice(0,16))+'… · Store '+esc(String(id.pin||'—').slice(0,12))+'</p>'
       +(stale?'<button type="button" class="go" data-ask style="margin-top:8px"'+(blocked?' disabled':'')+'>ASK AGAIN FOR REVISION '+rev.n+'</button>':'');
@@ -1589,6 +1599,7 @@ function auditText(){
   if(!a||!v){L.push(S.error?'No answer: '+S.error+'. Nothing stands in its place.':'Not answered yet.')}
   else{
     L.push('Status: '+v.ev.status+(a.stale?' (for an earlier version)':''));
+    v.reasons.forEach(r=>L.push('  Store reason: '+r.subject+' · '+r.code+' · '+r.text));
     L.push('Complete budgetary estimate: '+(v.estimate!=null?money(v.estimate):'none. Not every line is supportable.'));
     if(v.estimate!=null)L.push('  wood '+money(v.t.material)+' + machine work '+money(v.t.machine_service)+(v.t.items?' + hardware '+money(v.t.items):'')+' · '+Math.round(v.minutes)+' min on the machine');
     L.push('Lines:');
