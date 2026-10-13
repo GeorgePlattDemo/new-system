@@ -78,19 +78,19 @@ Read the [complete System reference](SYSTEM-MASTER.md) for the working applicati
 
 ## Where the executable work lives
 
-The public door is [the published shell](public/live/system-build-current.html). The [verification note](docs/verification/start-your-own.md) records what has been shown for the five jobs, and what has not.
+The public door is [the published shell](public/live/system-build-current.html). The [verification note](SYSTEM-MASTER.md#14-testing-and-verification) records what has been shown for the five jobs, and what has not.
 
 | Question | Where the answer is |
 | --- | --- |
 | What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
 | Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
-| What has been shown for the five jobs? | [Verification note](docs/verification/start-your-own.md) |
-| What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs) |
-| What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](docs/commercial-sequence-template.md) |
+| What has been shown for the five jobs? | [Verification note](SYSTEM-MASTER.md#14-testing-and-verification) |
+| What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2/src/evaluation/engine/store-manufacturing-core.mjs) |
+| What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](SYSTEM-MASTER.md#10-customer-decision-and-commercial-progression) |
 
 Store owns the active manufacturing core. System submits the complete definition manifest and consumes its answers. The commercial specification and executable event gate are shared with Store; each simulated stage requires explicit source evidence. Physical and financial authority remain blocked.
 
-All five jobs ask the pinned Store for a fresh answer to the revision on screen. An answer can be yes, no, or not yet: a refusal or an unresolved requirement is the result, not a failure to hide. Work the Store did not evaluate stays on the job, and the job is not presented as fully supportable. The [verification note](docs/verification/start-your-own.md) lists what each job sends, what was exercised, and what is still open.
+All five jobs ask the pinned Store for a fresh answer to the revision on screen. An answer can be yes, no, or not yet: a refusal or an unresolved requirement is the result, not a failure to hide. Work the Store did not evaluate stays on the job, and the job is not presented as fully supportable. The [verification note](SYSTEM-MASTER.md#14-testing-and-verification) lists what each job sends, what was exercised, and what is still open.
 
 Store prices are budgetary estimates. Machine time is modeled. Commercial and yard events are simulated. Physical production is not commissioned. A quote is not machine admission.
 
