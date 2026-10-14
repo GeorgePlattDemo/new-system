@@ -944,6 +944,7 @@ const REASONS={
   NO_OFFERING:'not stocked',NOT_OFFERED:'not offered',
   MITER_ANGLE_OUTSIDE_D001_STAGE2_ENVELOPE:'the Store’s cell doesn’t cut that angle',
   ANGLED_PART_LEAVES_LESS_THAN_CONTROL_LENGTH:'at that angle, too little board is left to hold',
+  RETAINED_CONTROL_LENGTH_TOO_SHORT:'too little parent stock remains for the Store’s registered control requirement',
   COMPONENT_LENGTH_BELOW_TWO_ROLLER_CONTROL:'a board is too short for the rollers to hold',
   SPOT_LOCATION_OUTSIDE_PART:'a spot falls off the end of its board',
   SPOT_INSET_OUTSIDE_BOARD_WIDTH:'a spot’s edge distance is wider than the board'
@@ -958,9 +959,14 @@ function summarize(ev){
   const pk=ev.packages||[],it=ev.items||[],lines=[...pk,...it];
   const allOk=ev.status==='SUPPORTABLE'&&lines.length>0&&lines.every(l=>l.status==='SUPPORTABLE');
   const t=ev.totals||{};
+  const bad=lines.filter(l=>l.status!=='SUPPORTABLE');
+  const reasons=[
+    ...lineCodes(ev).map(code=>({code,text:'Whole job: '+reasonText(code)+(REASONS[code]?'':' ('+code+')')})),
+    ...bad.map(l=>{const codes=lineCodes(l).length?lineCodes(l):[l.status];return {code:codes.join(','),text:groupLabel(l.packageId||l.lineId,S.cfg.plan)+': '+codes.map(reasonText).join('; ')}})
+  ];
   return {ev,pk,it,lines,allOk,t,estimate:allOk?t.sumOfSupportableLines:null,
     minutes:pk.reduce((n,p)=>n+Number(p.time?.T_MACHINE_min||0),0),spots:pk.reduce((n,p)=>n+Number(p.spotCount||0),0),
-    stubs:pk.reduce((n,p)=>n+(p.stubs||[]).length,0),bad:lines.filter(l=>l.status!=='SUPPORTABLE')};
+    stubs:pk.reduce((n,p)=>n+(p.stubs||[]).length,0),bad,reasons};
 }
 const view=()=>S.answer?summarize(S.answer.evaluation):null;
 function optionPrice(kind,key){
@@ -977,7 +983,7 @@ function feedTerms(){
   const v=view();
   if(!v||!answerCurrent()||S.asking||S.error||S.blocked){TERMS.setAnswer(null);return}
   const st=TERMS.setAnswer({version:S.answer.definition.configurationVersion,status:v.allOk?'SUPPORTABLE':(v.ev.status==='SUPPORTABLE'?'UNRESOLVED':(v.ev.status||'REFUSED')),
-    total:v.estimate,reasons:v.bad.map(l=>{const codes=lineCodes(l).length?lineCodes(l):[l.status];return {code:codes.join(','),text:groupLabel(l.packageId||l.lineId,S.cfg.plan)+': '+codes.map(reasonText).join('; ')}}),
+    total:v.estimate,reasons:v.reasons,
     body:S.answer.body,sentAt:S.answer.sentAt});
   if(st.stage==='NO_ANSWER'){S.answer.stale=true;scheduleAsk()}
 }
@@ -1082,8 +1088,8 @@ function answerHtml(){
   if(v.estimate!=null)return head+'<div class="total" style="'+(a.stale?'opacity:.5':'')+'">'+money(v.estimate)+'</div>'
     +'<p class="meta">Wood '+money(v.t.material)+' + machine work '+money(v.t.machine_service)+(v.t.hardware?' + hardware '+money(v.t.hardware):'')+' · '+Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+(v.stubs?' · '+v.stubs+' stubs returned with your parts':'')+'</p>'
     +'<p class="meta">Complete budgetary estimate for revision '+a.rev+'. A Store budgetary answer, not a quote.</p>'+ids;
-  return head+'<div class="total none">No complete budgetary estimate</div><p class="status bad">Store Zero can’t do every line for this table:</p><ul class="refusals">'
-    +v.bad.map(l=>'<li>'+esc(groupLabel(l.packageId||l.lineId,S.cfg.plan))+': '+esc((lineCodes(l).length?lineCodes(l):[l.status]).map(reasonText).join('; '))+'</li>').join('')+'</ul>'+ids;
+  return head+'<div class="total none">No complete budgetary estimate</div><p class="status bad">Store status: '+esc(v.ev.status)+'. Store Zero did not support this complete table:</p><ul class="refusals">'
+    +v.reasons.map(reason=>'<li>'+esc(reason.text)+'</li>').join('')+'</ul>'+ids;
 }
 function renderIntent(){
   $('outdoor-starting-definition').textContent='Demo starting definition: '+title()+'. Choose either plan below or adjust its values on the Bench.';
@@ -1125,6 +1131,7 @@ function renderBuild(){
   $('len-hint').textContent='';
   const w=work(cfg).length;
   $('bench-instant').innerHTML=answerHtml()+(w?'<p class="status ask" style="margin-top:6px">This includes the extra work you tried on the bench. <a href="#" data-drop-work>Drop it and go back to the plan as is.</a></p>':'');
+  $('instant').innerHTML=answerHtml();
   $('bench-confirm').disabled=!answerCurrent()||!usable().store;
   $('confirm').disabled=!TERMS.state().callOpen||servicePending();
   const missing=blockedAdmission();
@@ -1183,8 +1190,8 @@ function renderDefinition(){
   }else if(pending){
     status.innerHTML='<div class="def-warning"><b>Awaiting a Store answer for this exact revision</b></div>';
   }else if(!v.allOk){
-    status.innerHTML='<div class="def-warning bad"><b>Store did not support every line — no complete estimate</b>'+
-      v.bad.map(line=>'<p>'+esc(groupLabel(line.packageId||line.lineId,cfg.plan))+': '+esc((lineCodes(line).length?lineCodes(line):[line.status]).map(reasonText).join('; '))+'</p>').join('')+'</div>';
+    status.innerHTML='<div class="def-warning bad"><b>Store status: '+esc(v.ev.status)+' — no complete estimate</b>'+
+      v.reasons.map(reason=>'<p>'+esc(reason.text)+'</p>').join('')+'</div>';
   }else{
     status.innerHTML='<p class="def-muted">Store returned a complete budgetary answer for this exact revision. Engineering and installation remain outside its evaluation.</p>';
   }

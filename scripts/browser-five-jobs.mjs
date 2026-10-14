@@ -12,15 +12,16 @@ let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
-  const evaluations = [], responseReads = [];
+  const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
-  let extendedSeatConfigReads = 0;
+  let extendedSeatConfigReads = 0, extendedOutdoorConfigReads = 0;
   page.on('request', r => {
     if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
   });
   page.on('response', r => {
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
-    if (new URL(r.url()).pathname === '/api/store-zero/job') responseReads.push(r.json().then(body=>evaluations.push(body)));
+    if (new URL(r.url()).pathname === '/api/store-zero/job') responseReads.push(r.json().then(
+      body=>evaluations.push(body), error=>responseReadErrors.push(String(error))));
   });
   const entry = await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
   assert.equal(entry.status(), 200, 'public route should load');
@@ -38,7 +39,10 @@ try {
     ['Playhouse', '[data-go="window-parts"]']
   ];
   for (const [index, [label, destination]] of tiles.entries()) {
-    if (index) await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    if (index) {
+      await Promise.all(responseReads);
+      await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+    }
     // Actual reader route: opening door -> New User -> Later -> project library.
     await content.locator('#landing button[data-go="new-user"]').click({ timeout: 15000 });
     await content.locator('#new-user button[data-canonical-go="projects"]').click({ timeout: 15000 });
@@ -177,7 +181,74 @@ try {
       const quote = (await money.innerText()).trim();
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Outdoor Bench displayed no fresh Store response');
-      console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true }));
+      const extraConfigStart = configRequests.length;
+      const waitOutdoorAnswer = async () => {
+        await page.waitForFunction(() => {
+          const win=document.getElementById('stb-current')?.contentWindow?.document
+            ?.getElementById('stb-current')?.contentWindow?.document
+            ?.getElementById('outdoor-bench-leg-frame')?.contentWindow;
+          const state=win?.STBOutdoorPicnic?.state();
+          return state?.current && !state.asking && !state.error;
+        }, undefined, { timeout: 45000 });
+        await Promise.all(responseReads);
+        const revision=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.request().configurationVersion);
+        const answer=evaluations.filter(body=>body.projectId==='outdoor'&&body.candidateRevisionId===revision).at(-1);
+        assert.ok(answer, 'Outdoor has no real Store reply for its current revision');
+        assert.equal(answer.storePin,expectedPin);
+        return answer;
+      };
+      const planResults=[];
+      for (const [plan, initialQ, revisedQ] of [['a-frame',293.16,320.25],['table-benches',288.23,321.94]]) {
+        if (plan==='table-benches') {
+          await content.getByRole('button',{name:'1 · Intent',exact:true}).click();
+          await outdoor.locator('#s-intent [data-plan="table-benches"]').click();
+        }
+        const initial=await waitOutdoorAnswer();
+        assert.equal(initial.rawEvaluation.status,'SUPPORTABLE');
+        assert.equal(initial.rawEvaluation.Q,initialQ);
+        assert.equal((await money.innerText()).trim(),'$'+initialQ.toFixed(2));
+        await outdoor.locator('#s-build [data-size="12"]').click();
+        const revised=await waitOutdoorAnswer();
+        assert.equal(revised.rawEvaluation.status,'SUPPORTABLE');
+        assert.equal(revised.rawEvaluation.Q,revisedQ);
+        assert.equal((await money.innerText()).trim(),'$'+revisedQ.toFixed(2));
+        assert.notEqual(revised.evaluationReceipt.receiptHash,initial.evaluationReceipt.receiptHash);
+        assert.notEqual(revised.evaluationReceipt.demandHash,initial.evaluationReceipt.demandHash);
+        const stableParts=def=>def.cutPackages.flatMap(p=>p.parts).filter(p=>!p.partId.includes('SLAT')&&!p.partId.startsWith('TOP-')&&!p.partId.startsWith('SEAT-'));
+        assert.deepEqual(stableParts(revised.mappedCallInputs.demand),stableParts(initial.mappedCallInputs.demand));
+        await outdoor.locator('#len').press('End');
+        const refused=await waitOutdoorAnswer();
+        assert.equal(refused.rawEvaluation.status,'REFUSED');
+        assert.equal(refused.rawEvaluation.Q,null);
+        assert.ok(refused.rawEvaluation.reasonCodes.includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'));
+        assert.equal((refused.rawEvaluation.packages||[]).length,0,'Exercise a whole-job refusal without failed line items');
+        const status=await outdoor.locator('#outdoor-definition-status').innerText();
+        assert.ok(status.includes('REFUSED')&&status.includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'),status);
+        assert.ok((await outdoor.locator('#bench-instant').innerText()).includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'));
+        assert.equal((await money.innerText()).trim(),'No complete price');
+        const state=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state());
+        assert.equal(state.terms.stage,'REFUSED_BY_STORE');
+        assert.equal(state.terms.callOpen,false);
+        assert.ok(state.terms.reasons.some(r=>r.code==='RETAINED_CONTROL_LENGTH_TOO_SHORT'));
+        assert.ok((await outdoor.locator('#call-terms').textContent()).includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'));
+        await content.getByRole('button',{name:'3 · The Store answers',exact:true}).click();
+        assert.ok((await outdoor.locator('#answer').innerText()).includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'));
+        await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+        await outdoor.locator('#len').press('Home');
+        const recovery=await waitOutdoorAnswer();
+        assert.equal(recovery.rawEvaluation.status,'SUPPORTABLE');
+        assert.notEqual(recovery.evaluationReceipt.receiptHash,refused.evaluationReceipt.receiptHash);
+        // Restore the plan's existing 72-inch starting behavior for the next checks.
+        await outdoor.locator('#s-build [data-size="12"]').click();
+        await waitOutdoorAnswer();
+        planResults.push({plan,initialQ,revisedQ,wholeJobRefusalVisible:true,recovery:true});
+      }
+      // Read the final current comparisons before navigation destroys their response bodies.
+      await outdoor.locator('#woods').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
+      await outdoor.locator('#tiers').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
+      await Promise.all(responseReads);
+      extendedOutdoorConfigReads=configRequests.length-extraConfigStart;
+      console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true, planResults }));
     }
     if (label === 'Playhouse') {
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
@@ -203,14 +274,16 @@ try {
   assert.equal(config.storePin, expectedPin, 'published Store release drifted');
   assert.equal(config.jobEndpoint, 'same-origin:/api/store-zero/job');
   assert.equal(config.offeringEndpoint, 'same-origin:/api/store-zero/offering');
+  await Promise.all(responseReads);
+  assert.deepEqual(responseReadErrors,[], 'Every observed Store response body must be read');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
   // Keep the original five-project navigation allowance. The extended species
-  // and geometry inquiries may legitimately cross the client's five-second
+  // and geometry/Outdoor inquiries may legitimately cross the client's five-second
   // configuration expiry; count those extra reads separately.
-  assert.ok(configRequests.length-extendedSeatConfigReads <= 12,
+  assert.ok(configRequests.length-extendedSeatConfigReads-extendedOutdoorConfigReads <= 12,
     'Repeated runtime config fetches remain excessive: ' + configRequests.length);
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
-    configRequests: configRequests.length, extendedSeatConfigReads, storeResponses: responses }));
+    configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
   await page.close();
 } catch (error) {
   failed = true;
