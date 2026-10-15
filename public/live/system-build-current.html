@@ -21,7 +21,7 @@ window.STBStartOwnAnswer = startOwnAnswer;
 </script>
 <script src="stb-commercial-sequence.js?v=demo-checkout-20261011"></script>
 <script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
-<script src="stb-terms-flow.js?v=demo-checkout-20261011-receipts"></script>
+<script src="stb-terms-flow.js?v=journey-visible-20261015"></script>
 <script src="store-zero-canonical-doctrine.js?v=demo-checkout-20261011"></script>
 <script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
@@ -1734,7 +1734,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         + (history ? '<p class="chainstep">VERSION HISTORY</p><ul class="chainhistory">' + history + '</ul>' : '')
         + '</div>';
     }
-    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'alcove', title:'Alcove insert' }) : null;
+    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'alcove', title:'Alcove insert', demoCommerce:true }) : null;
     window.STBTermsFlow?.installStyle(doc);
     // The answer inquire() returned for the revision the page last admitted, while nothing newer is being asked and
     // that revision is the one on the page now; otherwise null. Only isCurrentAnswer() decides: a blocked, failed,
@@ -2456,7 +2456,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<h2 id="proof-store-lead">The Store is answering this version.</h2>'
       +'<div class="start-own-terms-host" data-terms-step="call"></div>'
-      +'<details><summary>How the Store worked this out</summary>'
+      +'<details open><summary>How the Store worked this out</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-store-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-store-version">—</span></div>'
@@ -2487,7 +2487,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<div class="proof-actor-grid"><div><b>YOUR TOTAL</b><span id="proof-accept-q">—</span></div><div><b>MACHINE WORK</b><span id="proof-accept-service">—</span></div></div>'
       +'<div class="start-own-terms-host" data-terms-step="call"></div>'
-      +'<details><summary>Version and transaction records</summary><div class="proof-actor-grid">'
+      +'<details open><summary>Version and transaction records</summary><div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-accept-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-accept-version">—</span></div>'
         +'<div><b>STORE SHA</b><span id="proof-accept-pin">—</span></div>'
@@ -2507,7 +2507,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       +'<p class="sub">One identified job travels through the Yard. The events stay separate and keep their own receipts.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<div class="start-own-terms-host" data-terms-step="yard"></div>'
-      +'<details><summary>How the yard works and records the job</summary>'
+      +'<details open><summary>How the yard works and records the job</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-yard-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-yard-version">—</span></div>'
@@ -2643,7 +2643,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       +'<p class="sub">Everything that happened stays tied to the exact version you approved.</p>'
       +'<div class="band"><b data-proof-job-thread>JOB 1 · X BRACE</b></div>'
       +'<div class="start-own-terms-host" data-terms-step="record"></div>'
-      +'<details><summary>Your project record</summary>'
+      +'<details open><summary>Your project record</summary>'
       +'<div class="proof-actor-grid">'
         +'<div><b>JOB</b><span id="proof-record-job">—</span></div>'
         +'<div><b>VERSION</b><span id="proof-record-version">—</span></div>'
@@ -3582,7 +3582,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       if (s001Live.admission?.definitionRevisionId !== s001Revision(read()).definitionRevisionId) return null;
       return tileHostContract.isCurrentAnswer({ admission:s001Live.admission, answer:a }) ? a : null;
     }
-    var s001Terms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'playhouse', title:'Playhouse arched window' }) : null;
+    var s001Terms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'playhouse', title:'Playhouse arched window', demoCommerce:true }) : null;
     window.STBTermsFlow?.installStyle(doc);
     function s001FeedTerms() {
       if (!s001Terms) return;

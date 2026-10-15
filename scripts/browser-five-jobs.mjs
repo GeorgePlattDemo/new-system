@@ -65,6 +65,48 @@ try {
     ?.getElementById('stb-current')?.contentWindow?.document?.querySelector('#projects')), { timeout: 30000 });
   const content = page.frameLocator('iframe#stb-current').frameLocator('iframe#stb-current');
   await content.locator('#projects').waitFor({ state: 'attached', timeout: 30000 });
+  const journey = async (surface, projectId, label) => {
+    const nav = content.locator('.recovery-nav');
+    const stages = ['1 · Intent','2 · The bench','3 · The Store answers','4 · Your call','5 · We cut it','6 · Pick up & build'];
+    for (const name of stages) assert.equal(await nav.getByRole('button',{name,exact:true}).isVisible(),true,label+': missing '+name);
+    assert.equal(await nav.getByRole('button',{name:stages[4],exact:true}).isDisabled(),true);
+    assert.equal(await nav.getByRole('button',{name:stages[5],exact:true}).isDisabled(),true);
+    await nav.getByRole('button',{name:stages[3],exact:true}).click();
+    const accept=surface.locator('[data-terms-action="accept"]:visible');
+    await accept.waitFor({timeout:15000});
+    await Promise.all(responseReads);
+    const answer=evaluations.filter(a=>a.projectId===projectId&&a.rawEvaluation?.status==='SUPPORTABLE'&&!a.candidateRevisionId?.includes('-wood-')&&!a.candidateRevisionId?.includes('-tier-')).at(-1);
+    assert.ok(answer,label+': no real selected Store answer');
+    const Q=answer.rawEvaluation.totals.Q;
+    assert.ok((await accept.innerText()).includes('$'+Q.toFixed(2)),label+': offer differs from Store Q');
+    const visibleChain=surface.locator('.stb-terms:visible');
+    assert.equal(await visibleChain.locator('[data-terms-event="arrived"]').isVisible(),true);
+    assert.ok((await visibleChain.innerText()).includes(answer.evaluationReceipt.receiptHash.slice(0,16)),label+': receipt must be visible without expansion');
+    await accept.click();
+    const yard=surface.locator('[data-terms-action="yard"]:visible');
+    await yard.waitFor({timeout:15000});
+    assert.equal(await nav.getByRole('button',{name:stages[4],exact:true}).isEnabled(),true);
+    assert.equal(await nav.getByRole('button',{name:stages[5],exact:true}).isDisabled(),true);
+    await nav.getByRole('button',{name:stages[3],exact:true}).click();
+    assert.equal(await surface.locator('[data-terms-action="accept"]:visible').count(),0,'Revisiting Your call must not create a second checkout');
+    await nav.getByRole('button',{name:stages[4],exact:true}).click();
+    await yard.click();
+    const pickup=surface.locator('[data-terms-action="pickup"]:visible');
+    await pickup.waitFor({timeout:15000});
+    assert.equal(await nav.getByRole('button',{name:stages[5],exact:true}).isEnabled(),true);
+    await nav.getByRole('button',{name:stages[4],exact:true}).click();
+    assert.equal(await surface.locator('[data-terms-action="yard"]:visible').count(),0,'A ready job must not run twice');
+    await nav.getByRole('button',{name:stages[5],exact:true}).click();
+    await pickup.click();
+    const receipt=surface.locator('[data-terms-receipt]:visible');
+    await receipt.waitFor({timeout:15000});
+    const receiptText=await receipt.innerText();
+    assert.ok(receiptText.includes(answer.evaluationReceipt.receiptHash));
+    assert.ok(receiptText.includes('$'+Q.toFixed(2)));
+    assert.ok(receiptText.includes('simulated payment')&&receiptText.includes('Demo receipt'));
+    for(const name of stages)assert.equal(await nav.getByRole('button',{name,exact:true}).isVisible(),true);
+    console.log(JSON.stringify({project:label,fullJourney:'Store → accept → yard demo → pickup',Q,visibleReceipts:true,storeReceipt:answer.evaluationReceipt.receiptHash}));
+  };
   // Exercise the actual published tile buttons. The unmodified shell remains
   // responsible for routing their Idea/Intent/Bench experiences.
   const tiles = [
@@ -113,6 +155,10 @@ try {
         .waitFor({ state: 'visible', timeout: 30000 });
       assert.ok(responses.some(r => r.path === '/api/store-zero/job' && r.status === 200),
         'Project 1 knob change did not reach the live pinned Store');
+      await bench.locator('#stb-confirm-store').click();
+      await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
+      await journey(content,'start-own',label);
+      assert.equal(await content.locator('#proof-record details').evaluate(e=>e.open),true,'Project documentation must start visible');
       console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13, liveStore: true }));
     }
     if (label === 'Alcove') {
@@ -133,6 +179,9 @@ try {
       assert.notEqual(poplar, pine, 'Changing Alcove species failed to update the visible Store Q');
       const after = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       assert.ok(after > before, 'Alcove species change did not receive a new Store answer');
+      await content.locator('#confirm-alcove-inline').click();
+      await content.locator('#store').waitFor({state:'visible',timeout:45000});
+      await journey(content,'alcove',label);
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
     if (label === 'Window Seat') {
@@ -203,6 +252,14 @@ try {
       assert.ok(missing.rawEvaluation.reasonCodes.includes('NO_MATCHING_BOARD_OFFERING'));
       assert.equal(missing.rawEvaluation.Q,null);
       assert.ok((await money.innerText()).includes('NO_MATCHING_BOARD_OFFERING'));
+      await seat.locator('#bench-species [data-material="pine"]').click();
+      await waitAnswer();
+      await seat.locator('#btn-ask').click();
+      await journey(seat,'window-seat',label);
+      const seatTerms=await seat.locator('body').evaluate(()=>window.STBWindowSeat.state().terms);
+      assert.equal(seatTerms.commercial.physicalAuthority,false);
+      assert.equal(seatTerms.commercial.paymentAuthority,false);
+      assert.equal(await seat.locator('body').evaluate(()=>window.STBTermsFlow.verify(window.STBWindowSeat.state().terms)),true);
       extendedSeatConfigReads=configRequests.length-configReadsBeforeSpeciesChecks;
       console.log(JSON.stringify({project:label,benchPrice:quote,poplar:poplarPrice,oakStockShortageVisible:true,
         oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
@@ -270,6 +327,7 @@ try {
         await content.getByRole('button',{name:'3 · The Store answers',exact:true}).click();
         assert.ok((await outdoor.locator('#answer').innerText()).includes('RETAINED_CONTROL_LENGTH_TOO_SHORT'));
         await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+        await outdoor.locator('#s-build').waitFor({state:'visible',timeout:15000});
         await outdoor.locator('#len').press('Home');
         const recovery=await waitOutdoorAnswer();
         assert.equal(recovery.rawEvaluation.status,'SUPPORTABLE');
@@ -322,10 +380,28 @@ try {
         const selectedState=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state());
         assert.equal(selectedState.terms.version,selectedState.answer.definitionRevisionId);
         assert.equal(selectedState.answer.inquiryScope,'OUTDOOR_COMMITTED');
+        await outdoor.locator('#bench-confirm').click();
+        for(const service of ['sanding','cart','pallet']){
+          const choice=outdoor.locator('[data-outdoor-service="'+service+'"]');
+          await choice.click();
+          assert.equal(await outdoor.locator('#confirm').isDisabled(),true,'An unpriced service must not authorize checkout');
+          assert.equal(await content.getByRole('button',{name:'4 · Your call',exact:true}).isDisabled(),true);
+          assert.equal(await content.getByRole('button',{name:'5 · We cut it',exact:true}).isVisible(),true);
+          assert.equal(await content.getByRole('button',{name:'6 · Pick up & build',exact:true}).isVisible(),true);
+          await choice.click();
+          assert.equal(await outdoor.locator('#confirm').isEnabled(),true);
+        }
+        await journey(outdoor,'outdoor',label+' · '+plan);
+        const completed=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state().terms);
+        assert.equal(completed.stage,'HANDED_OFF');
+        assert.equal(completed.commercial.physicalAuthority,false);
+        assert.equal(completed.commercial.paymentAuthority,false);
+        assert.equal(await outdoor.locator('body').evaluate(()=>window.STBTermsFlow.verify(window.STBOutdoorPicnic.state().terms)),true);
         console.log(JSON.stringify({project:label,plan,rapidSizeChanges:measurements,obsoleteQueuedPreviewsSent:0,comparisonReplies:comparisons.length}));
         planResults.push({plan,initialQ,revisedQ,wholeJobRefusalVisible:true,recovery:true});
       }
       // Read the final current comparisons before navigation destroys their response bodies.
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await outdoor.locator('#woods').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
       await outdoor.locator('#tiers').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
       await Promise.all(responseReads);
@@ -343,6 +419,10 @@ try {
       await quote.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Playhouse sheet definition received no current Store answer');
+      await journey(content,'playhouse',label);
+      const playhouse=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.terms());
+      assert.equal(playhouse.commercial.physicalAuthority,false);
+      assert.equal(playhouse.commercial.paymentAuthority,false);
       console.log(JSON.stringify({ project: label, benchPrice: (await quote.innerText()).trim(), liveStore: true }));
     }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));

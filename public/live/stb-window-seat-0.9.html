@@ -588,7 +588,8 @@
 <script src="store-zero-canonical-doctrine.js?v=demo-checkout-20261011"></script>
 <script src="stb-store-client.js?v=demo-checkout-20261011"></script>
 <script src="stb-commercial-sequence.js?v=demo-checkout-20261011"></script>
-<script src="stb-terms-flow.js?v=demo-checkout-20261011-receipts"></script>
+<script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
+<script src="stb-terms-flow.js?v=journey-visible-20261015"></script>
 <script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
 <script>
@@ -726,7 +727,7 @@ let rev={n:1};
 const S={view:'trail',section:'hero',asking:false,answer:null,error:null,blocked:null};
 
 /* One terms flow for every tile (stb-terms-flow.js): sent → arrived → answered → offered → your call → paid → queued → yard → custody. */
-const TERMS=window.STBTermsFlow.create({projectId:'window-seat',title:'Window seat'});
+const TERMS=window.STBTermsFlow.create({projectId:'window-seat',title:'Window seat',demoCommerce:true});
 window.STBTermsFlow.installStyle(document);
 
 /* Dev/Rev rails: one slot per page, filled from the app's one guide file, so every project shares one vocabulary.

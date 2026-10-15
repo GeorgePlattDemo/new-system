@@ -265,7 +265,7 @@
       const reasons = s === 'REFUSED_BY_STORE' && chain.reasons.length
         ? '<ul class="stb-terms-reasons">' + chain.reasons.map(r => '<li><b>' + esc(r.code) + '</b>' + (r.text ? ' · ' + esc(r.text) : '') + '</li>').join('') + '</ul>'
         : '';
-      return '<details class="stb-terms" data-terms-stage="' + s + '"><summary class="stb-terms-hd">VIEW RECEIPTS · ' + esc(chain?.title || projectId) + '</summary>' + rows + reasons + '</details>';
+      return '<section class="stb-terms" data-terms-stage="' + s + '"><h3 class="stb-terms-hd">RECEIPTS · ' + esc(chain?.title || projectId) + '</h3>' + rows + reasons + '</section>';
     }
 
     function renderControls(step){
@@ -299,13 +299,13 @@
     function renderReceipt(){
       const r = receipt();
       if (!r) return '';
-      return '<details class="stb-terms-receipt" data-terms-receipt><summary class="stb-terms-hd">PICKUP RECEIPT · ' + esc(money(r.total)) + '</summary>'
+      return '<section class="stb-terms-receipt" data-terms-receipt><h3 class="stb-terms-hd">PICKUP RECEIPT · ' + esc(money(r.total)) + '</h3>'
         + '<div class="stb-terms-kv"><span>Order</span><b>' + esc(r.orderId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Version</span><b>' + esc(r.version) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Total (Store budgetary Q; simulated payment)</span><b>' + esc(money(r.total)) + ' · ' + esc(r.paymentId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Store</span><b>' + esc(String(r.storePin).slice(0,12)) + ' · request ' + esc(String(r.requestId).slice(0,8)) + '</b></div>'
         + r.events.map(e => '<div class="stb-terms-kv"><span>' + esc(EVENTS.find(d => d.id === e.id)?.label || e.id) + '</span><code>' + esc(e.hash || '—') + '</code></div>').join('')
-        + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></details>';
+        + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></section>';
     }
 
     function bind(host, after){
