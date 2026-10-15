@@ -1395,8 +1395,13 @@ function renderYard(){
   const st=TERMS.state(),v=view();
   if(!st.yardOpen||!v){$('yard-sub').textContent='Nothing is in the yard yet. This page opens after you accept the simulated offer.';$('yard-boards').innerHTML='';$('yard-machine').textContent='';return}
   $('yard-sub').textContent=title()+' · order '+st.orderId;
-  const boards=v.pk.flatMap(p=>(p.cutPlan||[]).map(b=>({...b,group:p.packageId})));
-  $('yard-boards').innerHTML=boards.map(b=>'<tr><td>'+esc(b.boardId)+'</td><td>'+esc(b.storeSku)+' ('+b.stockLengthIn+'")</td><td>'+(b.partsInCutOrder||[]).map(p=>esc(p.partId)+' '+fmt(p.lengthIn)+'"').join(' → ')+'</td><td>'+(b.stubIn!=null?fmt(b.stubIn)+'"':(b.offcutIn!=null?fmt(b.offcutIn)+'" offcut':'—'))+'</td></tr>').join('');
+  const boards=v.pk;
+  $('yard-boards').innerHTML=boards.map(b=>{
+    const pieces=Array.isArray(b.components)?b.components:null;
+    return '<tr><td>'+esc(b.parentId||'Parent ID missing')+'</td><td>'+esc(b.storeSku)+' ('+(Number.isFinite(b.stockL_in)?fmt(b.stockL_in)+'"':'stock length missing')+')</td>'
+      +'<td>'+(pieces?pieces.map(p=>esc(p.partId)+' '+(Number.isFinite(p.nominalFinishedLengthIn)?fmt(p.nominalFinishedLengthIn)+'"':'length missing')).join(' → '):'Store component details missing')+'</td>'
+      +'<td>'+(Number.isFinite(b.remainingLengthIn)?fmt(b.remainingLengthIn)+'" remaining':'Remainder not supplied')+'</td></tr>';
+  }).join('');
   $('yard-machine').textContent=Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+' · machine work '+money(v.t.machine_service)+'. SIMULATED: no machine runs; Cycle Start stays with the person at the cell.';
 }
 function renderRecord(){
@@ -1404,7 +1409,13 @@ function renderRecord(){
   if(!st.recordOpen||!v){$('record-sub').textContent='Nothing to pick up yet. This page opens once the parts are cut and ready.';$('record-kit').innerHTML='';$('record-ids').textContent='';$('record-open').innerHTML='';return}
   const plan=S.cfg.plan;
   $('record-sub').textContent=title()+' · '+money(v.estimate);
-  const rows=v.pk.map(p=>{const parts=(p.cutPlan||[]).reduce((n,b)=>n+(b.partsInCutOrder||[]).length,0);return '<tr><td>'+esc(groupLabel(p.packageId,plan))+'</td><td>'+parts+' cut parts from '+p.boards+' × '+esc(p.storeSku)+'</td><td>'+parts+'</td></tr>'});
+  const rows=v.pk.map(p=>{
+    const ids=Array.isArray(p.partIds)?p.partIds:null;
+    const names=ids?[...new Set(ids.map(id=>PART_NAMES[String(id).replace(/-\d+$/,'')]||String(id)))].join(', '):'Store part identities missing';
+    const count=ids?ids.length:null;
+    return '<tr><td>'+esc(names)+'</td><td>'+(count===null?'Part count unavailable':'Cut parts')+' from '+esc(p.qty)+' × '+esc(p.storeSku)
+      +(ids?' · '+ids.map(esc).join(', '):'')+'</td><td>'+(count===null?'—':count)+'</td></tr>';
+  });
   if(v.stubs)rows.push('<tr><td>Stubs</td><td>Returned with your parts</td><td>'+v.stubs+'</td></tr>');
   rows.push(...v.it.map(i=>'<tr><td>'+esc(groupLabel(i.lineId,plan))+'</td><td>'+esc(i.description||i.storeSku)+'</td><td>'+(i.packages||i.qty)+'</td></tr>'));
   if(S.cfg.tier==='BYO')rows.push('<tr><td>Hardware</td><td>You supply</td><td>—</td></tr>');
