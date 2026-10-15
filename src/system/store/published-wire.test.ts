@@ -604,7 +604,7 @@ test("a cut-package field the translator does not read reaches the Store, which 
 
 test("Outdoor option alternatives get independent Store receipts even when one wood is unavailable", async () => {
   const window: Record<string, any> = {};
-  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window});
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window,setTimeout,clearTimeout,Date});
   const leg = {partId:"LEG-01",lengthIn:31.375};
   const endCut = {angleDeg:25,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face"};
   const options = {
@@ -639,7 +639,7 @@ test("Outdoor option alternatives get independent Store receipts even when one w
 
 test("Outdoor inquiry queue runs one job at a time and gives selected work priority after a preview failure", async () => {
   const window: Record<string, any> = {};
-  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window});
+  runInNewContext(readFileSync(new URL("../../../public/live/stb-outdoor-option-requests.js", import.meta.url), "utf8"), {window,setTimeout,clearTimeout,Date});
   const {enqueue} = window.STBOutdoorOptionRequests;
   const order: string[] = [];
   let release!: () => void;
