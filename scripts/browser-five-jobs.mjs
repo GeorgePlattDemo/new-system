@@ -10,8 +10,8 @@ import { chromium } from 'playwright';
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
 {
   const window={};
-  runInNewContext(readFileSync(new URL('../public/live/stb-outdoor-option-requests.js',import.meta.url),'utf8'),{window});
-  const {enqueue}=window.STBOutdoorOptionRequests;
+  runInNewContext(readFileSync(new URL('../public/live/stb-outdoor-option-requests.js',import.meta.url),'utf8'),{window,setTimeout,clearTimeout,Date});
+  const {enqueue,deferPreviews}=window.STBOutdoorOptionRequests;
   const order=[];let release,currentGeneration=1;
   const gate=new Promise(resolve=>{release=resolve;});
   const active=enqueue(async()=>{order.push('active preview');await gate;return 'completed';},
@@ -28,6 +28,12 @@ import { chromium } from 'playwright';
   assert.equal(await current,'current');
   await Promise.all(discarded);
   assert.deepEqual(order,['active preview','selected','current preview']);
+  deferPreviews(50);
+  const preview=enqueue(async()=>{order.push('preview after selected');return 'preview';},{preview:true});
+  const chosen=enqueue(async()=>{order.push('selected before waiting preview');return 'selected';});
+  assert.equal(await chosen,'selected');
+  assert.equal(await preview,'preview');
+  assert.deepEqual(order.slice(-2),['selected before waiting preview','preview after selected']);
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
@@ -48,11 +54,15 @@ try {
     if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
     if (new URL(r.url()).pathname === '/api/store-zero/job') {
       const wire=outdoorWire(r);
-      if(wire){outdoorRequests.push({wire,started:performance.now()});outdoorInFlight++;outdoorMaxInFlight=Math.max(outdoorMaxInFlight,outdoorInFlight);}
+      if(wire){outdoorRequests.push({wire,started:performance.now(),request:r});outdoorInFlight++;outdoorMaxInFlight=Math.max(outdoorMaxInFlight,outdoorInFlight);}
     }
   });
   for(const event of ['requestfinished','requestfailed'])page.on(event,r=>{
-    if(new URL(r.url()).pathname==='/api/store-zero/job'&&outdoorWire(r))outdoorInFlight--;
+    if(new URL(r.url()).pathname==='/api/store-zero/job'&&outdoorWire(r)){
+      outdoorInFlight--;
+      const tracked=outdoorRequests.find(x=>x.request===r);
+      if(tracked)tracked.finished=performance.now();
+    }
   });
   page.on('response', r => {
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
@@ -266,9 +276,9 @@ try {
         oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
     }
     if (label === 'Outdoor') {
-      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=journey-visible-20261015'),'The host must invalidate the previously cached Outdoor page');
+      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=selected-first-20261015'),'The host must invalidate the previously cached Outdoor page');
       const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
-      assert.ok((await outdoor.locator('script[src*="stb-outdoor-option-requests.js"]').getAttribute('src')).includes('?v=queue-correction-20261015'),'The corrected queue must not reuse the previously cached script');
+      assert.ok((await outdoor.locator('script[src*="stb-outdoor-option-requests.js"]').getAttribute('src')).includes('?v=selected-first-20261015'),'The corrected queue must not reuse the previously cached script');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await outdoor.locator('#idea-next').click({ timeout: 15000 });
       await outdoor.locator('#s-intent [data-to-bench]').click({ timeout: 15000 });
@@ -350,7 +360,13 @@ try {
           const answer=await waitOutdoorAnswer();
           assert.equal(answer.rawEvaluation.status,'SUPPORTABLE');
           assert.equal((await money.innerText()).trim(),'$'+answer.rawEvaluation.Q.toFixed(2));
-          measurements.push({length,elapsedMs:Math.round(performance.now()-start),Q:answer.rawEvaluation.Q,receipt:answer.evaluationReceipt.receiptHash});
+          const selectedRequest=outdoorRequests.findLast(x=>x.wire.candidateRevisionId===answer.candidateRevisionId);
+          const completedAt=performance.now();
+          measurements.push({length,elapsedMs:Math.round(completedAt-start),Q:answer.rawEvaluation.Q,
+            beforeHttpMs:selectedRequest?Math.round(selectedRequest.started-start):null,
+            systemStoreHttpMs:selectedRequest?.finished?Math.round(selectedRequest.finished-selectedRequest.started):null,
+            afterHttpMs:selectedRequest?.finished?Math.round(completedAt-selectedRequest.finished):null,
+            searchNodes:answer.rawEvaluation.optimization?.nodes??null,receipt:answer.evaluationReceipt.receiptHash});
           if(activePreview)await activePreview;
         }
         for(const id of ['woods','tiers'])await outdoor.locator('#'+id).filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});

@@ -588,7 +588,7 @@ tr:last-child td{border-bottom:0}
 <script src="stb-terms-flow.js?v=journey-visible-20261015"></script>
 <script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
-<script src="stb-outdoor-option-requests.js?v=queue-correction-20261015"></script>
+<script src="stb-outdoor-option-requests.js?v=selected-first-20261015"></script>
 <script>
 (function(){
 'use strict';
@@ -886,7 +886,7 @@ function changed(){
   const req=buildRequest();
   if(S.answer&&req&&S.answer.sig!==req.sig&&!S.answer.stale){S.answer.stale=true;S.rev++}
   S.error=null;S.blocked=null;
-  scheduleAsk();scheduleOptions();render();
+  window.STBOutdoorOptionRequests.deferPreviews();scheduleAsk();scheduleOptions();render();
 }
 function scheduleAsk(){
   clearTimeout(askTimer);
@@ -1024,12 +1024,14 @@ function render(){
 /* Screen 1: each "From" is the Store's cheapest complete wood for that plan as published, at 6 ft, bring-your-own hardware. */
 function askFrom(){
   for(const key of Object.keys(PLANS)){
-    const def=optionsRequest(planCfg(key),{hardware:false});
+    if(S.from[key])continue;
+    const def=optionsRequest(planCfg(key),{hardware:false}),isCurrent=()=>S.section==='intent';
     S.from[key]={asking:true};
-    askOptions(def).then(body=>{const ev=body.rawEvaluation;
+    askOptions(def,{isCurrent}).then(body=>{if(!isCurrent()){delete S.from[key];return}
+      const ev=body.rawEvaluation;
       const best=WOODS.map(w=>{const ls=(ev.packages||[]).filter(p=>String(p.packageId).startsWith(w.key+'|'));return {ok:ls.length>0&&ls.every(l=>l.status==='SUPPORTABLE'),Q:ls.reduce((s,l)=>s+Number(l.Q||0),0)}}).filter(x=>x.ok).sort((a,b)=>a.Q-b.Q)[0];
       S.from[key]={best:best?best.Q:null};renderPlans();
-    }).catch(e=>{S.from[key]={error:String(e&&e.message||e)};renderPlans()});
+    }).catch(e=>{if(!isCurrent()){delete S.from[key];return}S.from[key]={error:String(e&&e.message||e)};renderPlans()});
   }
 }
 /* Idea: each plan as brought, and the values the bounded tile already knows for it, carried to Intent. planCfg() is the
@@ -1464,11 +1466,11 @@ function go(section){
   if(!SECTIONS.includes(section)||!usable()[section])return;
   S.section=section;S.step=null;document.body.dataset.section=section;
   if(['intent','build','edge'].includes(section)&&C&&S.cfg){
-    // Queue the selected job first; previews can never delay its initial submission.
-    if(!answerCurrent()&&!S.asking)askExact();
+    // Schedule selected work before optional comparisons may start.
+    if(!answerCurrent()&&!S.asking){window.STBOutdoorOptionRequests.deferPreviews();askExact();}
     scheduleOptions();
   }
-  if(section==='intent'&&C&&!Object.keys(S.from).length)askFrom();
+  if(section==='intent'&&C)askFrom();
   SECTIONS.forEach(s=>{$('s-'+s).hidden=s!==section});
   window.scrollTo(0,0);syncNav();
 }
