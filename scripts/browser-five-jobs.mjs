@@ -185,6 +185,7 @@ try {
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
     if (label === 'Window Seat') {
+      assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=journey-visible-20261015'),'The host must invalidate the previously cached Window Seat page');
       const seat = content.frameLocator('iframe#window-seat-frame');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await seat.locator('#s-hero button[data-to="intent"]').click({ timeout: 15000 });
@@ -265,7 +266,9 @@ try {
         oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
     }
     if (label === 'Outdoor') {
+      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=journey-visible-20261015'),'The host must invalidate the previously cached Outdoor page');
       const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
+      assert.ok((await outdoor.locator('script[src*="stb-outdoor-option-requests.js"]').getAttribute('src')).includes('?v=queue-correction-20261015'),'The corrected queue must not reuse the previously cached script');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await outdoor.locator('#idea-next').click({ timeout: 15000 });
       await outdoor.locator('#s-intent [data-to-bench]').click({ timeout: 15000 });
