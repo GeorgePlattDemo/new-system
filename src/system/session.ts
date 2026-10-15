@@ -3,7 +3,7 @@ import { calculationHash, sha256Bytes } from "./hash.ts";
 import { createId } from "./ids.ts";
 import { compileRecipe } from "./compile.ts";
 import { recipeById } from "./recipes/library.ts";
-import { RECORD_SCHEMA, STORE_CANDIDATE } from "./store-candidate.ts";
+import { RECORD_SCHEMA, STORE_CANDIDATE, PACKET_SCHEMA } from "./store-candidate.ts";
 import { serializeRequest, interpretStoreHttp, interpretMachineEvidence, type Interpreted } from "./store/interpret.ts";
 import { acceptOffer, type AcceptedPacket, type Decision } from "./acceptance.ts";
 import type { Inputs, Recipe, SystemRequirements, TraceStep } from "./recipe.ts";
@@ -140,7 +140,7 @@ function decisionOk(value: unknown): boolean {
 }
 
 function packetOk(value: unknown): boolean {
-  if (!isObject(value) || value.schema !== "STB-ACCEPTED-JOB-PACKET-1" || !nonblank(value.packetId)) return false;
+  if (!isObject(value) || value.schema !== PACKET_SCHEMA || !nonblank(value.packetId)) return false;
   if (!isObject(value.authority) || value.authority.physicalRelease !== false || value.authority.evidenceClass !== "SIMULATED") return false;
   if (!isObject(value.definition) || !nonblank(value.definition.revisionId) || !isObject(value.definition.demand)) return false;
   if (!isObject(value.decision) || value.decision.kind !== "ACCEPTED" || value.decision.evidenceClass !== "SIMULATED") return false;
