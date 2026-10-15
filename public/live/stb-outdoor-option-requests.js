@@ -23,13 +23,17 @@
     active=true;
     while(queues[0].length||queues[1].length){
       const job=queues[0].shift()||queues[1].shift();
-      try{job.resolve(await job.run())}catch(error){job.reject(error)}
+      try{
+        // A started inquiry finishes normally. Only obsolete, queued previews are discarded.
+        if(job.preview&&!job.isCurrent())throw Object.assign(new Error('OUTDOOR_PREVIEW_SUPERSEDED'),{code:'OUTDOOR_PREVIEW_SUPERSEDED'});
+        job.resolve(await job.run());
+      }catch(error){job.reject(error)}
     }
     active=false;
   }
-  function enqueue(run,{preview=false}={}){
+  function enqueue(run,{preview=false,isCurrent=()=>true}={}){
     return new Promise((resolve,reject)=>{
-      queues[preview?1:0].push({run,resolve,reject});drain();
+      queues[preview?1:0].push({run,resolve,reject,preview,isCurrent});drain();
     });
   }
   root.STBOutdoorOptionRequests={split,enqueue};

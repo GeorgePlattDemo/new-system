@@ -710,7 +710,7 @@ function manifest(cfg){
 /* ═════ STATE: one definition ═════ */
 const START_LEN=72;
 const S={section:'idea',step:null,cfg:null,rev:1,answer:null,asking:false,error:null,token:0,blocked:null,
-  options:null,optionsKey:'',optionsAsking:false,optionsError:null,from:{},selectedOffering:null,intentTools:[],serviceChoice:{sanding:false,handoff:null},serviceDigest:{basis:null,hash:null}};
+  options:null,optionsKey:'',optionsToken:0,optionsAsking:false,optionsError:null,from:{},selectedOffering:null,intentTools:[],serviceChoice:{sanding:false,handoff:null},serviceDigest:{basis:null,hash:null}};
 const TERMS=window.STBTermsFlow.create({projectId:'outdoor',title:'Outdoor · picnic table'});
 const clone=v=>JSON.parse(JSON.stringify(v));
 
@@ -844,7 +844,7 @@ const ownerLine=a=>a.admission.blocking.map(b=>b.title+' · owner '+b.owner).joi
    sendAdmittedJob. Each scope sends only its own body: the options body under OUTDOOR_OPTIONS, a plan's under
    OUTDOOR_COMMITTED. Under OUTDOOR_COMMITTED the packages sent are the admitted ones, counted by id. admit() is the one
    admission decision; no Outdoor inquiry calls admitPublicStoreRequest. */
-function storeTransport(definition,got){
+function storeTransport(definition,got,isCurrent=()=>true){
   return request=>{
     if(request.requestType!=='CUT_PACKAGE_V1'||request.definitionRevisionId!==definition.configurationVersion)throw new Error('ADMITTED_REVISION_NOT_ON_SCREEN');
     if((request.inquiryScope===OPTIONS_SCOPE)!==(definition.configurationId===OPTIONS_CONFIGURATION))throw new Error('BODY_NOT_FOR_INQUIRY_SCOPE');
@@ -860,24 +860,24 @@ function storeTransport(definition,got){
     if(!client)throw new Error('STORE_CLIENT_UNAVAILABLE');
     return window.STBOutdoorOptionRequests.enqueue(()=>client.sendAdmittedJob({admitted:request,
       payload:{definition:{...definition,cutPackages:packages},definitionKind:'cut_package.v1',ruleVersion:'0.1'}}),
-      {preview:request.inquiryScope===OPTIONS_SCOPE}).then(a=>(got.body=a));
+      {preview:request.inquiryScope===OPTIONS_SCOPE,isCurrent}).then(a=>(got.body=a));
   };
 }
 /* Option and "From" prices: an OUTDOOR_OPTIONS inquiry. Its answer never reaches the terms flow. */
-async function askOptions(def){
+async function askOptions(def,{isCurrent=()=>true}={}){
   if(!C)throw new Error('TILE_HOST_CONTRACT_UNAVAILABLE');
   const variants=window.STBOutdoorOptionRequests.split(def);
-  const answers=await Promise.all(variants.map(async variant=>({variant,body:await askOption(variant.definition)})));
+  const answers=await Promise.all(variants.map(async variant=>({variant,body:await askOption(variant.definition,isCurrent)})));
   return {rawEvaluation:{
     packages:answers.filter(a=>a.variant.kind==='wood').flatMap(a=>a.body.rawEvaluation?.packages||[]),
     items:answers.filter(a=>a.variant.kind==='tier').flatMap(a=>a.body.rawEvaluation?.items||[])
   }};
 }
-async function askOption(def){
+async function askOption(def,isCurrent){
   const admission=C.admit({revision:optionsRevision(def),inquiryScope:OPTIONS_SCOPE});
   if(!admitted(admission))throw new Error('Not sent to the Store. Missing: '+ownerLine(admission));
   const got={};
-  await C.inquire(admission,storeTransport(def,got));
+  await C.inquire(admission,storeTransport(def,got,isCurrent));
   return got.body;
 }
 let askTimer=null,optTimer=null;
@@ -923,11 +923,12 @@ function scheduleOptions(){
   const def=optionsRequest(S.cfg),key=def.configurationVersion;
   if(key===S.optionsKey)return;
   S.optionsKey=key;S.options=null;S.optionsError=null;S.optionsAsking=true;
+  const mine=++S.optionsToken;
+  const isCurrent=()=>mine===S.optionsToken&&key===S.optionsKey;
   clearTimeout(optTimer);
   optTimer=setTimeout(async()=>{
-    const mine=S.optionsKey;
-    try{const body=await askOptions(def);if(mine!==S.optionsKey)return;S.options=body.rawEvaluation}
-    catch(e){if(mine!==S.optionsKey)return;S.optionsError=String(e&&e.message||e)}
+    try{const body=await askOptions(def,{isCurrent});if(!isCurrent())return;S.options=body.rawEvaluation}
+    catch(e){if(!isCurrent())return;S.optionsError=String(e&&e.message||e)}
     S.optionsAsking=false;render();
   },350);
 }

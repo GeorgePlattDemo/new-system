@@ -3,7 +3,32 @@
 // The Store is a separate local service at System's pinned revision; no mocks,
 // alternate quote paths or fixture prices are inserted into the browser.
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 import { chromium } from 'playwright';
+
+// Exercise promise settlement and dispatch independently of Store's manufacturing answers.
+{
+  const window={};
+  runInNewContext(readFileSync(new URL('../public/live/stb-outdoor-option-requests.js',import.meta.url),'utf8'),{window});
+  const {enqueue}=window.STBOutdoorOptionRequests;
+  const order=[];let release,currentGeneration=1;
+  const gate=new Promise(resolve=>{release=resolve;});
+  const active=enqueue(async()=>{order.push('active preview');await gate;return 'completed';},
+    {preview:true,isCurrent:()=>currentGeneration===1});
+  const discarded=Array.from({length:8},()=>assert.rejects(enqueue(async()=>{order.push('obsolete preview');},
+    {preview:true,isCurrent:()=>currentGeneration===1}),{code:'OUTDOOR_PREVIEW_SUPERSEDED'}));
+  currentGeneration=2;
+  const selected=enqueue(async()=>{order.push('selected');return 'selected';},{isCurrent:()=>false});
+  const current=enqueue(async()=>{order.push('current preview');return 'current';},
+    {preview:true,isCurrent:()=>currentGeneration===2});
+  release();
+  assert.equal(await active,'completed','A started preview must finish normally');
+  assert.equal(await selected,'selected','A selected inquiry must never be discarded');
+  assert.equal(await current,'current');
+  await Promise.all(discarded);
+  assert.deepEqual(order,['active preview','selected','current preview']);
+}
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
 const expectedPin = 'e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2';
@@ -14,9 +39,20 @@ try {
   const responses = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
+  const outdoorRequests=[],pageErrors=[];
+  let outdoorInFlight=0,outdoorMaxInFlight=0;
+  const outdoorWire=r=>{try{const body=r.postDataJSON();return body?.projectId==='outdoor'?body:null;}catch{return null;}};
+  page.on('pageerror',error=>pageErrors.push(String(error)));
   let extendedSeatConfigReads = 0, extendedOutdoorConfigReads = 0;
   page.on('request', r => {
     if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
+    if (new URL(r.url()).pathname === '/api/store-zero/job') {
+      const wire=outdoorWire(r);
+      if(wire){outdoorRequests.push({wire,started:performance.now()});outdoorInFlight++;outdoorMaxInFlight=Math.max(outdoorMaxInFlight,outdoorInFlight);}
+    }
+  });
+  for(const event of ['requestfinished','requestfailed'])page.on(event,r=>{
+    if(new URL(r.url()).pathname==='/api/store-zero/job'&&outdoorWire(r))outdoorInFlight--;
   });
   page.on('response', r => {
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
@@ -241,6 +277,52 @@ try {
         // Restore the plan's existing 72-inch starting behavior for the next checks.
         await outdoor.locator('#s-build [data-size="12"]').click();
         await waitOutdoorAnswer();
+        for(const id of ['woods','tiers'])await outdoor.locator('#'+id).filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
+        await Promise.all(responseReads);
+        const measurements=[],previewSequences=[];
+        for(const length of [84,96,108]){
+          const start=performance.now();
+          await outdoor.locator('#s-build [data-size="12"]').click();
+          const prefix=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.optionsRequest().configurationVersion);
+          previewSequences.push({prefix,changedAt:start});
+          const activePreview=length===84?page.waitForRequest(r=>outdoorWire(r)?.candidateRevisionId===prefix+'-wood-treated',{timeout:45000}):null;
+          const answer=await waitOutdoorAnswer();
+          assert.equal(answer.rawEvaluation.status,'SUPPORTABLE');
+          assert.equal((await money.innerText()).trim(),'$'+answer.rawEvaluation.Q.toFixed(2));
+          measurements.push({length,elapsedMs:Math.round(performance.now()-start),Q:answer.rawEvaluation.Q,receipt:answer.evaluationReceipt.receiptHash});
+          if(activePreview)await activePreview;
+        }
+        for(const id of ['woods','tiers'])await outdoor.locator('#'+id).filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
+        await Promise.all(responseReads);
+        for(let i=0;i<previewSequences.length-1;i++){
+          const stale=outdoorRequests.filter(r=>r.wire.candidateRevisionId.startsWith(previewSequences[i].prefix+'-')&&r.started>previewSequences[i+1].changedAt);
+          assert.equal(stale.length,0,'Superseded, queued previews reached Store: '+JSON.stringify(stale.map(r=>r.wire.candidateRevisionId)));
+        }
+        const latest=previewSequences.at(-1).prefix;
+        const comparisons=evaluations.filter(a=>a.projectId==='outdoor'&&a.candidateRevisionId.startsWith(latest+'-'));
+        assert.equal(comparisons.length,9,'Keep all five wood and four hardware comparisons');
+        for(const answer of comparisons){
+          const revision=answer.candidateRevisionId;
+          assert.equal(answer.mappedCallInputs.demand.configurationVersion,revision);
+          assert.ok(answer.evaluationReceipt.receiptHash);
+          if(revision.includes('-wood-')){
+            const key=revision.split('-wood-')[1],button=outdoor.locator('#woods [data-wood="'+key+'"]');
+            const lines=answer.rawEvaluation.packages||[];
+            const supported=lines.length>0&&lines.every(l=>l.status==='SUPPORTABLE');
+            const expected=supported?'$'+Math.round(lines.reduce((sum,l)=>sum+Number(l.Q||0),0)):'Not as stocked';
+            assert.ok((await button.innerText()).includes(expected));
+          }else{
+            const key=revision.split('-tier-')[1],button=outdoor.locator('#tiers [data-tier="'+key+'"]');
+            const lines=answer.rawEvaluation.items||[];
+            const supported=lines.length>0&&lines.every(l=>l.status==='SUPPORTABLE');
+            const expected=supported?'+$'+Math.round(lines.reduce((sum,l)=>sum+Number(l.Q||0),0)):'Not stocked yet';
+            assert.ok((await button.innerText()).includes(expected));
+          }
+        }
+        const selectedState=await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state());
+        assert.equal(selectedState.terms.version,selectedState.answer.definitionRevisionId);
+        assert.equal(selectedState.answer.inquiryScope,'OUTDOOR_COMMITTED');
+        console.log(JSON.stringify({project:label,plan,rapidSizeChanges:measurements,obsoleteQueuedPreviewsSent:0,comparisonReplies:comparisons.length}));
         planResults.push({plan,initialQ,revisedQ,wholeJobRefusalVisible:true,recovery:true});
       }
       // Read the final current comparisons before navigation destroys their response bodies.
@@ -276,6 +358,8 @@ try {
   assert.equal(config.offeringEndpoint, 'same-origin:/api/store-zero/offering');
   await Promise.all(responseReads);
   assert.deepEqual(responseReadErrors,[], 'Every observed Store response body must be read');
+  assert.deepEqual(pageErrors,[], 'Browser promises and scripts must not fail');
+  assert.equal(outdoorMaxInFlight,1,'Outdoor must not flood Store with concurrent inquiries');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
   // Keep the original five-project navigation allowance. The extended species
   // and geometry/Outdoor inquiries may legitimately cross the client's five-second
