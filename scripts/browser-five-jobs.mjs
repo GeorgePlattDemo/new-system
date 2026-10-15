@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import { chromium } from 'playwright';
+import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
 {
@@ -45,7 +46,7 @@ try {
   const responses = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
-  const outdoorRequests=[],pageErrors=[];
+  const outdoorRequests=[],pageErrors=[],outdoorProfileTargets=[];
   let outdoorInFlight=0,outdoorMaxInFlight=0;
   const outdoorWire=r=>{try{const body=r.postDataJSON();return body?.projectId==='outdoor'?body:null;}catch{return null;}};
   page.on('pageerror',error=>pageErrors.push(String(error)));
@@ -350,7 +351,7 @@ try {
         await waitOutdoorAnswer();
         for(const id of ['woods','tiers'])await outdoor.locator('#'+id).filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
         await Promise.all(responseReads);
-        const measurements=[],previewSequences=[];
+        const measurements=[],previewSequences=[];let lastSelectedAnswer=null;
         for(const length of [84,96,108]){
           const start=performance.now();
           await outdoor.locator('#s-build [data-size="12"]').click();
@@ -360,6 +361,7 @@ try {
           const answer=await waitOutdoorAnswer();
           assert.equal(answer.rawEvaluation.status,'SUPPORTABLE');
           assert.equal((await money.innerText()).trim(),'$'+answer.rawEvaluation.Q.toFixed(2));
+          lastSelectedAnswer=answer;
           const selectedRequest=outdoorRequests.findLast(x=>x.wire.candidateRevisionId===answer.candidateRevisionId);
           const completedAt=performance.now();
           measurements.push({length,elapsedMs:Math.round(completedAt-start),Q:answer.rawEvaluation.Q,
@@ -417,6 +419,7 @@ try {
         assert.equal(completed.commercial.paymentAuthority,false);
         assert.equal(await outdoor.locator('body').evaluate(()=>window.STBTermsFlow.verify(window.STBOutdoorPicnic.state().terms)),true);
         console.log(JSON.stringify({project:label,plan,rapidSizeChanges:measurements,obsoleteQueuedPreviewsSent:0,comparisonReplies:comparisons.length}));
+        outdoorProfileTargets.push({plan,body:lastSelectedAnswer});
         planResults.push({plan,initialQ,revisedQ,wholeJobRefusalVisible:true,recovery:true});
       }
       // Read the final current comparisons before navigation destroys their response bodies.
@@ -465,6 +468,10 @@ try {
   // configuration expiry; count those extra reads separately.
   assert.ok(configRequests.length-extendedSeatConfigReads-extendedOutdoorConfigReads <= 12,
     'Repeated runtime config fetches remain excessive: ' + configRequests.length);
+  for(const {plan,body} of outdoorProfileTargets){
+    const stages=await profilePinnedStoreAnswer(body);
+    console.log(JSON.stringify({project:'Outdoor pinned Store stage profile',plan,...stages}));
+  }
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
   await page.close();
