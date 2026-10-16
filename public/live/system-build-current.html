@@ -302,6 +302,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
               const benchLibrary = childDoc.getElementById('stb-bench-library');
               const benchIntentSlot = childDoc.getElementById('stb-bench-intent-slot');
               const lengthInput = childDoc.getElementById('stb-config-length');
+              const spotPositionMode = childDoc.getElementById('stb-spot-location-mode');
+              const spotPartInputs = [childDoc.getElementById('stb-spot-part1-x'),childDoc.getElementById('stb-spot-part2-x')];
+              const spotDepthInput = childDoc.getElementById('stb-spot-full-depth');
               const boundaryNote = childDoc.getElementById('stb-config-boundary-note');
               const resetDemoButton = childDoc.getElementById('stb-config-reset');
               const confirmButton = childDoc.getElementById('stb-confirm-store');
@@ -336,7 +339,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
               };
               let definitionRevision = 1;
               const partQty = 2;
-              const spotMode = 'centered';
+              const spotMode = 'on-location'; // The original center is one selectable rule, not the machine's only coordinate.
               const DEMO_MIN_LENGTH_IN = 16;
               const DEMO_MAX_LENGTH_IN = 18;
               const DEMO_HORIZONTAL_SPAN_IN = 8;
@@ -487,12 +490,17 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                 ).toFixed(6));
                 const definedWorkpieceLengthIn = 60;
                 const centerSpotIn = Number((finishedLengthIn / 2).toFixed(6));
-                const spotDemand = spotMode === 'centered' ? {
+                const customLocations = spotPositionMode?.value === 'selected';
+                const selectedXs = spotPartInputs.map(input => input?.value?.trim() ? Number(input.value) : null);
+                const requestedFullDiameterDepthIn = spotDepthInput?.value?.trim() ? Number(spotDepthInput.value) : null;
+                const spotDemand = spotMode === 'on-location' ? {
                   required:true,
                   mode:'SPOT_ON_LOCATION',
                   countPerPart:1,
-                  locationRule:'CENTERED_ON_PART',
-                  locationAlongLengthIn:centerSpotIn,
+                  locationRule:customLocations?'PART_RELATIVE_FROM_START':'CENTERED_ON_PART',
+                  locationAlongLengthIn:customLocations?null:centerSpotIn,
+                  selectedPartXsIn:customLocations?selectedXs:null,
+                  requestedFullDiameterDepthIn,
                   acrossWidthRule:'CENTERED_ON_WIDE_FACE',
                   totalCount:partQty,
                   derivation:{
@@ -509,9 +517,11 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   features:spotDemand ? [{
                     featureId:'SPOT-'+(index+1),
                     kind:'SPOT_ON_LOCATION',
-                    xIn:centerSpotIn,
-                    locationRule:'CENTERED_ON_PART',
-                    acrossWidthRule:'CENTERED_ON_WIDE_FACE'
+                    xIn:customLocations?selectedXs[index]:centerSpotIn,
+                    locationRule:customLocations?'PART_RELATIVE_FROM_START':'CENTERED_ON_PART',
+                    acrossWidthRule:'CENTERED_ON_WIDE_FACE',
+                    ...(requestedFullDiameterDepthIn !== null && requestedFullDiameterDepthIn !== 0.1875
+                      ? {fullDiameterDepthIn:requestedFullDiameterDepthIn}: {})
                   }] : []
                 }));
 
@@ -623,7 +633,8 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                     endRelation:{value:'parallel',basis:'USER_1_INTENT'},
                     cutPlane:{value:'miter-face',basis:'USER_1_INTENT'},
                     lengthDatum:{value:'long-long-outer-edge',basis:'USER_1_INTENT'},
-                    centerSpot:{value:'one-per-part',basis:'DERIVED_FROM_PART_LENGTH'},
+                    centerSpot:{value:customLocations?'one user-selected location per part':'one-per-part',
+                      basis:customLocations?'CUSTOMER_INPUT':'DERIVED_FROM_PART_LENGTH'},
                     addedControls:addedControls.map(control => ({label:control.label,value:control.value,basis:'USER_1_INTENT',storeScope:'NOT_ASKED'}))
                   },
                   derived:{
@@ -640,7 +651,10 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                     },
                     centerSpotAlongLengthIn:spotDemand ? {
                       value:centerSpotIn,basis:'DERIVED',formula:'finishedLengthIn / 2',input:{finishedLengthIn:finishedLengthIn}
-                    } : null
+                    } : null,
+                    selectedSpotCoordinates:customLocations?{value:selectedXs,basis:'CUSTOMER_INPUT',datum:'PART_RELATIVE_FROM_START'}:null,
+                    spotFullDiameterDepthIn:{value:requestedFullDiameterDepthIn,basis:'CUSTOMER_INPUT',
+                      convention:'FULL_DIAMETER_BEYOND_118_DEG_POINT',registeredMaximumIn:0.1875}
                   },
                   physicalDemand:physicalDemand,
                   storeDemand:storeDemand,
