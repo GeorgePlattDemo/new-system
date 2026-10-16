@@ -164,7 +164,7 @@ Required Chromium checks drive the actual published front door, nested frames, I
 | Start Your Own | Two 16-inch SPF 2×4 braces; 30° parallel face miters; center spots; 60-inch minimum parent requirement | $8.62 |
 | Alcove | Pine/select; 72 H × 45½ W × 14 D; five shelves; ECONOMY edge finish; spots off | $372.19 |
 | Window Seat | Pine/select; 94 H; modules 24/55/24 W; 14 D; 22-inch seat; 14-inch upper clear height; two bays/two cubbies; four shelves per tower; optional front and spots off | $1,313.61 |
-| Outdoor | Classic A-frame; source long-short end dimensions and cross-support bevel preserved | UNRESOLVED; no Q |
+| Outdoor | Classic A-frame; parallel 25° face-miter ends with measured long-to-short dimensions | Fresh Store Q required; not fixed in System |
 | Playhouse | ½-inch 96 × 48 sheet; centered opening 36 W, 24 straight height, 12 rise; tab-retained center/split; two end crosscuts at 18 inches | $76.56 |
 
 These are modeled, revision-specific Store answers. They are not price constants in System. The 18-inch SPF brace variation was also observed at **$9.13**, with the Store selecting a 72-inch parent and returning a 35⅝-inch remainder. The previous 16-inch answer ceased to govern while that revised inquiry was pending.
@@ -445,7 +445,7 @@ Wood/finish previews are separate complete manufacturing inquiries, not an offer
 
 The page permits one manufacturing inquiry at a time. The committed current job has priority over queued alternatives; transport failure releases the queue without supplying a price. Intent starts previews, including the displayed From amounts. The Bench automatically asks the selected job without requiring another plan choice or Ask Store prompt.
 
-Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. The source-faithful A-frame request is UNRESOLVED with no complete Q because its angled-end datum and support bevel are not registered by Store. The square-cut table-and-benches plan receives normal current evaluation and the simulated customer journey. Preview answers never substitute for the selected definition's receipt.
+Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. The A-frame carries the measured length, independent end orientation, end relation and cut plane through translation. Store converts the stock envelope against actual width and registered operations to decide feasibility, time and Q, or to return a named refusal. The square-cut table-and-benches plan remains on the same evaluator and simulated customer journey. Preview answers never substitute for the selected definition's receipt.
 
 ### 6.4 End planes, measured datum and stock envelope
 
@@ -1132,7 +1132,7 @@ The project entry observation covered all five Idea/Intent/Bench paths. Start Yo
 
 | Owner concern | Current behavior and verification |
 | --- | --- |
-| Outdoor source meaning | Public and typed definitions preserve source lengths/datum and support bevel. Real Store tests and Chromium require UNRESOLVED/no Q for the A-frame and exercise supported square-cut alternatives |
+| Outdoor source meaning | Public and typed definitions preserve end-plane angle, relation, measured datum and point orientation; Store integration tests verify actual-width stock envelopes and an independent refusal with reason/message |
 | Outdoor material attribution | Selected wood is an application/customer variant. The source's untreated top/seat recommendation and optional treated legs/supports remain explicit |
 | Generic saved packet | Packet2 producer/loader round-trip retains the complete packet; malformed/unknown versions are rejected and reopened history does not reopen current authority |
 | Machine presentation | The inspected capability supplies all three modeled manufacturing classes; evidence remains contingent on Store verification and physical admission BLOCKED |
