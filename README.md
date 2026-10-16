@@ -18,6 +18,8 @@ The useful result is something you can build with. Scan-to-Build connects the pe
 
 Bring an idea, photo, sketch, scan, description, or prior work. Establish the project’s requirements at **Intent**, then work them on **the Bench**. The definition carries the dimensions, feature locations, and required operations forward to the Store. Cut, mill, and drill each have a place in that description: what the part must become, where the work belongs, and what material it needs.
 
+The registered D-001 spotting function is a bounded 3/16-inch pointed-drill operation at an identified part location, with a nominal 3/16-inch full-diameter depth measured beyond the tip and no general-purpose holemaking claim. See the [complete spot definition](docs/DEFINITIONS.md#current-integrated-manufacturing-proof) and the [System engineering master](SYSTEM-MASTER.md#33-components-manifest-and-store-request) for the exact current limitations.
+
 These are not drawings handed to another programmer. Intent establishes the required operations; the Bench sets their values. For supported work, those values become the job-specific inputs to registered machine functions, without a second person programming the order.
 
 The seam matters. Your idea should not lose its meaning when it leaves the screen and reaches the yard. The definition can travel to suitable local material before that material has to travel to distant processing.
