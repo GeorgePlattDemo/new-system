@@ -217,7 +217,7 @@ try {
         .waitFor({state:'visible',timeout:15000});
       await bench.locator('#stb-price-total').filter({hasText:/\$\d/})
         .waitFor({state:'visible',timeout:45000});
-      const selected=await content.evaluate(()=>window.STBStartOwnLive?.revision());
+      const selected=await bench.locator('body').evaluate(()=>window.parent.STBStartOwnLive?.revision());
       const entered=selected?.facts?.['start-own.parts']?.value;
       assert.equal(entered?.[0]?.features?.[0]?.xIn,5.25);
       assert.equal(entered?.[1]?.features?.[0]?.xIn,10.25);
