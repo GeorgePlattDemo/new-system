@@ -624,7 +624,9 @@ test("Outdoor's published generator identifies every selected spot before transl
   });
   const packagesFor = publishedFunction(file, "packagesFor", {
     WOODS: [{ key: "treated", species: "syp-treated", grade: "above-ground" }],
-    kindsOf: () => [{ kind: "LEG", n: 2, len: 31.375, g: { id: "LEGS", board: [2, 6], angle: 25 } }],
+    kindsOf: () => [{ kind: "LEG", n: 2, len: 31.375, g: { id: "LEGS", board: [2, 6], angle: 25,
+      endRelation: "parallel", lengthDatum: "long-point-to-short-point",
+      endPointOrientation: "long-to-short", plane: "miter-face" } }],
     decoAngle: () => null, spotsFor,
   });
   const packages = packagesFor({ parts: { LEG: { spots: { on: true, fromEndIn: 6, place: "CENTER", middle: true } } } }, ["treated"]);
