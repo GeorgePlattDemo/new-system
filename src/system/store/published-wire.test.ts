@@ -6,6 +6,8 @@ import { runInNewContext } from "node:vm";
 import { webcrypto } from "node:crypto";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { answerPublishedWire, boardDemandFromPublishedLine } from "./published-wire.ts";
+import { DEFINITION_SHAPES } from "../shape.ts";
+import { pathToFileURL } from "node:url";
 
 const root = process.env.STORE_ZERO_ROOT;
 const release = STORE_CANDIDATE.inspectedCommit;
@@ -52,6 +54,12 @@ async function storeOrigin() {
 
 test.after(() => {
   child?.kill("SIGTERM");
+});
+
+test('System definition shapes exactly match the inspected Store contract including optional geometry',async()=>{
+  assertCheckout();
+  const store=await import(pathToFileURL(`${root}/src/contracts/definitions.mjs`).href);
+  assert.deepEqual(DEFINITION_SHAPES,store.DEFINITION_SHAPES);
 });
 
 function braceLineAt(lengthIn: number) {
@@ -309,6 +317,50 @@ function publishedTerms(projectId: string, demoCommerce = false) {
   runInNewContext(readFileSync(new URL("../../../public/live/stb-terms-flow.js", import.meta.url), "utf8"), { window, TextEncoder });
   return window.STBTermsFlow.create({ projectId, demoCommerce });
 }
+
+test('current Project 1 accepts both published settings and sends unchanged packets through real Store evidence',async()=>{
+ const origin=await storeOrigin();
+ for(const length of [16,18]){
+  const response=await answerPublishedWire(wireFor('start-own','USER_DEFINED_BOARD_V1','current-proof-'+length,{line:braceLineAt(length)}),origin);
+  const body=response.body as any,terms=publishedTerms('start-own',true);
+  terms.setAnswer({version:body.candidateRevisionId,status:'SUPPORTABLE',total:body.rawEstimate.totals.Q,body});
+  assert.equal((await terms.acceptedPacket()).status,'REFUSED');
+  await terms.accept();
+  const accepted=JSON.parse(JSON.stringify(await terms.acceptedPacket()));
+  assert.equal(accepted.status,'ACCEPTED_PACKET_READY',JSON.stringify(accepted));
+  const packet=accepted.packet;
+  assert.deepEqual(packet.storeAnswer,body.storeAnswer);
+  assert.deepEqual(packet.definition.demand,body.mappedCallInputs.demand);
+  assert.deepEqual(packet.definition.manifest,body.mappedCallInputs.manifest);
+  const decision=terms.state().commercial.events.find((e:any)=>e.eventType==='CustomerDecisionRecorded');
+  assert.equal(packet.decision.decisionId,decision.payload.decisionId);
+  const result=await (await fetch(origin+STORE_CANDIDATE.machineEvidencePath,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({packet,expectedMachineConfigId:STORE_CANDIDATE.inspectedMachine.machineConfigId,expectedMachineConfigHash:STORE_CANDIDATE.inspectedMachine.machineConfigHash})})).json();
+  const evidence=result.answer;
+  assert.equal(evidence.status,'VIRTUAL_EVIDENCE_READY',JSON.stringify(result));
+  assert.deepEqual(evidence.localJob.operations,packet.storeAnswer.operations);
+  assert.equal(evidence.run.timeSec,packet.storeAnswer.time.totalSeconds);
+  assert.equal(evidence.admission.motionCommands,0);
+  terms.invalidate();assert.equal((await terms.acceptedPacket()).status,'REFUSED');
+ }
+});
+
+test('Outdoor preserves source end dimensions and bevel instead of obtaining Q for substituted face miters',async()=>{
+ const page=readFileSync(new URL('../../../public/live/stb-outdoor-picnic-0.4.html',import.meta.url),'utf8');
+ const match=page.match(/const PLANS=([^]*?)\n};/);assert.ok(match);
+ const plans=runInNewContext('('+match[1]+'\n})',{fmt:String});
+ const kindsOf=(cfg:any)=>plans[cfg.plan].groups(72).flatMap((g:any)=>g.parts.map(([kind,n,len]:any)=>({kind,n,len,g})));
+ const packagesFor=publishedFunction('stb-outdoor-picnic-0.4.html','packagesFor',{
+  WOODS:[{key:'treated',species:'syp-treated',grade:'above-ground'}],kindsOf,decoAngle:()=>null,spotsFor:()=>null
+ });
+ const packages=packagesFor({plan:'a-frame',parts:{}},['treated']);
+ const legs=packages.find((p:any)=>p.packageId.endsWith('|LEGS')),braces=packages.find((p:any)=>p.packageId.endsWith('|BRACES'));
+ assert.equal(legs.endCut.lengthDatum,'long-point-to-short-point');assert.equal(legs.parts[0].lengthIn,31.375);
+ assert.equal(braces.endCut.plane,'bevel-edge');assert.equal(braces.parts[0].lengthIn,32.875);
+ const response=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends',{definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends',cutPackages:packages}}),await storeOrigin());
+ assert.equal((response.body as any).storeAnswer.status,'UNRESOLVED');
+ assert.equal((response.body as any).storeAnswer.Q,null);
+ assert.ok((response.body as any).storeAnswer.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
+});
 
 test("Job 1 demo checkout uses the current Store Q and one verified transaction through pickup", async () => {
   const response=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","demo-checkout",{line:braceLineAt(16)}),await storeOrigin());

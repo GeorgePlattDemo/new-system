@@ -585,8 +585,8 @@ tr:last-child td{border-bottom:0}
 <script src="stb-store-client.js?v=demo-checkout-20261011"></script>
 <script src="stb-commercial-sequence.js?v=demo-checkout-20261011"></script>
 <script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
-<script src="stb-terms-flow.js?v=journey-visible-20261015"></script>
-<script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
+<script src="stb-terms-flow.js?v=current-proof-1"></script>
+<script src="stb-build-guide-spec.js?v=current-proof-1"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
 <script src="stb-outdoor-option-requests.js?v=selected-first-20261015"></script>
 <script>
@@ -639,15 +639,16 @@ const PLANS={
     wood:'treated',
     lenHint:'The slats follow the length; the end frames and every angle stay as the plan built them.',
     kitText:L=>'12 boards at '+fmt(L)+' in, legs and cross supports cut at 25°, as the plan gives them.',
-    angleNote:'Legs and cross supports: both ends 25° off square, ends parallel, measured long point to short point, as the plan publishes.',
+    angleNote:'Legs and cross supports use the source long-point-to-short-point dimension. Step 4 specifies a bevel for the cross supports. Store has no registered conversion of these source datums or bevel capability; this plan has no complete manufacturing price.',
     groups:L=>[
       {id:'SLATS',label:'Tabletop and seat boards',board:[2,6],angle:0,scales:true,parts:[['TOP',6,L],['SEAT',6,L]]},
-      {id:'LEGS',label:'Legs',board:[2,6],angle:25,parts:[['LEG',4,31.375]]},
-      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,parts:[['BRACE',2,32.875]]},
+      {id:'LEGS',label:'Legs',board:[2,6],angle:25,lengthDatum:'long-point-to-short-point',plane:'miter-face',parts:[['LEG',4,31.375]]},
+      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,lengthDatum:'long-point-to-short-point',plane:'bevel-edge',parts:[['BRACE',2,32.875]]},
       {id:'SUPPORTS',label:'Under-seat supports',board:[2,4],angle:0,parts:[['SUPPORT',2,61]]},
       {id:'CLEATS',label:'Tabletop supports',board:[2,2],angle:0,parts:[['CLEAT-END',2,34.25],['CLEAT-MID',1,29.25]]}
     ],
     hardware:[{id:'S25',label:'2½ in wood screws',need:100,req:{kind:'wood-screw',gauge:'#10',lengthIn:2.5}}],
+    materialNote:'The source recommends untreated tabletop and seat boards and allows treated legs/supports. This configurator applies your selected wood to every group; it does not claim that variant is the source recommendation.',
     hardwareNote:'The plan lists 100 2½ in exterior screws. It gives no gauge; the packs ask the Store for #10.'
   },
   'table-benches':{
@@ -749,7 +750,7 @@ function packagesFor(cfg,woodKeys){
     for(const {kind,n,len,g} of kindsOf(cfg)){
       const p=cfg.parts[kind],da=decoAngle(p,g),angle=da==null?g.angle:da;
       const id=wood.key+'|'+g.id+(da==null?'':'|A'+angle);
-      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:"parallel",lengthDatum:"long-long-outer-edge",plane:"miter-face"},parts:[]};out.push(byId[id])}
+      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:"parallel",lengthDatum:g.lengthDatum||"long-long-outer-edge",plane:g.plane||"miter-face"},parts:[]};out.push(byId[id])}
       const spots=spotsFor(p,len);
       for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots.map((spot,index)=>({...spot,featureId:part.partId+'-SPOT-'+String(index+1).padStart(2,'0')}));byId[id].parts.push(part)}
     }
@@ -1044,7 +1045,7 @@ function renderIdea(){
       <p class="src"><a href="${p.sourceUrl}" target="_blank" rel="noopener">${esc(p.source)}</a></p>
       <p class="meta">${esc(p.facts)}</p>
       <p class="stepband" style="margin-top:10px">ALREADY KNOWN <span>carried to Intent</span></p>
-      ${row('Length',ftin(k.lengthIn)+' · '+p.lenHint)}${row('Wood',WOODS.find(w=>w.key===k.wood).label+' · the plan’s wood')}${row('Hardware pack',TIERS.find(t=>t.key===k.tier).label)}${row('Ends',p.angleNote)}${row('Hardware',p.hardwareNote)}
+      ${row('Length',ftin(k.lengthIn)+' · '+p.lenHint)}${row('Wood',WOODS.find(w=>w.key===k.wood).label+' · application/customer material choice')}${row('Hardware pack',TIERS.find(t=>t.key===k.tier).label)}${row('Ends',p.angleNote)}${p.materialNote?row('Source material',p.materialNote):''}${row('Hardware',p.hardwareNote)}
     </div>`}).join('');
   host.dataset.built='1';
 }

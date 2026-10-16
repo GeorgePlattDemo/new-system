@@ -3,7 +3,8 @@
 // The Store is a separate local service at System's pinned revision; no mocks,
 // alternate quote paths or fixture prices are inserted into the browser.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { chromium } from 'playwright';
 import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
@@ -38,12 +39,13 @@ import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
-const expectedPin = 'e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2';
-const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+const expectedPin = 'c9b75a23f7dc79258bb43f7100415a0c2db0c1e7';
+const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
+  const project1Specimens = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
   const outdoorRequests=[],pageErrors=[],outdoorProfileTargets=[];
@@ -94,6 +96,33 @@ try {
     assert.equal(await visibleChain.locator('[data-terms-event="arrived"]').isVisible(),true);
     assert.ok((await visibleChain.innerText()).includes(answer.evaluationReceipt.receiptHash.slice(0,16)),label+': receipt must be visible without expansion');
     await accept.click();
+    if(projectId==='start-own'){
+      const exported=await surface.locator('body').evaluate(async()=>{
+        let owner=window;
+        while(!owner.STBTermsFlow&&owner!==owner.parent)owner=owner.parent;
+        const flow=owner.STBTermsFlow.instance('start-own');
+        return {accepted:await flow.acceptedPacket(),transaction:flow.state().commercial};
+      });
+      assert.equal(exported.accepted.status,'ACCEPTED_PACKET_READY',JSON.stringify(exported));
+      const packet=exported.accepted.packet;
+      assert.deepEqual(packet.definition.demand,answer.mappedCallInputs.demand);
+      assert.deepEqual(packet.definition.manifest,answer.mappedCallInputs.manifest);
+      assert.deepEqual(packet.storeAnswer,answer.storeAnswer);
+      const origin=process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091';
+      const health=await(await fetch(origin+'/health')).json();
+      assert.equal(health.release,expectedPin);
+      const request={packet,expectedMachineConfigId:health.machineEvidence.machineConfigId,expectedMachineConfigHash:health.machineEvidence.machineConfigHash};
+      const reply=await(await fetch(origin+'/v1/machine-evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(request)})).json();
+      assert.equal(reply.storeRelease,expectedPin);
+      const evidence=reply.answer;
+      assert.equal(evidence.status,'VIRTUAL_EVIDENCE_READY',JSON.stringify(reply));
+      assert.deepEqual(evidence.localJob.operations,packet.storeAnswer.operations);
+      assert.deepEqual(evidence.localJob.parents,packet.storeAnswer.parents);
+      assert.equal(evidence.run.timeSec,packet.storeAnswer.time.totalSeconds);
+      assert.equal(evidence.run.status,'VIRTUAL_MODEL_COMPLETE');
+      assert.equal(evidence.admission.status,'BLOCKED');assert.equal(evidence.admission.motionCommands,0);
+      project1Specimens.push({lengthIn:packet.definition.demand.parts[0].lengthIn,health,applicationAnswer:answer,transaction:exported.transaction,machineRequest:request,machineReply:reply});
+    }
     const yard=surface.locator('[data-terms-action="yard"]:visible');
     await yard.waitFor({timeout:15000});
     assert.equal(await nav.getByRole('button',{name:stages[4],exact:true}).isEnabled(),true);
@@ -161,6 +190,10 @@ try {
       // Both values must be from live Store replies, never from test fixtures.
       await bench.locator('#stb-price-total').filter({ hasText: '$8.62' })
         .waitFor({ state: 'visible', timeout: 30000 });
+      await bench.locator('#stb-confirm-store').click();
+      await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
+      await journey(content,'start-own','Project 1 default');
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await bench.locator('button[data-length="18"]').click();
       await bench.locator('#stb-price-total').filter({ hasText: '$9.13' })
         .waitFor({ state: 'visible', timeout: 30000 });
@@ -196,7 +229,7 @@ try {
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
     if (label === 'Window Seat') {
-      assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=journey-visible-20261015'),'The host must invalidate the previously cached Window Seat page');
+      assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=current-proof-1'),'The host must invalidate the previously cached Window Seat page');
       const seat = content.frameLocator('iframe#window-seat-frame');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await seat.locator('#s-hero button[data-to="intent"]').click({ timeout: 15000 });
@@ -217,6 +250,15 @@ try {
       };
       const pine = await currentAnswer();
       assert.equal(pine.rawEvaluation.status,'SUPPORTABLE');
+      const auditText=await seat.locator('body').evaluate(()=>window.STBWindowSeat.auditText());
+      const auditMatch=auditText.match(/1\. Save this as window-seat\.json:\n([^]*?)\n2\. Get the Store/);
+      assert.ok(auditMatch,'Window Seat audit must export a complete reproducible request');
+      const auditRequest=JSON.parse(auditMatch[1]);
+      assert.equal(auditRequest.requestId,pine.requestId);
+      assert.equal(auditRequest.requestType,pine.mappedCallInputs.requestType);
+      assert.deepEqual(auditRequest.demand,pine.mappedCallInputs.demand);
+      assert.deepEqual(auditRequest.manifest,pine.mappedCallInputs.manifest);
+      await profilePinnedStoreAnswer({...pine,requestId:auditRequest.requestId,mappedCallInputs:auditRequest});
       const configReadsBeforeSpeciesChecks=configRequests.length;
       await seat.locator('#bench-species [data-material="poplar"]').click();
       const poplar = await waitAnswer();
@@ -277,17 +319,14 @@ try {
         oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
     }
     if (label === 'Outdoor') {
-      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=selected-first-20261015'),'The host must invalidate the previously cached Outdoor page');
+      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=current-proof-1'),'The host must invalidate the previously cached Outdoor page');
       const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
       assert.ok((await outdoor.locator('script[src*="stb-outdoor-option-requests.js"]').getAttribute('src')).includes('?v=selected-first-20261015'),'The corrected queue must not reuse the previously cached script');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await outdoor.locator('#idea-next').click({ timeout: 15000 });
       await outdoor.locator('#s-intent [data-to-bench]').click({ timeout: 15000 });
       const money = outdoor.locator('#outdoor-definition-price');
-      await money.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
-      const quote = (await money.innerText()).trim();
-      assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
-        'Outdoor Bench displayed no fresh Store response');
+      let quote;
       const extraConfigStart = configRequests.length;
       const waitOutdoorAnswer = async () => {
         await page.waitForFunction(() => {
@@ -304,13 +343,21 @@ try {
         assert.equal(answer.storePin,expectedPin);
         return answer;
       };
+      const sourcePlan=await waitOutdoorAnswer();
+      assert.equal(sourcePlan.rawEvaluation.status,'UNRESOLVED');
+      assert.equal(sourcePlan.rawEvaluation.Q,null);
+      assert.ok(sourcePlan.rawEvaluation.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
+      assert.equal((await money.innerText()).trim(),'No complete price');
+      assert.equal((await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state())).terms.callOpen,false);
       const planResults=[];
-      for (const [plan, initialQ, revisedQ] of [['a-frame',293.16,320.25],['table-benches',288.23,321.94]]) {
+      for (const [plan, initialQ, revisedQ] of [['table-benches',288.23,321.94]]) {
         if (plan==='table-benches') {
           await content.getByRole('button',{name:'1 · Intent',exact:true}).click();
           await outdoor.locator('#s-intent [data-plan="table-benches"]').click();
         }
         const initial=await waitOutdoorAnswer();
+        quote=(await money.innerText()).trim();
+        assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before);
         assert.equal(initial.rawEvaluation.status,'SUPPORTABLE');
         assert.equal(initial.rawEvaluation.Q,initialQ);
         assert.equal((await money.innerText()).trim(),'$'+initialQ.toFixed(2));
@@ -474,6 +521,12 @@ try {
   }
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
+  assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18]);
+  const systemRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
+  const dirty=execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim().length>0;
+  if(process.env.CI)assert.equal(dirty,false,'Published proof must identify a clean System checkout');
+  mkdirSync('artifacts',{recursive:true});
+  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,physicalAuthority:false,specimens:project1Specimens},null,2)+'\n');
   await page.close();
 } catch (error) {
   failed = true;

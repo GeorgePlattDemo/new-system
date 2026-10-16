@@ -28,12 +28,16 @@ This repository runs the five published Scan-to-Build project experiences. The p
 
 The concise public introduction is `README.md`. Shared vocabulary is `docs/DEFINITIONS.md`. Full technical explanation is `SYSTEM-MASTER.md`; the current commercial event contract is exercised by `public/live/stb-commercial-sequence.js` and the Store's `src/contracts/commercial-sequence.js`. Deep explanation does not override executable behavior: discrepancies require source-level reconciliation and appropriate tests.
 
+## Current integrated proof
+
+Project 1 is the living end-to-end proof of the current System/Store. A consequential change is complete only when affected code/contracts, specifications, both masters, shared definitions, Program descriptions and current proof agree. Operative prose describes current behavior; repair chronology belongs in Git. Preserve original sealed source evidence as provenance while regenerating current reference proof and passing actual published-browser acceptance, packet export, Store HTTP lowering and virtual replay for both SPF settings.
+
 ## Engineering and evidence boundaries
 
 - **Program investigates why; System defines the job and its owner-held record; Store answers what this yard can supply.** Never implement another catalog, machine timing calculation, stock decision or Q engine in System.
 - Store receives the actual customer requirements and an **independently derived manifest** for every job; preserve all part, feature, item and unresolved-requirement identities. A requirement not evaluated by Store cannot silently become fulfilled. A refusal and `UNRESOLVED` are legitimate outcomes.
 - Every displayed answer belongs to exactly its requested definition revision and actual Store release. Compare receipts, identities, amounts and hashes against the pinned reply; a former quote, fixture, screenshot, static specimen or client-supplied pin never becomes authority.
-- The current Store integration pin is `e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2`, recorded in `src/system/store-candidate.ts`, browser runtime config, CI checkout and `startup.sh`. Move all references together only after verifying an exact Store checkout and rerunning joint tests. Store `main` moving does not repin the live app.
+- The current Store integration pin is `c9b75a23f7dc79258bb43f7100415a0c2db0c1e7`, recorded in `src/system/store-candidate.ts`, browser runtime config, CI checkout and `startup.sh`. Move all references together only after verifying an exact Store checkout and rerunning joint tests. Store `main` moving does not repin the live app.
 - Preserve actual manufacturing geometry. For a parallel, `long-long-outer-edge` board datum, a redundant end identity can be reconciled, but no independently required endpoint, spot, profile, split or tab may disappear. Unknown facts remain unknown.
 - Physical machine admission/release stays blocked; the described sale, payment, allocation, queue and handoff events retain their actual evidence status and separate custody. A budgetary Q does not authorize physical work.
 - Owner records cannot automatically upgrade malformed or unknown schemas. Original issued patents, sealed Project 1 proof, and historical revisions retain their identities; never rewrite evidence to make a test pass.

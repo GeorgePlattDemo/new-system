@@ -6,7 +6,7 @@ const requirementsBoard = {
   lengthDatum: "long-long-outer-edge",
   endIdentity: null,
   endExplanation:
-    "The length is the long point of the miter face on the outer edge. That is the length datum. The reference cell has no mapping for a separate endIdentity string, so this job does not send one. A supplied endIdentity is sent and comes back END_IDENTITY_NOT_REGISTERED_ON_MACHINE.",
+    "The length is the long point of the miter face on the outer edge. That is the length datum. The registered definition needs no separate endIdentity string, so this job does not send one. Independent incompatible end statements remain on the request and are refused as END_GEOMETRY_NOT_DECLARED.",
 } as const;
 
 const requirementsSquare = {
@@ -14,7 +14,7 @@ const requirementsSquare = {
   lengthDatum: "square-end-to-square-end",
   endIdentity: "square-end",
   endExplanation:
-    "The ends are square. square-end stays on the job. The reference cell does not lower this request type, and this identity is not removed to avoid that refusal.",
+    "The ends are square. square-end stays on the job. Registered cut-package plans can produce modeled evidence. The System end description is preserved; Store verifies the exact accepted definition before lowering.",
 } as const;
 
 const woods = [
@@ -48,8 +48,8 @@ const plans = [
     source: "Published picnic-table plan: 6 ft, seats 8, 2×6 + 2×4 + 2×2. Legs and cross supports are 25° off square, ends parallel, long point to short point.",
     groups: [
       { id: "SLATS", nominalT: 2, nominalW: 6, angleDeg: 0, scales: true, parts: [{ id: "TOP", count: 6, lengthIn: 0 }, { id: "SEAT", count: 6, lengthIn: 0 }] },
-      { id: "LEGS", nominalT: 2, nominalW: 6, angleDeg: 25, parts: [{ id: "LEG", count: 4, lengthIn: 31.375 }] },
-      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
+      { id: "LEGS", nominalT: 2, nominalW: 6, angleDeg: 25, lengthDatum: "long-point-to-short-point", plane: "miter-face", parts: [{ id: "LEG", count: 4, lengthIn: 31.375 }] },
+      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, lengthDatum: "long-point-to-short-point", plane: "bevel-edge", parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
       { id: "SUPPORTS", nominalT: 2, nominalW: 4, angleDeg: 0, parts: [{ id: "SUPPORT", count: 2, lengthIn: 61 }] },
       { id: "CLEATS", nominalT: 2, nominalW: 2, angleDeg: 0, parts: [{ id: "CLEAT-END", count: 2, lengthIn: 34.25 }, { id: "CLEAT-MID", count: 1, lengthIn: 29.25 }] },
     ],
@@ -282,7 +282,7 @@ export const LIBRARY: Recipe[] = [
       lengthDatum: "long-point-to-short-point",
       endIdentity: "plan-end",
       endExplanation:
-        "Ends follow the published plan, long point to short point. plan-end stays on the job. Cut packages are not lowered by the reference cell.",
+        "Source end dimensions and the cross-support bevel remain explicit. Store reports unregistered end geometry as unresolved; no long-long face-miter substitution is made. Registered cut packages can produce modeled evidence, with physical admission blocked.",
     },
     inputs: [
       { id: "planId", label: "Plan", kind: "choice", required: true, choices: [
@@ -312,7 +312,7 @@ export const LIBRARY: Recipe[] = [
       lengthDatum: "sheet-left-end",
       endIdentity: "factory-edge",
       endExplanation:
-        "The sheet is referenced from its factory edge. That is not a board end identity. The reference cell does not lower sheets.",
+        "The sheet is referenced from its factory edge. That is not a board end identity. Registered sheet plans can produce modeled occupancy evidence, with physical admission blocked; this is not a complete controller trajectory.",
     },
     inputs: [
       { id: "widthIn", label: "Opening width (in)", kind: "number", required: true },

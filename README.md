@@ -62,7 +62,7 @@ That is the connection this work investigates: the customer defines the result, 
 
 You define what the job requires. The registered machine and its compiler decide the safe movements that do it. You are never commanding axes directly.
 
-Project 1 evidence is exercised here as fixtures and by the joint Store test. It is evidence of one board path, not a second application.
+Project 1 is the living end-to-end proof of the current System and Store. Required Chromium checks derive and accept both SPF settings, export each exact accepted packet, and verify real Store lowering and virtual replay. The workflow publishes its complete revision-bound proof; the [current engineering review](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) supplies the regenerating reference evidence.
 
 ## Three connected homes
 

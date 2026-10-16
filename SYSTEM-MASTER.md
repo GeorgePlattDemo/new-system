@@ -1,6 +1,6 @@
 # Scan-to-Build System — Complete Application, Definition and Workflow Reference
 
-3D Solutions LLC · 12 October 2026
+3D Solutions LLC
 
 **Define it once. Nobody downstream should have to redraw it.**
 
@@ -14,7 +14,7 @@ The customer can examine what was entered, what System derived, what reached Sto
 
 Machine functions are registered before the customer arrives. Intent and the Bench supply required operations and values; System derives their meaning, geometry, component/feature identity, manifest and revision. Store resolves stock, capability, the manufacturing plan, modeled time and Q. The compilation chain absorbs job-specific programming burden: the accepted job lowers through the verified Store plan and registered configuration into identified virtual instructions, without a second person redrawing the parts or entering the modeled coordinates for each supported order.
 
-Reusable controller-oriented export remains a further mapping stage. The complete manufacturing walkthrough and historical Project 1 evidence are in the [Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md#82-start-your-own); Program owns [research and laboratory validation](https://github.com/GeorgePlattDemo/3d-solutions-program).
+Reusable controller-oriented export remains a further mapping stage. The complete current manufacturing walkthrough and living Project 1 proof are in the [Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md#82-start-your-own); Program owns [research and laboratory validation](https://github.com/GeorgePlattDemo/3d-solutions-program).
 
 This reference explains the complete System application and its handoff. The [shared definitions](docs/DEFINITIONS.md) specify common meaning; the executable contracts specify their bounded interfaces. Current machine evidence is modeled, commerce is simulated and physical release remains blocked. Those evidence states travel with the records.
 
@@ -110,8 +110,8 @@ This reference explains the complete System application and its handoff. The [sh
   - [14.3 Current and historical numbers](#143-current-and-historical-numbers)
   - [14.4 Navigation and dependency verification](#144-navigation-and-dependency-verification)
 - [15. Discrepancies and repair boundaries](#15-discrepancies-and-repair-boundaries)
-  - [15.1 Implementation and meaning repairs still pending](#151-implementation-and-meaning-repairs-still-pending)
-  - [15.2 Explanation and reproduction drift](#152-explanation-and-reproduction-drift)
+  - [15.1 Current implementation and meaning](#151-current-implementation-and-meaning)
+  - [15.2 Operative explanation and reproduction](#152-operative-explanation-and-reproduction)
   - [15.3 Authority after consolidation](#153-authority-after-consolidation)
 - [16. Source register and consolidation disposition](#16-source-register-and-consolidation-disposition)
   - [16.1 Exact System implementation sources](#161-exact-system-implementation-sources)
@@ -124,7 +124,7 @@ This reference explains the complete System application and its handoff. The [sh
 
 ### 1.1 Frozen revisions
 
-The original consolidation used the frozen revisions in the table below. Compiler integration is based on current System `1939e809ba931ff6a848e4c747bd73e795820d32`, Store `ca6d3c2768cc7741d34daa81ea45bf44acdf6a3f` and Program `ae1ea61ebc56f631b9a642e1b38f3d6ba0ebdc65`. The runtime pin remains `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. Earlier source and verification records retain their dates and identities; Store main's later bounded cycle-reuse optimization is not a repin.
+The table below preserves the original audit source identities. Current System code and documents govern the application; the inspected Store is `c9b75a23f7dc79258bb43f7100415a0c2db0c1e7`, identified by the coordinated candidate, browser, CI and startup declarations. Current proof artifacts identify the actual System revision and Store source exercised. Earlier source and verification records retain their original scope and do not select the runtime.
 
 | Role | Repository | Exact revision inspected | Relationship to the audit |
 | --- | --- | --- | --- |
@@ -135,7 +135,7 @@ The original consolidation used the frozen revisions in the table below. Compile
 
 The reconciliation source is *Scan-to-Build-Read-Only-Audit-2026-10-12(1).md*, SHA-256 `cb59aaf1f8f3901bc616de7fc1cd812f133e9cb368c34a146855b4c80a5dfb43`. It remains outside the repositories. Its earlier findings are checked against the source above and identified as current drift, an implementation discrepancy or dated evidence; an audit recommendation does not constitute a completed repair.
 
-The executable pin is governed by `STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts`. It also appears in `public/live/stb-store-runtime.json`, `.github/workflows/verify.yml` and `startup.sh`. These four declarations remain `f7123a73c1ca60aa7eb180a86a1c365eaffe95db`. The documentation commit `cd08aff` does not select a new executable Store. Joint tests run against a separate checkout whose actual HEAD is the exact runtime pin.
+The executable pin is governed by `STORE_CANDIDATE.inspectedCommit` in `src/system/store-candidate.ts`. It also appears in `public/live/stb-store-runtime.json`, `.github/workflows/verify.yml` and `startup.sh`. These four declarations name `c9b75a23f7dc79258bb43f7100415a0c2db0c1e7`. A documentary source link does not independently select an executable Store. Joint tests run against a separate checkout whose actual HEAD is the exact runtime pin.
 
 ### 1.2 The three owners
 
@@ -157,14 +157,14 @@ At the starting revision System contains **162 tracked files**, including **17 M
 
 Original master verification on 12 October 2026, at System ab09777d and Store f7123a73, used Node `v24.19.0` locally. `npm test` passed **334 tests** in four groups: 197 repository/platform checks, 55 library/auth checks, 36 System checks and 46 published-wire/joint checks. `NITRO_PRESET=node-server npm run build` and `npm run typecheck` passed. The build produced `.output/server/index.mjs`; the database migration script skipped external migration because no `DATABASE_URL` was supplied. Hosted verification uses Node 22; `Dockerfile.railway` specifies Node `22.23.2-slim`.
 
-The hosted application was opened through its real front door and all five project paths were examined. Idea and Intent navigation, Bench controls, imagery, developer/reviewer rails and fresh starting answers were observed. The current starting amounts are:
+Required Chromium checks drive the actual published front door, nested frames, Intent/Bench controls, developer/reviewer rails, fresh Store answers, refusals and simulated customer journeys. Current starting results for the identified definitions are:
 
 | Published project | Controlling starting definition | Store Q, USD |
 | --- | --- | ---: |
 | Start Your Own | Two 16-inch SPF 2×4 braces; 30° parallel face miters; center spots; 60-inch minimum parent requirement | $8.62 |
-| Alcove | Pine/select; 72 H × 45½ W × 14 D; five shelves; ECONOMY edge finish; spots off | $379.11 |
-| Window Seat | Pine/select; 94 H; modules 24/55/24 W; 14 D; 22-inch seat; 14-inch upper clear height; two bays/two cubbies; four shelves per tower; optional front and spots off | $1,193.10 |
-| Outdoor | Classic A-frame; 72-inch slats; above-ground treated SYP; coated hardware; optional spots and decorative cuts off | $293.16 |
+| Alcove | Pine/select; 72 H × 45½ W × 14 D; five shelves; ECONOMY edge finish; spots off | $372.19 |
+| Window Seat | Pine/select; 94 H; modules 24/55/24 W; 14 D; 22-inch seat; 14-inch upper clear height; two bays/two cubbies; four shelves per tower; optional front and spots off | $1,313.61 |
+| Outdoor | Classic A-frame; source long-short end dimensions and cross-support bevel preserved | UNRESOLVED; no Q |
 | Playhouse | ½-inch 96 × 48 sheet; centered opening 36 W, 24 straight height, 12 rise; tab-retained center/split; two end crosscuts at 18 inches | $76.56 |
 
 These are modeled, revision-specific Store answers. They are not price constants in System. The 18-inch SPF brace variation was also observed at **$9.13**, with the Store selecting a 72-inch parent and returning a 35⅝-inch remainder. The previous 16-inch answer ceased to govern while that revised inquiry was pending.
@@ -177,7 +177,7 @@ The loaded frame chain is **`system-build-current.html` → `system-build-front-
 
 This master consolidates current System knowledge. Detailed Store manufacturing, machine parameters, patent arrangements, controller-oriented historical evidence and complete economics remain explained in Store's completed master. Program's trial remains the research authority. The shared executable gate remains byte-identical between System and Store. The original commercial design map and incorporated excerpts retain their source context.
 
-Application behavior, images, customer wording, geometry, controls, timing readers, Store responses, runtime pin, commercial gates and saved-record code are protected baseline behavior. An implementation defect found while writing is recorded with its owner and testable acceptance criteria. Documentation does not silently amend a cut datum or repair an unsupported field by omitting it.
+Application behavior, geometry, controls, Store responses, runtime pin, commercial gates and saved records require verified correspondence. A repair must address the responsible implementation and its regression checks, then reconcile specifications, both masters, shared definitions, affected Program documents and current Project 1 proof. Operative prose describes current behavior; Git records chronology. No unsupported requirement is omitted to obtain a favorable answer.
 
 Current machine records use `STB-MODELED-OPERATIONS-1` and `PREDICTED_OCCUPANCY_ONLY`. Historical Project 1's separate controller-oriented virtual sequence retains its original identities. The distinction matters when a page calls something a command or a machine result. Physical admission remains blocked and no physical motion is authorized by System. **NO BLOOD ON WOOD.**
 
@@ -344,7 +344,7 @@ The independent manifest originates from all fourteen source component programs,
 
 ### 4.5 Response presentation and boundaries
 
-The current default returns **$379.11**: material $283.64, modeled service $77.47 and hardware $18.00; modeled total time is about **18.5924 minutes**. BALANCED and ALL_EDGES are separate evaluated definitions, recorded in Store's master at $439.28 and $499.24 for this baseline. Those figures illustrate returned variations; they are not System formulas or permanently assigned option prices.
+The current ECONOMY default returns **$372.19**: material $276.72, modeled service $77.47 and hardware $18.00; 1115.5446527777765 modeled seconds. BALANCED and ALL_EDGES are separately identified geometry requests and require fresh Store evaluation. Their prices are returned results, not System formulas or permanently assigned option prices. Store's master regenerates the exact current reference request and result.
 
 The Bench presents selected SKUs, quantities, available counts, material/kit/service amounts and Store operation-ledger time. The time display reads current returned categories rather than the retired single-machine timing shape. A refused or incomplete definition has no complete displayed cycle.
 
@@ -445,15 +445,13 @@ Wood/finish previews are separate complete manufacturing inquiries, not an offer
 
 The page permits one manufacturing inquiry at a time. The committed current job has priority over queued alternatives; transport failure releases the queue without supplying a price. Intent starts previews, including the displayed From amounts. The Bench automatically asks the selected job without requiring another plan choice or Ask Store prompt.
 
-Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. For the default, Q is **$293.16**, material $200.05, modeled work $74.23 and hardware $18.88, about **17.8151 minutes**. Store selects its parents and enough actual hardware packages; System preserves the distinction between requested pieces and purchased packs. The dated 11 October length-73 check returned $293.26 for its revised request.
+Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. The source-faithful A-frame request is UNRESOLVED with no complete Q because its angled-end datum and support bevel are not registered by Store. The square-cut table-and-benches plan receives normal current evaluation and the simulated customer journey. Preview answers never substitute for the selected definition's receipt.
 
 ### 6.4 The unresolved end-meaning correspondence
 
-The public source text states that A-frame legs and cross supports are measured **long point to short point**. Both public `packagesFor` and the generic compiler currently send **`long-long-outer-edge`**, parallel ends and `miter-face`, using the same numerical lengths. No explicit transformation witness reconciles those conventions. The source's cross-support bevel wording also requires an identified plane/orientation interpretation.
+The A-frame source states long-point-to-short-point lengths and specifies a bevel for the center cross supports. Public `packagesFor` and the generic recipe compiler retain those dimensions and the cross-support `bevel-edge` plane. Neither relabels them as Store's registered long-long face miter. Store returns `MITER_END_GEOMETRY_NOT_EVALUATED`; Q remains absent. A future supported representation needs an explicit verified datum/plane mapping or separately registered capability, with its own regression evidence.
 
-The current Q is an answer to that encoded demand. It does not prove source-faithful transcription. System owns the required source datum/plane declaration and explicit transformation or unsupported disposition. This consolidation changes no lengths, angle, cut plane, material choice or refusal. The acceptance criteria are in chapter 15.
-
-The Idea label **the plan's wood** similarly overattributes the all-treated default. The audit records the source's untreated tabletop/seat recommendation with treated legs as an option. The present all-treated variant can remain an explicit application/customer choice, but its source pedigree requires correction. That is separate from the datum question.
+The chosen wood is labeled an application/customer material choice. The source recommends untreated tabletop/seat boards and permits treated legs/supports. An all-treated selection remains an explicit variant and is not attributed as the source recommendation. Source versus inferred hardware quantities and gauge remain visible.
 
 ### 6.5 Authority evidence and downstream flow
 
@@ -937,7 +935,7 @@ The installed record paths differ. The generic typed record is not the schema of
 | Retired generic React routes `/bench` and `/projects/$projectId` | Former `STB-SYSTEM-RECORD-2` local record and JSON-download UI; source preserved in Git | Typed record fixtures and tests remain as technical reference; no active public React record page |
 | Start Your Own public demo | `stb-start-own-user1-definition`, `stb-start-own-user1-bench`, `stb-proof-handoff-job1` localStorage keys | Definition/Bench settings and confirmed handoff; current answer must be obtained again |
 | Published project-copy host, especially Playhouse | `stb-canonical-saved-projects-v1` keyed by demonstration owner | Captured controls, heights/material/format and registered state parts; opening/read-only/editing state is separate |
-| Window Seat | Identified record and readable audit text for the session | Sources/status/knobs/kept asks and exchange evidence; its reproduction text currently has the manifest defect |
+| Window Seat | Identified record and readable audit text for the session | Sources/status/knobs/kept asks and exchange evidence; its audit exports the complete original request and independent manifest |
 | Outdoor | `outdoor-evidence-<revision>.json` download | Session definition, demand/response/receipt and service/chain facts; explicitly an unsigned session snapshot |
 | Shared terms flow | Revision-bound in-memory source/stream plus retained previous chains | Does not by itself provide durable commercial storage across reloads |
 | Additional services menu | Project-keyed sessionStorage | Planning-only selections; no universal owner-record serialization |
@@ -1034,7 +1032,7 @@ The public API routes parse the outer wire and call `answerPublishedWire`, using
 
 The former generic React routes and their private `storeHealth`, `forwardStoreRequest`, `forwardMachineEvidence` transport and `useRecord` hook were retired together. Their executable source and historical record behavior remain in Git. The live five-project application uses only `/api/store-zero/job`, `/api/store-zero/offering` and the published-wire adapter; those APIs retain their own bounded request handling and pinned Store answer checks.
 
-`src/system/machine.ts` currently reports lowering registered only for USER_DEFINED_BOARD_V1. Store's current protocol-2 evidence accepts all three manufacturing classes; this generic presentation helper is stale and affects its displayed explanation. Actual HTTP cut-package evidence tests return VIRTUAL_EVIDENCE_READY with physical BLOCKED. The helper is retained and its separate acceptance criterion is recorded in chapter 15.
+`src/system/machine.ts` reads the inspected three-class capability. Board, cut-package and sheet definitions may request modeled evidence from Store using an intact accepted packet. The helper provides no substitute records, Q or physical authority. Sheet occupancy evidence is not a complete independently replayed XY controller trajectory.
 
 ### 13.4 Build startup and hosting
 
@@ -1059,7 +1057,7 @@ The retired modules' distinct security reasoning remains engineering context:
 - `verify.server.ts` resolved a user only through the server's session API. Missing authentication with a real `DATABASE_URL` failed closed instead of using one shared development user for real per-user records. Client-supplied user IDs were never proof of identity.
 - `isolation.server.ts` checked Fetch Metadata before a per-user server function. It admitted same-origin/direct navigation, non-browser requests without that header, and a top-level GET OAuth/navigation response, while refusing scripted cross-site or sibling-site requests. Its `.server.ts` identity prevented Node request-context infrastructure from entering a browser bundle. These controls protected an account surface that is no longer installed in the five-project application; their removal does not create an unguarded replacement endpoint.
 
-At current System **1939e809ba931ff6a848e4c747bd73e795820d32**, the subsequent retirement also removed the remaining auth server, embedded database, migrations, Vite OAuth popup/environment plugins, supporting scripts/packages and Vercel configuration. The public application has no account-specific server functions. Its legitimate pinned-Store development responsibility remains in startup.sh; Railway uses the existing Node production build. No authentication or deployment change is made by this document integration.
+The System retirement recorded at **1939e809ba931ff6a848e4c747bd73e795820d32** removes the remaining auth server, embedded database, migrations, Vite OAuth popup/environment plugins, supporting scripts/packages and Vercel configuration. The public application has no account-specific server functions. Its legitimate pinned-Store development responsibility remains in startup.sh; Railway uses the existing Node production build. Current repairs preserve this hosting/account boundary.
 
 Future account-specific functionality would require explicitly installed and verified identity/isolation boundaries. The archived modules do not silently become authority for a new product surface.
 
@@ -1070,7 +1068,7 @@ Future account-specific functionality would require explicitly installed and ver
 Run current System checks against a **clean exact pinned Store checkout**:
 
 ```sh
-STORE_ZERO_ROOT=/absolute/path/to/f7123a73-store-checkout npm test
+STORE_ZERO_ROOT=/absolute/path/to/clean-pinned-store-checkout npm test
 npm run build
 test -f .output/server/index.mjs
 npm run typecheck
@@ -1082,10 +1080,10 @@ npm run typecheck
 | Original default production build | Passed | Historical Vercel build path and environment/migration wrapper; retired from the current tree |
 | Original Railway Node production build | Passed; server output present | Node production packaging at the recorded baseline |
 | TypeScript | Passed | Type/route checks for the installed source |
-| Five hosted starting inquiries | $8.62 / $379.11 / $1,193.10 / $293.16 / $76.56 | Fresh automatic Q presented for the exact public definitions in chapter 1 |
+| Original five hosted inquiries | $8.62 / $379.11 / $1,193.10 / $293.16 / $76.56 | Historical observations at the table's original System/Store revisions; current results are in chapter 1 |
 | Hosted 16 → 18-inch brace change | Fresh $9.13, 72-inch parent and 35⅝-inch returned remainder | Geometry change/current-answer invalidation and Store-selected parent presentation |
 | Master's complete protocol-2 example | SUPPORTABLE, Q $8.62 | Example includes the independent manifest and is executable against the real pinned core |
-| Generic current-packet loader probe | Pre-acceptance record loads; genuine packet-2 record returns MALFORMED | Reproduced outstanding compatibility defect |
+| Original packet-loader probe | Pre-acceptance record loads; original packet2 record returned MALFORMED | Historical defect at the recorded baseline; current accepted packet2 round-trip is required and tested |
 | Shared commercial text and gate | Both byte-identical to pinned Store copies | No unilateral shared-contract amendment |
 | Hosted page inspection | All five intake/Intent/Bench paths and current rails observed | Actual loaded application, beyond filename/test-name assertions |
 
@@ -1093,15 +1091,19 @@ Local baseline Node was v24.19.0. These recorded results remain historical evide
 
 ### 14.2 What the test families prove
 
-`system.test.ts` covers named rule compilation, geometry/input blockers, preserved undefined fields, explicit counts, discovery versus Q, partial-result labeling, revision/currentness, real receipt constraints, reopening/schema handling, historical fixture identity, later refusal and machine-authority rejection. Its saved-record tests do not prove that the actual packet-2 producer and packet loader round-trip correctly; the direct probe exposes that missing correspondence.
+`system.test.ts` covers named rule compilation, geometry/input blockers, preserved undefined fields, explicit counts, discovery versus Q, partial-result labeling, revision/currentness, real receipt constraints, reopening/schema handling, historical fixture identity, later refusal and machine-authority rejection. Its accepted-record tests round-trip the packet2 producer through the loader, retain exact packet content and reject malformed/unknown packet versions.
 
-`playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, default/changed Store answers, alternative queries, unsupported fields, scoped-review/commercial constraints and demo sequence. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
+`playhouse-admission.test.ts` exercises exact nested facts, incomplete wood identity, added-cut operands, pattern offsets and capability-independent admission. `store-client.test.ts` exercises browser transport/discovery validation. `published-wire.test.ts` covers the actual public definitions/translations, requirement preservation, source manifests, exact optional-field parity with the inspected Store, default/changed Store answers, alternative queries, source-faithful Outdoor refusals, unsupported fields, scoped-review/commercial constraints, demo sequence and actual accepted-packet HTTP lowering for both Project 1 settings. `start-own-bench.test.ts` verifies the live returned facts as a consistent Bench view. `http.integration.test.ts` starts the real pinned Store, reads its health identity and checks the three definition classes, discovery, receipts and machine evidence.
 
 Current repository tests protect the required environment, browser/process checks and Store request boundaries. Authentication invariants in the original baseline concern the retired account modules described in section 13.6. The retired PWA/branding/install feature and its exclusive tests no longer form part of the published System build.
 
 A passing suite is necessary, but cannot establish faithful external-plan interpretation, physical stock, commissioned movement or every direct-link obligation. Test names retaining an older adjective/price do not supersede their actual assertions. Browser observations of declared modeled prices do not constitute paid orders or inspected physical parts.
 
 ### 14.3 Current and historical numbers
+
+Project 1 is a living integration proof. Store's [current review and full reference evidence](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) regenerate from the current executable source/catalog. System's required Chromium gate drives both real published settings through acceptance and `acceptedPacket()`, submits each packet to Store's `/v1/machine-evidence`, and asserts unchanged parents/ledger, the same priced/replayed seconds, completed virtual replay and BLOCKED physical admission. Its `project-1-current-proof` artifact includes actual System/Store revisions, source health, application answers, original commercial decisions, packets and complete virtual evidence. It is written only after all five projects pass.
+
+The published adapter retains the exact Store answer in `storeAnswer`; its `rawEvaluation` may add presentation-only lines. Packet export uses the exact answer and checks receipt, demand/manifest hashes, decision linkage and currentness. It creates no new offer, decision, stock plan or price. Rejected or invalidated revisions cannot export an accepted packet.
 
 Current prices belong to exact definitions, request identities, catalog, model and executable release. Changing a dimension/material/feature initiates a new inquiry; retaining a project title does not retain its price. A price decrease after a change is not inherently a defect if Store's complete selected plan changed; the returned requirements, stock and ledger must explain it. System has no authority to force a monotonic local price.
 
@@ -1112,7 +1114,7 @@ The retained verification note supplies dated historical observations:
 | 8 October: 16/18-inch SPF $8.54/$9.07; treated specimen $11.09/$11.08 | `4cb0c625ac00c62390129b55a52596b52f10decd`; end facts then carried unevaluated | Earlier integration state, not current full-job support |
 | 9 October: 16/18-inch parent change and refusal/currentness checks | `1cea72c8223b2c738180b230c584c4ab557267ca` | Dated UI/receipt behavior under that release |
 | 10 October: SPF $8.54/$9.07; Alcove $449.85; Window Seat Pine/Poplar $1,489.09/$2,005.89; Outdoor $275.52; Playhouse $76.57 | `81d958482bd25e784f122c97ffb11174013395af`; deployed initial repair `a722fc4cf0490b364d1fae1be520dd3a318a5a1e` | Dated earlier engine/definition/commercial demonstrations |
-| 11 October: five current starts and altered Bench values | Exact current f7123a73 Store; adopted shared core/gate | Baseline observations repeated for starting values on 12 October |
+| 11 October: five current starts and altered Bench values | Recorded f7123a73 Store; adopted shared core/gate | Baseline observations repeated for starting values on 12 October |
 
 The sealed original Project 1 result is **$11.09**, 85.5001-second Store time and a separate 86.46953628299116-second virtual sequence. The adopted-core equivalent is **$10.81**, with different selected stock and calculation identity. The public 16-inch SPF demonstration is **$8.62**. These identify three distinct inquiries/evidence states and must not be substituted for one another. The full manufacturing comparison remains in Store's master.
 
@@ -1124,37 +1126,27 @@ The project entry observation covered all five Idea/Intent/Bench paths. Start Yo
 
 ## 15. Discrepancies and repair boundaries
 
-### 15.1 Implementation and meaning repairs still pending
+### 15.1 Current implementation and meaning
 
-| Finding and owner | Actual current state | Testable repair criterion |
-| --- | --- | --- |
-| **Outdoor source-to-demand end meaning — System** | Source says long-short; public and generic demand state long-long/miter-face with the same numbers; no transformation witness | Each angled class has identified source datum/plane and an explicit verified transformation or unsupported disposition; regression checks outgoing meaning. No silently changed lengths or expanded Store capability |
-| **Outdoor material pedigree — System** | All-treated default is labeled the plan's wood; audit distinguishes source's untreated top/seat recommendation and optional treated legs | Keep any chosen treated variant as an explicit application/customer selection; correct source attribution and retain source versus inferred hardware counts |
-| **Generic saved packet — System** | Producer emits packet2; loader accepts packet1; genuine current packet fails loading | Valid produced packet2 round-trips with unchanged demand/manifest/answer/decision; unknown or malformed versions remain rejected; reopening still retires current price/evidence |
-| **Generic machine presentation — System** | `machine.ts` reports only board lowering; pinned Store evidence supports board/cut/sheet | Presentation matches all three inspected classes and actual endpoint results; unsupported/evidence failures remain explicit; physical admission remains BLOCKED |
-| **Generic optional-field contract — System** | Typed `shape.ts` omits optional fields supported by public/Store protocol2 | Deliberate reconciliation of shared meanings and exact supported fields, with no Store capability/pricing duplicate and no silent drop of supplied requirements |
-| **Exception recovery and broader source integration — shared contract owners** | Earlier unresolved exception remains a hold after later RESOLVED; source authentication/durable commercial integrations remain absent | Coordinated event correction/recovery policy and tests in both owners; exact byte alignment retained; actual evidence requires its commissioned source adapters |
+| Owner concern | Current behavior and verification |
+| --- | --- |
+| Outdoor source meaning | Public and typed definitions preserve source lengths/datum and support bevel. Real Store tests and Chromium require UNRESOLVED/no Q for the A-frame and exercise supported square-cut alternatives |
+| Outdoor material attribution | Selected wood is an application/customer variant. The source's untreated top/seat recommendation and optional treated legs/supports remain explicit |
+| Generic saved packet | Packet2 producer/loader round-trip retains the complete packet; malformed/unknown versions are rejected and reopened history does not reopen current authority |
+| Machine presentation | The inspected capability supplies all three modeled manufacturing classes; evidence remains contingent on Store verification and physical admission BLOCKED |
+| Optional definition fields | System's declared shape exactly matches the inspected Store contract, including tool/depth, edge preparation/profiles, sheet tabs and offsets |
+| Published accepted packet | The existing terms flow exports the original accepted decision with exact manifest, demand and unmodified Store answer. Store verifies and lowers it independently |
+| Current Project 1 | Both published settings complete customer acceptance, exact packet export, HTTP machine evidence and virtual replay in required Chromium; the workflow publishes revision-bound full evidence |
 
-These executable discrepancies remain open after document integration. Outdoor's source-to-demand meaning requires a verified transformation or unsupported disposition. The generic packet defect is caused by `session.ts:packetOk` accepting packet1 while `acceptance.ts` emits packet2; correction must validate packet2 and test an unchanged accepted-record round trip plus malformed/unknown-version rejection. The narrow `machine.ts` presentation must consume the inspected three-class capability and be tested against actual accepted packets and refusals, without assuming complete sheet controller motion. Neither repair is applied here. Shared commercial recovery remains a coordinated executable change.
+### 15.2 Operative explanation and reproduction
 
-### 15.2 Explanation and reproduction drift
+The shared dictionary, specifications and masters describe the same request, manifest, receipt, packet, pricing and evidence stages. Window Seat exports the complete original request for reproduction and distinguishes calculation identity from a fresh receipt. Its spotting copy specifies full-diameter penetration beyond the drill point. Developer guides distinguish a UI knob list from the implemented independent manufacturing manifest and distinguish fixed wood buttons from Store discovery.
 
-| Location | Present discrepancy | Required correction or consolidation disposition |
-| --- | --- | --- |
-| `docs/DEFINITIONS.md` | Earlier three-field inquiry, incomplete receipt fields, retired board-only lowering, per-cut prohibition and retained-control overclaim | Reconciled here against protocol2, packet2, manufacturing core and machine-evidence contracts; duplicate definitions removed. Runtime code remains unchanged |
-| `AGENTS.md` at the starting revision | Assumed Grok-only chat, Vercel-only deployment, unavailable skills and generic scaffolding | Replaced with a concise map of current executable owners, preservation boundaries and required CI; inherited template instructions were retired along with their exclusive tests |
-| Window Seat audit text | Saves demand only; command omits manifest and changes request ID; then claims same result hash | Required executable correction: export the full request, pin and identities; reproduce without guessing or renaming the request; distinguish fresh receipt time/hash |
-| `stb-build-guide-spec.js` | Alcove formal-knob-manifest gap can be confused with implemented protocol manifest; Window Seat fixed wood-list statement omits live discovery; Outdoor source coverage is incomplete | Correct each claim against its actual scope, distinguishing UI knob list, full protocol manifest and fixed buttons versus discovery; retain dev/rev guardrails |
-| Window Seat spot explanation | Says 3/16-inch deep without the drill-point/full-diameter distinction | State 3/16-inch full-diameter penetration beyond point consistently with the defined operation; do not alter actual tool requirement |
-| Page reason maps | Some retained-control/profile/sheet reasons belong to retired engine vocabulary | Explain current codes faithfully and retain unknown codes; do not manufacture success or conceal negative results |
-| Shared commercial template | Proposed/not adopted opening contradicts installed section; example roles/links and removed paths lag gate | The original design map is preserved as source context in chapter 10 and at its established System path. The shared executable gate/envelope controls serialization; its bytes remain unchanged |
-| Active wrappers and Rule Book | Superseded embedded price/pin/request text and dated donor references remain shipped/reachable | Targeted future source/copy reconciliation after first-paint, direct-route and saved-state checks; current application language/layout stays unchanged here |
-| Program trial opening | Current modeled ledger and historical controller source had been conflated | Program trial and evidence now distinguish implemented definition/planning, modeled replay, proposed export and physical validation |
-| Store master source register | Historical source register identified `stb-start-own-bench-leg-0.1.html` as current at its recorded revision; published Job 1 actually loads `three-frames.html` | Earlier standalone System HTML now retired; original preserved in Git; source register remains dated evidence, not a runtime selector |
-
-The shared dictionary now describes the same compilation, manifest, receipt, pricing and evidence stages as the masters. Protected live-page wording and executable discrepancies remain identified at their owning files. Historical prices, commands and proof records retain their original context.
+The current proof is described in present tense. Original source publications and earlier observations retain explicit provenance and cannot serve as current acceptance. Commercial exception recovery, durable source authentication/concurrency and commissioned physical export remain separate development requirements; no document or successful virtual replay grants those capabilities.
 
 ### 15.3 Authority after consolidation
+
+The successor capability-impact engine is a core requirement: preserve complete current demand/refusal evidence, identify capability gaps, evaluate separately registered hypothetical configurations through deterministic compilation/Store, and compare added feasibility, modeled Q and full investment/service costs. Learning may propose patterns; deterministic checks determine satisfaction. Adding a third or fourth machine must extend capability registration and execution mappings without rebuilding the customer-definition compiler. These requirements do not describe installed current functionality.
 
 The original README remains the invitation into the current app, with one added link to this master. SYSTEM-MASTER supplies the complete System explanation. DEFINITIONS remains the reconciled System-owned shared-meaning authority. AGENTS retains its existing maintenance safeguards. Required executable/shared contracts remain at their established paths. The externally linked dated verification note retains its evidence identity and link compatibility; it is not required to reconstruct the current explanation.
 
@@ -1183,7 +1175,7 @@ This register preserves links to **original System source `ab09777d6f27d4b70a219
 | [Interpreter](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/store/interpret.ts) | Exact bytes, request/receipt/currentness and money/evidence presentation | System/HTTP integrity and failure cases |
 | [Generic compiler](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/compile.ts) and [Window Seat extension](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/window-seat.ts) | Named derivations and blockers | System rule/input/geometry tests |
 | [Recipes](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/recipes/library.ts), `recipe.ts`, `shape.ts`, `hash.ts`, `ids.ts` | Generic source rules/types, structural admission and content/instance identity | Compilation, malformed/version and unknown-field tests |
-| [Session](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/session.ts), [acceptance](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/acceptance.ts), `machine.ts` | Generic custody, packet2, inspected evidence and presentation | System/HTTP tests plus actual loader discrepancy probe |
+| [Session](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/session.ts), [acceptance](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/src/system/acceptance.ts), `machine.ts` | Generic custody, packet2, inspected evidence and presentation | System/HTTP tests and accepted packet2 round-trip |
 | [Shared commercial gate](https://github.com/GeorgePlattDemo/new-system/blob/ab09777d6f27d4b70a2193abc8564ebce611746f/public/live/stb-commercial-sequence.js), `stb-terms-flow.js`, `stb-demo-commerce.js` | Stream validation/presentation and explicit Job 1 sources | Shared byte equality; commercial/public-wire demo regressions |
 | `stb-start-own-answer.mjs`, `stb-user-defined-board-runtime-bridge.js`, `stb-alcove-store-bridge.js` | Current public job bridges and verified Bench facts | Start Own Bench and published-wire tests |
 | `stb-outdoor-option-requests.js`, `stb-intent-kit.js`, `stb-intent-kit.css` | Independent alternatives and offered-material discovery UI | Public-wire/Store-client tests and loaded Intent |
@@ -1200,9 +1192,9 @@ The surviving current documentary authorities are [Definitions](docs/DEFINITIONS
 
 ### 16.2 Store Program and historical sources
 
-The [current Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md) is the canonical manufacturing explanation. Its [original publication at cd08aff](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md) preserves the earlier consolidation baseline. Its chapters 3/8 explain the current boundary/examples; 5/6 manufacturing and machine functions; 7 the preserved Project 1 trail; 9 evidence; 10 commerce; 11 refusals; and 14 exact primary source identities. System does not duplicate those manufacturing chapters.
+The [current Store master](https://github.com/GeorgePlattDemo/store-zero/blob/main/STORE-ZERO-MASTER.md) is the canonical manufacturing explanation. Its [original publication at cd08aff](https://github.com/GeorgePlattDemo/store-zero/blob/cd08aff624adf3b3a01ac0a42ea33681c5ba2bef/STORE-ZERO-MASTER.md) preserves the earlier consolidation baseline. Its chapters 3/8 explain the current boundary/examples; 5/6 manufacturing and machine functions; 7 the living Project 1 proof and original source provenance; 9 evidence; 10 commerce; 11 refusals; and 14 exact primary source identities. System does not duplicate those manufacturing chapters.
 
-The executable interface was checked at f7123a73 in `src/contracts/definitions.mjs`, `src/requests/store-request.mjs`, accepted-packet/machine contracts, HTTP service and shared commercial gate. The same commit was used by real joint tests and the complete master example. The original Store documentary publication cd08aff, the current documentation and executable pin f7123a73 have distinct identities.
+The current executable Store identity is governed by `src/system/store-candidate.ts`, published runtime configuration, CI checkout and `startup.sh`. Real joint tests require the exact clean checkout and validate protocol, manifest, receipts, accepted packets and modeled evidence. Current Project 1's source digest and browser workflow artifact identify the actual code exercised; original source revisions remain provenance.
 
 Program's original consolidation [README](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/README.md), [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/04ec327df39a54e92aae65ef4b07d10f2c8a8985/SUPERVISED-LABORATORY-CELL-TRIAL.md) and evidence at the same revision establish that original investigation/validation scope. Current [evidence](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/EVIDENCE.md) and [supervised trial](https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/SUPERVISED-LABORATORY-CELL-TRIAL.md) distinguish implemented planning, modeled replay, proposed controller export and laboratory validation. They do not change application definitions or Store capability. Issued patents and sealed Project 1 manuscripts/ZIP/publication identities remain in Store custody with their original hashes. No source publication or Git history is removed.
 
@@ -1226,4 +1218,4 @@ The objective remains one readable introduction, one complete System master and 
 
 ### 16.4 Completion verification record
 
-The full sixteen-chapter master is complete. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. Compiler integration revises this master, the shared definitions and the existing verification note. The README, maintainer safeguards, executable application and pinned Store interface remain unchanged. Two short duplicate editorial notes were retired after their enduring rules were reconciled with this master. Further retirement requires a file-specific dependency review. Required CI must pass against the exact pinned Store checkout.
+The full sixteen-chapter master supplies current application, contract, custody and verification responsibilities. Its contents reflect the actual headings and its examples and source register reflect the recorded baseline. Every consequential implementation change reconciles this master, shared definitions, affected specifications/masters/Program descriptions and the current Project 1 proof. Required checks run against the exact pinned Store interface. Two short duplicate editorial notes were retired after their enduring rules were reconciled with this master. Further retirement requires a file-specific dependency review. Required CI must pass against the exact pinned Store checkout.

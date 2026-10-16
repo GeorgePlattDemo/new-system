@@ -293,7 +293,8 @@ test("reopen keeps history and requires a new inquiry before acceptance", () => 
   assert.equal(reopened.projects[0].revisions.length, 1);
   assert.equal(reopened.projects[0].decisions.length, 1);
   assert.equal(acceptCurrent(reopened, id).code, "ANSWER_NOT_CURRENT");
-  assert.equal(machineBoundary("CUT_PACKAGE_V1").loweringRegistered, false);
+  assert.equal(machineBoundary("CUT_PACKAGE_V1").loweringRegistered, true);
+  assert.equal(machineBoundary("SHEET_PACKAGE_V1").loweringRegistered, true);
   assert.equal(machineBoundary("USER_DEFINED_BOARD_V1").loweringRegistered, true);
   assert.equal(machineBoundary("USER_DEFINED_BOARD_V1").physicalAuthority, false);
   assert.equal(machineBoundary("SHEET_PACKAGE_V1").physicalAdmission, "BLOCKED");
@@ -338,6 +339,13 @@ test("reopening a saved file keeps the decision and retires the price", () => {
   const wrapper = wrapperFor(started.attempt.sentDigest, answer);
   const applied = applyInquiryResult(started.record, id, started.attempt.attemptId, 200, JSON.stringify(wrapper));
   const accepted = acceptCurrent(applied.record, id, "2026-10-09T00:00:00.000Z");
+  const restored = loadRecord(JSON.parse(JSON.stringify(accepted.record)));
+  assert.equal(restored.ok,true,'A produced packet2 must load unchanged');
+  if(restored.ok)assert.deepEqual(restored.record.projects[0].packets,accepted.record.projects[0].packets);
+  for(const alter of [(p:any)=>p.schema='STB-ACCEPTED-JOB-PACKET-3',(p:any)=>p.definition=null]){
+    const copy=JSON.parse(JSON.stringify(accepted.record));alter(copy.projects[0].packets[0]);
+    assert.equal(loadRecord(copy).ok,false);
+  }
   const parked = parkForReopen(accepted.record);
   assert.equal(parked.projects[0].decisions.length, 1);
   assert.equal(parked.projects[0].packets.length, 1);

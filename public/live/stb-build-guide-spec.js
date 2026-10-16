@@ -92,7 +92,7 @@
       'The knob list is made here. The bench does not enlarge it.',
       'New required fact → back to Intent. Never invent a new knob on the bench.'
     ],[
-      sec('Gap',['Door knobs, S/O routing and the knob manifest are rules here. Not built yet.'])
+      sec('Gap',['Door knobs and S/O routing remain bounded development work. The UI knob list is distinct from the implemented independent component/feature/item manifest.'])
     ]),
     'alcove-bench':rail('DEV/REV GUIDE — JOB 2 · ALCOVE · PAGE 2 · THE BENCH',FLAG,[
       'Knobs are turned here. Never added. Missing knob → back to Intent.',
@@ -105,7 +105,7 @@
       'Missing rule → stop. Missing Store fact → ask the Store.',
       'UNRESOLVED / REFUSED / UNAVAILABLE: the boundary working. Not a failure.'
     ],[
-      sec('Gap',['No formal knob manifest yet. Don’t fake one.']),
+      sec('Gap',['The UI knob list has its own scope. Every manufacturing inquiry already carries an independent manifest of the complete required components, features and items.']),
       sec('Plumbing',['postMessage is a contract.','Known wart: two DOMs.'],true)
     ]),
     'alcove-store':rail('DEV/REV GUIDE — JOB 2 · ALCOVE · PAGE 3 · STORE ANSWER',STORE_FLAG,[
@@ -164,7 +164,7 @@
       'Seat strength: UNRESOLVED. Site assembly: DEFERRED. Never claimed.',
       'Labels / inspection / bundling / packing: kept, not sent. Show the exclusion. Never claim the work.'
     ],[
-      sec('Gap',['No place yet to record a qualified person’s answer on the seat.','Wood list is on the page, not from the catalog. The Store still refuses what it doesn’t carry.'])
+      sec('Gap',['No place yet to record a qualified person’s answer on the seat.','Fixed wood buttons are page choices; Intent also discovers actual Store offerings. The Store evaluates the selected material and refuses unavailable stock.'])
     ]),
     'ws-bench':rail('DEV/REV GUIDE — JOB 3 · WINDOW SEAT · PAGE 3 · THE BENCH',FLAG,[
       'The bench turns the knobs made at intent. It never adds one.',
@@ -216,11 +216,11 @@
       'This app turns bounded plan requirements into Store-evaluable demand and modeled work.',
       'Picking a plan is the intent. Its knobs come from the plan.',
       'Photos are context. Nobody cuts to a photo.',
-      'Plan source stays attached.',
+      'Plan source stays attached. Preserve source end datums and bevel planes; unregistered geometry has no complete Q.',
       'Reading a plan is not CAM. Bounded CAM can then be generated from controlling requirements plus declared machine rules.',
       'The “From” price is a live Store answer. Never cached. No answer → the card says so.'
     ],[
-      sec('Gap',['A-frame source not in the authority register.','Wood defaults and the benches plan’s hardware counts are our reading, not the plans’.']),
+      sec('Gap',['A-frame source remains attached to its definition; source long-short end dimensions and the cross-support bevel are unregistered and have no complete Q.','Wood defaults and the benches plan’s hardware counts are our reading, not the plans’.']),
       PLUMB_FRAME
     ]),
     'od-bench':rail('DEV/REV GUIDE — JOB 4 · OUTDOOR BUILD · PAGE 2 · THE BENCH',STORE_FLAG,[
@@ -233,7 +233,7 @@
       'Every price is a live Store answer. None is cached.',
       'Change anything → the Store is asked again.',
       'Hardware travels as requirements. The Store picks the item and box count.',
-      'Plans name no species, screw gauge or totals. Ours: #10. Label it ours.',
+      'Source and inferred facts remain distinct. The A-frame source supplies a screw count and material recommendations; the application requests #10 gauge and labels its own material/hardware variants.',
       'Size range is the plan’s, not a strength rule.'
     ],[
       sec('The Store',[STORE_ZERO,WHOLE_RESULT,NO_COMPLETE])
@@ -444,7 +444,7 @@
     'outdoor-record':RAILS['od-record'],
     'outdoor-build-live':lines('Keep Outdoor its own job.',[
       'Never borrow Job 1 facts.',
-      'Plan source stays attached.',
+      'Plan source stays attached. Preserve source end datums and bevel planes; unregistered geometry has no complete Q.',
       'Missing Store coverage stays missing.',
       'Known wart: iframe.'
     ]),

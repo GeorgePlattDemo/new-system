@@ -340,7 +340,7 @@
                   <span>Dividers <span class="dim">centered</span></span>
                   <div class="seg" id="c-spot-div"><button type="button" data-k="">Off</button><button type="button" data-k="on">Centered</button></div>
                 </div>
-                <p class="spotnote">A small starter mark, 3/16 in wide and 3/16 in deep, that you drill through. <b>Tower sides:</b> one on each side board at every shelf height, 1½ or 2 in from the edge, so the shelf pins line up and the shelves sit level. <b>Dividers:</b> one centered where each divider meets the board above and below it, to place its fasteners. The Store spots and prices each one.</p>
+                <p class="spotnote">A small starter mark, 3/16 in wide with 3/16 in full-diameter penetration beyond the drill point, that you drill through. <b>Tower sides:</b> one on each side board at every shelf height, 1½ or 2 in from the edge, so the shelf pins line up and the shelves sit level. <b>Dividers:</b> one centered where each divider meets the board above and below it, to place its fasteners. The Store spots and prices each one.</p>
               </div>
               <div class="pricebar" id="intent-money-box"><div id="intent-money" aria-live="polite"></div></div>
             </div><div id="seat-wood-lookup"></div></div><div class="stb-intent-card"><div class="sec">
@@ -589,8 +589,8 @@
 <script src="stb-store-client.js?v=demo-checkout-20261011"></script>
 <script src="stb-commercial-sequence.js?v=demo-checkout-20261011"></script>
 <script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
-<script src="stb-terms-flow.js?v=journey-visible-20261015"></script>
-<script src="stb-build-guide-spec.js?v=demo-checkout-20261011"></script>
+<script src="stb-terms-flow.js?v=current-proof-1"></script>
+<script src="stb-build-guide-spec.js?v=current-proof-1"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
 <script>
 (function(){
@@ -930,7 +930,7 @@ function conditions(def){
   if(M.depth!=null&&P.depth>M.depth)c.push({t:'Deeper than your controlling depth',d:inch(P.depth)+' is deeper than the '+inch(M.depth)+' you marked controlling',block:true,at:'bench',fact:'window-seat.depth'});
   if(has('XSPOT')){
     const f=def.feats.find(x=>x.id===P.xspot.target),off=parse(P.xspot.offset);
-    if(!P.xspot.target||off==null||!P.xspot.place)c.push({t:'The extra spot needs a part, a distance and a placement',d:'size is fixed at 3/16 in wide and 3/16 in deep.',block:true,at:'bench',fact:'window-seat.added-knobs'});
+    if(!P.xspot.target||off==null||!P.xspot.place)c.push({t:'The extra spot needs a part, a distance and a placement',d:'size is fixed at 3/16 in wide with 3/16 in full-diameter penetration beyond the drill point.',block:true,at:'bench',fact:'window-seat.added-knobs'});
     else if(!f)c.push({t:'The extra spot’s part isn’t in this version',d:P.xspot.target+' no longer exists. The request is kept and marked; it is not moved to another part.',block:true,at:'bench',fact:'window-seat.added-knobs'});
     else if(!(off>0&&off<f.len))c.push({t:'The extra spot is off the part',d:fmt(off)+' in is not inside a '+fmt(f.len)+' in part',block:true,at:'bench',fact:'window-seat.added-knobs'});
   }
@@ -1363,7 +1363,7 @@ function render(){
     ['Seat height · cubbies',inch(P.seat)+' · '+P.cub,'seat position; '+(P.cub-1)+' cubby divider'+(P.cub-1===1?'':'s')+' at '+inch(Math.max(P.seat-2*T,0)),'PARTS']
   ];
   if(has('FRONT'))rows.push(['Front board',P.front?'yes':'no',P.front?'one 1×4 as it comes, '+inch(P.W.CENTER)+' long':'no part','PARTS']);
-  rows.push(['Drill spotting',spotsText(),req.spotCount?req.spotCount+' spots, 3/16 in wide × 3/16 in deep':'no spots','FEATURES · OPERATION']);
+  rows.push(['Drill spotting',spotsText(),req.spotCount?req.spotCount+' spots, 3/16 in diameter; 3/16 in full-diameter penetration beyond the drill point':'no spots','FEATURES · OPERATION']);
   if(has('XSPOT'))rows.push(['One more spot',P.xspot.target||'not placed',P.xspot.target?'one spot on each board of '+P.xspot.target:'nothing until placed','FEATURE · OPERATION']);
   rows.push(['Wood',woodName(P.wood),'the material of every cut package','MATERIAL']);
   if(has('SCREWS'))rows.push(['Wood screws',screwsText(),'a hardware requirement sent to the Store; Store picks the item or refuses','HARDWARE · REQUIREMENT']);
@@ -1586,7 +1586,7 @@ function auditText(){
   def.feats.forEach(f=>L.push('  '+f.id+' · '+f.name+' · '+fmt(f.len)+' × '+(f.role==='FRONT'?'3 1/2':fmt(P.depth))+' × 3/4 in · '+f.runs.map(r=>r.id+' @ '+fmt(r.w)+' in').join(', ')));
   const b=boardFor(def.runW);
   L.push('Operations: cut to length ('+def.boards.length+' boards)'+(b&&b.mill!=null?'; edge mill 1×'+b.nominalW+' to '+fmt(b.mill)+' in':'')+(req.spotCount?'; spot ('+req.spotCount+')':''));
-  L.push('Features: '+(req.spotCount?req.spotCount+' spots, 3/16 in wide × 3/16 in deep':'none'));
+  L.push('Features: '+(req.spotCount?req.spotCount+' spots, 3/16 in diameter; 3/16 in full-diameter penetration beyond the drill point':'none'));
   L.push('Material: '+woodName(P.wood)+', ¾ in solid board'+(b?', from 1×'+b.nominalW:''));
   L.push('Hardware requirement: '+(has('SCREWS')?screwsText()+' (sent as a requirement; Store picks the item or refuses)':'none'));
   L.push('Kept, not sent: '+(keptList().map(k=>k.t).join('; ')||'none'));
@@ -1621,14 +1621,15 @@ function auditText(){
   L.push('Commerce and the yard are simulated: no money moves and no machine runs.');
   hr('5 · CHECK IT YOURSELF');
   const pin=(a&&a.storePin)||'(the pin in stb-store-runtime.json)';
-  const demand=a?a.demand:null;
-  if(!demand)L.push('Ask the Store first. The exact demand it evaluated appears here.');
-  else{L.push('1. Save this as window-seat.json:');L.push(JSON.stringify(demand,null,2))}
+  const inputs=a?.body?.mappedCallInputs;
+  const request=inputs?{requestType:inputs.requestType,requestId:a.requestId,demand:inputs.demand,manifest:inputs.manifest}:null;
+  if(!request)L.push('Ask the Store first. The complete exact request appears here.');
+  else{L.push('1. Save this as window-seat.json:');L.push(JSON.stringify(request,null,2))}
   L.push('2. Get the Store at the pinned commit and run the same request:');
   L.push('   git clone https://github.com/GeorgePlattDemo/store-zero');
   L.push('   cd store-zero && git checkout '+pin);
-  L.push('   node --input-type=module -e "import fs from \'node:fs\'; import {evaluateStoreRequest} from \'./src/requests/store-request.mjs\'; import {loadCatalog} from \'./src/evaluation/catalog.mjs\'; const demand=JSON.parse(fs.readFileSync(\'window-seat.json\',\'utf8\')); const r=evaluateStoreRequest({requestType:\'CUT_PACKAGE_V1\',requestId:\'my-check\',demand},{release:\''+pin+'\',catalog:loadCatalog()}); console.log(r.status, r.calculationIdentity&&r.calculationIdentity.resultHash)"');
-  L.push('3. Compare: the same demand and the same pin give the same result hash'+(id&&id.answered?' ('+id.answered+').':'.'));
+  L.push('   node --input-type=module -e "import fs from \'node:fs\'; import {evaluateStoreRequest} from \'./src/requests/store-request.mjs\'; const request=JSON.parse(fs.readFileSync(\'window-seat.json\',\'utf8\')); const r=evaluateStoreRequest(request,{release:\''+pin+'\'}); console.log(r.status, r.calculationIdentity&&r.calculationIdentity.resultHash)"');
+  L.push('3. Compare: the same complete request and pin give the same calculation result hash'+(id&&id.answered?' ('+id.answered+').':'.')+' A fresh evaluation time creates a new receipt; do not compare that receipt hash as if it were the calculation hash.');
   return L.join('\n');
 }
 function renderAudit(){$('audit-text').textContent=auditText()}

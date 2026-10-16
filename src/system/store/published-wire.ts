@@ -229,6 +229,8 @@ function pageAnswer(wire: Json, wrapper: Json, carriedNotAccepted: CarriedRequir
   const supportedOps = Array.isArray(capability?.supportedOps) ? capability.supportedOps : null;
   return echo(wire, {
     storePin: wrapper.storeRelease,
+    // Exact Store answer for acceptance/lowering; rawEvaluation also has presentation-only lines.
+    storeAnswer: answer,
     rawEvaluation: { ...answer, freshEvaluation: answer.freshEvaluation === true, evaluationReceipt: receipt },
     rawEstimate: estimate ?? presentedEstimate(answer),
     evaluationReceipt: receipt,

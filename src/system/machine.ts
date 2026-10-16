@@ -15,13 +15,13 @@ export type MachineBoundary = {
  * and it does not turn a missing answer into records.
  */
 export function machineBoundary(requestType: RequestType | null): MachineBoundary {
-  if (requestType === "USER_DEFINED_BOARD_V1") {
+  if (STORE_CANDIDATE.inspectedMachine.requestTypes.some(type => type === requestType)) {
     return {
       requestType,
       evidencePath: STORE_CANDIDATE.machineEvidencePath,
       loweringRegistered: true,
       reason:
-        "The reference cell registers parallel ends and length on the long-long outer edge. That datum is the long point of the miter face, so this job does not add a second end-identity string. Evidence is only what the Store returns for the accepted packet. A supplied end identity is sent, not stripped, and the cell refuses it.",
+        "The inspected Store registers modeled evidence for board, cut-package and sheet definitions. Evidence requires the exact accepted packet and successful Store verification; supported price alone is insufficient. Records describe predicted occupancy, with physical admission blocked. Sheet evidence is not a complete controller trajectory.",
       physicalAdmission: "BLOCKED",
       physicalAuthority: false,
     };

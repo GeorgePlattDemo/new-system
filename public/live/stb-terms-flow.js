@@ -201,6 +201,39 @@
     async function runYard(){const current=chain;await ensureCommercial();if(chain===current&&current?.demo)await current.demo.runYard();return state();}
     async function pickup(){const current=chain;await ensureCommercial();if(chain===current&&current?.demo)await current.demo.pickup();return state();}
 
+    // Serialize the customer's existing decision and the exact evaluated definition. No new offer,
+    // decision, stock choice or quotation is created here. Store independently verifies this packet.
+    async function acceptedPacket(){
+      const current=chain;
+      const refuse=code=>({status:'REFUSED',reasonCodes:[code]});
+      if(!current)return refuse('CURRENT_ACCEPTED_JOB_REQUIRED');
+      await ensureCommercial();
+      if(chain!==current)return refuse('DEFINITION_CHANGED');
+      const body=current.source,answer=body.storeAnswer,inputs=body.mappedCallInputs;
+      const events=current.commercial?.deriveTransactionState().events||[];
+      const decision=events.find(e=>e.eventType==='CustomerDecisionRecorded'&&e.payload.decision==='ACCEPTED');
+      const offer=events.find(e=>e.eventType==='OfferIssued'&&e.payload.offerId===decision?.payload.offerId);
+      if(!decision||!offer||!await root.STBCommercialSequence.verify(events))return refuse('ACCEPTED_SOURCE_DECISION_REQUIRED');
+      const receipt=answer?.evaluationReceipt;
+      if(answer?.status!=='SUPPORTABLE'||answer.complete!==true||!receipt||!inputs||body.requirementSatisfaction?.status!=='SATISFIED')return refuse('COMPLETE_STORE_ANSWER_REQUIRED');
+      const {receiptHash,...receiptCore}=receipt;
+      if(receiptHash!==await sha256(receiptCore)||receipt.demandHash!==await sha256(inputs.demand)||receipt.manifestHash!==await sha256(inputs.manifest)
+        ||receipt.authority.storeRevision!==current.storePin||decision.links.receiptHash!==receiptHash||decision.links.revisionId!==inputs.manifest.revision
+        ||answer.requestId!==current.requestId||answer.requestType!==inputs.requestType||decision.evidenceClass!=='SIMULATED')return refuse('ACCEPTED_JOB_BINDING_MISMATCH');
+      if(chain!==current)return refuse('DEFINITION_CHANGED');
+      const demand=inputs.demand;
+      const requirements={};
+      if(inputs.requestType==='USER_DEFINED_BOARD_V1')for(const key of ['endRelation','lengthDatum','endIdentity'])if(demand[key]!=null)requirements[key]=demand[key];
+      return {status:'ACCEPTED_PACKET_READY',packet:JSON.parse(JSON.stringify({
+        schema:'STB-ACCEPTED-JOB-PACKET-2',packetId:'PACKET-'+decision.payload.decisionId,
+        project:{projectId,classId:demand.classId||inputs.requestType,title:current.title},
+        definition:{definitionId:inputs.manifest.jobId,revisionId:inputs.manifest.revision,requestType:inputs.requestType,demand,manifest:inputs.manifest,requirements},
+        storeAnswer:answer,
+        decision:{decisionId:decision.payload.decisionId,kind:'ACCEPTED',offerId:decision.payload.offerId,decidedAt:decision.occurredAt,evidenceClass:'SIMULATED'},
+        authority:{physicalRelease:false,evidenceClass:'SIMULATED'}
+      }))};
+    }
+
     function stage(){
       if (!chain) return 'NO_ANSWER';
       if (chain.status === 'BUDGETARY_REVIEW') return 'REVIEW_REQUIRED';
@@ -324,7 +357,7 @@
       });
     }
 
-    const flow = Object.freeze({ setAnswer, invalidate, recordCommercialEvent, accept, decline, runYard, pickup, state, renderChain, renderControls, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
+    const flow = Object.freeze({ setAnswer, invalidate, recordCommercialEvent, accept, decline, runYard, pickup, acceptedPacket, state, renderChain, renderControls, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
     INSTANCES.set(projectId, flow);
     return flow;
   }

@@ -136,10 +136,11 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
     if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1313.61);
 
     const aFrame = await ask("outdoor", { planId: "a-frame", wood: "treated", hardwareTier: "BYO" });
-    assert.equal(aFrame.status, "SUPPORTABLE");
+    assert.equal(aFrame.status, "UNRESOLVED");
     const aFrameMoney = presentMoney(aFrame);
-    assert.equal(aFrameMoney.kind, "full");
-    if (aFrameMoney.kind === "full") assert.equal(aFrameMoney.amount, 267.20);
+    assert.notEqual(aFrameMoney.kind, "full");
+    assert.equal(aFrame.Q,null);
+    assert.ok((aFrame.reasonCodes as string[]).includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
 
     const cleats = await ask("closet-cleats");
     assert.equal(cleats.status, "SUPPORTABLE");

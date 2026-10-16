@@ -57,16 +57,9 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/healthz'
-    | '/api/store-zero/job'
-    | '/api/store-zero/offering'
+    '/' | '/healthz' | '/api/store-zero/job' | '/api/store-zero/offering'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/healthz'
-    | '/api/store-zero/job'
-    | '/api/store-zero/offering'
+  to: '/' | '/healthz' | '/api/store-zero/job' | '/api/store-zero/offering'
   id:
     | '__root__'
     | '/'

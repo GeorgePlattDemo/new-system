@@ -52,7 +52,7 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 ## End identity
 
-End geometry is part of the priced manufacturing definition. `endRelation` states how the ends relate; `lengthDatum` states where length is measured; `cutPlane` distinguishes face miter from other cutting planes. Current user-board and angled cut-package mappings use parallel ends, the long-long outer edge and miter-face plane. The model cannot change these meanings to obtain a price.
+End geometry is part of the priced manufacturing definition. `endRelation` states how the ends relate; `lengthDatum` states where length is measured; `cutPlane` distinguishes face miter from other cutting planes. The currently registered Store user-board and angled cut-package geometry uses parallel ends, the long-long outer edge and miter-face plane. Source definitions may state another datum/plane; those facts remain explicit and the Store returns unresolved support without a complete Q until a verified mapping or capability is registered. The model cannot change these meanings to obtain a price.
 
 `endIdentity` is an additional endpoint statement. The public board translator records a supplied redundant value such as `both` under `REDUNDANT_WITH_PRICED_LENGTH_DATUM` and sends null when parallel/long-long already expresses it. A nonredundant value travels unchanged. The current Store board compiler requires `endIdentity == null`; incompatible geometry is refused as `END_GEOMETRY_NOT_DECLARED`. This is the current contract, rather than the retired `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` narrative.
 
@@ -737,3 +737,11 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 **Virtual evidence ≠ a cut**
 
 **endIdentity omitted ≠ endIdentity deleted**
+
+## Current integrated manufacturing proof
+
+**Project 1 current digital proof** — Living end-to-end acceptance evidence for the current System/Store, covering customer derivation, independent manifest, fresh evaluation, original accepted decision, exact packet export, registered lowering and virtual replay. Both 16-inch and 18-inch SPF settings are exercised. Reference files bind current executable source; browser-run artifacts identify actual repository revisions and Store health. Consequential code, contract or specification changes reconcile the proof and all affected operative documents. Original sealed source publications retain provenance and cannot substitute for current proof.
+
+**Exact accepted Store answer** — The unmodified answer retained by the published adapter as `storeAnswer`, distinct from display projections. `acceptedPacket()` exports it with the existing linked simulated customer decision, demand and manifest; it creates no replacement quote, stock selection or decision. Store independently verifies the packet before lowering.
+
+**Capability-impact analysis** — Successor requirement to compare today's registered capability with a separately registered hypothetical configuration against complete identified demand, refusals and unresolved requirements. Added feasibility, time/Q and full capability/service cost remain attributable to each configuration. Machine-learning proposals grant no capability or release. Additional machines extend registration/mappings without rebuilding the definition compiler. This engine is not installed current behavior.

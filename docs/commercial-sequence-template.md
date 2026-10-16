@@ -1,10 +1,12 @@
 # Program alignment and commercial sequence template
 
-11 October 2026 · Proposed shared contract for all jobs · Revision 0.1
+Current shared transaction design and bounded installed contract
 
-The shared manufacturing candidate has now been reviewed against Program's current authority and trial requirements. It belongs at the Store evaluation boundary: one neutral job, one selected-stock plan, one modeled operation ledger, and one manufacturing Q. A separate System transaction module should carry the subsequent offer, decision, order, financial, fulfillment, and custody records. Each downstream act consumes the identified output of the preceding act and adds its own evidence.
+Store owns one manufacturing planner, selected-stock plan, modeled operation ledger and manufacturing Q. System's shared terms flow consumes the installed commercial event gate for offer, decision, order, simulated financial/fulfillment and custody records. Each downstream act consumes identified preceding evidence and adds its own source record. Public packet export preserves the exact accepted definition, manifest, Store answer and original customer decision.
 
-This is a concrete implementation template, published identically in System and Store for review. System retains authority over shared workflow meanings; Store retains authority over its commercial acts, material, modeled time and Q. The [manufacturing candidate](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/store-manufacturing-core.mjs) is published only in Store. These candidates have not been adopted into the runtime. The proposed event names require adoption in System's shared definitions and contracts; the shared map creates no second definitions authority. The existing six customer steps can remain: Intent, The bench, The Store answers, Your call, We cut it, Pick up & build.
+The executable gate is `public/live/stb-commercial-sequence.js`, byte-identical to Store's `src/contracts/commercial-sequence.js`. Its exact schema, roles and links govern installed serialization. Only SIMULATED source adapters are installed; it performs no actual payment, inventory reservation or machine operation. The [manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs) is the adopted Store runtime authority.
+
+The broader examples below are design requirements for future source integrations and durable custody, not alternate executable schemas or evidence that those integrations exist. System owns shared workflow meaning; Store owns its commercial acts, material, modeled time and Q. The six customer steps remain Intent, The bench, The Store answers, Your call, We cut it, Pick up & build.
 
 ## 1. Ownership and the point of connection
 
