@@ -55,7 +55,7 @@ This reference explains the complete System application and its handoff. The [sh
   - [6.1 Source selection and fixed starting definition](#61-source-selection-and-fixed-starting-definition)
   - [6.2 Bench control and revision](#62-bench-control-and-revision)
   - [6.3 Option previews and the committed inquiry](#63-option-previews-and-the-committed-inquiry)
-  - [6.4 The unresolved end-meaning correspondence](#64-the-unresolved-end-meaning-correspondence)
+  - [6.4 End planes, measured datum and stock envelope](#64-end-planes-measured-datum-and-stock-envelope)
   - [6.5 Authority evidence and downstream flow](#65-authority-evidence-and-downstream-flow)
 - [7. Playhouse and the sheet stream](#7-playhouse-and-the-sheet-stream)
   - [7.1 Source and ownership presentation](#71-source-and-ownership-presentation)
