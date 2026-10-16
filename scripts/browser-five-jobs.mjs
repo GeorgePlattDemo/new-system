@@ -584,8 +584,8 @@ try {
   assert.equal(outdoorMaxInFlight,1,'Outdoor must not flood Store with concurrent inquiries');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
   // Keep the original five-project navigation allowance. The extended species
-  // and geometry/Outdoor inquiries may legitimately cross the client's five-second
-  // configuration expiry; count those extra reads separately.
+  // and geometry/Outdoor probes have separately counted configuration reads.
+  // Keep the original allowance for the five-project navigation itself.
   assert.ok(configRequests.length-extendedSeatConfigReads-extendedOutdoorConfigReads <= 12,
     'Repeated runtime config fetches remain excessive: ' + configRequests.length);
   for(const {plan,body} of outdoorProfileTargets){
