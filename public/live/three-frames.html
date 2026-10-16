@@ -451,6 +451,21 @@
         </div>
         <!-- The controls typed on Intent for this job, one row each. -->
         <div id="stb-bench-added-controls"></div>
+        <fieldset class="higher-row" id="stb-spot-geometry-controls" style="border:1px solid #ddd; border-radius:8px; padding:12px">
+          <legend><b>Spot drill — 3/16 in pointed bit</b></legend>
+          <label for="stb-spot-location-mode">Spot position</label>
+          <select id="stb-spot-location-mode" aria-label="Spot location mode">
+            <option value="center">Centered on each part (original definition)</option>
+            <option value="selected">Choose X from each finished part's start</option>
+          </select>
+          <label for="stb-spot-part1-x">Part 1 X (in)</label>
+          <input id="stb-spot-part1-x" type="number" min="0.09375" step="0.125" value="8" disabled>
+          <label for="stb-spot-part2-x">Part 2 X (in)</label>
+          <input id="stb-spot-part2-x" type="number" min="0.09375" step="0.125" value="8" disabled>
+          <label for="stb-spot-full-depth">Full-diameter depth beyond drill point (in)</label>
+          <input id="stb-spot-full-depth" type="number" min="0.015625" max="0.1875" step="0.015625" value="0.1875">
+          <p class="fine">The depth is measured after the 118° point reaches full diameter. Maximum 3/16 in; this does not cut a flat-bottom spotface or a through-hole. Store validates each chosen location and depth.</p>
+        </fieldset>
         <p class="bench-price-line" id="stb-bench-price-line"></p>
         <div class="board-swap" id="stb-bench-board-swap" hidden role="status"></div>
         <p class="fine" id="stb-config-geometry-note">Same two parts, same 8.000 in horizontal span. 16.000 in → 30.000° end cuts. 18.000 in → 26.388° end cuts.</p>

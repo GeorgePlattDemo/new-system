@@ -8,7 +8,7 @@
 export const STORE_CANDIDATE = Object.freeze({
   name: "Store Zero",
   protocol: "STORE-ZERO-REQUEST-2",
-  inspectedCommit: "3f813fe060f1eff46a1b3cfdad1ad41465d230e0",
+  inspectedCommit: "c0b786e938a51df350aae1677235e4cb35c5f516",
   requestsPath: "/v1/requests",
   healthPath: "/health",
   machineEvidencePath: "/v1/machine-evidence",
@@ -16,7 +16,7 @@ export const STORE_CANDIDATE = Object.freeze({
   /** Read from the pinned Store's registered configuration. Not a caller override. */
   inspectedMachine: Object.freeze({
     machineConfigId: "STORE-MANUFACTURING-CORE-0.1",
-    machineConfigHash: "87542b1d56d7e5624d6d85557a0d213b226b9ffc4454d561fd8616379c1e6884",
+    machineConfigHash: "0394f8ac97eb89191b94fb83fd7390049ddd68e427a91629a1a14c98dce814df",
     physicalAuthority: false as const,
     requestTypes: Object.freeze(["USER_DEFINED_BOARD_V1","CUT_PACKAGE_V1","SHEET_PACKAGE_V1"]),
   }),

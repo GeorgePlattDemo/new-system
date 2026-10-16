@@ -3,6 +3,7 @@
  * The page keeps its words. This file does not price anything itself.
  */
 
+import {resolvePlanEnd} from "../terminology.ts";
 import {definitionManifest} from "../manifest.ts";
 import { sha256Bytes } from "../hash.ts";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
@@ -65,6 +66,10 @@ export function boardDemandFromPublishedLine(line: Json): {
 } {
   const carriedNotAccepted: CarriedRequirement[] = [];
   const assignedFeatureIdentities: AssignedFeatureIdentity[] = [];
+  for(const [field,value] of [["quantity",line.quantity],["unit",line.unit],["drillCycles",line.drillCycles],["drillDepthIn",line.drillDepthIn]] as const){
+    if(value!==undefined && !(field==="quantity"?value===1:field==="unit"?value==="ea":field==="drillCycles"?value===0:value===null))
+      carriedNotAccepted.push({field,value:JSON.stringify(value),reported:"KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD"});
+  }
   const material = asObject(line.materialDemand) ?? {};
   const formStated = statedText(material.form);
   const boardSelected = statedText(material.species) != null && finite(material.nominalT) != null && finite(material.nominalW) != null;
@@ -98,24 +103,45 @@ export function boardDemandFromPublishedLine(line: Json): {
       const declared = statedText(spot.featureId);
       const featureId = declared ?? `declared:${partId || "part"}:feature:${index}`;
       if (!declared) assignedFeatureIdentities.push({ featureId, partId, index, kind: String(spot.kind ?? "") });
+      // Preserve every stated physical spot constraint. Unknown fields travel
+      // intact to the Store contract for explicit refusal, never disappear.
       return {
+        ...unconsumed(spot, ["featureId", "kind", "xIn", "locationRule", "acrossWidthRule",
+          "insetFromEdgeIn", "toolDiameterIn", "fullDiameterDepthIn"]),
         featureId,
         kind: String(spot.kind ?? ""),
         xIn: finite(spot.xIn),
-        ...(spot.locationRule != null ? {locationRule:String(spot.locationRule)} : {}),
-        ...(spot.acrossWidthRule != null ? {acrossWidthRule:String(spot.acrossWidthRule)} : {}),
-        ...(finite(spot.insetFromEdgeIn) != null ? {insetFromEdgeIn:finite(spot.insetFromEdgeIn)} : {}),
+        ...(Object.hasOwn(spot,"locationRule") ? {locationRule:spot.locationRule} : {}),
+        ...(Object.hasOwn(spot,"acrossWidthRule") ? {acrossWidthRule:spot.acrossWidthRule} : {}),
+        ...(Object.hasOwn(spot,"insetFromEdgeIn") ? {insetFromEdgeIn:spot.insetFromEdgeIn} : {}),
+        ...(spot.toolDiameterIn !== undefined ? {toolDiameterIn:spot.toolDiameterIn} : {}),
+        ...(spot.fullDiameterDepthIn !== undefined ? {fullDiameterDepthIn:spot.fullDiameterDepthIn} : {}),
       };
     }) : [];
-    return { partId, lengthIn: finite(row.lengthIn), features };
+    return { ...unconsumed(row,["partId","lengthIn","features"]), partId, lengthIn: finite(row.lengthIn), features };
   }) : [];
   const spot = asObject(line.spotDemand);
+  // This summary is presentation of the actual feature list, never authority
+  // to add a different physical requirement and then price only the old spots.
+  if(spot){
+    const features=parts.flatMap(part=>part.features);
+    for(const [field,value] of Object.entries(spot)){
+      const represented=field==="required"?value===(features.length>0)
+        :field==="mode"?value==="SPOT_ON_LOCATION"
+        :field==="totalCount"?value===features.length
+        :field==="countPerPart"?parts.every(p=>p.features.length===value)
+        :["locationRule","acrossWidthRule","toolDiameterIn","fullDiameterDepthIn"].includes(field)
+          ?features.length>0&&features.every(f=>f[field as keyof typeof f]===value):false;
+      if(!represented)carriedNotAccepted.push({field:`spotDemand.${field}`,value:JSON.stringify(value),reported:"KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD"});
+    }
+  }
   return {
     carriedNotAccepted,
     endIdentityCanonicalization,
     assignedFeatureIdentities,
     materialFormEstablished,
     demand: {
+      ...unconsumed(line,["lineId","title","quantity","unit","drillCycles","drillDepthIn","materialSource","configurationId","configurationVersion","classId","materialDemand","definedWorkpieceLength","definedWorkpieceLengthIn","requiredOps","sawAngleDeg","cutPlane","datumCMethod","endRelation","lengthDatum","endIdentity","sawCuts","spotDemand","unresolvedConditions","parts"]),
       title: "Start your own",
       configurationId: String(line.configurationId ?? ""),
       configurationVersion: String(line.configurationVersion ?? ""),
@@ -131,7 +157,7 @@ export function boardDemandFromPublishedLine(line: Json): {
       ...(redundantIdentity ? { endIdentity: null } : suppliedEndIdentity != null ? { endIdentity: suppliedEndIdentity } : {}),
       declaredSawCuts: finite(line.sawCuts),
       declaredSpotCount: finite(spot?.totalCount),
-      unresolvedConditions: [],
+      unresolvedConditions: Object.hasOwn(line,"unresolvedConditions") ? line.unresolvedConditions : [],
       parts,
     },
   };
@@ -301,7 +327,7 @@ function unconsumed(source: Json, consumed: string[]): Json {
   return out;
 }
 
-type Translation = { demand: Json; carriedNotAccepted: CarriedRequirement[] } | { blocked: CarriedRequirement[] };
+type Translation = { demand: Json; carriedNotAccepted: CarriedRequirement[]; meaningEvidence?: unknown } | { blocked: CarriedRequirement[] };
 
 function blocked(field: string, value: string): Translation {
   return { blocked: [{ field, value, reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" }] };
@@ -318,9 +344,8 @@ function spotFrom(feature: Json, index: number, partId: string, problems: Carrie
     return null;
   }
   const spot: Json = { featureId: String(feature.featureId), xIn };
-  if (feature.acrossWidthRule != null) spot.acrossWidthRule = String(feature.acrossWidthRule);
-  const inset = finite(feature.insetFromEdgeIn);
-  if (inset != null) spot.insetFromEdgeIn = inset;
+  if (Object.hasOwn(feature,"acrossWidthRule")) spot.acrossWidthRule = feature.acrossWidthRule;
+  if (Object.hasOwn(feature,"insetFromEdgeIn")) spot.insetFromEdgeIn = feature.insetFromEdgeIn;
   for (const field of ["toolDiameterIn", "fullDiameterDepthIn"]) if (feature[field] !== undefined) spot[field] = feature[field];
   return spot;
 }
@@ -369,6 +394,7 @@ function itemFrom(line: Json, problems: CarriedRequirement[]): Json | null {
  * location or item identity blocks before the Store. Anything else the definition states travels as stated.
  */
 export function cutDemandFromPublishedDefinition(definition: Json): Translation {
+  const meaningEvidence: unknown[]=[];
   const problems: CarriedRequirement[] = [];
   const packages = Array.isArray(definition.cutPackages) ? definition.cutPackages : [];
   const cutPackages = packages.map((pkg) => {
@@ -377,12 +403,17 @@ export function cutDemandFromPublishedDefinition(definition: Json): Translation 
     const endCut = asObject(row.endCut) ?? {};
     const angle = finite(endCut.angleDeg);
     if (angle == null) problems.push({ field: `endCut:${String(row.packageId ?? "")}`, value: "angle missing", reported: "KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD" });
+    const meaning=resolvePlanEnd({angleDeg:angle??NaN,sourceTerm:endCut.sourceTerm,
+      endRelation:endCut.endRelation as string|undefined,lengthDatum:endCut.lengthDatum as string|undefined,
+      endPointOrientation:endCut.endPointOrientation as string|undefined,plane:endCut.plane as string|undefined});
+    if(!meaning.ok && angle!=null)problems.push({field:`endCut:${String(row.packageId??"")}.${meaning.fact}`,value:meaning.code,reported:"KEPT_ON_THE_JOB_NOT_A_STORE_BOARD_FIELD"});
+    if(meaning.ok)meaningEvidence.push({packageId:row.packageId,...meaning.value.evidence});
     const finished = finite(row.finishedWidthIn);
     return {
       ...unconsumed(row, ["packageId", "material", "endCut", "finishedWidthIn", "parts"]),
       packageId: String(row.packageId ?? ""),
       material: { ...material },
-      ...(angle != null ? { endCut: { ...endCut, angleDeg: angle } } : {}),
+      ...(angle != null ? { endCut: { ...unconsumed(endCut,["sourceTerm"]), angleDeg: angle } } : {}),
       ...(finished != null ? { finishedWidthIn: finished } : {}),
       parts: partsFrom(row.parts, problems),
     };
@@ -393,6 +424,7 @@ export function cutDemandFromPublishedDefinition(definition: Json): Translation 
   if (problems.length) return { blocked: problems };
   return {
     carriedNotAccepted: [],
+    meaningEvidence,
     demand: {
       ...unconsumed(definition, ["classId", "configurationId", "configurationVersion", "cutPackages", "itemLines"]),
       ...(definition.classId != null ? { classId: String(definition.classId) } : {}),
@@ -530,6 +562,7 @@ function translatePublished(wire: Json): { storeRequestType: string; demand: Jso
     const line = asObject(payload?.line);
     if (!line) return { error: "PUBLISHED_LINE_REQUIRED" };
     const translated = boardDemandFromPublishedLine(line);
+    if(translated.carriedNotAccepted.length)return {error:"PUBLISHED_DEFINITION_INCOMPLETE",blocked:translated.carriedNotAccepted};
     return {
       storeRequestType: "USER_DEFINED_BOARD_V1",
       demand: translated.demand,
@@ -557,7 +590,7 @@ function translatePublished(wire: Json): { storeRequestType: string; demand: Jso
     storeRequestType: requestType === "ALCOVE_INSERT_V1" ? "CUT_PACKAGE_V1" : requestType,
     demand: translated.demand,
     carriedNotAccepted: translated.carriedNotAccepted,
-    notes: {},
+    notes: "meaningEvidence" in translated ? {manufacturingMeaning:translated.meaningEvidence} : {},
   };
 }
 

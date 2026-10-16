@@ -49,7 +49,7 @@ const plans = [
     groups: [
       { id: "SLATS", nominalT: 2, nominalW: 6, angleDeg: 0, scales: true, parts: [{ id: "TOP", count: 6, lengthIn: 0 }, { id: "SEAT", count: 6, lengthIn: 0 }] },
       { id: "LEGS", nominalT: 2, nominalW: 6, angleDeg: 25, endRelation: "parallel", lengthDatum: "long-point-to-short-point", endPointOrientation: "long-to-short", plane: "miter-face", parts: [{ id: "LEG", count: 4, lengthIn: 31.375 }] },
-      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, endRelation: "parallel", lengthDatum: "long-point-to-short-point", endPointOrientation: "long-to-short", plane: "miter-face", parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
+      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, sourceTerm: "bevel (attributed source plan wording)", endRelation: "parallel", lengthDatum: "long-point-to-short-point", endPointOrientation: "long-to-short", plane: "miter-face", parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
       { id: "SUPPORTS", nominalT: 2, nominalW: 4, angleDeg: 0, parts: [{ id: "SUPPORT", count: 2, lengthIn: 61 }] },
       { id: "CLEATS", nominalT: 2, nominalW: 2, angleDeg: 0, parts: [{ id: "CLEAT-END", count: 2, lengthIn: 34.25 }, { id: "CLEAT-MID", count: 1, lengthIn: 29.25 }] },
     ],

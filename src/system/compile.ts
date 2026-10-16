@@ -1,6 +1,7 @@
 import { shapeProblems, DEFINITION_SHAPES } from "./shape.ts";
 import { bindingValue, numberBinding, type CompileResult, type Inputs, type Recipe, type TraceStep } from "./recipe.ts";
 import { compileWindowSeat } from "./window-seat.ts";
+import { resolvePlanEnd } from "./terminology.ts";
 
 const DRESSED: Record<number, number> = { 2: 1.5, 3: 2.5, 4: 3.5, 6: 5.5, 8: 7.25, 10: 9.25, 12: 11.25 };
 
@@ -253,6 +254,8 @@ type PlanGroup = {
   lengthDatum?: string;
   endPointOrientation?: string;
   plane?: string;
+  /** Attributed external plan wording, never an executable plane classification. */
+  sourceTerm?: string;
   scales?: boolean;
   parts: { id: string; count: number; lengthIn: number }[];
 };
@@ -283,14 +286,22 @@ function planGroups(rule: Record<string, unknown>, inputs: Inputs, recipe: Recip
     blockers.push(block("WOOD_NOT_IN_RECIPE", "wood"));
     return null;
   }
-  const cutPackages = plan.groups.map((group) => ({
+  const endResolutions = plan.groups.map(group => resolvePlanEnd(group));
+  for (const [index, result] of endResolutions.entries()) {
+    if (!result.ok) blockers.push(block(result.code, plan.groups[index].id+"."+result.fact, "SYSTEM"));
+    else trace.push({id:plan.groups[index].id+"-end-meaning",rule:"plan-end-geometry",
+      formula:"source wording is preserved; only declared end-plane geometry is operative",
+      inputs:{source:plan.source,sourceTerm:result.value.evidence.sourceTerm},
+      output:result.value.endCut});
+  }
+  if (blockers.length) return null;
+  const cutPackages = plan.groups.map((group, index) => {
+    const interpreted = endResolutions[index];
+    if (!interpreted.ok) throw new Error("UNRESOLVED_END_WAS_NOT_BLOCKED");
+    return ({
     packageId: group.id,
     material: { species: wood.species, form: "board", nominalT: group.nominalT, nominalW: group.nominalW, grade: wood.grade },
-    endCut: { angleDeg: group.angleDeg,
-      endRelation: group.endRelation ?? (group.angleDeg === 0 ? "parallel" : undefined),
-      lengthDatum: group.lengthDatum ?? "long-long-outer-edge",
-      plane: group.plane ?? "miter-face",
-      ...(group.endPointOrientation ? { endPointOrientation: group.endPointOrientation } : {}) },
+    endCut: interpreted.value.endCut,
     parts: group.parts.flatMap((part) =>
       Array.from({ length: part.count }, (_, i) => ({
         partId: `${part.id}-${String(i + 1).padStart(2, "0")}`,
@@ -298,7 +309,8 @@ function planGroups(rule: Record<string, unknown>, inputs: Inputs, recipe: Recip
         spots: [],
       })),
     ),
-  }));
+  });
+  });
   trace.push({
     id: "plan",
     rule: "plan-groups",

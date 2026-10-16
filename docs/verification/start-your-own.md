@@ -8,7 +8,7 @@ The current Store pin is declared jointly by `src/system/store-candidate.ts`, `p
 
 The actual nested published application derives each definition and independent manifest, obtains a fresh real HTTP Store answer, and retains its receipt and calculation identity. The existing terms flow records the customer's simulated decision. Its `acceptedPacket()` exports that existing decision with the exact manifest, demand and unmodified Store answer, and cannot export a declined or invalidated revision. Store independently verifies and requotes before binding its selected parents and priced ledger into registered local evidence.
 
-Current integration acceptance exercises the Project 1 SPF cases through this chain. The original Project 1 publication is historical evidence, not architectural authority. Required Chromium checks drive both the 16-inch SPF default and 18-inch variation through the actual controls, acceptance, packet export and Store machine-evidence endpoint. Both replay completely with 51 ledger records and 22 modeled moves; Q is $8.62/$9.13. The workflow publishes `project-1-current-proof` with actual System/Store revisions, source health identity, application responses, commercial decisions, packets and complete virtual evidence. Store's [current reference review and full evidence](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) regenerate from executable source and catalog; stale committed reference bytes fail acceptance.
+Current integration acceptance exercises the Project 1 SPF cases through this chain. The original Project 1 publication is historical evidence, not architectural authority. Required Chromium checks drive both the 16-inch SPF default and 18-inch variation through the actual controls, acceptance, packet export and Store machine-evidence endpoint. The unchanged nominal specimens replay completely with 51 ledger records and 22 modeled moves; Q is $8.62/$9.13. A third browser specimen selects X=5.25/10.25 inches and 0.125-inch depth, accepts that exact revision and verifies each returned point-height-adjusted Z move through complete replay. An excessive 0.25-inch depth yields a real Store refusal without complete Q or enabled confirmation. Store’s reference generator additionally varies the two feature depths independently at 0.125/0.0625 inches. The workflow publishes `project-1-current-proof` with actual System/Store revisions, source health identity, application responses, commercial decisions, packets and complete virtual evidence. Store's [current reference review and full evidence](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) regenerate from executable source and catalog; stale committed reference bytes fail acceptance.
 
 ## Five current project results
 
@@ -26,7 +26,7 @@ These are attributable modeled results for the specified current definitions/cat
 
 ## Production verification
 
-*Authority category: Current System Behavior*
+*Authority category: Historical production observation; reviewed changes require new deployed acceptance*
 
 The Railway production pair was exercised on 16 October 2026: System executable baseline `543349e4f3be79a104c733fb5a1174d75b98dcaf`, Store `3f813fe060f1eff46a1b3cfdad1ad41465d230e0`. The Store reported shipped-source digest `286e7dfd31d216d6937d2b58ef88b12ffeee62650302b36d397c60b468e34a97` over 21 files; all 20 external deployment checks passed. System and Store completed their Railway builds successfully.
 
@@ -42,7 +42,7 @@ Production source selection is commit-pinned. A later repository documentation c
 
 *Authority category: Current System Behavior*
 
-Run `npm test` with the exact clean pinned Store, production build, TypeScript checks and `scripts/browser-five-jobs.mjs` against the two separate services. Every consequential implementation/specification change reconciles shared definitions, both masters, affected Program documents and current Project 1 proof. Operative prose describes current behavior; Git preserves repair chronology. Earlier observations below retain their original dates and source identities and cannot serve as current acceptance.
+Run `npm test` with `STORE_ZERO_ROOT` naming the exact clean pinned Store and `PROGRAM_ROOT` naming the reviewed Program checkout, production build, TypeScript checks and `scripts/browser-five-jobs.mjs` against the two separate services. Every consequential implementation/specification change reconciles shared definitions, both masters, affected Program documents and current Project 1 proof. Operative prose describes current behavior; Git preserves repair chronology. Earlier observations below retain their original dates and source identities and cannot serve as current acceptance.
 
 ## Manufacturing contract acceptance obligations
 
@@ -54,7 +54,7 @@ Acceptance must preserve original source words and exact physical requirements, 
 
 For D-001, the current proof must include unchanged 16-inch and 18-inch defaults and a separately identified supported selected-location/shallower-depth variation. Drive the actual Bench controls, wait for the matching fresh Store receipt, accept that exact revision, export its existing decision and complete packet, submit it to the Store evidence endpoint and verify the returned bound Z movements, timing and replay. Retain an excessive-depth or unsupported-location refusal with absent complete Q and blocked downstream progression. Each specimen identifies System revision, Store release and source/configuration/catalog identities.
 
-Check all operative pin declarations together and verify served production identities separately. Preserve all three root READMEs byte-for-byte. Update existing proof generators and document checks at their owning paths; do not add another evaluator or a static substitute proof.
+Check all operative pin declarations together and verify served production identities separately. Preserve all three root READMEs byte-for-byte. The required document checker resolves current local and cross-owner links/headings against those checked-out revisions and verifies the three frozen root README blobs. Store regenerates current proof and master source identities through its existing example generator. Update these owners when behavior changes; do not add another evaluator or a static substitute proof.
 
 ## Historical Evidence
 

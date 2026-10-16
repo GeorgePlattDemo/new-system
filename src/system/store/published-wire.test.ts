@@ -103,6 +103,13 @@ test("the served Start your own runtime names this Store", () => {
   assert.equal(runtime.includes("railway.app"), false);
   assert.equal(runtime.includes("same-origin:/api/store-zero/job"), true);
   assert.equal(runtime.includes(release), true);
+  const workflow=readFileSync(new URL('../../../.github/workflows/verify.yml',import.meta.url),'utf8');
+  const startup=readFileSync(new URL('../../../startup.sh',import.meta.url),'utf8');
+  const browser=readFileSync(new URL('../../../scripts/browser-five-jobs.mjs',import.meta.url),'utf8');
+  assert.equal(startup.match(/^want=(\w+)$/m)?.[1],release);
+  assert.equal(browser.match(/const expectedPin = '([a-f0-9]+)'/)?.[1],release);
+  assert.deepEqual([...workflow.matchAll(/ref: ([a-f0-9]{40})/g)].map(m=>m[1]).filter(p=>p!== '9af1d351cc5583b48042b4aabecd628a86c5266b'),[release,release]);
+  assert.equal(workflow.match(/STORE_ZERO_RELEASE=([a-f0-9]{40})/)?.[1],release);
 });
 
 test("priced end geometry is sent, and a redundant end identity is reconciled rather than deleted", () => {
@@ -117,6 +124,66 @@ test("priced end geometry is sent, and a redundant end identity is reconciled ra
   assert.equal(translated.endIdentityCanonicalization?.suppliedEndIdentity, "both");
   assert.equal(translated.endIdentityCanonicalization?.sentEndIdentity, null);
   assert.equal(translated.endIdentityCanonicalization?.rule, "REDUNDANT_WITH_PRICED_LENGTH_DATUM");
+});
+
+test("Start Your Own preserves stated drill diameter and full-diameter depth into real Store refusal", async () => {
+  const origin = await storeOrigin();
+  const ask = async (field: "toolDiameterIn"|"fullDiameterDepthIn", value: number, revision: string) => {
+    const line = structuredClone(braceLine());
+    const feature = line.parts[0].features[0] as Record<string, unknown>;
+    feature[field] = value;
+    const normalized = boardDemandFromPublishedLine(line);
+    assert.equal(((normalized.demand.parts as {features:Record<string,unknown>[]}[])[0].features[0])[field], value);
+    return answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", revision, {
+      line, definitionKind:"user_defined_board.v1", ruleVersion:"0.1",
+    }), origin);
+  };
+  const diameter = await ask("toolDiameterIn", 0.25, "wrong-diameter");
+  assert.equal((diameter.body.rawEvaluation as {status?:string}).status, "REFUSED");
+  assert.ok(((diameter.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_DIAMETER_NOT_DECLARED"));
+  const depth = await ask("fullDiameterDepthIn", 0.25, "too-deep");
+  assert.equal((depth.body.rawEvaluation as {status?:string}).status, "REFUSED");
+  assert.ok(((depth.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX"));
+  const registered = await ask("fullDiameterDepthIn", 0.1875, "registered-depth");
+  assert.equal((registered.body.rawEvaluation as {status?:string}).status, "SUPPORTABLE");
+  const explicitDepth=(registered.body.mappedCallInputs as {demand:{parts:{features:Record<string,unknown>[]}[]}}).demand.parts[0].features[0].fullDiameterDepthIn;
+  assert.equal(explicitDepth,0.1875);
+});
+
+test("selected part-relative spot X and shallower depth go through current pinned Store and real Z motion", async () => {
+  const origin=await storeOrigin();
+  const line=structuredClone(braceLine());
+  line.parts[0].features[0].locationRule="PART_RELATIVE_FROM_START";
+  line.parts[0].features[0].xIn=5.25;
+  (line.parts[0].features[0] as Record<string, unknown>).fullDiameterDepthIn=0.125;
+  line.parts[1].features[0].locationRule="PART_RELATIVE_FROM_START";
+  line.parts[1].features[0].xIn=10.25;
+  const result=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","selected-spot-parts",{
+    line,definitionKind:"user_defined_board.v1",ruleVersion:"0.1"
+  }),origin);
+  assert.equal(result.httpStatus,200);
+  const answer=result.body.storeAnswer as Record<string,any>;
+  assert.equal(answer.status,"SUPPORTABLE",JSON.stringify(answer.reasonRecords));
+  assert.equal(answer.Q>0,true);
+  const features=(result.body.mappedCallInputs as {demand:{parts:{features:Record<string,unknown>[]}[]}}).demand.parts;
+  assert.equal(features[0].features[0].xIn,5.25);
+  assert.equal(features[0].features[0].fullDiameterDepthIn,0.125);
+  assert.equal(features[1].features[0].xIn,10.25);
+  const stock=answer.parents.find((p:any)=>p.kind==="board");
+  assert.ok(stock);
+  const point=0.09375/Math.tan(118*Math.PI/360);
+  const deeperZ=answer.operations.filter((e:any)=>e.kind==="MOVE"&&e.category==="SPOT"&&e.axis==="Z"
+    &&e.subject==="SPOT-1"&&e.target<stock.actualT);
+  assert.equal(deeperZ.length,1);
+  assert.ok(Math.abs(deeperZ[0].target-(stock.actualT-point-0.125))<1e-9);
+  const invalid=structuredClone(line);
+  (invalid.parts[0].features[0] as Record<string,unknown>).fullDiameterDepthIn=0.25;
+  const denied=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","too-deep-spot",{
+    line:invalid,definitionKind:"user_defined_board.v1",ruleVersion:"0.1"
+  }),origin);
+  assert.equal((denied.body.storeAnswer as any).status,"REFUSED");
+  assert.ok(((denied.body.storeAnswer as any).reasonCodes||[]).includes("SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX"));
+  assert.equal((denied.body.storeAnswer as any).Q,null);
 });
 
 test("a declared spot with no feature id gets a stable id, and a missing location is not zero", () => {
@@ -670,7 +737,7 @@ test("a cut-package field the translator does not read reaches the Store, which 
   assert.equal((plain.body.rawEvaluation as { status?: string }).status, "SUPPORTABLE");
   for (const [version, cutPackages, code] of [
     ["cut-bore", [{ ...legs, parts: [{ partId: "LEG-01", lengthIn: 31.375, bore: { diameterIn: 0.5 } }] }], "DEFINITION_FIELD_NOT_DECLARED:cutPackages[0].parts[0].bore"],
-    ["cut-bevel", [{ ...legs, endCut: { angleDeg: 25, bevelDeg: 10 } }], "DEFINITION_FIELD_NOT_DECLARED:cutPackages[0].endCut.bevelDeg"],
+    ["cut-bevel", [{ ...legs, endCut: { ...legs.endCut, bevelDeg: 10 } }], "DEFINITION_FIELD_NOT_DECLARED:cutPackages[0].endCut.bevelDeg"],
   ] as const) {
     const answered = await ask(version, [...cutPackages]);
     const raw = answered.body.rawEvaluation as { status?: string; reasonCodes?: string[] };
@@ -1165,4 +1232,44 @@ test("the published default Alcove, including through profiles and shelf-elevati
   const missing=await ask(incomplete,"alcove-explicit-missing-location");
   assert.equal(missing.adapterError,true);assert.equal(missing.rawEstimate,undefined);
   assert.ok(missing.carriedNotAccepted.some((r:any)=>r.value==="location missing"));
+});
+
+test('actual board translation keeps malformed and unknown physical requirements for Store refusal',async()=>{
+ const cases:[string,unknown][]=[['insetFromEdgeIn',null],['insetFromEdgeIn','bad'],['locationRule',null],['acrossWidthRule',null],['fullDiameterDepthIn',null],['fullDiameterDepthIn',0],['fullDiameterDepthIn',-0.125],['fullDiameterDepthIn','0.125'],['requiredFlatBottom',true],['kind','FLAT_BOTTOM_SPOTFACE'],['kind','pilot hole']];
+ for(const [field,value] of cases){
+  const line=braceLine();(line.parts[0].features[0] as Record<string,unknown>)[field]=value;
+  const mapped=boardDemandFromPublishedLine(line).demand as any;
+  assert.deepEqual(mapped.parts[0].features[0][field],value,field);
+  const r=await answerPublishedWire(wireFor('start-own','USER_DEFINED_BOARD_V1','operand-'+field,{line}),await storeOrigin());
+  assert.equal((r.body.storeAnswer as any).status,'REFUSED',field+': '+JSON.stringify(r.body));
+  assert.equal((r.body.storeAnswer as any).Q??null,null);assert.notEqual((r.body.jobSupportability as any).status,'REQUIREMENTS_SATISFIED');
+ }
+ for(const edit of [(line:any)=>line.parts[0].requiredSurface='flat-seat',(line:any)=>line.requiredSurface='flat-seat',(line:any)=>line.unresolvedConditions=['pilot depth unspecified']]){
+  const line=braceLine();edit(line);
+  const r=await answerPublishedWire(wireFor('start-own','USER_DEFINED_BOARD_V1','unknown-physical',{line}),await storeOrigin());
+  assert.notEqual((r.body.storeAnswer as any).status,'SUPPORTABLE');assert.equal((r.body.storeAnswer as any).Q??null,null);
+ }
+});
+test('published angled ends require physical geometry regardless of the source word',async()=>{
+ const base={configurationId:'SOURCE-TERMS',configurationVersion:'source-terms',cutPackages:[{packageId:'BRACE',material:{species:'syp-treated',form:'board',nominalT:2,nominalW:4,grade:'above-ground'},endCut:{angleDeg:25,sourceTerm:'bevel',endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face'},parts:[{partId:'BRACE-1',lengthIn:32.875}]}]};
+ const valid=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-terms',{definition:base}),await storeOrigin());
+ assert.equal((valid.body.storeAnswer as any).status,'SUPPORTABLE');
+ assert.equal((valid.body.manufacturingMeaning as any)[0].sourceTerm,'bevel');
+ assert.equal((valid.body.manufacturingMeaning as any)[0].sourceTermUsedAsAuthority,false);
+ for(const field of ['plane','lengthDatum','endPointOrientation']){
+  const missing=structuredClone(base);delete (missing.cutPackages[0].endCut as any)[field];
+  const r=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-terms',{definition:missing}),await storeOrigin());
+  assert.equal(r.body.code,'PUBLISHED_DEFINITION_INCOMPLETE');assert.equal(r.body.storeAnswer,undefined);
+ }
+ const bevel=structuredClone(base);bevel.cutPackages[0].endCut.plane='bevel-through-thickness';
+ const refused=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-terms',{definition:bevel}),await storeOrigin());
+ assert.notEqual((refused.body.storeAnswer as any).status,'SUPPORTABLE');assert.equal((refused.body.storeAnswer as any).Q??null,null);
+});
+
+test('a contradictory spot summary or unsupported board service cannot be priced as the old smaller job',async()=>{
+ for(const edit of [(l:any)=>l.spotDemand.requiredFlatBottom=true,(l:any)=>l.spotDemand.mode='COUNTERBORE',(l:any)=>l.spotDemand.totalCount=3,(l:any)=>l.quantity=2,(l:any)=>l.drillCycles=1,(l:any)=>l.drillDepthIn=0.5]){
+  const line=braceLine();edit(line);
+  const r=await answerPublishedWire(wireFor('start-own','USER_DEFINED_BOARD_V1','summary-conflict',{line}),await storeOrigin());
+  assert.equal(r.body.code,'PUBLISHED_DEFINITION_INCOMPLETE');assert.equal(r.body.storeAnswer,undefined);assert.ok((r.body.carriedNotAccepted as any[]).length);
+ }
 });

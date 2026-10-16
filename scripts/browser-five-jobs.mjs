@@ -39,13 +39,13 @@ import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
-const expectedPin = '3f813fe060f1eff46a1b3cfdad1ad41465d230e0';
+const expectedPin = 'c0b786e938a51df350aae1677235e4cb35c5f516';
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
-  const project1Specimens = [];
+  const project1Specimens = [], project1Refusals = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
   const outdoorRequests=[],pageErrors=[],outdoorProfileTargets=[];
@@ -118,10 +118,18 @@ try {
       assert.equal(evidence.status,'VIRTUAL_EVIDENCE_READY',JSON.stringify(reply));
       assert.deepEqual(evidence.localJob.operations,packet.storeAnswer.operations);
       assert.deepEqual(evidence.localJob.parents,packet.storeAnswer.parents);
+      const point=(0.1875/2)/Math.tan(118*Math.PI/360);
+      for(const part of packet.definition.demand.parts)for(const feature of part.features){
+        const depth=feature.fullDiameterDepthIn??0.1875;
+        const parent=packet.storeAnswer.parents.find(p=>p.partIds?.includes(part.partId));
+        assert.ok(parent,'Each spot must belong to its evaluated parent');
+        const moves=evidence.localJob.operations.filter(o=>o.kind==='MOVE'&&o.axis==='Z'&&o.subject===feature.featureId&&o.target<parent.actualT);
+        assert.equal(moves.length,1);assert.ok(Math.abs(moves[0].target-(parent.actualT-point-depth))<1e-12);
+      }
       assert.equal(evidence.run.timeSec,packet.storeAnswer.time.totalSeconds);
       assert.equal(evidence.run.status,'VIRTUAL_MODEL_COMPLETE');
       assert.equal(evidence.admission.status,'BLOCKED');assert.equal(evidence.admission.motionCommands,0);
-      project1Specimens.push({lengthIn:packet.definition.demand.parts[0].lengthIn,health,applicationAnswer:answer,transaction:exported.transaction,machineRequest:request,machineReply:reply});
+      project1Specimens.push({label,lengthIn:packet.definition.demand.parts[0].lengthIn,health,applicationAnswer:answer,transaction:exported.transaction,machineRequest:request,machineReply:reply});
     }
     const yard=surface.locator('[data-terms-action="yard"]:visible');
     await yard.waitFor({timeout:15000});
@@ -205,7 +213,48 @@ try {
       await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
       await journey(content,'start-own',label);
       assert.equal(await content.locator('#proof-record details').evaluate(e=>e.open),true,'Project documentation must start visible');
-      console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13, liveStore: true }));
+      // Exercise the real customer's independent spot X and depth inputs, not
+      // a synthesized direct API call. The original accepted proof remains intact.
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      const beforeSpotRequests=responses.filter(r=>r.path==='/api/store-zero/job'&&r.status===200).length;
+      await bench.locator('#stb-spot-location-mode').selectOption('selected');
+      await bench.locator('#stb-spot-part1-x').fill('5.25');
+      await bench.locator('#stb-spot-part2-x').fill('10.25');
+      await bench.locator('#stb-spot-full-depth').fill('0.125');
+      await bench.locator('#stb-def-spot-location').filter({hasText:'part 1 5¼ in from start'})
+        .waitFor({state:'visible',timeout:15000});
+      await bench.locator('#stb-price-total').filter({hasText:/\$\d/})
+        .waitFor({state:'visible',timeout:45000});
+      const selected=await bench.locator('body').evaluate(()=>window.parent.STBStartOwnLive?.revision());
+      const entered=selected?.facts?.['start-own.parts']?.value;
+      assert.equal(entered?.[0]?.features?.[0]?.xIn,5.25);
+      assert.equal(entered?.[1]?.features?.[0]?.xIn,10.25);
+      assert.equal(entered?.[0]?.features?.[0]?.fullDiameterDepthIn,0.125);
+      assert.equal(entered?.[0]?.features?.[0]?.locationRule,'PART_RELATIVE_FROM_START');
+      assert.ok(responses.filter(r=>r.path==='/api/store-zero/job'&&r.status===200).length>beforeSpotRequests,
+        'Selected spot coordinates and depth must trigger a fresh Store inquiry');
+      await bench.locator('#stb-confirm-store').click();
+      await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
+      await journey(content,'start-own','Project 1 selected spots and depth');
+      const acceptedSpots=project1Specimens.at(-1).machineRequest.packet.definition.demand.parts.flatMap(p=>p.features);
+      assert.deepEqual(acceptedSpots.map(f=>f.xIn),[5.25,10.25]);
+      assert.deepEqual(acceptedSpots.map(f=>f.fullDiameterDepthIn),[0.125,0.125]);
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      const depthRefusal=page.waitForResponse(async r=>{
+        if(new URL(r.url()).pathname!=='/api/store-zero/job')return false;
+        try{return (await r.json()).storeAnswer?.reasonCodes?.includes('SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX');}catch{return false;}
+      },{timeout:45000});
+      await bench.locator('#stb-spot-full-depth').fill('0.25');
+      const refused=await (await depthRefusal).json();
+      assert.equal(refused.storeAnswer.status,'REFUSED');assert.equal(refused.storeAnswer.Q,null);
+      assert.equal(refused.jobSupportability.quoteComplete,false);
+      await bench.locator('#stb-confirm-store').evaluate(async button=>{
+        for(let i=0;i<100&&!button.disabled;i++)await new Promise(r=>setTimeout(r,20));
+      });
+      assert.equal(await bench.locator('#stb-confirm-store').isDisabled(),true);
+      project1Refusals.push(refused);
+      console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13,
+        selectedSpotXIn:[5.25,10.25],fullDiameterDepthIn:0.125,liveStore:true }));
     }
     if (label === 'Alcove') {
       // The Alcove project tile opens its unnumbered Idea page first.
@@ -527,12 +576,12 @@ try {
   }
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
-  assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18]);
+  assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18,18]);
   const systemRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
   const dirty=execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim().length>0;
   if(process.env.CI)assert.equal(dirty,false,'Published proof must identify a clean System checkout');
   mkdirSync('artifacts',{recursive:true});
-  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,physicalAuthority:false,specimens:project1Specimens},null,2)+'\n');
+  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals},null,2)+'\n');
   await page.close();
 } catch (error) {
   failed = true;
