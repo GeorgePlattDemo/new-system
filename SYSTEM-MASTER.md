@@ -164,7 +164,7 @@ Required Chromium checks drive the actual published front door, nested frames, I
 | Start Your Own | Two 16-inch SPF 2×4 braces; 30° parallel face miters; center spots; 60-inch minimum parent requirement | $8.62 |
 | Alcove | Pine/select; 72 H × 45½ W × 14 D; five shelves; ECONOMY edge finish; spots off | $372.19 |
 | Window Seat | Pine/select; 94 H; modules 24/55/24 W; 14 D; 22-inch seat; 14-inch upper clear height; two bays/two cubbies; four shelves per tower; optional front and spots off | $1,313.61 |
-| Outdoor | Classic A-frame; source long-short end dimensions and cross-support bevel preserved | UNRESOLVED; no Q |
+| Outdoor | Classic A-frame; source long-to-short dimensions translated to explicit 25° parallel broad-face end planes, with Store-evaluated reference offset and kerf | Complete modeled Q when all stock, part and hardware constraints resolve |
 | Playhouse | ½-inch 96 × 48 sheet; centered opening 36 W, 24 straight height, 12 rise; tab-retained center/split; two end crosscuts at 18 inches | $76.56 |
 
 These are modeled, revision-specific Store answers. They are not price constants in System. The 18-inch SPF brace variation was also observed at **$9.13**, with the Store selecting a 72-inch parent and returning a 35⅝-inch remainder. The previous 16-inch answer ceased to govern while that revised inquiry was pending.
@@ -445,11 +445,15 @@ Wood/finish previews are separate complete manufacturing inquiries, not an offer
 
 The page permits one manufacturing inquiry at a time. The committed current job has priority over queued alternatives; transport failure releases the queue without supplying a price. Intent starts previews, including the displayed From amounts. The Bench automatically asks the selected job without requiring another plan choice or Ask Store prompt.
 
-Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. The source-faithful A-frame request is UNRESOLVED with no complete Q because its angled-end datum and support bevel are not registered by Store. The square-cut table-and-benches plan receives normal current evaluation and the simulated customer journey. Preview answers never substitute for the selected definition's receipt.
+Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. Both A-frame long-to-short broad-face cutting and the square-cut table-and-benches plan are evaluated through the same pinned Store candidate, stock search and Q engine. Only the exact selected definition's returned complete receipt may proceed through the simulated customer journey. Preview answers never substitute for the selected definition's receipt.
 
-### 6.4 The unresolved end-meaning correspondence
+### 6.4 The resolved A-frame end-geometry correspondence
 
-The A-frame source states long-point-to-short-point lengths and specifies a bevel for the center cross supports. Public `packagesFor` and the generic recipe compiler retain those dimensions and the cross-support `bevel-edge` plane. Neither relabels them as Store's registered long-long face miter. Store returns `MITER_END_GEOMETRY_NOT_EVALUATED`; Q remains absent. A future supported representation needs an explicit verified datum/plane mapping or separately registered capability, with its own regression evidence.
+The selected Ana White **current webpage** states four 2×6 legs at 31⅜ inches and two 2×4 cross supports at 32⅞ inches, with both ends 25° from square and parallel, lengths measured from long point to short point. The downloadable PDF is an alternate source edition and conflicts on the cross-support end relation and some support lengths; System does not mix its instructions with the selected webpage. The source's incidental cutting vocabulary is not a machine function requirement. The photographed assembly, plan callouts and selected planar end shape are translated into `miter-face`, `parallel` and `long-point-to-short-point` in both the typed recipe and published `packagesFor`. No source length is replaced by a numerically convenient longer/shorter datum.
+
+The pinned Store evaluates each selected board's *actual* width and saw geometry. For 25° parallel end planes, the longitudinal far-face offset is actual width × tan(25°); the finished longitudinal separation on the fence-side face remains the specified long-to-short dimension. Each reference stock parent additionally reserves that offset and uses projected kerf 0.125/cos(25°) in its capacity, with retained roller-control length and section-chord checks. Every completed part has explicit zero-time `DEFINED_END_PLANES` geometry records bound to the part. That modeled proof does not convert a quoted Q into physical admission: the saw stroke and retained-face/control qualification gaps remain identified, with physical release blocked.
+
+Intent and Bench preserve the original plan attribution and expose the translation into individually defined parts. Other cut-plane orientations, unregistered end relationships or source editions remain separately evaluated or unresolved; they are not silently converted to the supported broad-face cut.
 
 The chosen wood is labeled an application/customer material choice. The source recommends untreated tabletop/seat boards and permits treated legs/supports. An all-treated selection remains an explicit variant and is not attributed as the source recommendation. Source versus inferred hardware quantities and gauge remain visible.
 
@@ -1130,7 +1134,7 @@ The project entry observation covered all five Idea/Intent/Bench paths. Start Yo
 
 | Owner concern | Current behavior and verification |
 | --- | --- |
-| Outdoor source meaning | Public and typed definitions preserve source lengths/datum and support bevel. Real Store tests and Chromium require UNRESOLVED/no Q for the A-frame and exercise supported square-cut alternatives |
+| Outdoor source meaning | Public and typed definitions carry the same 25° parallel broad-face, long-to-short end geometry for legs and cross supports. Store regression tests prove the reference and finished planes, selected-stock width-dependent offset, kerf capacity and source-length preservation; CI verifies the actual pinned Store and published browser flow |
 | Outdoor material attribution | Selected wood is an application/customer variant. The source's untreated top/seat recommendation and optional treated legs/supports remain explicit |
 | Generic saved packet | Packet2 producer/loader round-trip retains the complete packet; malformed/unknown versions are rejected and reopened history does not reopen current authority |
 | Machine presentation | The inspected capability supplies all three modeled manufacturing classes; evidence remains contingent on Store verification and physical admission BLOCKED |
