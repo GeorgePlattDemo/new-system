@@ -39,8 +39,8 @@
       required:true,
       mode:'SPOT_ON_LOCATION',
       countPerPart:1,
-      locationRule:'CENTERED_ON_PART',
-      acrossWidthRule:'CENTERED_ON_WIDE_FACE',
+      locationRule:demand.parts?.[0]?.features?.[0]?.locationRule,
+      acrossWidthRule:demand.parts?.[0]?.features?.[0]?.acrossWidthRule,
       totalCount:spotCount
     } : null;
     return {
@@ -64,7 +64,7 @@
         datumCMethod:String(demand.datumCMethod || ''),
         parts:clone(demand.parts || []),
         spotDemand,
-        unresolvedConditions:[],
+        unresolvedConditions:clone(demand.unresolvedConditions || []),
         materialSource:'STORE_ZERO'
       },
       definitionKind:DEFINITION_KIND,

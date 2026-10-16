@@ -50,6 +50,8 @@ async function storeOrigin() {
   if (!root) throw new Error("STORE_ZERO_ROOT is required. The bench is tested against the pinned Store, not a mock.");
   const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   if (head !== release) throw new Error(`Store checkout ${head} is not the pinned commit ${release}.`);
+  const dirty=execFileSync("git",["status","--porcelain"],{cwd:root,encoding:"utf8"}).trim();
+  if(dirty)throw new Error("Pinned Store checkout has modified or untracked files; refusing to label it as the inspected release.");
   child = spawn(process.execPath, ["src/service/server.mjs"], {
     cwd: root,
     env: { ...process.env, STORE_ZERO_RELEASE: release, HOST: "127.0.0.1", PORT: "0" },

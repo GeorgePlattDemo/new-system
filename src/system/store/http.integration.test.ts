@@ -21,6 +21,8 @@ function assertCheckout() {
     throw new Error(`Cannot read the git identity of ${root}. Refusing to call it ${release}. ${error instanceof Error ? error.message : ""}`);
   }
   if (head !== release) throw new Error(`Store checkout ${head} is not the pinned commit ${release}.`);
+  const dirty=execFileSync("git",["status","--porcelain"],{cwd:root,encoding:"utf8"}).trim();
+  if(dirty)throw new Error("Pinned Store checkout has modified or untracked files; refusing to label it as the inspected release.");
 }
 
 async function withStore(fn: (base: string) => Promise<void>) {

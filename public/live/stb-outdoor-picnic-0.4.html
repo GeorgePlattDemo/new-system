@@ -638,12 +638,12 @@ const PLANS={
     photo:'assets/outdoor/plan-a-frame-photo.webp',
     wood:'treated',
     lenHint:'The slats follow the length; the end frames and every angle stay as the plan built them.',
-    kitText:L=>'12 boards at '+fmt(L)+' in, legs and cross supports cut at 25°, as the plan gives them.',
+    kitText:L=>'12 boards at '+fmt(L)+' in; legs and cross supports retain the selected source’s 25° end requirements and stated finished dimensions.',
     angleNote:'Legs and cross supports use the measured long-point-to-short-point dimensions. The plan calls the cross-support cut a “bevel”; the drawing specifies 25° parallel angled face cuts. Store derives the actual-width stock envelope and evaluates the registered miter operation.',
     groups:L=>[
       {id:'SLATS',label:'Tabletop and seat boards',board:[2,6],angle:0,scales:true,parts:[['TOP',6,L],['SEAT',6,L]]},
       {id:'LEGS',label:'Legs',board:[2,6],angle:25,endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face',parts:[['LEG',4,31.375]]},
-      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face',parts:[['BRACE',2,32.875]]},
+      {id:'BRACES',label:'Cross supports',board:[2,4],sourceTerm:'bevel',angle:25,endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face',parts:[['BRACE',2,32.875]]},
       {id:'SUPPORTS',label:'Under-seat supports',board:[2,4],angle:0,parts:[['SUPPORT',2,61]]},
       {id:'CLEATS',label:'Tabletop supports',board:[2,2],angle:0,parts:[['CLEAT-END',2,34.25],['CLEAT-MID',1,29.25]]}
     ],
@@ -752,7 +752,8 @@ function packagesFor(cfg,woodKeys){
       const id=wood.key+'|'+g.id+(da==null?'':'|A'+angle);
       if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:g.endRelation||(da!=null?'parallel':angle===0?'parallel':undefined),
         lengthDatum:g.lengthDatum||"long-long-outer-edge",plane:g.plane||"miter-face",
-        ...(g.endPointOrientation?{endPointOrientation:g.endPointOrientation}:{})},parts:[]};out.push(byId[id])}
+        ...(g.endPointOrientation?{endPointOrientation:g.endPointOrientation}:{}),
+        ...(g.sourceTerm?{sourceTerm:g.sourceTerm}:{})},parts:[]};out.push(byId[id])}
       const spots=spotsFor(p,len);
       for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots.map((spot,index)=>({...spot,featureId:part.partId+'-SPOT-'+String(index+1).padStart(2,'0')}));byId[id].parts.push(part)}
     }
@@ -1118,9 +1119,9 @@ function renderBuild(){
   const cfg=S.cfg,p=PLANS[cfg.plan];
   $('photo').src=p.photo;$('photo').alt='A photo of a finished '+p.title+' table, not a drawing';
   const rows=[];
-  PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'°, ends parallel':'square')+'</td></tr>')));
+  PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'° · parallel ends · '+(g.lengthDatum==='long-point-to-short-point'?'long point to short point':'long-long outer edge'):'square ends')+'</td></tr>')));
   $('parts').innerHTML=rows.join('');
-  $('plan-source').innerHTML='<a href="'+p.sourceUrl+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. The plan is the project’s; every board, cut, minute and price comes from Store Zero.';
+  $('plan-source').innerHTML='<b>About this demonstration.</b> This is a Scan-to-Build translation of '+esc(p.source)+'. Each component must be reconciled as its own defined part, with exact dimensions, measurement references, end geometry and operations. Language written for a person does not become a machine instruction until its geometry is established. <a href="'+esc(p.sourceUrl)+'" target="_blank" rel="noopener">Open the original plan</a>. Work beyond this definition remains unresolved until fully defined and evaluated. Store evaluates the exact resulting manufacturing request.';
   $('kit-text').textContent=p.kitText(cfg.lengthIn);
   const extras=$('outdoor-custom-tools'),controls=$('outdoor-custom-tool-controls');
   extras.hidden=!S.intentTools.length;
