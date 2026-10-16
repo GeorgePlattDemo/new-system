@@ -639,11 +639,11 @@ const PLANS={
     wood:'treated',
     lenHint:'The slats follow the length; the end frames and every angle stay as the plan built them.',
     kitText:L=>'12 boards at '+fmt(L)+' in, legs and cross supports cut at 25°, as the plan gives them.',
-    angleNote:'Legs and cross supports use the source long-point-to-short-point dimension. Step 4 specifies a bevel for the cross supports. Store has no registered conversion of these source datums or bevel capability; this plan has no complete manufacturing price.',
+    angleNote:'The current source webpage specifies 25° parallel end planes on the broad board face for both legs and cross supports, with lengths measured along a long-point-to-short-point edge. The Store evaluates those explicit end planes against the actual stocked width, blade and retained-workpiece envelope.',
     groups:L=>[
       {id:'SLATS',label:'Tabletop and seat boards',board:[2,6],angle:0,scales:true,parts:[['TOP',6,L],['SEAT',6,L]]},
       {id:'LEGS',label:'Legs',board:[2,6],angle:25,lengthDatum:'long-point-to-short-point',plane:'miter-face',parts:[['LEG',4,31.375]]},
-      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,lengthDatum:'long-point-to-short-point',plane:'bevel-edge',parts:[['BRACE',2,32.875]]},
+      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,lengthDatum:'long-point-to-short-point',plane:'miter-face',parts:[['BRACE',2,32.875]]},
       {id:'SUPPORTS',label:'Under-seat supports',board:[2,4],angle:0,parts:[['SUPPORT',2,61]]},
       {id:'CLEATS',label:'Tabletop supports',board:[2,2],angle:0,parts:[['CLEAT-END',2,34.25],['CLEAT-MID',1,29.25]]}
     ],
@@ -1116,9 +1116,9 @@ function renderBuild(){
   const cfg=S.cfg,p=PLANS[cfg.plan];
   $('photo').src=p.photo;$('photo').alt='A photo of a finished '+p.title+' table, not a drawing';
   const rows=[];
-  PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'°, ends parallel':'square')+'</td></tr>')));
+  PLANS[cfg.plan].groups(cfg.lengthIn).forEach(g=>g.parts.forEach(([kind,n,len])=>rows.push('<tr><td>'+PART_NAMES[kind]+'</td><td>'+n+'</td><td>'+g.board.join('×')+'</td><td>'+fmt(len)+'"</td><td>'+(g.angle?g.angle+'° · parallel ends · '+(g.lengthDatum==='long-point-to-short-point'?'long-point-to-short-point':'long-long outer edge'):'square')+'</td></tr>')));
   $('parts').innerHTML=rows.join('');
-  $('plan-source').innerHTML='<a href="'+p.sourceUrl+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. The plan is the project’s; every board, cut, minute and price comes from Store Zero.';
+  $('plan-source').innerHTML='<b>About this demonstration.</b> This is a Scan-to-Build translation of the published plan: each component is reconciled individually with its finished dimensions, measurement endpoints, end-plane geometry and required operations. Language that leaves a cut open to human interpretation does not become a machine instruction. <a href="'+esc(p.sourceUrl)+'" target="_blank" rel="noopener">'+esc(p.source)+'</a>. More customization can be requested at the Bigger Bench. Store Zero evaluates the selected stock, operations, occupied time and price for the exact defined parts.';
   $('kit-text').textContent=p.kitText(cfg.lengthIn);
   const extras=$('outdoor-custom-tools'),controls=$('outdoor-custom-tool-controls');
   extras.hidden=!S.intentTools.length;
