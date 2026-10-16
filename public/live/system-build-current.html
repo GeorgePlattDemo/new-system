@@ -492,7 +492,10 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                 const centerSpotIn = Number((finishedLengthIn / 2).toFixed(6));
                 const customLocations = spotPositionMode?.value === 'selected';
                 const selectedXs = spotPartInputs.map(input => input?.value?.trim() ? Number(input.value) : null);
-                const requestedFullDiameterDepthIn = spotDepthInput?.value?.trim() ? Number(spotDepthInput.value) : null;
+                // An emptied declared-depth field is an unresolved requirement,
+                // never an invitation to substitute the Store's standard depth.
+                const requestedFullDiameterDepthIn = spotDepthInput?.value?.trim()
+                  ? Number(spotDepthInput.value) : 'UNRESOLVED';
                 const spotDemand = spotMode === 'on-location' ? {
                   required:true,
                   mode:'SPOT_ON_LOCATION',
@@ -520,7 +523,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                     xIn:customLocations?selectedXs[index]:centerSpotIn,
                     locationRule:customLocations?'PART_RELATIVE_FROM_START':'CENTERED_ON_PART',
                     acrossWidthRule:'CENTERED_ON_WIDE_FACE',
-                    ...(requestedFullDiameterDepthIn !== null && requestedFullDiameterDepthIn !== 0.1875
+                    ...(requestedFullDiameterDepthIn !== 0.1875
                       ? {fullDiameterDepthIn:requestedFullDiameterDepthIn}: {})
                   }] : []
                 }));
