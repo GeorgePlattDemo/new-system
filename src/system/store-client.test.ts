@@ -14,7 +14,7 @@ const PIN = "2c028da3e574734a7bc70b1f19399834c9b1656e";
 const source = readFileSync(new URL("../../public/live/stb-store-client.js", import.meta.url), "utf8");
 
 type Json = Record<string, any>;
-function clientWith(reply: (wire: Json) => Json, runtime: { config?: () => Promise<Json>; clock?: typeof Date } = {}) {
+function clientWith(reply: (wire: Json) => Json, runtime: { config?: () => Promise<Json>; clock?: { new(): Date; now(): number } } = {}) {
   const context: Json = {
     URL, TextEncoder, AbortSignal, crypto: webcrypto, JSON, Promise, Object, Array, String, Number, Math, Error, Set, Map, Uint8Array,
     Date: runtime.clock || Date,
