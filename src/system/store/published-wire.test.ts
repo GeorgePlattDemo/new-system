@@ -136,7 +136,7 @@ test("Start Your Own preserves stated drill diameter and full-diameter depth int
   assert.ok(((diameter.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_DIAMETER_NOT_DECLARED"));
   const depth = await ask("fullDiameterDepthIn", 0.25, "too-deep");
   assert.equal((depth.body.rawEvaluation as {status?:string}).status, "REFUSED");
-  assert.ok(((depth.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_DEPTH_NOT_DECLARED"));
+  assert.ok(((depth.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX"));
   const registered = await ask("fullDiameterDepthIn", 0.1875, "registered-depth");
   assert.equal((registered.body.rawEvaluation as {status?:string}).status, "SUPPORTABLE");
   const explicitDepth=(registered.body.mappedCallInputs as {demand:{parts:{features:Record<string,unknown>[]}[]}}).demand.parts[0].features[0].fullDiameterDepthIn;
