@@ -249,7 +249,9 @@ type PlanGroup = {
   nominalT: number;
   nominalW: number;
   angleDeg: number;
+  endRelation?: string;
   lengthDatum?: string;
+  endPointOrientation?: string;
   plane?: string;
   scales?: boolean;
   parts: { id: string; count: number; lengthIn: number }[];
@@ -284,7 +286,11 @@ function planGroups(rule: Record<string, unknown>, inputs: Inputs, recipe: Recip
   const cutPackages = plan.groups.map((group) => ({
     packageId: group.id,
     material: { species: wood.species, form: "board", nominalT: group.nominalT, nominalW: group.nominalW, grade: wood.grade },
-    endCut: { angleDeg: group.angleDeg, endRelation:"parallel", lengthDatum:group.lengthDatum??"long-long-outer-edge", plane:group.plane??"miter-face" },
+    endCut: { angleDeg: group.angleDeg,
+      endRelation: group.endRelation ?? (group.angleDeg === 0 ? "parallel" : undefined),
+      lengthDatum: group.lengthDatum ?? "long-long-outer-edge",
+      plane: group.plane ?? "miter-face",
+      ...(group.endPointOrientation ? { endPointOrientation: group.endPointOrientation } : {}) },
     parts: group.parts.flatMap((part) =>
       Array.from({ length: part.count }, (_, i) => ({
         partId: `${part.id}-${String(i + 1).padStart(2, "0")}`,
