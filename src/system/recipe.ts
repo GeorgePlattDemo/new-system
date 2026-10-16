@@ -44,6 +44,8 @@ export type Recipe = {
   narrative: string;
   /** supported = existing compiler operations. extension = a named engine rule, not a data-only job. */
   engine: "supported" | "extension";
+  /** Explicit registration in the bounded public component tool; no additional tile. */
+  publicTool?: boolean;
   extensionId?: string;
   requestType: RequestType;
   classId?: string;

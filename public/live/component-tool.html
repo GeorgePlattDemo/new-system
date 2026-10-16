@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Registered component tool · Scan to Build</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        max-width: 850px;
+        margin: 32px auto;
+        padding: 0 20px;
+        color: #25221d;
+        background: #faf8f4;
+      }
+      h1 {
+        line-height: 1.2;
+      }
+      label {
+        display: inline-grid;
+        margin: 8px 18px 8px 0;
+        gap: 5px;
+      }
+      input,
+      select,
+      button,
+      a {
+        font: inherit;
+      }
+      input,
+      select,
+      button {
+        padding: 8px;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: default;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: #eee9df;
+        padding: 16px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px;
+        border-bottom: 1px solid #d5cebf;
+      }
+      .controls {
+        margin: 20px 0;
+      }
+      #result {
+        font-weight: 600;
+      }
+      small {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/">Project Library</a>
+    <h1>Registered component tool</h1>
+    <p>
+      Define identified component work using registered project rules. The Store selects stock and
+      returns its own answer.
+    </p>
+    <label>Defined job<select id="recipe"></select></label>
+    <p id="scope"></p>
+    <form id="definition">
+      <div id="inputs"></div>
+      <button id="prepare" type="submit">Prepare component definition</button>
+    </form>
+    <p id="revision"></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Component</th>
+          <th>Nominal section</th>
+          <th>Length (in)</th>
+          <th>End planes</th>
+        </tr>
+      </thead>
+      <tbody id="parts"></tbody>
+    </table>
+    <p id="result" role="status">Review the defined component work before inquiry.</p>
+    <button id="ask" type="button" disabled>Confirm this definition and ask the Store</button>
+    <section id="terms"></section>
+    <div class="controls">
+      <button id="packet" disabled>Export accepted packet</button>
+      <button id="record">Export owner record</button>
+    </div>
+    <small
+      >Modeled manufacturing and simulated commerce only. Physical release remains blocked. No
+      software result authorizes machine operation.</small
+    >
+    <script src="stb-commercial-sequence.js"></script>
+    <script src="stb-demo-commerce.js"></script>
+    <script src="stb-terms-flow.js"></script>
+    <script src="stb-store-client.js"></script>
+    <script type="module" src="component-tool.mjs"></script>
+  </body>
+</html>

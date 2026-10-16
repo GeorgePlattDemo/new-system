@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HealthzRouteImport } from './routes/healthz'
+import { Route as ApiComponentDefinitionRouteImport } from './routes/api/component-definition'
 import { Route as ApiStoreZeroJobRouteImport } from './routes/api/store-zero/job'
 import { Route as ApiStoreZeroOfferingRouteImport } from './routes/api/store-zero/offering'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const HealthzRoute = HealthzRouteImport.update({
   id: '/healthz',
   path: '/healthz',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiComponentDefinitionRoute = ApiComponentDefinitionRouteImport.update({
+  id: '/api/component-definition',
+  path: '/api/component-definition',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiStoreZeroJobRoute = ApiStoreZeroJobRouteImport.update({
@@ -38,12 +44,14 @@ const ApiStoreZeroOfferingRoute = ApiStoreZeroOfferingRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
+  '/api/component-definition': typeof ApiComponentDefinitionRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
+  '/api/component-definition': typeof ApiComponentDefinitionRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
@@ -51,19 +59,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
+  '/api/component-definition': typeof ApiComponentDefinitionRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/healthz' | '/api/store-zero/job' | '/api/store-zero/offering'
+    | '/'
+    | '/healthz'
+    | '/api/component-definition'
+    | '/api/store-zero/job'
+    | '/api/store-zero/offering'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/healthz' | '/api/store-zero/job' | '/api/store-zero/offering'
+  to:
+    | '/'
+    | '/healthz'
+    | '/api/component-definition'
+    | '/api/store-zero/job'
+    | '/api/store-zero/offering'
   id:
     | '__root__'
     | '/'
     | '/healthz'
+    | '/api/component-definition'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   fileRoutesById: FileRoutesById
@@ -71,6 +90,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HealthzRoute: typeof HealthzRoute
+  ApiComponentDefinitionRoute: typeof ApiComponentDefinitionRoute
   ApiStoreZeroJobRoute: typeof ApiStoreZeroJobRoute
   ApiStoreZeroOfferingRoute: typeof ApiStoreZeroOfferingRoute
 }
@@ -89,6 +109,13 @@ declare module '@tanstack/react-router' {
       path: '/healthz'
       fullPath: '/healthz'
       preLoaderRoute: typeof HealthzRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/component-definition': {
+      id: '/api/component-definition'
+      path: '/api/component-definition'
+      fullPath: '/api/component-definition'
+      preLoaderRoute: typeof ApiComponentDefinitionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/store-zero/job': {
@@ -111,6 +138,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HealthzRoute: HealthzRoute,
+  ApiComponentDefinitionRoute: ApiComponentDefinitionRoute,
   ApiStoreZeroJobRoute: ApiStoreZeroJobRoute,
   ApiStoreZeroOfferingRoute: ApiStoreZeroOfferingRoute,
 }

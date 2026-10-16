@@ -24,6 +24,22 @@ Current integration acceptance exercises the Project 1 SPF cases through this ch
 
 These are attributable modeled results for the specified current definitions/catalog. They are not System price constants, binding seller quotes, stock reservations or inspected components. Physical admission is BLOCKED with zero permitted physical commands. Commercial and yard demonstrations move no actual money and run no physical machine.
 
+## Registered component-tool acceptance
+
+*Authority category: Candidate implementation and local verification; public deployment requires separate evidence*
+
+The [registered component-tool contract](../../SYSTEM-MASTER.md#88-new-projects-and-capability-extensions) adds structured multi-section component work through the existing compiler, shared admission/client and published Store adapter. The tool requires preparation and visible review before inquiry; an edit invalidates current downstream authority. Its owner export preserves inputs, revisions, inquiries, commercial states and exact accepted packets. The initial Display stand definition has six square-cut blanks, no spots/profiles/assembly operations, and a separate revised shelf/rail length. No sixth tile or additional evaluator is introduced.
+
+Required Chromium acceptance exercises the actual page controls, separate fresh receipts and original acceptance/export for both revisions. Each exact packet reaches the independent Store evidence endpoint and preserves the complete operation ledger, modeled time and replay; physical admission remains blocked with zero commands. Invalid source input blocks inquiry. Overlong parts produce refusal without complete Q or acceptance, including a second fresh inquiry; an altered accepted packet cannot produce a local job. The existing generated `project-1-current-proof` artifact carries `additionalJob` with complete requests, responses, decisions, packets, lowering and unfavorable cases, alongside all original Project 1 specimens. Its `systemRevision`, `workingTreeModified` and runtime conditions identify the actual check; local acceptance does not establish production.
+
+### Identified clean local acceptance
+
+*Authority category: Verified local source and modeled evidence; not a production observation*
+
+The complete browser workflow passed on clean System `efd16b45f676193c616806f533a0f88a7167ae78`, exact clean Store `95187a9f7788d600181e56282343fa57cf843a46`, Node 22.23.3 and Chromium 153.0.8010.0. It retained all five journeys, all three Project 1 specimens, both additional component-set acceptances and the required unfavorable cases. The generated `artifacts/project-1-current-proof.json` has SHA-256 `5769fa17bb6616e15e5e88a11eafb635acfe8aedd274daccc60ea9cadf1e1d81`. Its complete serialized evidence, runtime conditions and source identities are preserved in the continuation package; an expiring workflow artifact is not the sole custody record.
+
+System's 92 tests, production build and TypeScript checks passed for the same executable source; subsequent source differences are documentary. The cross-owner destination check and all three frozen README identity checks pass. Store's 183-offering catalog, 97 tests, exact example regeneration and benchmark passed on its unchanged main revision. Program's existing checker passes, and its identical documentation tree is integrated by PR 6 at `4807b2950d94d12350c65076325eaff1427dbe73` after the required hosted check succeeded. These local checks do not establish System protected integration or public behavior; current release evidence must identify those separately.
+
 ## Production verification
 
 *Authority category: Historical production observation; reviewed changes require new deployed acceptance*
@@ -37,6 +53,22 @@ The production browser runner waits for the nested host's declared journey readi
 The generated Store reference A-frame result is separately identified as `MASTER-OUTDOOR`: Q $293.28, 1070.593525669955 modeled seconds, searchComplete false. The production test independently verifies a positive complete current A-frame answer and both 34.507-inch cross-support envelopes. Its result does not claim globally optimal manufacturing cost.
 
 Production source selection is commit-pinned. A later repository documentation commit does not automatically redeploy either service or repin System's Store. Record and verify the actual Railway release and Store digest for every operational update.
+
+### Identified release candidate and rollback boundary
+
+*Authority category: Observed infrastructure and proposed release procedure; no production change claimed*
+
+The inspected production environment is Railway project `7e65c951-dbf7-4009-8b3b-26d4a135fadb`, environment `5ad842f3-877c-403a-9562-9838de4d5daf`. System service `e13c591e-e42d-45ac-82e2-ba2d2feb8dc9` selects `f28e7665ff5963194138ced5d6c6553b30711284`, Dockerfile `Dockerfile.railway`, health `/healthz`, timeout 180 seconds. Its successful deployment is `5bd1fac7-d0ba-4550-b456-e0b5b49e5010`. Store service `a8bea325-4b07-4160-8af7-170162ac2f99` selects `3f813fe060f1eff46a1b3cfdad1ad41465d230e0`, Dockerfile `Dockerfile`, health `/health`, timeout 120 seconds. Its successful deployment is `af959877-b6d1-470a-b44c-6d501e7d795b`. Both have one replica in `sfo`; neither service has staged changes. Direct public health/runtime reads independently confirm the old Store release, source digest and matching served System pin. This observation does not certify the new candidate.
+
+The candidate Store is clean main `95187a9f7788d600181e56282343fa57cf843a46`, shipped-source digest `0864544c1169cf5b891bc99629ee52d64c62719c704747dcbda33e358f539b1b` over 21 files, registered machine hash `0394f8ac97eb89191b94fb83fd7390049ddd68e427a91629a1a14c98dce814df`. The System candidate's operative pin, runtime, CI checkout/release, browser expectation and startup must all name that exact Store. Its release source must be the final protected, checked System main revision after integration; the generated proof supplies the tested source identity. No unintegrated local commit is a production candidate merely because it builds.
+
+The current two services have independently switched releases and a single routed domain each. No atomic pair switch or separately addressable retained old Store endpoint has been established. OAuth reads disclose variable names but redact values; preserve existing variable configuration, and inspect/verify the effective `STORE_ZERO_ORIGIN` before release rather than treating its value as observed. `STORE_ZERO_RELEASE` must identify the actual selected Store checkout. Railway lists both retained deployment IDs above as `canRollback: true` and `canRedeploy: true`; their metadata names the exact old source commits. Their deployment-specific URLs are null, so those records do not establish separately routed old endpoints. Restore the two coherent source/configuration identities together and verify actual behavior before restoring availability; a rollback-capability flag alone does not prove the outcome of a future restore.
+
+The authorized rollout uses a temporary Store endpoint in the same project and environment. Deploy and verify the exact new Store there while the existing System continues using its old Store. Stage the new System source and origin together, then deploy and verify the public application against the new endpoint. Keep that endpoint available while updating the original Store to the same new revision. Only after both endpoints independently verify may System return to the original Store origin. Repeat public acceptance against the final pair before removing the temporary service. No atomic multi-service cutover is assumed, and no cached answer masks an incompatible pair.
+
+Rollback keeps the temporary new Store available for the active new System while restoring the original Store's old source and release identity. Restore the old System source and its original Store origin together only after old Store verification. Independently verify the restored public pin, source identity and fresh behavior before removing the temporary endpoint. Retained deployment records and commit pins identify the rollback sources; capability flags alone do not prove a performed rollback.
+
+The owner has authorized the two necessary follow-up branches/PRs, compliant merges, Railway configuration changes, deployment and branch cleanup. Program follow-up PR 6 is integrated; System's follow-up must satisfy its actual required checks and PR process. Frozen READMEs, source custody and safety requirements remain unchanged. The System master's single register tracks integration and operational evidence. Obsolete branch removal is permitted only after substantive reconciliation and preservation; a local deletion or merged PR does not prove a remote branch was removed.
 
 ## Required maintenance checks
 

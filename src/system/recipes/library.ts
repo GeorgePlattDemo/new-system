@@ -87,6 +87,35 @@ const plans = [
 export const LIBRARY: Recipe[] = [
   {
     schema: RECIPE_SCHEMA,
+    recipeId: "display-stand-components",
+    version: "1",
+    title: "Display stand components",
+    summary: "Six square-cut component blanks in two nominal sections.",
+    narrative: "Two shelf blanks, two side blanks and two rail blanks. Lengths run between square end planes. The scope is component cutting only; fastening, assembly design, load capacity and physical suitability are not established.",
+    engine: "supported",
+    publicTool: true,
+    requestType: "CUT_PACKAGE_V1",
+    configurationId: "DISPLAY-STAND-COMPONENTS",
+    requirements: requirementsSquare,
+    inputs: [
+      { id: "species", label: "Species", kind: "choice", required: true, choices: [{value:"pine",label:"Pine"},{value:"poplar",label:"Poplar"}] },
+      { id: "grade", label: "Grade", kind: "choice", required: true, choices: [{value:"select",label:"Select"}] },
+      { id: "shelfIn", label: "Shelf and rail length (in)", kind: "number", required: true },
+      { id: "sideIn", label: "Side length (in)", kind: "number", required: true },
+    ],
+    defaults: { species: "pine", grade: "select", shelfIn: 24, sideIn: 8 },
+    rule: {
+      op: "part-groups", configurationVersion: "1",
+      groups: [
+        { id:{literal:"PANELS"},species:{input:"species"},grade:{input:"grade"},nominalT:{literal:1},nominalW:{literal:6},angleDeg:{literal:0},
+          parts:[{id:{literal:"SHELF"},count:{literal:2},lengthIn:{input:"shelfIn"}},{id:{literal:"SIDE"},count:{literal:2},lengthIn:{input:"sideIn"}}] },
+        { id:{literal:"RAILS"},species:{input:"species"},grade:{input:"grade"},nominalT:{literal:1},nominalW:{literal:2},angleDeg:{literal:0},
+          parts:[{id:{literal:"RAIL"},count:{literal:2},lengthIn:{input:"shelfIn"}}] },
+      ],
+    },
+  },
+  {
+    schema: RECIPE_SCHEMA,
     recipeId: "start-own",
     version: "1",
     title: "Start your own",

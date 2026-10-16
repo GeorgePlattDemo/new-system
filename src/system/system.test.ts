@@ -370,7 +370,9 @@ test("retired request types are not in the library", () => {
   const blob = JSON.stringify(LIBRARY);
   assert.equal(blob.includes("BOARD_SQUARE_V1"), false);
   assert.equal(blob.includes("ALCOVE_INSERT_V1"), false);
-  assert.equal(LIBRARY.length, 7);
+  assert.deepEqual(LIBRARY.map(recipe=>recipe.recipeId).sort(),[
+    'alcove','closet-cleats','display-stand-components','outdoor','playhouse','project-1','start-own','window-seat',
+  ]);
 });
 
 test("an invalid spot control is not turned into no spots", () => {

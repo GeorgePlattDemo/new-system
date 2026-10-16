@@ -8,6 +8,7 @@ import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { answerPublishedWire, boardDemandFromPublishedLine } from "./published-wire.ts";
 import { DEFINITION_SHAPES } from "../shape.ts";
 import { pathToFileURL } from "node:url";
+import {componentDefinition} from "../component-tool.ts";
 
 const root = process.env.STORE_ZERO_ROOT;
 const release = STORE_CANDIDATE.inspectedCommit;
@@ -56,6 +57,39 @@ async function storeOrigin() {
 
 test.after(() => {
   child?.kill("SIGTERM");
+});
+
+test('registered component work preserves six independent parts through the published adapter and refuses an overlong revision',async()=>{
+  assert.deepEqual(componentDefinition({recipeId:'start-own',inputs:{}}),{error:'REGISTERED_COMPONENT_TOOL_REQUIRED'});
+  assert.deepEqual(componentDefinition({recipeId:'display-stand-components',inputs:{shelfIn:24,sideIn:8,species:'pine',grade:'select',unknown:1}}),{error:'UNKNOWN_INPUT'});
+  const definition=componentDefinition({recipeId:'display-stand-components',inputs:{shelfIn:24,sideIn:8,species:'pine',grade:'select'}});
+  if('error' in definition)throw new Error(definition.error);
+  assert.deepEqual(definition.blockers,[]);
+  const request={protocolVersion:'stb-store-zero-http/1',projectId:'registered-components',candidateRevisionId:definition.revision,requestType:'CUT_PACKAGE_V1',requestId:'component-source',payload:definition.payload,expectedStorePin:release};
+  const reply=await answerPublishedWire(request,await storeOrigin());
+  assert.equal(reply.httpStatus,200);
+  const answer=reply.body.storeAnswer as Record<string,any>,mapped=reply.body.mappedCallInputs as Record<string,any>;
+  assert.equal(answer.status,'SUPPORTABLE');assert.equal(answer.complete,true);
+  assert.deepEqual(mapped.manifest,definition.manifest);
+  const expected=structuredClone((definition.payload as any).definition);
+  // The published contract omits an empty optional spots array. There is no
+  // feature to drop; verify that exact normalization and every other operand.
+  for(const group of expected.cutPackages)for(const part of group.parts){assert.deepEqual(part.spots,[]);delete part.spots;}
+  assert.deepEqual(mapped.demand,expected);
+  assert.deepEqual(answer.manifestCoverage.boardPartIds,['RAIL-01','RAIL-02','SHELF-01','SHELF-02','SIDE-01','SIDE-02']);
+  assert.equal(answer.revision,definition.revision);
+  for(const value of [null,-1,0,'bad']){
+    const invalid=componentDefinition({recipeId:'display-stand-components',inputs:{shelfIn:24,sideIn:value,species:'pine',grade:'select'}});
+    assert.ok(!('error' in invalid)&&invalid.payload===null&&invalid.blockers.length>0);
+  }
+  const excessive=componentDefinition({recipeId:'display-stand-components',inputs:{shelfIn:200,sideIn:8,species:'pine',grade:'select'}});
+  if('error' in excessive)throw new Error(excessive.error);
+  assert.notEqual(excessive.revision,definition.revision);
+  const refused=await answerPublishedWire({...request,requestId:'component-overlong',candidateRevisionId:excessive.revision,payload:excessive.payload},await storeOrigin());
+  assert.equal(refused.httpStatus,200);
+  const failed=refused.body.storeAnswer as Record<string,any>;
+  assert.equal(failed.status,'REFUSED');assert.equal(failed.Q,null);
+  assert.notEqual(failed.evaluationReceipt.receiptHash,answer.evaluationReceipt.receiptHash);
 });
 
 test('System definition shapes exactly match the inspected Store contract including optional geometry',async()=>{
@@ -110,7 +144,10 @@ test("the served Start your own runtime names this Store", () => {
   const browser=readFileSync(new URL('../../../scripts/browser-five-jobs.mjs',import.meta.url),'utf8');
   assert.equal(startup.match(/^want=(\w+)$/m)?.[1],release);
   assert.equal(browser.match(/const expectedPin = '([a-f0-9]+)'/)?.[1],release);
-  assert.deepEqual([...workflow.matchAll(/ref: ([a-f0-9]{40})/g)].map(m=>m[1]).filter(p=>p!== '9af1d351cc5583b48042b4aabecd628a86c5266b'),[release,release]);
+  assert.deepEqual([...workflow.matchAll(/repository: GeorgePlattDemo\/store-zero\s+ref: ([a-f0-9]{40})/g)].map(m=>m[1]),[release,release]);
+  const programRoot=process.env.PROGRAM_ROOT || new URL('../../../.program',import.meta.url);
+  const programHead=execFileSync('git',['rev-parse','HEAD'],{cwd:programRoot,encoding:'utf8'}).trim();
+  assert.equal(workflow.match(/repository: GeorgePlattDemo\/3d-solutions-program\s+ref: ([a-f0-9]{40})/)?.[1],programHead);
   assert.equal(workflow.match(/STORE_ZERO_RELEASE=([a-f0-9]{40})/)?.[1],release);
 });
 
