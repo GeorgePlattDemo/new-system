@@ -68,6 +68,9 @@ This reference explains the complete System application and its handoff. The [sh
   - [8.3 Public admission and responsibility](#83-public-admission-and-responsibility)
   - [8.4 Independent complete manifest](#84-independent-complete-manifest)
   - [8.5 Translation rules and unresolved meaning](#85-translation-rules-and-unresolved-meaning)
+  - [8.6 Required manufacturing chain for every project](#86-required-manufacturing-chain-for-every-project)
+  - [8.7 Normalization, defaults and requirement conservation](#87-normalization-defaults-and-requirement-conservation)
+  - [8.8 New projects and capability extensions](#88-new-projects-and-capability-extensions)
 - [9. The Store communication boundary](#9-the-store-communication-boundary)
   - [9.1 Public wire and formal inquiry](#91-public-wire-and-formal-inquiry)
   - [9.2 Complete protocol-2 example](#92-complete-protocol-2-example)
@@ -101,11 +104,13 @@ This reference explains the complete System application and its handoff. The [sh
   - [14.2 What the test families prove](#142-what-the-test-families-prove)
   - [14.3 Current and historical numbers](#143-current-and-historical-numbers)
   - [14.4 Navigation and dependency verification](#144-navigation-and-dependency-verification)
+  - [14.5 Documentation and evidence maintenance gates](#145-documentation-and-evidence-maintenance-gates)
 - [15. Discrepancies and repair boundaries](#15-discrepancies-and-repair-boundaries)
   - [15.1 Current implementation and meaning](#151-current-implementation-and-meaning)
   - [15.2 Operative explanation and reproduction](#152-operative-explanation-and-reproduction)
   - [15.3 Authority after consolidation](#153-authority-after-consolidation)
   - [15.4 Future capability-impact work](#154-future-capability-impact-work)
+  - [15.5 Manufacturing contract conformance register](#155-manufacturing-contract-conformance-register)
 - [16. Source register and consolidation disposition](#16-source-register-and-consolidation-disposition)
   - [16.1 Exact System implementation sources](#161-exact-system-implementation-sources)
   - [16.2 Store Program and historical sources](#162-store-program-and-historical-sources)
@@ -125,7 +130,9 @@ The operative application is the current System implementation and its independe
 
 The production application is [system-candidate](https://system-candidate-production.up.railway.app/); its Store is [store-zero-candidate](https://store-zero-candidate-production.up.railway.app/health). Railway pins each service to an identified commit. Read deployed configuration and Store `/health`, then compare shipped-source digest and fresh response receipts with the inspected checkout. Repository CI establishes its tested revisions; production acceptance establishes the deployed pair.
 
-Current executable contracts and verified outputs govern descriptions of installed behavior. The original Project 1 publication is historical evidence, not architectural authority. Regenerated reference evidence and revision-bound browser runs demonstrate current behavior for their identified inputs; they do not define that behavior. Consequential changes require affected specifications, masters, shared definitions, Program descriptions and current acceptance evidence to agree. Preserve sealed source bytes and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
+The adopted definitions and specifications govern required behavior. Executable source, identified configuration and verified outputs establish what a particular revision actually implements. A disagreement is a conformance defect: preserve the requirement, identify the affected owner and evidence, and repair the implementation or obtain an explicit requirement decision. Neither a passing test nor existing code silently overrides the adopted contract. Documentation must distinguish adopted requirements, verified implementation, proposed capability and physical qualification.
+
+The current Project 1 proof is maintained acceptance evidence, regenerated from the operative source and configuration when consequential behavior changes. Original sealed publications retain their source identities and historical results. Consequential changes must reconcile the affected definitions, specifications, masters, Program descriptions, current proof, tests, links and operational identities before completion. Preserve full technical content and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
 
 ### 1.2 The three owners
 
@@ -657,6 +664,47 @@ The board translator normalizes finite stated values, establishes a selected boa
 
 The generic System shape declares the optional tooling/depth, profiles, two-edge preparation, spot constraints and sheet fields accepted by the inspected Store contract. Shape recognition does not create a derivation rule for arbitrary new work; unsupported rules remain blocked. System and Store shape correspondence is checked separately from manufacturing supportability.
 
+### 8.6 Required manufacturing chain for every project
+
+*Authority category: Adopted engineering requirements*
+
+The [manufacturing meaning contract](docs/DEFINITIONS.md#manufacturing-terminology-source-words-versus-physical-requirements) governs the following transitions. This contract applies to every project, regardless of entry tile, source format or project name. The three current manufacturing request shapes are representations, not an exhaustive list of human project types. A new project using existing supported features must reuse the shared chain. A new feature or physical capability requires an explicit extension at the responsible owner.
+
+| Transition and owner | Required input and output | Required gate and retained evidence |
+| --- | --- | --- |
+| Source intake — System | Customer statements, plans, measurements and source identities become attributable evidence | Preserve source wording, document/revision/locator, units, missing provenance and contradictions; ingestion success supplies no manufacturing capability |
+| Meaning and component derivation — System | Evidence and explicit decisions become identified components, physical features, material conditions and named derivations | Establish references, positive dimensions, applicable depth/bottom/through conditions and tolerances; missing critical facts remain identified and unresolved |
+| Definition revision — System/customer | The complete requirements and choices become an owner-held revision | Every consequential value/location/material/tool change invalidates downstream current authority; preserve prior revisions and require review of the revised scope |
+| Independent manifest — System | Requirements before payload conversion become exact part, feature, item and unresolved-requirement coverage | Compare identity and cardinality independently of the emitted payload; preserve parameter witnesses so identical IDs cannot conceal dropped constraints |
+| Translation and transport — System | Approved facts become the declared Store inquiry and exact transmitted bytes | Preserve all required values, invalid explicit inputs and unsupported feature kinds; unknown or unrepresentable work blocks completeness rather than disappearing |
+| Registration and evaluation — Store | Complete neutral inquiry plus registered catalog, configuration, model and inventory become stock/plan/time/Q or reasons | Store alone selects stock and planning work; evaluate every required constraint and preserve explicit refusal/unresolved status without project exceptions |
+| Answer interpretation — System | The exact returned answer and receipt become the current visible result | Check request/revision, expected Store release, payload coverage and receipt/calculation identity; a late, partial or foreign answer cannot supply a complete Q |
+| Customer decision and packet — System/customer | The exact current supportable answer, manifest and reviewed definition become an identified decision and accepted packet | Preserve original acceptance and answer; a new revision requires a fresh answer and decision; commerce and release remain separately evidenced |
+| Verification and lowering — Store | Accepted packet and registered configuration become the exact bound local plan and modeled records | Verify current identities and accepted work, retain all operations and constraints; do not redesign, reselect stock, issue a second Q or grant release |
+| Replay, execution and inspection — registered evidence owners | Bound records become separately identified modeled replay, controller execution or inspected result | Preserve their distinct evidence classes; absent controller mapping or physical prerequisites remains blocked |
+
+### 8.7 Normalization, defaults and requirement conservation
+
+*Authority category: Adopted engineering requirements*
+
+Source vocabulary is retained as evidence. It cannot supply an absent cut plane, length datum, feature depth, fastener fit or registered operation. A source calling a cut bevel may reach a face-miter definition only where independently established geometry and any necessary explicit conflict decision justify it. A true compound cut must retain both angular requirements. A flat seating surface must retain that requirement even when the current Store can supply only a conical pointed-drill feature.
+
+For each feature, establish the applicable geometric operands and their domains before reporting meaning as defined. Check presence separately from validity: missing, null, nonfinite, negative and wrong-type values are distinct inputs; none can silently adopt zero or a nominal default. A standard-operation default is permitted only when that named operation and its versioned default rule were explicitly selected. Display and preserve the adopted result. An imported unspecified pilot hole therefore remains unresolved.
+
+Keep original source evidence and derivation witnesses in the owner-held definition. Keep the Store inquiry machine-neutral and within its declared shape. If a new operand is not representable in the current request, preserve it as an unresolved requirement and extend the contract explicitly; do not insert metadata that the Store silently discards. Unknown feature constraints must reach explicit rejection or unresolved disposition, including at every public translation path. Typed fixtures do not substitute for verification of the published nested application.
+
+Independent coverage includes quantities, coordinates, depths, orientations, material conditions, selected services and unresolved requirements. A redundant endpoint identity may be canonicalized only under the existing declared equivalence rule with its witness retained. That exception cannot remove an independent endpoint, feature, operation or physical constraint. Store decides whether an unchanged requirement is supplyable.
+
+### 8.8 New projects and capability extensions
+
+*Authority category: Adopted engineering requirements*
+
+A project definition contributes source facts, component identities, geometric derivation rules, Intent tools, Bench values and review presentation. It does not contribute a hidden manufacturing evaluator, local catalog selection, quoted answer cache or price constant. The shared host, admission, revision, manifest, translation, transport, receipt, acceptance and evidence contracts remain controlling.
+
+Before adding a project, demonstrate that all its required features are representable. Exercise at least one complete request and an unfavorable case through the published path, confirm current-revision display and export, and reconcile the supporting documentation. This verifies composition under existing capabilities; it is not a project-name permission list inside Store.
+
+Before adding an operation, define its measurable result and required operands in Definitions, its input representation and refusal semantics in the owning specifications, and its versioned registration and planning/lowering obligations in Store. Include affected stock/control/time/economic effects and evidence limits. Implement at the existing responsible paths and extend regression/current-proof coverage. Unsupported demand remains visible until that work is verified.
+
 ## 9. The Store communication boundary
 
 *Authority category: Current System Behavior*
@@ -1054,6 +1102,18 @@ Inspection begins with imports/generated routes, frames/scripts/styles, selected
 
 The project entry observation covered all five Idea/Intent/Bench paths. Start Your Own lands at Intent; the other Idea pages expose NEXT → INTENT; every Intent exposes BRING IT TO THE BENCH →. Addl svcs triggers appeared on each Bench; the installed common source and open/Close behavior were checked. Production verification checks the deployed assets, exact runtime pin, fresh Store responses, changed definitions, refusals and visible receipt chains. A local build or prior frozen observation cannot stand in for that check.
 
+### 14.5 Documentation and evidence maintenance gates
+
+*Authority category: Adopted engineering requirements*
+
+A consequential change must identify the affected Definitions entries, System chapter 8 contract, Store specification, both masters, Program evidence/trial descriptions and current Project 1 proof before implementation. Preserve complete technical explanations and worked examples. Update them in the same bounded integration; do not replace them with a short change log or leave present-tense claims describing an older executable path.
+
+Verification must establish: local and cross-repository file/heading destinations; agreement of all operative Store pins; preserved root README bytes for this authorized work; exact regeneration of current proof; immutable historical evidence; and current implementation status for adopted requirements. Existing link tests cover only their stated surfaces. Required broader document/pin checks are implementation obligations until installed and exercised; a link-only pass cannot prove semantic conformance.
+
+For behavior, run the exact pinned Store's acceptance, System tests, production build, type checking and five-project Chromium acceptance. Add targeted unfavorable cases for the changed contract, including silently dropped constraints, unsupported physical geometry and stale revisions. A new selected-depth/location proof must carry the actual customer inputs through acceptance, packet verification, lowering and replay; the original default specimens remain intact and current. Report the exact revisions, commands and outcomes rather than a general claim that all checks pass.
+
+Deployment acceptance separately compares System's served configuration, Store health/release/source digest and fresh response receipt with the tested pair. Git main, branch CI and a running service are different identities. A known mismatch prevents declaring the coordinated application complete.
+
 ## 15. Discrepancies and repair boundaries
 
 *Authority category: Current System Behavior*
@@ -1084,13 +1144,33 @@ The current proof is described in present tense. Original source publications an
 
 *Authority category: Current System Behavior*
 
-Current executable contracts and verified outputs govern descriptions of installed behavior. The original Project 1 publication is historical evidence, not architectural authority. Regenerated reference evidence and revision-bound browser runs demonstrate current behavior for their identified inputs; they do not define that behavior. Consequential changes require affected specifications, masters, shared definitions, Program descriptions and current acceptance evidence to agree. Preserve sealed source bytes and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
+The adopted definitions and specifications govern required behavior. Executable source, identified configuration and verified outputs establish what a particular revision actually implements. A disagreement is a conformance defect: preserve the requirement, identify the affected owner and evidence, and repair the implementation or obtain an explicit requirement decision. Neither a passing test nor existing code silently overrides the adopted contract. Documentation must distinguish adopted requirements, verified implementation, proposed capability and physical qualification.
+
+The current Project 1 proof is maintained acceptance evidence, regenerated from the operative source and configuration when consequential behavior changes. Original sealed publications retain their source identities and historical results. Consequential changes must reconcile the affected definitions, specifications, masters, Program descriptions, current proof, tests, links and operational identities before completion. Preserve full technical content and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
 
 ### 15.4 Future capability-impact work
 
 *Authority category: Current System Behavior*
 
 Future capability-impact analysis must retain complete refused/unresolved demand, evaluate separately registered hypothetical configurations through deterministic compilation/Store, and compare feasibility, modeled Q and full investment/service cost. Additional machines must extend registration and execution mappings without rebuilding the customer-definition compiler. This is future work, not an installed offering.
+
+### 15.5 Manufacturing contract conformance register
+
+*Authority category: Current implementation evidence and adopted acceptance obligations*
+
+This is the single cross-repository register for the open manufacturing-language/depth integration. Update the existing rows when evidence changes; do not create a recurring audit report or a competing checklist elsewhere. References to a review commit establish only that revision's scope. Required behavior is specified in chapter 8 and Definitions and is not weakened to match these gaps.
+
+| Obligation and owner | Established implementation boundary | Evidence required to close |
+| --- | --- | --- |
+| Complete physical meaning — System | The operative published paths use structured project definitions; general plan ingestion is not installed. Review commit `61a9daae93d4fa490fbba54a0e1221e1fad2eb41` adds typed terminology helpers. Its `featureMeaning` can label a pointed feature without depth or with a negative diameter as defined | Feature-specific positive-domain, depth/default, datum and contradiction gates connected to the actual published definition/translation path, with unfavorable regressions |
+| Lossless spot requirements — System | The pending System review preserves explicit diameter/depth and unknown spot fields in the board adapter; it is not merged into the operative main | Verify every applicable published conversion preserves explicit constraints or produces an attributable unresolved/refused result; exercise the exact runtime path |
+| Bounded per-feature depth — Store | Main commit `4e7eb0e2126ecd9fdb8ae60d68d9ecb6ddd342e8` evaluates fixed nominal depth. Review commit `390397684a26da766d2d31a6d86e457b0ddc7acd` evaluates shallower positive depths and actual per-feature Z/time | Integrate the registered maximum/nominal contract; prove independent depths, invalid/over-limit/wrong-tool/flat-bottom refusal and unchanged nominal defaults |
+| Customer-selected location — System/Store | The System review adds independent longitudinal X and depth; its Bench still centers across width. Store supports its declared centered/inset representations, not arbitrary Y | Keep the supported coordinate representation explicit; verify selected locations and rejected locations without adjustment; claim broader placement only with its own representation and registration |
+| Current Project 1 evidence — System/Store | The 16/18-inch current reference specimens remain centered at nominal depth. Review tests exercise a shallower request, but the added browser control check does not itself accept and lower that selected revision | Preserve and regenerate the defaults; add a selected-location/shallower-depth specimen through actual browser acceptance, exact packet, HTTP evidence, lowering and replay |
+| Operative pin and deployment — System/Store | System main declares Store `3f813fe060f1eff46a1b3cfdad1ad41465d230e0`. The review pins its tested Store branch while startup retains the older pin | After Store integration, align source, browser runtime, CI checkout/release, browser acceptance and startup to the final immutable Store revision; verify both deployed identities and fresh response receipts |
+| Maintained documentation enforcement — all owners | Existing checks cover selected local navigation, source evidence and generated examples; they do not enforce the complete shared maintenance contract | Extend existing checks for current owner links/anchors, pin agreement and required conformance coverage; run them and preserve the frozen root READMEs |
+
+Program's EVIDENCE and laboratory trial describe the corresponding research and physical validation obligations. Physical commissioning, controller export and unrestricted plan ingestion are separately identified development scope; these rows do not authorize their operation. Repository protection and required independent review remain integration prerequisites.
 
 ## 16. Source register and consolidation disposition
 
@@ -1153,6 +1233,8 @@ README is the public introduction; this master describes the current System; DEF
 
 *Authority category: Current System Behavior*
 
-Current executable contracts and verified outputs govern descriptions of installed behavior. The original Project 1 publication is historical evidence, not architectural authority. Regenerated reference evidence and revision-bound browser runs demonstrate current behavior for their identified inputs; they do not define that behavior. Consequential changes require affected specifications, masters, shared definitions, Program descriptions and current acceptance evidence to agree. Preserve sealed source bytes and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
+The adopted definitions and specifications govern required behavior. Executable source, identified configuration and verified outputs establish what a particular revision actually implements. A disagreement is a conformance defect: preserve the requirement, identify the affected owner and evidence, and repair the implementation or obtain an explicit requirement decision. Neither a passing test nor existing code silently overrides the adopted contract. Documentation must distinguish adopted requirements, verified implementation, proposed capability and physical qualification.
+
+The current Project 1 proof is maintained acceptance evidence, regenerated from the operative source and configuration when consequential behavior changes. Original sealed publications retain their source identities and historical results. Consequential changes must reconcile the affected definitions, specifications, masters, Program descriptions, current proof, tests, links and operational identities before completion. Preserve full technical content and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
 
 Completion requires the exact pinned Store checkout, current local/CI checks and identified production acceptance. Check public asset versions, fresh response identities and deployed Store source digest. Record failures and unproved outcomes without promoting a prior successful run to a later revision.
