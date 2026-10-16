@@ -44,6 +44,18 @@ Production source selection is commit-pinned. A later repository documentation c
 
 Run `npm test` with the exact clean pinned Store, production build, TypeScript checks and `scripts/browser-five-jobs.mjs` against the two separate services. Every consequential implementation/specification change reconciles shared definitions, both masters, affected Program documents and current Project 1 proof. Operative prose describes current behavior; Git preserves repair chronology. Earlier observations below retain their original dates and source identities and cannot serve as current acceptance.
 
+## Manufacturing contract acceptance obligations
+
+*Authority category: Adopted engineering requirements; closure is recorded in the System master*
+
+The [shared manufacturing meaning contract](../DEFINITIONS.md#manufacturing-terminology-source-words-versus-physical-requirements) and [complete handoff requirements](../../SYSTEM-MASTER.md#86-required-manufacturing-chain-for-every-project) govern current and new projects. The [single conformance register](../../SYSTEM-MASTER.md#155-manufacturing-contract-conformance-register) states what remains unproved. Existing dated observations below retain their original scope; neither historical values nor a successful typed helper test establish current published behavior.
+
+Acceptance must preserve original source words and exact physical requirements, reject incomplete or invalid feature meaning, keep unsupported geometry visible, and prove parameter conservation through the actual public adapter and independent manifest. Include misleading source terminology with established geometry, a real unsupported cut plane, a flat-bottom seating requirement, unspecified pilot depth, invalid explicit values and unknown physical constraints. Do not obtain green results by changing required work or relaxing the governing assertion.
+
+For D-001, the current proof must include unchanged 16-inch and 18-inch defaults and a separately identified supported selected-location/shallower-depth variation. Drive the actual Bench controls, wait for the matching fresh Store receipt, accept that exact revision, export its existing decision and complete packet, submit it to the Store evidence endpoint and verify the returned bound Z movements, timing and replay. Retain an excessive-depth or unsupported-location refusal with absent complete Q and blocked downstream progression. Each specimen identifies System revision, Store release and source/configuration/catalog identities.
+
+Check all operative pin declarations together and verify served production identities separately. Preserve all three root READMEs byte-for-byte. Update existing proof generators and document checks at their owning paths; do not add another evaluator or a static substitute proof.
+
 ## Historical Evidence
 
 *Authority category: Historical Evidence*

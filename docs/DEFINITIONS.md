@@ -2,7 +2,9 @@
 
 This file is the only place here that says what a shared word means.
 
-Current verified executable contracts govern installed behavior. Reconcile this dictionary when it conflicts with those contracts; documentation cannot override a verified implementation.
+The adopted definitions and specifications govern required behavior. Executable source, identified configuration and verified outputs establish what a particular revision actually implements. A disagreement is a conformance defect: preserve the requirement, identify the affected owner and evidence, and repair the implementation or obtain an explicit requirement decision. Neither a passing test nor existing code silently overrides the adopted contract. Documentation must distinguish adopted requirements, verified implementation, proposed capability and physical qualification.
+
+The current Project 1 proof is maintained acceptance evidence, regenerated from the operative source and configuration when consequential behavior changes. Original sealed publications retain their source identities and historical results. Consequential changes must reconcile the affected definitions, specifications, masters, Program descriptions, current proof, tests, links and operational identities before completion. Preserve full technical content and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
 
 Store Zero answers the job. This page does not price, and it does not redefine a Store word.
 
@@ -46,7 +48,7 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 **Through-edge profile requirement** — A named feature on a finished part, stating its path length, position across the width and through depth. The cut-package inquiry carries these literal values in `parts[].edgeProfiles`. Store answers whether its parent-board preparation fulfills them; System does not substitute a different profile.
 
-**Explicit spot constraints** — The required tool diameter and full-diameter depth, when the job states them. They travel with the named spot and its location. Store checks them against its registered operation; a placement is not a generic drilled-hole specification.
+**Explicit spot constraints** — The required tool diameter and full-diameter depth, when the job states them. The adopted contract requires both to travel unchanged with the named spot and its location. A recognized shape does not establish lossless transfer: the published board adapter's pending diameter/depth repair is identified in the [conformance register](../SYSTEM-MASTER.md#155-manufacturing-contract-conformance-register). Store checks received constraints against its registered operation; a placement is not a generic drilled-hole specification.
 
 **Virtual evidence** — Identified local-job, operation records, replay and blocked-admission result returned by Store's machine-evidence entry point for a verified accepted packet and expected registered configuration. Current schema `STB-MODELED-OPERATIONS-1` has evidence class `PREDICTED_OCCUPANCY_ONLY`. Dimensional records carry nominal moves/tool states; sheet occupancy does not establish a complete XY controller trajectory. System preserves this evidence rather than inventing it.
 
@@ -61,6 +63,140 @@ End geometry is part of the priced manufacturing definition. `endRelation` state
 `endIdentity` is an additional endpoint statement. The public board translator records a supplied redundant value such as `both` under `REDUNDANT_WITH_PRICED_LENGTH_DATUM` and sends null when parallel/long-long already expresses it. A nonredundant value travels unchanged. The current Store board compiler requires `endIdentity == null`; incompatible geometry is refused as `END_GEOMETRY_NOT_DECLARED`. This is the current contract, rather than the retired `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` narrative.
 
 Square cuts and sheet edges retain their own defined geometry. Current Store machine evidence accepts board, cut-package and sheet-package classes; it does not return the retired board-only `LOWERING_NOT_REGISTERED_FOR` disposition. Coverage means modeled ledger binding and replay, not a universally implemented controller program. The typed System machine helper recognizes the same three registered manufacturing classes and preserves those evidence limits.
+
+## Manufacturing terminology: source words versus physical requirements
+
+*Authority category: Adopted engineering requirements; implementation status is recorded in the System master's conformance register*
+
+### Governing interpretation contract
+
+**Manufacturing meaning contract (`STB-MANUFACTURING-MEANING-1`)** — The adopted semantic requirements in this section. This is a specification identifier, not a claim that a new runtime schema, general plan reader or physical machine function is installed. The contract applies to every project entering the shared manufacturing chain, including projects beyond the five demonstrations.
+
+**Source expression** — Original customer wording, plan text, drawing mark or imported field, retained with its source document identity, revision and page, figure or other locator when available. Preserve missing provenance explicitly. Source expressions may be informal, incomplete or wrong; their recognition does not establish a physical feature.
+
+**Physical requirement** — The measurable result required on an identified component: geometry, location, orientation, dimensions, relevant tolerances, material properties and completion conditions. It expresses what must exist after manufacture without selecting a merchant stock item or a machine-specific command.
+
+**Established geometry** — Geometry supported by explicit source measurements, an identified drawing construction or an adopted derivation rule. Record the inputs, units, references, rule and result. An illustrative image, familiar project name, recognized word or available machine does not independently establish a dimension or orientation.
+
+**Normalized manufacturing requirement** — An identified, machine-neutral physical requirement expressed without dependence on a source author's vocabulary. Preserve its source expressions and derivation witnesses separately. Normalization cannot replace the required result with an easier feature or remove an inconvenient constraint.
+
+**Interpretation witness** — Attributable evidence connecting a normalized requirement to source facts or an explicit customer decision. It states which facts were observed, derived, assumed under an adopted rule, contradicted or left unresolved. A boolean label such as `DEFINED` is not itself evidence.
+
+**Interpretation status** — Whether the facts needed to define the particular feature are established. Missing critical dimensions, datums, bottom conditions or contradictory evidence remain `UNRESOLVED`. A fully defined feature may still be unsupported by Store. System admission, Store supportability, customer acceptance and physical authorization are separate determinations.
+
+**Contradiction** — Two attributable statements that cannot both describe the same requirement under the declared references. Preserve both and identify the decision needed. Do not resolve disagreement solely by choosing the text, drawing or interpretation that the registered machine can perform.
+
+**Declared standard operation** — An explicitly selected, identified operation whose registered parameters provide a stated nominal result. An omitted parameter can adopt that nominal only where the selected operation and applicable default rule are part of the definition and remain visible in the record. A generic source request for a hole does not select D-001's standard spot.
+
+**Registered operation** — Store's versioned declaration of the function, tool geometry, material and dimensional envelope, coordinates, limits, preconditions, modeled work and refusal conditions. Recognizing a term does not register a function. An operation's name cannot replace its physical and contractual definition.
+
+**Requirement conservation** — Every independently required component, feature, material condition and unresolved fact remains attributable through revision, translation, inquiry, answer, acceptance and lowering. Preserve parameter values as well as identifiers. An independent manifest must expose omitted work; it cannot be derived solely from the already translated payload and thereby reproduce its omissions.
+
+### Drilling, holes and seating surfaces
+
+**Drilled spot / shallow pointed-drill feature** — A bounded local feature made by a pointed drill, with a cylindrical portion and conical bottom under the adopted idealized geometry. State component, axis, entry face, part-relative position, diameter, full-diameter depth or selected standard-operation rule, and relevant tolerances. This describes a result; Store separately establishes whether its tooling and stock can produce it.
+
+**Spot drilling** — A drilling operation used to establish an entry or location for subsequent work. Purpose does not define diameter, point geometry, depth or the subsequent operation. D-001's identifier `SPOT_ON_LOCATION` denotes only its explicitly bounded shallow pointed-drill function; it does not register every operation called spot drilling.
+
+**Spotface / spotfacing** — A localized flat seating surface, commonly around a hole. Define its seating plane, position, diameter or boundary, depth and required surface condition. A conical drill-bottom depression does not satisfy a flat seating requirement. Neither customer wording nor a convenience alias can map a flat-bottom spotface to D-001's pointed-drill feature.
+
+**Pilot hole** — A hole serving a subsequent drill or fastener. The purpose alone supplies no diameter, depth, exit condition, axis or material suitability. Establish those requirements from the applicable design or an explicit customer decision. Preserve an incompletely specified pilot as unresolved rather than substituting a standard shallow spot.
+
+**Blind hole** — A hole that terminates within the component. Define entry face, axis, position, diameter, depth datum and bottom geometry. State whether depth measures the cylindrical full-diameter portion or the deepest tool-point penetration. A blind hole is not necessarily a flat-bottom hole.
+
+**Through-hole** — A hole required to pass through the material under its stated thickness and orientation. Define entry, exit, diameter, axis, position and any breakout requirements. A blind or shallow feature cannot fulfill it. No through-hole capability follows from D-001's shallow-spot registration.
+
+**Clearance hole** — A hole providing clearance for an identified mating element. State the required diameter, fit or tolerance, axis, location and through/blind condition. A fastener name alone does not establish these values.
+
+**Counterbore** — A cylindrical recess with a seating bottom associated with a hole. State recess and hole diameters, depth, concentric relationship and bottom requirements. It is distinct from a conical countersink and from a pointed-drill spot.
+
+**Countersink** — A conical recess associated with a hole. State included angle, major diameter or defined depth, axis and relationship to the hole and fastener seat. Drill-point angle alone does not establish countersinking capability or a compliant fastener seat.
+
+**Drill-point included angle** — The angle between opposite generating lines of the idealized conical drill point. It is not the workpiece entry angle, countersink requirement or full-diameter penetration.
+
+**Full-diameter penetration** — Depth from the entry surface to the deepest section at which the entire specified cylindrical diameter has been produced, measured along the declared hole axis. For the idealized pointed drill this excludes the additional conical point height.
+
+**Total drill-tip plunge** — Travel from first tip contact at the entry surface to the deepest tip position. For diameter D, included point angle a and requested full-diameter depth d, point height is h = (D/2)/tan(a/2), and total plunge is d + h. Tool clearance and approach movement are separate travel segments.
+
+**D-001 bounded spot** — The registered test tool has diameter 0.1875 inch and included point angle 118 degrees. The adopted maximum full-diameter penetration is 0.1875 inch beyond the conical point. At that maximum, point height is approximately 0.056330683 inch and total tip plunge approximately 0.243830683 inch. The adopted variable-depth contract is 0 < d <= 0.1875 inch. Each accepted feature's actual d must govern its Z target, travel, occupied time and calculation identity. The diameter remains fixed unless the registered configuration is explicitly changed. These are modeled parameters, not inspected machine performance. The Store specification and System conformance register identify the installed fixed-depth or variable-depth implementation; this definition does not claim that an unmerged implementation is operative.
+
+**Selected spot location** — An identified position relative to a declared finished-part datum and entry face. A center rule such as X = L/2 is a derivation, not arbitrary location control. An explicitly selected X must survive translation unchanged. Across-width centering, a permitted inset and an arbitrary Y coordinate are different representations; expose only the representation actually supported. Store checks tool-radius clearance, registered travel, stock geometry and applicable control limits. It cannot move a requested feature to obtain supportability.
+
+### Cut planes, end relationships and stock consumption
+
+**Face miter** — In the adopted board convention, an angled end plane whose trace across the prepared broad face is oblique to a square crosscut, with no independent tilt through the board thickness. State the component faces, reference axes, angle convention and end relationship. The word miter alone cannot establish all of those facts.
+
+**Bevel** — A sloped face or edge whose precise plane must be established relative to the component faces. For board end cuts, distinguish tilt through thickness from an angle across the broad face. Preserve the source word when a plan uses it loosely, but derive the operative plane from substantiated geometry. A true bevel remains distinct from a face miter.
+
+**Compound angled cut** — A cut with independent angular components in the declared reference system, such as a face-miter angle combined with thickness tilt. Both components and their datums are required. A single scalar angle or a face-miter registration cannot silently represent compound geometry.
+
+**Square crosscut** — A crosscut with a plane perpendicular to the declared length axis and the required faces. A missing angle is not a square-cut declaration. An explicitly adopted square-end convention may supply its stated references only within that convention's scope.
+
+**Crosscut** — A cut across a board's declared length or grain direction. Specify the actual cut plane and result; a process name does not independently establish a finished length.
+
+**Rip** — A longitudinal separating cut. Define retained width, reference edge, cut path, kerf, through condition and returned pieces. A through rip is distinct from a partial-depth groove and from edge surfacing.
+
+**End relation** — The geometric relationship between the two finished end planes, including whether they are parallel or opposed under the declared board convention. State their orientations rather than inferring the relationship from a project name.
+
+**Long point / short point** — The extreme intersections of an angled end with identified reference edges or faces. Name those edges or faces. A length stated as long-to-short, long-to-long or short-to-short is incomplete without that reference and end orientation.
+
+**Finished dimension** — Required size of the completed component measured between its specified references. Preserve it when selecting or planning parent stock. A larger stock envelope is not a revised finished dimension.
+
+**Stock envelope** — The parent-material extent needed to contain the defined finished geometry before separately accounted cut consumption and process allowances. Derive it from actual stock section, end planes and measurement references. For the registered parallel face-miter long-point-to-short-point convention, the longitudinal envelope is L + W*tan(theta). This formula is specific to that convention; it is not a universal angled-part formula.
+
+**Axial kerf consumption** — Parent-length consumption attributable to a cut under the declared orientation. Keep blade-width kerf, its projected axial effect, reference cleanup and other allowances distinct. Count each physical cut and its retained side under the registered planning convention.
+
+**Retained face** — The material face that remains after a cut and is used for subsequent geometry or reference. Identify the kept side and its transform. A nominal saw-plane event or a convenient coordinate reset does not prove the retained face was measured or registered physically.
+
+### Routing, milling and edge preparation
+
+**Routing / milling** — Material removal by a rotating cutter along a defined path. Establish the removed volume or required surface, entry and exit, section, depth, orientation, end conditions and relevant tolerances. The machine's cutter, pass strategy, feed and restraint are Store planning facts.
+
+**Dado** — A channel or housing across the declared grain direction in ordinary woodworking usage. Define its actual cross-section, path, width, depth and open or stopped ends. The source name does not substitute for these facts or register a crosswise routing operation.
+
+**Groove** — A channel commonly running with the grain in woodworking usage. Record the actual orientation, path, section, width, depth and end conditions because other trades use the word more broadly. A groove cannot be reduced to an edge profile unless the required removed geometry is identical.
+
+**Rabbet / rebate** — An open-sided recess along an edge or end. Define the reference face and edge, shoulder, width, depth and path. Its L-shaped section is distinct from an enclosed channel or a through rip.
+
+**Slot** — An elongated opening or recess. State width, depth or through condition, path, orientation and end shape. The word alone does not determine whether the feature is a groove, aperture or another operation.
+
+**Edge preparation** — Removal from specified parent edges to establish required finished width or surfaces. Identify each edge, its removal amount, sequence-dependent references and required result. A two-edge requirement cannot be counted as one pass unless the registered operation actually produces both surfaces.
+
+**Profile** — A defined section or boundary followed along a stated path. State the section, position, path length and depth/through condition. A source requesting rounding, a chamfer, a groove or a rabbet does not select the currently registered longitudinal through-edge profile merely by using the word profile.
+
+**Pass / engagement / feed** — Respectively, one traversal removing its declared material; the cutter's actual radial and axial contact; and relative processing speed under specified units. Distinguish them from rapid positioning and spindle speed. Store must count the passes and returns needed for the complete required geometry under registered limits.
+
+### Material, references and evidence
+
+**Nominal and actual section** — Nominal size is a named commercial designation; actual section is the dimensional basis declared for the selected stock. System states required geometry and material; Store supplies offered actual dimensions. The familiar nominal-to-dressed relationship is not evidence for every material or offering.
+
+**Material suitability requirement** — Required species or allowable alternatives, grade and governing rule, treatment, stock form, condition and intended service constraints. Availability and machinability do not establish structural adequacy, code compliance or suitability for an unstated use. Missing consequential material conditions remain explicit.
+
+**Part reference and machine reference** — A part reference locates the customer's feature. A machine reference locates tooling or work under its registered coordinate system. Preserve the transformation and its sign, axis, units and datum assumptions; the machine origin cannot redefine the customer's feature position. The existing Datum and Origin entries also apply.
+
+**Dimensional tolerance and measurement uncertainty** — Tolerance is the permitted variation in the requirement; measurement uncertainty concerns the evidence used to judge it. A numerical model's precision is neither a manufacturing tolerance nor proof of conformity. Preserve specified tolerances and any missing inspection method.
+
+**Retention / restraint / holding allowance** — Retention keeps designated material connected, such as sheet tabs. Restraint controls material movement under process loads. A modeled holding delay or remaining-length screen does not establish physical restraint. Define tab geometry, kept pieces and later separation as requirements when applicable.
+
+**Modeled, generated, executed and inspected** — A model predicts; a generator emits identified records; a controller executes admitted instructions; inspection establishes measured results under an identified method. Preserve these separate evidence states through every receipt, packet and account of the work.
+
+### Interpretation and extensibility decisions
+
+| Condition | Required System action | Required Store consequence |
+| --- | --- | --- |
+| Source word conflicts with independently established geometry | Preserve both, establish which evidence and explicit decision resolve the conflict, retain the derivation | Evaluate the resulting exact requirement; capability never decides the interpretation |
+| Critical geometry or material fact missing | Retain an identified unresolved requirement and request the responsible decision | No complete Q for the incomplete job |
+| Feature fully defined but operation unregistered | Preserve the exact physical result and all operands | Return an attributable unsupported-capability refusal |
+| Source term unknown | Preserve it and its context; establish geometry independently if evidence permits | Do not silently discard it or substitute a familiar operation |
+| Explicit value malformed, null or outside its required domain | Retain or reject the invalid requirement at its owning boundary | No coercion to zero, omission or fallback to a nominal value |
+| New project uses existing representable features | Use the shared admission, manifest, translation and evaluation contracts | Use the same registered evaluator without project-name exceptions |
+| New feature lacks representation or registration | Identify the missing contract or capability and its owner | Require an explicit versioned extension and evidence before claiming support |
+
+These requirements govern future general plan ingestion as well as bounded structured definitions. They do not claim installed optical character recognition, drawing inference, general natural-language interpretation or universal support for arbitrary plans. A typed helper exercised only by contract tests cannot establish that the published customer path enforces the same requirement.
+
+### Terminology references
+
+These references support terminology distinctions; they do not certify this demonstration, its machine model or its proposed apparatus. DEWALT's [DWS779 instruction manual](https://www.dewalt.com/GLOBALBOM/QU/DWS779/20/Instruction_Manual/EN/N445793_DWS779.pdf) distinguishes miter, bevel and compound settings. Gühring's [RT 100 P tooling publication](https://www.guhring.co.jp/cms/wordpress/wp-content/plugins/guhring/pdf/catalog_115.pdf) distinguishes pointed and flat-bottom tooling results. Mitutoyo's [Quick Guide to Precision Measuring Instruments](https://www.mitutoyo.com/webfoo/wp-content/uploads/E11003-Quick-Guide.pdf) provides dimensional-metrology context. The geometric operands and refusal obligations above are this system's adopted requirements; external terminology never expands the registered Store capability.
 
 ## Shared terms
 
