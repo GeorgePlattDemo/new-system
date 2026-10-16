@@ -731,7 +731,7 @@ The browser's outer transport is **`stb-store-zero-http/1`**. It retains project
 }
 ```
 
-This is sent to same-origin `POST /api/store-zero/job`. Offering discovery uses `/api/store-zero/offering`, `OFFERING_LOOKUP`, `querySignature` and a search payload. The browser validates the configured endpoint path, protocol, origin and pin from `stb-store-runtime.json`. It uses no-store requests and bounded timeouts.
+This is sent to same-origin `POST /api/store-zero/job`. Offering discovery uses `/api/store-zero/offering`, `OFFERING_LOOKUP`, `querySignature` and a search payload. The browser validates the configured endpoint path, protocol, origin and pin from `stb-store-runtime.json`. It uses no-store requests and bounded timeouts. Each document retains one validated endpoint/pin configuration, including concurrent reads; it caches no Store answers, catalog results, prices or receipts. The server rejects an obsolete expected pin before evaluation. A pin mismatch invalidates the configuration and refuses that attempt; only a subsequent inquiry rereads it, without automatic resubmission. A failed configuration read is not retained.
 
 The server reads the original payload, translates it and sends Store's formal four-field job inquiry to `POST /v1/requests`. **`STORE-ZERO-REQUEST-2` identifies the response transport; it is not an extra field to insert into the formal request.** A caller's conflicting expected pin is rejected with `CALLER_PIN_DOES_NOT_GOVERN`; the server's inspected pin governs.
 

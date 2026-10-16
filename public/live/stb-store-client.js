@@ -15,11 +15,11 @@
   const OFFERING_LOOKUP = 'OFFERING_LOOKUP';
   const MAX_OFFERING_RESULTS = 20;
   let admissionModulePromise = null;
-  // Only the public endpoint/pin configuration is briefly shared between
-  // inquiries. Never cache Store catalog results, manufacturing Q or receipts.
-  const CONFIG_MAX_AGE_MS = 5000;
+  // Endpoint/pin configuration belongs to this document's System release. Keep
+  // one validated read; the server rejects an obsolete pin before evaluation.
+  // Never cache Store catalog results, manufacturing Q or receipts.
   let configRead = null;
-  let configReadAt = 0;
+  function forgetConfig(){ configRead = null; }
 
   function admissionModule(){
     if(!admissionModulePromise) admissionModulePromise = import(ADMISSION_URL);
@@ -34,8 +34,7 @@
   }
 
   async function loadConfig(){
-    const now = Date.now();
-    if(configRead && now - configReadAt < CONFIG_MAX_AGE_MS) return configRead;
+    if(configRead) return configRead;
     const pending = (async () => {
       const response = await fetch(CONFIG_URL, {cache:'no-store'});
       if(!response.ok) throw new Error('STORE_RUNTIME_CONFIGURATION_UNAVAILABLE');
@@ -49,10 +48,9 @@
       return {endpoint:endpoint.href, offeringEndpoint:offeringEndpoint.href, storePin:config.storePin};
     })();
     configRead = pending;
-    configReadAt = now;
     try { return await pending; }
     catch (error) {
-      if(configRead === pending){configRead = null; configReadAt = 0;}
+      if(configRead === pending) forgetConfig();
       throw error;
     }
   }
@@ -168,6 +166,7 @@
     });
     const answer = await response.json().catch(() => null);
     if(!response.ok || !answer || answer.adapterError === true){
+      if(answer?.code === 'CALLER_PIN_DOES_NOT_GOVERN') forgetConfig();
       const error = new Error(answer?.code || 'STORE_ZERO_UNAVAILABLE');
       error.storeBody = answer;
       throw error;
@@ -176,7 +175,7 @@
         'requestType','scope','demandSignature','payloadDigest'].some(key => answer[key] !== wire[key])){
       throw new Error('STORE_CORRELATION_ERROR');
     }
-    if(answer.storePin !== config.storePin) throw new Error('STORE_PIN_MISMATCH');
+    if(answer.storePin !== config.storePin){ forgetConfig(); throw new Error('STORE_PIN_MISMATCH'); }
     const evaluation = answer.rawEvaluation;
     const contractRefusal = allowNotEvaluatedRefusal === true && evaluation?.status === 'REFUSED' &&
       evaluation.freshEvaluation === false && evaluation.evaluationReceipt == null && answer.evaluationReceipt == null &&
@@ -225,6 +224,7 @@
     });
     const answer = await response.json().catch(() => null);
     if(!response.ok || !answer || answer.adapterError === true){
+      if(answer?.code === 'CALLER_PIN_DOES_NOT_GOVERN') forgetConfig();
       const error = new Error(answer?.code || 'STORE_ZERO_UNAVAILABLE');
       error.storeBody = answer;
       throw error;
@@ -233,7 +233,7 @@
         'requestType','scope','demandSignature','querySignature','payloadDigest'].some(key => answer[key] !== wire[key])){
       throw new Error('STORE_CORRELATION_ERROR');
     }
-    if(answer.storePin !== config.storePin) throw new Error('STORE_PIN_MISMATCH');
+    if(answer.storePin !== config.storePin){ forgetConfig(); throw new Error('STORE_PIN_MISMATCH'); }
     const rows = answer.rawOfferings;
     if(!Array.isArray(rows) || rows.length > MAX_OFFERING_RESULTS || !Number.isInteger(answer.totalMatches) ||
        answer.totalMatches < rows.length || answer.truncated !== (answer.totalMatches > rows.length) ||
