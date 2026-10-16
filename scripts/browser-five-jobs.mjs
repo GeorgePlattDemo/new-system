@@ -161,6 +161,8 @@ try {
       await Promise.all(responseReads);
       await page.goto(base + '/', { waitUntil: 'domcontentloaded', timeout: 30000 });
     }
+    await page.waitForFunction(() => Boolean(document.getElementById('stb-current')?.contentWindow?.document
+      ?.getElementById('stb-current')?.contentWindow?.document?.documentElement?.dataset.canonicalJourneyVersion), { timeout: 30000 });
     // Actual reader route: opening door -> New User -> Later -> project library.
     await content.locator('#landing button[data-go="new-user"]').click({ timeout: 15000 });
     await content.locator('#new-user button[data-canonical-go="projects"]').click({ timeout: 15000 });

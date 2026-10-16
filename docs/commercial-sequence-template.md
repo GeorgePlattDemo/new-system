@@ -10,6 +10,8 @@ The broader examples below are design requirements for future source integration
 
 ## 1. Ownership and the point of connection
 
+*Authority category: Current System Behavior*
+
 | Owner | Responsibility in this design | Output carried forward |
 | --- | --- | --- |
 | Program | Research, candidate engineering, full-service economic comparison, experiments, adoption rationale | Identified assumptions, findings, proposed tests, and development decisions |
@@ -27,11 +29,15 @@ The candidate's `selectedStock` is a proposed SKU/quantity plan. Its `operations
 
 ## 2. Adopted implementation
 
-System and Store use the same executable event gate: System's `public/live/stb-commercial-sequence.js` and Store's `src/contracts/commercial-sequence.js` are byte-identical. System attaches the verified answer and manifest as C01. Later progression requires explicit, identified source records and seller policy. Acceptance no longer manufactures payment, queue, cutting, inspection, or custody evidence. The UI retains its shared six-step navigation and leaves each unavailable stage pending.
+*Authority category: Current System Behavior*
+
+System and Store use the same executable event gate: System's `public/live/stb-commercial-sequence.js` and Store's `src/contracts/commercial-sequence.js` are byte-identical. System attaches the verified answer and manifest as C01. Later progression requires explicit, identified source records and seller policy. Customer acceptance, seller order, simulated finance, queue, execution, inspection and custody are separate source records. The UI retains its shared six-step navigation and leaves each unavailable stage pending.
 
 Only simulated evidence sources are installed. Actual source records are refused. Each event validates prerequisites, identities, actor/source, expected sequence and idempotency; verification replays the gate and recomputes the content hashes. The `/v1/commercial-events` Store endpoint validates the submitted stream and proposed event without making external commercial or machine changes.
 
 ## 3. Reusable commercial sequence
+
+*Authority category: Current System Behavior*
 
 Each row specifies an event to record after its stated act has occurred. Missing evidence leaves the next applicable act pending or blocked. Sending a command records a request, not its successful result. Simulated runs use the same requirements and retain `evidenceClass: "SIMULATED"` throughout.
 
@@ -52,6 +58,8 @@ A fresh seller validation at C04 is retained as a new record. It does not overwr
 
 ## 4. Linked material, execution, and custody sequence
 
+*Authority category: Current System Behavior*
+
 These are separate records attached to the commercial order. They make the commercial outcome auditable without turning the transaction module into a machine controller.
 
 | Event | Required prior facts | Evidence and next act |
@@ -71,66 +79,15 @@ F01 must precede C08; F02's position relative to C08 is governed by the local ma
 
 ## 5. Common record envelope
 
-The following is a fill-in schema example, not an executed event. The event module assigns IDs and sequence under concurrency control. The responsible adapter supplies source evidence; UI text cannot supply it.
+*Authority category: Current System Behavior*
 
-```json
-{
-  "schema": "STB-COMMERCIAL-EVENT-1",
-  "eventId": "<unique-event-id>",
-  "eventType": "OrderAccepted",
-  "streamId": "<transaction-stream-id>",
-  "sequence": 4,
-  "expectedPreviousSequence": 3,
-  "causedByEventIds": ["<accepted-customer-decision-event-id>"],
-  "idempotencyKey": "<source-system-and-source-record-id>",
-  "occurredAt": "<source-UTC-instant>",
-  "recordedAt": "<System-UTC-instant>",
-  "actor": { "partyId": "<seller-id>", "role": "SELLER" },
-  "evidenceClass": "SIMULATED",
-  "authority": {
-    "sourceSystem": "<responsible-source>",
-    "sourceRecordId": "<source-record-id>",
-    "verificationRecordId": "<adapter-verification-id>",
-    "policyId": "<seller-policy-id>",
-    "policyVersion": "<policy-version>"
-  },
-  "links": {
-    "projectId": "<project-id>",
-    "definitionId": "<definition-id>",
-    "revisionId": "<revision-id>",
-    "manifestHash": "<complete-manifest-hash>",
-    "requestId": "<Store-request-id>",
-    "receiptHash": "<unchanged-Store-receipt-hash>",
-    "storeRevision": "<adopted-Store-release>",
-    "modelId": "<adopted-model-id>",
-    "modelHash": "<adopted-model-hash>",
-    "inputHash": "<Store-calculation-input-hash>",
-    "resultHash": "<Store-calculation-result-hash>",
-    "offerId": "<seller-offer-id>",
-    "offerVersion": "<seller-offer-version>",
-    "decisionId": "<customer-decision-id>",
-    "orderId": "<seller-order-id>",
-    "packetId": "<accepted-packet-id>"
-  },
-  "payload": {
-    "acceptedScopeId": "<scope-id>",
-    "termsVersion": "<agreed-terms-version>",
-    "currency": "USD",
-    "agreedTotalMinor": null,
-    "sellerAcceptanceReference": "<seller-acceptance-record>"
-  },
-  "previousEventHash": "<previous-event-hash>",
-  "eventHash": "<hash-of-canonical-record-excluding-eventHash>"
-}
-```
+The installed serialization is governed by `public/live/stb-commercial-sequence.js`, byte-identical to Store's `src/contracts/commercial-sequence.js`. Use its actual field names, lower-case actor roles, allowed links and `previousHash`/`hash` chain. `create`, `recordEvent`, `deriveTransactionState` and `verify` derive state from explicit source evidence. The stream is carried in browser session memory; this module is not durable commercial storage.
 
-`null` amount and placeholder identities make this example incomplete; it must fail an actual `OrderAccepted` gate. Before an order or packet exists, omit those links and require them only in events that depend on them. Domain-specific events additionally link financial, reservation, capacity, material, release, execution, inspection, package and transfer IDs as applicable.
-
-System's event module validates these records, appends them durably, and derives separate commercial, financial, material, production, quality and custody states. Reopening the owner file preserves the original snapshots, events and schema versions. Corrections and changes append identified records; history is retained.
-
-The module exposes a bounded interface such as `recordEvent(validatedSourceRecord, expectedSequence)` and `deriveTransactionState(events, identifiedPolicy)`. Source adapters perform the actual authorized business or machine acts. The event module has no automatic financial, inventory or physical side effects. Retries return the existing event when the same idempotency key and payload recur; a changed payload under that key is refused. Cross-order stock commitment belongs in the Store's inventory authority with atomic concurrency control.
+The exact definition revision, request, receipt/calculation, manifest and Store authority remain bound. Offer, customer decision, order and later event identities are added by their responsible sources. Same idempotency key and identical content returns the existing event; changed content under that key is refused. Hash links establish content consistency, not actor authentication. Actual source records are refused because only SIMULATED adapters are installed.
 
 ## 6. Price, time, and exceptions
+
+*Authority category: Current System Behavior*
 
 **Customer amount.** Retain the unchanged manufacturing answer and Q. The seller's offer itemizes any additional services, freight, taxes, fees, discounts or allowances and supplies the agreed amount and currency. Every extra is either explicitly included in Q, separately priced, expressly waived, or unresolved. An unresolved amount cannot be converted to zero. System neither recomputes Store economics nor treats Q as the final transaction amount by assumption. Financial balances derive from confirmed records; capture and settlement are not both counted as separate customer payments.
 
@@ -144,29 +101,18 @@ The module exposes a bounded interface such as `recordEvent(validatedSourceRecor
 
 **Fault or nonconformance.** Preserve execution, loss and inspection evidence. Quarantine affected output and record the responsible disposition, rework/replacement scope and applicable commercial adjustment. Outstanding nonconformance blocks ordinary ready/handoff progression for that scope; any partial or qualified handoff needs explicit agreed disposition.
 
-## 7. Specific integration surfaces and remaining decisions
+## 7. Future Work — source integrations and durable custody
 
-| Surface | Proposed change |
-| --- | --- |
-| Program `governance/authority.md`, `research/bounded-cell-trial.md` | Existing ownership and full-service research requirements guide this design; reference adopted owner contracts and retain candidate/adoption findings without duplicating the engine |
-| System `docs/DEFINITIONS.md` and affected contracts | Adopt the missing event meanings, source roles, financial distinctions, domains, policy references and revision behavior once; reuse existing completion meanings |
-| System `public/live/stb-terms-flow.js` | Retain the shared all-job flow; delegate to one transaction module and render verified pending/completed/blocked events without automatic success propagation |
-| System `src/system/acceptance.ts`, `src/system/session.ts` | Freeze exact offer/decision/answer content, persist event identities and history, and explicitly evolve the accepted-packet/owner-record schema |
-| Store `src/requests/store-request.mjs` and contracts | Adopt the manufacturing candidate through the one request/receipt boundary; bind answer authority to model/configuration; expose seller commercial and stock actions separately through attributable interfaces |
-| Local registered implementation | Consume the accepted requirements, actual material and explicit release; retain configuration, admission, execution and result identities; reject incompatible plans |
+*Authority category: Future Work*
 
-The implementation must resolve the seller/location and permitted actors; offer validity and acceptance policy; fulfillment scope and timing; price inclusions and tax source; payment/credit schedule; reservation and capacity policy; cancellation/refund handling; inspection criteria and secondary-work responsibility; partial fulfillment and actual custody evidence. These are required policy fields, not invented defaults. The present demonstration keeps commerce simulated and physical admission blocked.
+Actual seller, financial, inventory, scheduling, notification, custody and local-machine adapters are future integrations. They must preserve the existing definition/manifest/receipt/calculation chain and avoid any second planner, Q or machine authority. Cross-order stock commitments require atomic concurrency; browser event custody is not that implementation.
 
-Adoption can proceed in bounded stages: first the canonical event/policy and manifest contracts; then Store's single manufacturing authority and System's lossless answer/offer/event integration; then exact packet/lowering verification and joint tests before a deliberate pin change. A simulation of the event chain can be exercised before any actual commercial or machine interfaces are available. Historical Project 1 evidence remains unchanged.
+Commission source authentication, durable records, policy-specific payment/reservation/capacity rules, correction and cancellation, shortage/nonconformance recovery, inspected fulfillment and target-controller readiness independently. An unresolved prior exception currently holds progression; a later resolved exception does not generally clear it. Proposed extensions require their own adopted contracts and verification.
 
-Required future checks include: refusal/unresolved scope cannot open an offer; edited or stale offer cannot be accepted as current; acceptance alone cannot satisfy financial/allocation gates; duplicates/concurrent submissions cannot duplicate orders, charges or stock commitments; revised jobs retain old history; shortage/nonconformance blocks dependent work; an actual financial event cannot promote simulated physical evidence; pickup requires the applicable quality, financial and transfer evidence; and owner-record export/import preserves identities and schema versions. These are proposed adoption tests, not tests claimed to have run for this template.
+## 8. Historical Evidence — design provenance
 
-## 8. Sources and verification of this delivery
+*Authority category: Historical Evidence*
 
-Inspected current repository heads:
+Current owners are System's definitions, public terms and demo-commerce helpers; Store's request, packet and machine contracts; and the byte-identical shared commercial gate. Program's current supervised trial supplies future engineering and economic evidence requirements.
 
-- [Program · 5093b08](https://github.com/GeorgePlattDemo/3d-solutions-program/tree/5093b08dfafddfd38b345b816727739dc3bf5285): README, AGENTS, authority, Demand as Architecture, Bounded Cell Trial, Machine Development, and Evidence.
-- [System · 0cb4bea](https://github.com/GeorgePlattDemo/new-system/tree/0cb4bea743b16a026f57e46d873d433761835069): shared definitions, terms flow, acceptance/session surfaces, and Store boundary references.
-- [Store · 3afe00a](https://github.com/GeorgePlattDemo/store-zero/tree/3afe00ac8672da0791ee8a7af05422d24f6785ab): operational specification and accepted-packet contract; Project 1 review Appendix C H01–H12 supplies the preserved handoff rationale.
-
-The manufacturing core is active in Store's `src/evaluation/engine/store-manufacturing-core.mjs`. System submits its complete definition manifest and consumes the Store's quote and operation ledger. The shared commercial module implements the sequence gates above for explicit simulated evidence. Physical production, financial activity, stock reservation and custody require commissioned source adapters and remain blocked in this migration.
+The original design was inspected against Program `5093b08`, System `0cb4bea` and Store `3afe00a`. Those identities document the proposal stage only; Git preserves the original envelope and adoption discussion. They do not certify present runtime behavior.

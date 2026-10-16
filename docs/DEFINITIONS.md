@@ -2,13 +2,15 @@
 
 This file is the only place here that says what a shared word means.
 
-If the code and this page disagree, that is a defect to fix on purpose. Neither one wins by being quieter.
+Current verified executable contracts govern installed behavior. Reconcile this dictionary when it conflicts with those contracts; documentation cannot override a verified implementation.
 
 Store Zero answers the job. This page does not price, and it does not redefine a Store word.
 
 Do not add a word just to make the page longer. Add one when two trades would otherwise use it differently, or when a record exposes it.
 
 ## Current application behavior
+
+*Authority category: Current System Behavior*
 
 **Automatic Bench pricing** — Each published Bench requests its current definition from the pinned Store when it opens and again when a price-relevant control changes. Its visible number is the Store's complete budgetary Q for that revision; no extra request or confirmation button is required to see it. Pending, refused, incomplete and unavailable answers retain their actual status. Confirmation and later commercial acts remain separate.
 
@@ -40,7 +42,7 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 **Your call** — Reviewing the current Store answer for this revision and receipt. A fully evaluated supportable answer permits simulated acceptance, once per revision and receipt. Alcove may also show a complete scoped budgetary estimate with every unevaluated requirement disclosed; that review cannot create an offer, acceptance, payment, yard entry, production or pickup. An older acceptance stays in the file and does not become the state of a later refusal.
 
-**Demo checkout** — Job 1 explicitly enables the shared `stb-demo-commerce.js` source. It presents a simulated offer using the current complete Store manufacturing Q, USD, the Demo yard pickup path and versioned `STB-DEMO-TERMS` / `STB-DEMO-PICKUP` policy. The offer is valid for 24 hours; tax, delivery and additional services are outside its manufacturing-only scope. Accept & Pay records customer decision, seller order acceptance, simulated capture and queue entry as separate events in the shared commercial contract. Run the Yard Demo and pickup continue that same event stream through closeout. Every generated source record is marked SIMULATED; actual payment and physical authority stay false. This is an explicitly enabled prototype policy, not a fallback for absent commercial terms in other flows. The UI uses one short demo notice; receipts and technical evidence remain expandable. The final pickup receipt is collapsed by default; the dev/rev guiderails stay visible. Job 1's former independent receipt generator is removed.
+**Demo checkout** — Each of the five published projects explicitly enables the shared `stb-demo-commerce.js` source. It presents a simulated offer using the current complete Store manufacturing Q, USD, the Demo yard pickup path and versioned `STB-DEMO-TERMS` / `STB-DEMO-PICKUP` policy. The offer is valid for 24 hours; tax, delivery and additional services are outside its manufacturing-only scope. Accept & Pay records customer decision, seller order acceptance, simulated capture and queue entry as separate events in the shared commercial contract. Run the Yard Demo and pickup continue that same event stream through closeout. Every generated source record is marked SIMULATED; actual payment and physical authority stay false. This is an explicitly enabled prototype policy, not a fallback for absent commercial terms. The UI uses one short demo notice; receipts and technical evidence remain expandable. The final pickup receipt remains visible; the dev/rev guiderails stay visible. Job 1's former independent receipt generator is removed.
 
 **Through-edge profile requirement** — A named feature on a finished part, stating its path length, position across the width and through depth. The cut-package inquiry carries these literal values in `parts[].edgeProfiles`. Store answers whether its parent-board preparation fulfills them; System does not substitute a different profile.
 
@@ -52,13 +54,17 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 ## End identity
 
-End geometry is part of the priced manufacturing definition. `endRelation` states how the ends relate; `lengthDatum` states where length is measured; `cutPlane` distinguishes face miter from other cutting planes. The currently registered Store user-board and angled cut-package geometry uses parallel ends, the long-long outer edge and miter-face plane. Source definitions may state another datum/plane; those facts remain explicit and the Store returns unresolved support without a complete Q until a verified mapping or capability is registered. The model cannot change these meanings to obtain a price.
+*Authority category: Current System Behavior*
+
+End geometry is part of the priced manufacturing definition. `endRelation` states how the ends relate; `lengthDatum` states where length is measured; `cutPlane` distinguishes face miter from other cutting planes. The registered user-board class uses parallel face-miter ends measured on the long-long outer edge. Angled cut packages independently declare end relation, plane, measured datum and `endPointOrientation`. Parallel face miters measured long-point-to-short-point with explicit long-to-short orientation derive a stock envelope from finished length plus actual selected-stock width × tan(angle). Unknown facts remain unresolved; unregistered operations are refused. Actual-width stock envelopes govern packing, inventory capacity and saw travel. The model cannot change these meanings to obtain a price.
 
 `endIdentity` is an additional endpoint statement. The public board translator records a supplied redundant value such as `both` under `REDUNDANT_WITH_PRICED_LENGTH_DATUM` and sends null when parallel/long-long already expresses it. A nonredundant value travels unchanged. The current Store board compiler requires `endIdentity == null`; incompatible geometry is refused as `END_GEOMETRY_NOT_DECLARED`. This is the current contract, rather than the retired `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` narrative.
 
-Square cuts and sheet edges retain their own defined geometry. Current Store machine evidence accepts board, cut-package and sheet-package classes; it does not return the retired board-only `LOWERING_NOT_REGISTERED_FOR` disposition. Coverage means modeled ledger binding and replay, not a universally implemented controller program. The retained typed System machine helper's narrower presentation is an unresolved executable discrepancy, recorded in the System master.
+Square cuts and sheet edges retain their own defined geometry. Current Store machine evidence accepts board, cut-package and sheet-package classes; it does not return the retired board-only `LOWERING_NOT_REGISTERED_FOR` disposition. Coverage means modeled ledger binding and replay, not a universally implemented controller program. The typed System machine helper recognizes the same three registered manufacturing classes and preserves those evidence limits.
 
 ## Shared terms
+
+*Authority category: Current System Behavior*
 
 General and capitalized domain terms describe their stated concepts. They do not assert that every named record type is implemented in the current application. Current serialization and behavior follow the specifically identified executable contracts and schemas.
 
@@ -536,6 +542,8 @@ General and capitalized domain terms describe their stated concepts. They do not
 
 ## Store terms
 
+*Authority category: Current System Behavior*
+
 These are Store-owned. A change in a yard word does not rewrite a job.
 
 **Product** — Commercially recognizable good or service. A need does not have to begin as a product.
@@ -613,6 +621,8 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 **Machine capability reference** — Store-visible declaration or reference to machine or cell capability conforming to governed `MachineEnvelope` semantics. A Store may declare a machine-specific envelope instance but does not redefine those semantics or infer new capability from observed success. Not machine readiness or authorization.
 
 ## Never equate
+
+*Authority category: Current System Behavior*
 
 **User declaration ≠ system interpretation**
 
@@ -740,8 +750,20 @@ These are Store-owned. A change in a yard word does not rewrite a job.
 
 ## Current integrated manufacturing proof
 
-**Project 1 current digital proof** — Living end-to-end acceptance evidence for the current System/Store, covering customer derivation, independent manifest, fresh evaluation, original accepted decision, exact packet export, registered lowering and virtual replay. Both 16-inch and 18-inch SPF settings are exercised. Reference files bind current executable source; browser-run artifacts identify actual repository revisions and Store health. Consequential code, contract or specification changes reconcile the proof and all affected operative documents. Original sealed source publications retain provenance and cannot substitute for current proof.
+*Authority category: Current System Behavior*
+
+**Current integration proof using Project 1 cases** — Regenerated end-to-end acceptance evidence for the current System/Store, covering customer derivation, independent manifest, fresh evaluation, original accepted decision, exact packet export, registered lowering and virtual replay. Both 16-inch and 18-inch SPF settings are exercised. Reference files bind current executable source; browser-run artifacts identify actual repository revisions and Store health. Consequential code, contract or specification changes reconcile the proof and all affected operative documents. Original sealed source publications retain provenance and cannot substitute for current proof.
 
 **Exact accepted Store answer** — The unmodified answer retained by the published adapter as `storeAnswer`, distinct from display projections. `acceptedPacket()` exports it with the existing linked simulated customer decision, demand and manifest; it creates no replacement quote, stock selection or decision. Store independently verifies the packet before lowering.
 
+## Future Work
+
+*Authority category: Future Work*
+
 **Capability-impact analysis** — Successor requirement to compare today's registered capability with a separately registered hypothetical configuration against complete identified demand, refusals and unresolved requirements. Added feasibility, time/Q and full capability/service cost remain attributable to each configuration. Machine-learning proposals grant no capability or release. Additional machines extend registration/mappings without rebuilding the definition compiler. This engine is not installed current behavior.
+
+## Historical Evidence
+
+*Authority category: Historical Evidence*
+
+**Original Project 1 publication** — The sealed treated-lumber specimen, original controller-oriented sequence and publication hashes record their original revisions. They establish provenance and historical results, not current architectural authority. Current SPF acceptance evidence is generated and identified separately.

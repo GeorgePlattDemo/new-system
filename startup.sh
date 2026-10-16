@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")"
-want=c9b75a23f7dc79258bb43f7100415a0c2db0c1e7
+want=3f813fe060f1eff46a1b3cfdad1ad41465d230e0
 root=${STORE_ZERO_ROOT:-/tmp/store-zero-main}
 head=""
 dirty="unreadable"

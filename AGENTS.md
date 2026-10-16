@@ -4,6 +4,8 @@ This repository runs the five published Scan-to-Build project experiences. The p
 
 ## Objective and method
 
+*Authority category: Current System Behavior*
+
 1. **Fix the underlying implementation in service of the user's objective.** State the intended outcome, find the owning executable path, reproduce the defect, repair its cause, and verify the outcome. A narrower test, a hardcoded result, a copied evaluator, a new facade or a document-only correction is not a substitute for fixing the requested behavior.
 2. **Leave no unnecessary replacement code behind.** Before adding a helper, adapter, test or document, check for an existing owner. In the same change, retire genuinely superseded code, stale fixtures, redundant tests and references after demonstrating they have no remaining consumer. Keep independent regression/evidence tests and historical source identities.
 3. **Keep the published user experience stable** unless a change expressly calls for it: all five project facts, controls, art, navigation, default and revised Store inquiries, refusals, and customer decision records. Do not silently make a required tool optional, fabricate a Store answer, or substitute another project page to pass a test.
@@ -11,6 +13,8 @@ This repository runs the five published Scan-to-Build project experiences. The p
 5. Every completed change reports what was improved, removed, measured and tested; identify any unproved or blocked consequence. Fix a pre-existing failure only when it is in the authorized scope.
 
 ## Owners and executable entry points
+
+*Authority category: Current System Behavior*
 
 | Responsibility | Owner / start reading here |
 | --- | --- |
@@ -30,20 +34,26 @@ The concise public introduction is `README.md`. Shared vocabulary is `docs/DEFIN
 
 ## Current integrated proof
 
-Project 1 is the living end-to-end proof of the current System/Store. A consequential change is complete only when affected code/contracts, specifications, both masters, shared definitions, Program descriptions and current proof agree. Operative prose describes current behavior; repair chronology belongs in Git. Preserve original sealed source evidence as provenance while regenerating current reference proof and passing actual published-browser acceptance, packet export, Store HTTP lowering and virtual replay for both SPF settings.
+*Authority category: Current System Behavior*
+
+Current executable contracts and verified outputs govern descriptions of installed behavior. The original Project 1 publication is historical evidence, not architectural authority. Regenerated reference evidence and revision-bound browser runs demonstrate current behavior for their identified inputs; they do not define that behavior. Consequential changes require affected specifications, masters, shared definitions, Program descriptions and current acceptance evidence to agree. Preserve sealed source bytes and distinguish modeled results, simulated commerce, commissioned execution and inspected output.
 
 ## Engineering and evidence boundaries
+
+*Authority category: Current System Behavior*
 
 - **Program investigates why; System defines the job and its owner-held record; Store answers what this yard can supply.** Never implement another catalog, machine timing calculation, stock decision or Q engine in System.
 - Store receives the actual customer requirements and an **independently derived manifest** for every job; preserve all part, feature, item and unresolved-requirement identities. A requirement not evaluated by Store cannot silently become fulfilled. A refusal and `UNRESOLVED` are legitimate outcomes.
 - Every displayed answer belongs to exactly its requested definition revision and actual Store release. Compare receipts, identities, amounts and hashes against the pinned reply; a former quote, fixture, screenshot, static specimen or client-supplied pin never becomes authority.
-- The current Store integration pin is `c9b75a23f7dc79258bb43f7100415a0c2db0c1e7`, recorded in `src/system/store-candidate.ts`, browser runtime config, CI checkout and `startup.sh`. Move all references together only after verifying an exact Store checkout and rerunning joint tests. Store `main` moving does not repin the live app.
+- The current Store integration pin is `3f813fe060f1eff46a1b3cfdad1ad41465d230e0`, recorded in `src/system/store-candidate.ts`, browser runtime config, CI checkout and `startup.sh`. Move all references together only after verifying an exact Store checkout and rerunning joint tests. Store `main` moving does not repin the live app.
 - Preserve actual manufacturing geometry. For a parallel, `long-long-outer-edge` board datum, a redundant end identity can be reconciled, but no independently required endpoint, spot, profile, split or tab may disappear. Unknown facts remain unknown.
 - Physical machine admission/release stays blocked; the described sale, payment, allocation, queue and handoff events retain their actual evidence status and separate custody. A budgetary Q does not authorize physical work.
 - Owner records cannot automatically upgrade malformed or unknown schemas. Original issued patents, sealed Project 1 proof, and historical revisions retain their identities; never rewrite evidence to make a test pass.
 - Preserve customer-facing dev/reviewer disclosures and safety boundaries while improving their clarity. **NO BLOOD ON WOOD.**
 
 ## Verification and safe consolidation
+
+*Authority category: Current System Behavior*
 
 - Before and after changing executable code, run `npm test` with `STORE_ZERO_ROOT` pointing to a checkout whose HEAD is the exact Store pin. Run the Railway production build and TypeScript acceptance defined in `.github/workflows/verify.yml`. Published five-project Chromium navigation, default/revised Q and refusal/correlation protections are mandatory, not replaced by screenshots.
 - For performance changes measure representative fresh Store evaluation time, search nodes, stock, operations, Q and refusal/search-completion identity. Optimize the *same* algorithm/contract; do not cache quotations or weaken search bounds to advertise speed. Browser endpoint-config reuse never caches a customer answer.

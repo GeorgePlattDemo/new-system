@@ -4,31 +4,55 @@ The current Store pin is declared jointly by `src/system/store-candidate.ts`, `p
 
 ## Current accepted manufacturing path
 
+*Authority category: Current System Behavior*
+
 The actual nested published application derives each definition and independent manifest, obtains a fresh real HTTP Store answer, and retains its receipt and calculation identity. The existing terms flow records the customer's simulated decision. Its `acceptedPacket()` exports that existing decision with the exact manifest, demand and unmodified Store answer, and cannot export a declined or invalidated revision. Store independently verifies and requotes before binding its selected parents and priced ledger into registered local evidence.
 
-Project 1 is the living end-to-end proof of this current chain. Required Chromium checks drive both the 16-inch SPF default and 18-inch variation through the actual controls, acceptance, packet export and Store machine-evidence endpoint. Both replay completely with 51 ledger records and 22 modeled moves; Q is $8.62/$9.13. The workflow publishes `project-1-current-proof` with actual System/Store revisions, source health identity, application responses, commercial decisions, packets and complete virtual evidence. Store's [current reference review and full evidence](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) regenerate from executable source and catalog; stale committed reference bytes fail acceptance.
+Current integration acceptance exercises the Project 1 SPF cases through this chain. The original Project 1 publication is historical evidence, not architectural authority. Required Chromium checks drive both the 16-inch SPF default and 18-inch variation through the actual controls, acceptance, packet export and Store machine-evidence endpoint. Both replay completely with 51 ledger records and 22 modeled moves; Q is $8.62/$9.13. The workflow publishes `project-1-current-proof` with actual System/Store revisions, source health identity, application responses, commercial decisions, packets and complete virtual evidence. Store's [current reference review and full evidence](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) regenerate from executable source and catalog; stale committed reference bytes fail acceptance.
 
 ## Five current project results
+
+*Authority category: Current System Behavior*
 
 | Project | Current result and verification |
 | --- | --- |
 | Start Your Own | 16-inch SPF Q $8.62 and 18-inch Q $9.13; distinct definitions, receipts, selected parents and accepted packets; full real Store lowering/replay |
 | Alcove | Default ECONOMY pine Q $372.19; material changes obtain fresh answers; explicit profiles and spots preserve complete coverage; unsupported material is refused |
 | Window Seat | Default pine Q $1313.61 and poplar Q $1542.18; default oak ON_HAND_SHORT is visible, a smaller stocked oak milling job is supported, and missing cherry stock is refused |
-| Outdoor | Source-faithful A-frame geometry is UNRESOLVED with no Q. Source long-short datum and support bevel remain explicit. The square-cut table-and-benches alternative receives normal pricing, whole-job refusal/recovery and simulated pickup checks |
+| Outdoor | A-frame geometry is SUPPORTABLE with a fresh complete Q. Parallel 25° face-miter ends, long-point-to-short-point dimensions and long-to-short endpoint orientation travel explicitly; Store derives the actual-width stock envelope. The square-cut table-and-benches alternative receives normal pricing, whole-job refusal/recovery and simulated pickup checks |
 | Playhouse | Default Q $76.56; custom split without required tab positions is unresolved with no complete Q; current accepted journey remains simulated |
 
 These are attributable modeled results for the specified current definitions/catalog. They are not System price constants, binding seller quotes, stock reservations or inspected components. Physical admission is BLOCKED with zero permitted physical commands. Commercial and yard demonstrations move no actual money and run no physical machine.
 
+## Production verification
+
+*Authority category: Current System Behavior*
+
+The Railway production pair was exercised on 16 October 2026: System executable baseline `543349e4f3be79a104c733fb5a1174d75b98dcaf`, Store `3f813fe060f1eff46a1b3cfdad1ad41465d230e0`. The Store reported shipped-source digest `286e7dfd31d216d6937d2b58ef88b12ffeee62650302b36d397c60b468e34a97` over 21 files; all 20 external deployment checks passed. System and Store completed their Railway builds successfully.
+
+The Chromium exercise used the actual public System URL and independent public Store. All five projects passed: both SPF acceptance/packet/lowering/replay cases; Alcove material changes and simulated pickup; Window Seat pine/poplar, oak shortage, smaller supported oak milling and missing-stock refusal; A-frame geometric envelopes and the square-cut alternative; Outdoor revision/refusal/recovery and serialized inquiries; Playhouse and simulated pickup. Fresh replies carried the repaired Store pin. No physical or payment authority was issued.
+
+The production browser runner waits for the nested host's declared journey readiness before clicking the entry controls. This prevents asynchronous wrapper initialization from invalidating a navigation test on the hosted service. The network adapter used the execution environment's required HTTPS proxy; no request, answer, assertion or manufacturing result was replaced.
+
+The generated Store reference A-frame result is separately identified as `MASTER-OUTDOOR`: Q $293.28, 1070.593525669955 modeled seconds, searchComplete false. The production test independently verifies a positive complete current A-frame answer and both 34.507-inch cross-support envelopes. Its result does not claim globally optimal manufacturing cost.
+
+Production source selection is commit-pinned. A later repository documentation commit does not automatically redeploy either service or repin System's Store. Record and verify the actual Railway release and Store digest for every operational update.
+
 ## Required maintenance checks
+
+*Authority category: Current System Behavior*
 
 Run `npm test` with the exact clean pinned Store, production build, TypeScript checks and `scripts/browser-five-jobs.mjs` against the two separate services. Every consequential implementation/specification change reconciles shared definitions, both masters, affected Program documents and current Project 1 proof. Operative prose describes current behavior; Git preserves repair chronology. Earlier observations below retain their original dates and source identities and cannot serve as current acceptance.
 
-## History
+## Historical Evidence
+
+*Authority category: Historical Evidence*
 
 The checks below describe their original System and Store revisions. They are retained as evidence, not current release claims.
 
 ### Initial checks on 2026-10-10
+
+*Authority category: Historical Evidence*
 
 Automated, `npm test` against a checkout whose `git rev-parse HEAD` is `81d958482bd25e784f122c97ffb11174013395af` (322 tests, all passing), including:
 
@@ -49,7 +73,9 @@ In a browser, on a local build of this commit asking a local Store process start
 
 The deployed application was not reachable from the session that made these checks. Browser acceptance of the deployed application is not verified here.
 
-## Corrections verified on 2026-10-10
+### Diagnostic History — corrections verified on 2026-10-10
+
+*Authority category: Diagnostic History*
 
 The Alcove gate now reads `COMPLETE_FOR_TRAVEL_STANDARD` and requires `REQUIREMENTS_SATISFIED` for simulated acceptance. A complete scoped estimate with unevaluated requirements may reach Your call for budgetary review only. Those requirements are displayed on Store answers and Your call; offer creation, acceptance, payment, yard and pickup remain blocked for that review. A stale, refused or incomplete answer cannot open it.
 
@@ -59,7 +85,9 @@ The live no-mill Alcove case also exposed an inactive spot declaration incorrect
 
 All 326 System tests pass against a checkout of the unchanged Store pin, including the five published request paths, the fully evaluated Alcove simulated handoff, the actual full-width-strip definition, terminal Alcove budgetary review, Outdoor spot generation and refusal, and the unresolved Playhouse custom split. The Railway Node production build and TypeScript check pass.
 
-## Live application checks on 2026-10-10
+### Historical Evidence — live application checks on 2026-10-10
+
+*Authority category: Historical Evidence*
 
 Through the deployed application's published controls and its actual Store connection:
 
@@ -76,6 +104,8 @@ The deployed `/api/store-zero/job` route was also exercised for custom Playhouse
 Railway deployed System repair `a722fc4cf0490b364d1fae1be520dd3a318a5a1e` for these initial live checks. Store remained `81d958482bd25e784f122c97ffb11174013395af`; its live shipped-source digest matched the pinned checkout. Commercial and yard events above are simulations; no money moved and no machine ran.
 
 ### Earlier 2026-10-08 and 2026-10-09 observations
+
+*Authority category: Historical Evidence*
 
 These were observed against earlier Store commits. They are kept as history and are not current findings.
 

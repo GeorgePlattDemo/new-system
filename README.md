@@ -10,6 +10,8 @@ Define it once. Nobody downstream should have to redraw it.
 
 ## Make what you meant
 
+*Authority category: Current System Behavior*
+
 A replacement brace. Shelves that fit an opening. A window seat that uses the space. The pieces for a picnic table. A panel with an arched opening.
 
 The useful result is something you can build with. Scan-to-Build connects the person defining that result to the local Store that can supply the material and work.
@@ -21,6 +23,8 @@ These are not drawings handed to another programmer. Intent establishes the requ
 The seam matters. Your idea should not lose its meaning when it leaves the screen and reaches the yard. The definition can travel to suitable local material before that material has to travel to distant processing.
 
 ## Start with the Bench
+
+*Authority category: Current System Behavior*
 
 The five-project application runs on Railway and sends each defined job to the independently deployed, pinned Store Zero.
 
@@ -42,6 +46,8 @@ Each keeps its own project facts while using the same journey.
 
 ## One trail from Intent to build
 
+*Authority category: Current System Behavior*
+
 **Intent → The bench → The Store answers → Your call → We cut it → Pick up & build**
 
 **Idea** is the unnumbered intake before those steps: the source material and context you bring. **Intent** establishes this job’s requirements and meaningful controls. **The Bench** changes tool values and shows the resulting definition. **The Store answers** from its material, capability, modeled work, and economics. **Your call** records your decision; the later steps carry the job through the demonstrated yard and handoff sequence.
@@ -54,6 +60,8 @@ The [trail contract](public/live/stb-trail-contract.js) declares the shared jour
 
 ## How the definition reaches the work
 
+*Authority category: Current System Behavior*
+
 **System defines what the job means. Store determines what that yard can provide. Local machine engineering registers the equipment once, in advance; a compiler then turns each accepted definition into instructions for it.**
 
 The confirmed definition supplies the required result. Store adds identified material, supported operations, modeled work, and price. In the intended production chain, a registered local compiler translates the requirements and machine facts into ordered instructions and coordinates. The operator verifies the stock, loading, references, tooling, and readiness; inspection checks the parts against the same definition.
@@ -62,9 +70,11 @@ That is the connection this work investigates: the customer defines the result, 
 
 You define what the job requires. The registered machine and its compiler decide the safe movements that do it. You are never commanding axes directly.
 
-Project 1 is the living end-to-end proof of the current System and Store. Required Chromium checks derive and accept both SPF settings, export each exact accepted packet, and verify real Store lowering and virtual replay. The workflow publishes its complete revision-bound proof; the [current engineering review](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) supplies the regenerating reference evidence.
+Current integration acceptance uses the Project 1 SPF cases. The original Project 1 publication remains historical evidence, not architectural authority. Required Chromium checks derive and accept both SPF settings, export each exact accepted packet, and verify real Store lowering and virtual replay. The workflow publishes its complete revision-bound proof; the [current engineering review](https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/README.md) supplies the regenerating reference evidence.
 
 ## Three connected homes
+
+*Authority category: Current System Behavior*
 
 | Repository | Contribution |
 | --- | --- |
@@ -78,6 +88,8 @@ Read the [complete System reference](SYSTEM-MASTER.md) for the working applicati
 
 ## Where the executable work lives
 
+*Authority category: Current System Behavior*
+
 The public door is [the published shell](public/live/system-build-current.html). The [verification note](SYSTEM-MASTER.md#14-testing-and-verification) records what has been shown for the five jobs, and what has not.
 
 | Question | Where the answer is |
@@ -85,7 +97,7 @@ The public door is [the published shell](public/live/system-build-current.html).
 | What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
 | Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
 | What has been shown for the five jobs? | [Verification note](SYSTEM-MASTER.md#14-testing-and-verification) |
-| What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/e3d203d1ff297ea096e2a6b2ea97b85a78b13cc2/src/evaluation/engine/store-manufacturing-core.mjs) |
+| What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs) |
 | What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](SYSTEM-MASTER.md#10-customer-decision-and-commercial-progression) |
 
 Store owns the active manufacturing core. System submits the complete definition manifest and consumes its answers. The commercial specification and executable event gate are shared with Store; each simulated stage requires explicit source evidence. Physical and financial authority remain blocked.
