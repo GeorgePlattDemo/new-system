@@ -248,11 +248,23 @@ try {
       const refused=await (await depthRefusal).json();
       assert.equal(refused.storeAnswer.status,'REFUSED');assert.equal(refused.storeAnswer.Q,null);
       assert.equal(refused.jobSupportability.quoteComplete,false);
-      await bench.locator('#stb-confirm-store').evaluate(async button=>{
-        for(let i=0;i<100&&!button.disabled;i++)await new Promise(r=>setTimeout(r,20));
-      });
-      assert.equal(await bench.locator('#stb-confirm-store').isDisabled(),true);
-      project1Refusals.push(refused);
+      const retryRefusal=page.waitForResponse(async r=>{
+        if(new URL(r.url()).pathname!=='/api/store-zero/job')return false;
+        try{const body=await r.json();return body.requestId!==refused.requestId&&body.storeAnswer?.reasonCodes?.includes('SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX');}catch{return false;}
+      },{timeout:45000});
+      // Confirm & Send performs another inquiry. Only complete support can
+      // leave the Bench; it cannot accept or release a refused definition.
+      await bench.locator('#stb-confirm-store').click();
+      const retried=await (await retryRefusal).json();
+      assert.notEqual(retried.requestId,refused.requestId);
+      assert.equal(retried.storeAnswer.status,'REFUSED');assert.equal(retried.storeAnswer.Q,null);
+      assert.equal(retried.jobSupportability.quoteComplete,false);
+      assert.equal(await bench.locator('#stb-start-bench-screen').isVisible(),true);
+      assert.equal(await content.locator('#proof-store').isVisible(),false);
+      const noPacket=await content.locator('body').evaluate(async()=>window.STBTermsFlow.instance('start-own').acceptedPacket());
+      assert.equal(noPacket.status,'REFUSED','Refusal must invalidate the previous accepted revision');
+      assert.equal(await content.getByRole('button',{name:'4 · Your call',exact:true}).isDisabled(),true);
+      project1Refusals.push(refused,retried);
       console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13,
         selectedSpotXIn:[5.25,10.25],fullDiameterDepthIn:0.125,liveStore:true }));
     }

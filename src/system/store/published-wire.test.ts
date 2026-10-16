@@ -19,6 +19,8 @@ function assertCheckout() {
   if (!root) throw new Error("STORE_ZERO_ROOT is required. This test does not mock the Store.");
   const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
   if (head !== release) throw new Error(`Store checkout ${head} is not the pinned commit ${release}.`);
+  const dirty=execFileSync("git",["status","--porcelain"],{cwd:root,encoding:"utf8"}).trim();
+  if(dirty)throw new Error("Pinned Store checkout has modified or untracked files; refusing to label it as the inspected release.");
 }
 
 async function storeOrigin() {
