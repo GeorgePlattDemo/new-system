@@ -447,9 +447,11 @@ The page permits one manufacturing inquiry at a time. The committed current job 
 
 Store's class is **`CUT_PACKAGE_V1`**. The independent manifest records the selected definition's exact board/spot/item identities and quantities. The source-faithful A-frame request is UNRESOLVED with no complete Q because its angled-end datum and support bevel are not registered by Store. The square-cut table-and-benches plan receives normal current evaluation and the simulated customer journey. Preview answers never substitute for the selected definition's receipt.
 
-### 6.4 The unresolved end-meaning correspondence
+### 6.4 End planes, measured datum and stock envelope
 
-The A-frame source states long-point-to-short-point lengths and specifies a bevel for the center cross supports. Public `packagesFor` and the generic recipe compiler retain those dimensions and the cross-support `bevel-edge` plane. Neither relabels them as Store's registered long-long face miter. Store returns `MITER_END_GEOMETRY_NOT_EVALUATED`; Q remains absent. A future supported representation needs an explicit verified datum/plane mapping or separately registered capability, with its own regression evidence.
+The older published plan calls the cross-support cut a “bevel”; this is source wording, not an operative manufacturing classification. Its drawn ends are 25° parallel face-miter planes. The System declares long-point-to-short-point measurement and long-to-short endpoint orientation explicitly. The older PDF's contradictory parallelism statement is preserved as revision-specific source evidence.
+
+Store uses actual width from its selected board to derive the outer stock envelope: 32.875 + 3.5 × tan(25°) ≈ 34.507 in for the 2×4 support. System's measured part remains 32.875 in. The envelope governs feasibility, packing, inventory capacity and modeled saw travel. A complete price is returned only by a current registered Store evaluation, never from a substituted label or System constant.
 
 The chosen wood is labeled an application/customer material choice. The source recommends untreated tabletop/seat boards and permits treated legs/supports. An all-treated selection remains an explicit variant and is not attributed as the source recommendation. Source versus inferred hardware quantities and gauge remain visible.
 
