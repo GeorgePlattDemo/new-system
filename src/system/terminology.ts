@@ -52,6 +52,10 @@ export function featureMeaning(input:{
   const originalSourceTerm = input.sourceTerm?.trim()||null;
   if (!input.physicalResult) return {status:"UNRESOLVED" as const,
     code:"PHYSICAL_FEATURE_NOT_ESTABLISHED",originalSourceTerm};
+  const declaredResults = ["POINTED_DRILLED_SPOT","FLAT_BOTTOM_SPOTFACE","BLIND_HOLE",
+    "THROUGH_HOLE","COUNTERSINK","COUNTERBORE"];
+  if (!declaredResults.includes(input.physicalResult)) return {status:"UNRESOLVED" as const,
+    code:"PHYSICAL_FEATURE_NOT_DECLARED",originalSourceTerm};
   if (!Number.isFinite(input.diameterIn)||!Number.isFinite(input.xIn))
     return {status:"UNRESOLVED" as const,code:"FEATURE_GEOMETRY_INCOMPLETE",originalSourceTerm};
   // A pointed drilled spot is not a flat-bottom machining function. Neither
