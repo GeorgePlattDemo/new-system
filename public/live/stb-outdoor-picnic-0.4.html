@@ -639,11 +639,11 @@ const PLANS={
     wood:'treated',
     lenHint:'The slats follow the length; the end frames and every angle stay as the plan built them.',
     kitText:L=>'12 boards at '+fmt(L)+' in, legs and cross supports cut at 25°, as the plan gives them.',
-    angleNote:'Legs and cross supports use the source long-point-to-short-point dimension. Step 4 specifies a bevel for the cross supports. Store has no registered conversion of these source datums or bevel capability; this plan has no complete manufacturing price.',
+    angleNote:'Legs and cross supports use the measured long-point-to-short-point dimensions. The plan calls the cross-support cut a “bevel”; the drawing specifies 25° parallel angled face cuts. Store derives the actual-width stock envelope and evaluates the registered miter operation.',
     groups:L=>[
       {id:'SLATS',label:'Tabletop and seat boards',board:[2,6],angle:0,scales:true,parts:[['TOP',6,L],['SEAT',6,L]]},
-      {id:'LEGS',label:'Legs',board:[2,6],angle:25,lengthDatum:'long-point-to-short-point',plane:'miter-face',parts:[['LEG',4,31.375]]},
-      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,lengthDatum:'long-point-to-short-point',plane:'bevel-edge',parts:[['BRACE',2,32.875]]},
+      {id:'LEGS',label:'Legs',board:[2,6],angle:25,endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face',parts:[['LEG',4,31.375]]},
+      {id:'BRACES',label:'Cross supports',board:[2,4],angle:25,endRelation:'parallel',lengthDatum:'long-point-to-short-point',endPointOrientation:'long-to-short',plane:'miter-face',parts:[['BRACE',2,32.875]]},
       {id:'SUPPORTS',label:'Under-seat supports',board:[2,4],angle:0,parts:[['SUPPORT',2,61]]},
       {id:'CLEATS',label:'Tabletop supports',board:[2,2],angle:0,parts:[['CLEAT-END',2,34.25],['CLEAT-MID',1,29.25]]}
     ],
@@ -750,7 +750,9 @@ function packagesFor(cfg,woodKeys){
     for(const {kind,n,len,g} of kindsOf(cfg)){
       const p=cfg.parts[kind],da=decoAngle(p,g),angle=da==null?g.angle:da;
       const id=wood.key+'|'+g.id+(da==null?'':'|A'+angle);
-      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:"parallel",lengthDatum:g.lengthDatum||"long-long-outer-edge",plane:g.plane||"miter-face"},parts:[]};out.push(byId[id])}
+      if(!byId[id]){byId[id]={packageId:id,material:{species:wood.species,form:'board',nominalT:g.board[0],nominalW:g.board[1],grade:wood.grade},endCut:{angleDeg:angle,endRelation:g.endRelation||(da!=null?'parallel':angle===0?'parallel':undefined),
+        lengthDatum:g.lengthDatum||"long-long-outer-edge",plane:g.plane||"miter-face",
+        ...(g.endPointOrientation?{endPointOrientation:g.endPointOrientation}:{})},parts:[]};out.push(byId[id])}
       const spots=spotsFor(p,len);
       for(let i=1;i<=n;i++){const part={partId:kind+'-'+String(i).padStart(2,'0'),lengthIn:len};if(spots)part.spots=spots.map((spot,index)=>({...spot,featureId:part.partId+'-SPOT-'+String(index+1).padStart(2,'0')}));byId[id].parts.push(part)}
     }
