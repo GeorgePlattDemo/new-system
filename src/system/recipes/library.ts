@@ -45,11 +45,11 @@ const plans = [
   {
     id: "a-frame",
     title: "Classic A-frame",
-    source: "Published picnic-table plan: 6 ft, seats 8, 2×6 + 2×4 + 2×2. Legs and cross supports are 25° off square, ends parallel, long point to short point.",
+    source: "Ana White current webpage, Easiest to Build Picnic Table: 6 ft, seats 8, 2×6 + 2×4 + 2×2. Legs and cross supports have 25° parallel broad-face end planes, measured long point to short point.",
     groups: [
       { id: "SLATS", nominalT: 2, nominalW: 6, angleDeg: 0, scales: true, parts: [{ id: "TOP", count: 6, lengthIn: 0 }, { id: "SEAT", count: 6, lengthIn: 0 }] },
       { id: "LEGS", nominalT: 2, nominalW: 6, angleDeg: 25, lengthDatum: "long-point-to-short-point", plane: "miter-face", parts: [{ id: "LEG", count: 4, lengthIn: 31.375 }] },
-      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, lengthDatum: "long-point-to-short-point", plane: "bevel-edge", parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
+      { id: "BRACES", nominalT: 2, nominalW: 4, angleDeg: 25, lengthDatum: "long-point-to-short-point", plane: "miter-face", parts: [{ id: "BRACE", count: 2, lengthIn: 32.875 }] },
       { id: "SUPPORTS", nominalT: 2, nominalW: 4, angleDeg: 0, parts: [{ id: "SUPPORT", count: 2, lengthIn: 61 }] },
       { id: "CLEATS", nominalT: 2, nominalW: 2, angleDeg: 0, parts: [{ id: "CLEAT-END", count: 2, lengthIn: 34.25 }, { id: "CLEAT-MID", count: 1, lengthIn: 29.25 }] },
     ],
