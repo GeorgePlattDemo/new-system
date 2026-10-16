@@ -8,7 +8,7 @@
 export const STORE_CANDIDATE = Object.freeze({
   name: "Store Zero",
   protocol: "STORE-ZERO-REQUEST-2",
-  inspectedCommit: "1e6f93f048174b9714263c05c03849208814bf28",
+  inspectedCommit: "99594b3335180847db63895e7e2ae4ed1a5b2bb7",
   requestsPath: "/v1/requests",
   healthPath: "/health",
   machineEvidencePath: "/v1/machine-evidence",
