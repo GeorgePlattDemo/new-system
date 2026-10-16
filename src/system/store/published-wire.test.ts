@@ -344,7 +344,7 @@ test('current Project 1 accepts both published settings and sends unchanged pack
  }
 });
 
-test('Outdoor preserves source end dimensions and bevel instead of obtaining Q for substituted face miters',async()=>{
+test('Outdoor resolves sourced parallel end geometry with visible stock envelope and rejects unregistered angle',async()=>{
  const page=readFileSync(new URL('../../../public/live/stb-outdoor-picnic-0.4.html',import.meta.url),'utf8');
  const match=page.match(/const PLANS=([^]*?)\n};/);assert.ok(match);
  const plans=runInNewContext('('+match[1]+'\n})',{fmt:String});
@@ -354,12 +354,36 @@ test('Outdoor preserves source end dimensions and bevel instead of obtaining Q f
  });
  const packages=packagesFor({plan:'a-frame',parts:{}},['treated']);
  const legs=packages.find((p:any)=>p.packageId.endsWith('|LEGS')),braces=packages.find((p:any)=>p.packageId.endsWith('|BRACES'));
- assert.equal(legs.endCut.lengthDatum,'long-point-to-short-point');assert.equal(legs.parts[0].lengthIn,31.375);
- assert.equal(braces.endCut.plane,'bevel-edge');assert.equal(braces.parts[0].lengthIn,32.875);
- const response=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends',{definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends',cutPackages:packages}}),await storeOrigin());
- assert.equal((response.body as any).storeAnswer.status,'UNRESOLVED');
- assert.equal((response.body as any).storeAnswer.Q,null);
- assert.ok((response.body as any).storeAnswer.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
+ assert.equal(legs.endCut.lengthDatum,'long-point-to-short-point');
+ assert.equal(legs.endCut.endRelation,'parallel');
+ assert.equal(legs.endCut.endPointOrientation,'long-to-short');
+ assert.equal(legs.parts[0].lengthIn,31.375);
+ assert.equal(braces.endCut.plane,'miter-face');
+ assert.equal(braces.endCut.endRelation,'parallel');
+ assert.equal(braces.endCut.endPointOrientation,'long-to-short');
+ assert.equal(braces.parts[0].lengthIn,32.875);
+ const origin=await storeOrigin();
+ const response=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends',{definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends',cutPackages:packages}}),origin);
+ const answer=(response.body as any).storeAnswer;
+ assert.equal(answer.status,'SUPPORTABLE',JSON.stringify(answer.reasonRecords));
+ assert.equal(answer.complete,true);
+ assert.ok(answer.Q>0);
+ const derived=answer.operations.filter((event:any)=>event.kind==='STOCK_ENVELOPE_DERIVED' && event.subject.startsWith('BRACE-'));
+ assert.equal(derived.length,2);
+ const expectedEnvelope=32.875+3.5*Math.tan(25*Math.PI/180);
+ for(const event of derived){
+   assert.ok(Math.abs(event.stockEnvelopeLengthIn-expectedEnvelope)<1e-9);
+   assert.ok(Math.abs(event.endOffsetIn-(expectedEnvelope-32.875))<1e-9);
+ }
+ assert.equal(answer.components.filter((p:any)=>p.partId.startsWith('BRACE-')).length,2);
+ const invalid=structuredClone(packages);
+ invalid.find((p:any)=>p.packageId.endsWith('|BRACES')).endCut.angleDeg=50;
+ const negative=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','unregistered-angle',{definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'unregistered-angle',cutPackages:invalid}}),origin);
+ const refused=(negative.body as any).storeAnswer;
+ assert.equal(refused.status,'REFUSED');
+ assert.ok(refused.reasonCodes.includes('END_ANGLE_OUTSIDE_MODEL'));
+ assert.equal(refused.reasonMessage,'Requested end angle 50° exceeds the registered saw limit of 45°.');
+ assert.equal(refused.reasonRecords[0].message,refused.reasonMessage);
 });
 
 test("Job 1 demo checkout uses the current Store Q and one verified transaction through pickup", async () => {
