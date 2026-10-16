@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
 import { chromium } from 'playwright';
 import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
+import {exerciseComponentTool} from './browser-component-tool.mjs';
 
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
 {
@@ -39,8 +40,9 @@ import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
-const expectedPin = 'b3c9053897533001e6553496ae9b52e83876ff00';
-const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: ['--no-sandbox', '--disable-dev-shm-usage'] });
+const expectedPin = '95187a9f7788d600181e56282343fa57cf843a46';
+const launchArgs=['--no-sandbox','--disable-dev-shm-usage',...JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS||'[]')];
+const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: launchArgs });
 let failed = false;
 try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
@@ -582,8 +584,8 @@ try {
   assert.equal(outdoorMaxInFlight,1,'Outdoor must not flood Store with concurrent inquiries');
   assert.ok(responses.every(r => r.status < 500), JSON.stringify(responses));
   // Keep the original five-project navigation allowance. The extended species
-  // and geometry/Outdoor inquiries may legitimately cross the client's five-second
-  // configuration expiry; count those extra reads separately.
+  // and geometry/Outdoor probes have separately counted configuration reads.
+  // Keep the original allowance for the five-project navigation itself.
   assert.ok(configRequests.length-extendedSeatConfigReads-extendedOutdoorConfigReads <= 12,
     'Repeated runtime config fetches remain excessive: ' + configRequests.length);
   for(const {plan,body} of outdoorProfileTargets){
@@ -593,11 +595,13 @@ try {
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
   assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18,18]);
+  const additionalJob=await exerciseComponentTool(page,{base,storeOrigin:process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091',storePin:expectedPin});
+  assert.deepEqual(pageErrors,[], 'The additional public tool must not introduce browser errors');
   const systemRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
   const dirty=execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim().length>0;
   if(process.env.CI)assert.equal(dirty,false,'Published proof must identify a clean System checkout');
   mkdirSync('artifacts',{recursive:true});
-  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals},null,2)+'\n');
+  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,conditions:{node:process.version,chromium:browser.version(),base,launchArgs},physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals,additionalJob},null,2)+'\n');
   await page.close();
 } catch (error) {
   failed = true;

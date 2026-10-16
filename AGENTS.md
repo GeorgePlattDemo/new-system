@@ -1,6 +1,6 @@
 # System — engineering rules for agents and maintainers
 
-This repository runs the five published Scan-to-Build project experiences. The public entry is `/` → `public/live/system-build-current.html`; the child pages, assets and browser integrations are under `public/live/`. The former generic React `/bench` and `/projects/$projectId` pages have been retired. Keep customer-facing changes in the five published projects; typed recipe and record modules retained for contract tests are not a second UI.
+This repository runs the five published Scan-to-Build project experiences. The public entry is `/` → `public/live/system-build-current.html`; the child pages, assets and browser integrations are under `public/live/`. The former generic React `/bench` and `/projects/$projectId` pages have been retired. Keep customer-facing changes in the five published projects; typed recipes retain reference cases, and explicitly registered supported recipes also feed the bounded component tool through the existing compiler. Do not restore the retired generic React UI.
 
 ## Objective and method
 
@@ -22,9 +22,10 @@ This repository runs the five published Scan-to-Build project experiences. The p
 | Public project/tool admission and revision rules | `public/live/shared/tile-host-admission-contract.mjs`, `public/live/stb-public-admission.mjs`, `public/live/shared/definition-contract.mjs` |
 | Shared browser Store communication | `public/live/stb-store-client.js`; it transports the defined job and checks correlation/pin/freshness |
 | Published request conversion | `src/routes/api/store-zero/job.ts`, `offering.ts` → `src/system/store/published-wire.ts` |
+| Registered component tool | `public/live/component-tool.html`, `component-tool.mjs` → `src/routes/api/component-definition.ts`, `src/system/component-tool.ts`; registered recipe data reuse `compile.ts`, shared admission/client and the published Store adapter |
 | Response receipt and identity interpretation | `src/system/store/interpret.ts`; Store alone calculates Q and owns its calculation identity |
 | Independent component/feature coverage | `src/system/manifest.ts`; incomplete requirements remain visible and unfulfilled |
-| Typed recipe and owner-record contract fixtures (not a published UI) | `src/system/compile.ts`, `src/system/recipes/library.ts`, `src/system/session.ts` and their direct tests |
+| Typed recipe/compiler ownership and owner-record reference fixtures | `src/system/compile.ts`, `src/system/recipes/library.ts`, `src/system/session.ts` and their direct tests |
 | Store host and inspected revision | `src/system/store-candidate.ts`, `public/live/stb-store-runtime.json`, `startup.sh`, `.github/workflows/verify.yml` |
 | Public five-project Chromium proof | `scripts/browser-five-jobs.mjs`, required by `.github/workflows/verify.yml` |
 | System verification | `src/system/**/*.test.ts` and `npm test` |
