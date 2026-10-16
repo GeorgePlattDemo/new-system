@@ -98,13 +98,19 @@ export function boardDemandFromPublishedLine(line: Json): {
       const declared = statedText(spot.featureId);
       const featureId = declared ?? `declared:${partId || "part"}:feature:${index}`;
       if (!declared) assignedFeatureIdentities.push({ featureId, partId, index, kind: String(spot.kind ?? "") });
+      // Preserve every stated physical spot constraint. Unknown fields travel
+      // intact to the Store contract for explicit refusal, never disappear.
       return {
+        ...unconsumed(spot, ["featureId", "kind", "xIn", "locationRule", "acrossWidthRule",
+          "insetFromEdgeIn", "toolDiameterIn", "fullDiameterDepthIn"]),
         featureId,
         kind: String(spot.kind ?? ""),
         xIn: finite(spot.xIn),
         ...(spot.locationRule != null ? {locationRule:String(spot.locationRule)} : {}),
         ...(spot.acrossWidthRule != null ? {acrossWidthRule:String(spot.acrossWidthRule)} : {}),
         ...(finite(spot.insetFromEdgeIn) != null ? {insetFromEdgeIn:finite(spot.insetFromEdgeIn)} : {}),
+        ...(spot.toolDiameterIn !== undefined ? {toolDiameterIn:spot.toolDiameterIn} : {}),
+        ...(spot.fullDiameterDepthIn !== undefined ? {fullDiameterDepthIn:spot.fullDiameterDepthIn} : {}),
       };
     }) : [];
     return { partId, lengthIn: finite(row.lengthIn), features };
