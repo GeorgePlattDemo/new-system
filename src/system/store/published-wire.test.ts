@@ -143,6 +143,42 @@ test("Start Your Own preserves stated drill diameter and full-diameter depth int
   assert.equal(explicitDepth,0.1875);
 });
 
+test("selected part-relative spot X and shallower depth go through current pinned Store and real Z motion", async () => {
+  const origin=await storeOrigin();
+  const line=structuredClone(braceLine());
+  line.parts[0].features[0].locationRule="PART_RELATIVE_FROM_START";
+  line.parts[0].features[0].xIn=5.25;
+  (line.parts[0].features[0] as Record<string, unknown>).fullDiameterDepthIn=0.125;
+  line.parts[1].features[0].locationRule="PART_RELATIVE_FROM_START";
+  line.parts[1].features[0].xIn=10.25;
+  const result=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","selected-spot-parts",{
+    line,definitionKind:"user_defined_board.v1",ruleVersion:"0.1"
+  }),origin);
+  assert.equal(result.httpStatus,200);
+  const answer=result.body.storeAnswer as Record<string,any>;
+  assert.equal(answer.status,"SUPPORTABLE",JSON.stringify(answer.reasonRecords));
+  assert.equal(answer.Q>0,true);
+  const features=(result.body.mappedCallInputs as {demand:{parts:{features:Record<string,unknown>[]}[]}}).demand.parts;
+  assert.equal(features[0].features[0].xIn,5.25);
+  assert.equal(features[0].features[0].fullDiameterDepthIn,0.125);
+  assert.equal(features[1].features[0].xIn,10.25);
+  const stock=answer.parents.find((p:any)=>p.kind==="board");
+  assert.ok(stock);
+  const point=0.09375/Math.tan(118*Math.PI/360);
+  const deeperZ=answer.operations.filter((e:any)=>e.kind==="MOVE"&&e.category==="SPOT"&&e.axis==="Z"
+    &&e.subject==="SPOT-1"&&e.target<stock.actualT);
+  assert.equal(deeperZ.length,1);
+  assert.ok(Math.abs(deeperZ[0].target-(stock.actualT-point-0.125))<1e-9);
+  const invalid=structuredClone(line);
+  (invalid.parts[0].features[0] as Record<string,unknown>).fullDiameterDepthIn=0.25;
+  const denied=await answerPublishedWire(wireFor("start-own","USER_DEFINED_BOARD_V1","too-deep-spot",{
+    line:invalid,definitionKind:"user_defined_board.v1",ruleVersion:"0.1"
+  }),origin);
+  assert.equal((denied.body.storeAnswer as any).status,"REFUSED");
+  assert.ok(((denied.body.storeAnswer as any).reasonCodes||[]).includes("SPOT_FULL_DIAMETER_DEPTH_EXCEEDS_MAX"));
+  assert.equal((denied.body.storeAnswer as any).Q,null);
+});
+
 test("a declared spot with no feature id gets a stable id, and a missing location is not zero", () => {
   const line = braceLine();
   delete (line.parts[0].features[0] as { featureId?: string }).featureId;
