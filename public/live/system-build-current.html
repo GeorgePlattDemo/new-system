@@ -797,6 +797,15 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
                 // System facts: what the job defines.
                 renderBoardGeometry(definition, view);
+                const currentSpot=definition.derived.centerSpotAlongLengthIn?.value;
+                const pickedSpots=definition.intent?.centerSpot?.basis==='CUSTOMER_INPUT';
+                const definedSpotXs=demand.parts.map(p=>p.features?.[0]?.xIn);
+                const spotDescription=pickedSpots
+                  ? definedSpotXs.map((x,i)=>'part '+(i+1)+' '+(x==null?'unresolved':formatInches(x))+' from start').join(' · ')
+                  : formatInches(currentSpot)+' from either finished end';
+                const statedDepth=definition.derived.spotFullDiameterDepthIn?.value;
+                const depthDescription=statedDepth!=null&&Number.isFinite(Number(statedDepth))
+                  ? ' · '+Number(statedDepth)+' in full diameter beyond 118° point':' · depth unresolved';
                 setText('stb-config-parts-value',demand.quantity+' part'+(demand.quantity===1?'':'s'));
                 setText('stb-config-length-value',
                   formatInches(demand.finishedLength)+' braces · stands about '+
@@ -805,14 +814,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                 setText('stb-config-angle-value',demand.angleDegrees+'° · both ends · parallel');
                 setText('stb-config-spot-value',demand.spotDemand?(pickedSpots?'1 selected spot / part':'1 centered spot / part'):'no spot');
                 // Preserve the original 16/18 explanation, supplemented by the live math of this job.
-                const currentSpot=definition.derived.centerSpotAlongLengthIn?.value;
-                const pickedSpots=definition.intent?.centerSpot?.basis==='CUSTOMER_INPUT';
-                const definedSpotXs=demand.parts.map(p=>p.features?.[0]?.xIn);
-                const spotDescription=pickedSpots
-                  ? definedSpotXs.map((x,i)=>'part '+(i+1)+' '+formatInches(x)+' from start').join(' · ')
-                  : formatInches(currentSpot)+' from either finished end';
-                const depthLabel=Number(definition.derived.spotFullDiameterDepthIn?.value);
-                const depthDescription=Number.isFinite(depthLabel)?' · '+depthLabel+' in full diameter beyond 118° point':'';
+
                 setText('stb-bench-live-math',
                   'Current '+formatInches(demand.finishedLength)+' · angle = asin(8 ÷ '+Number(demand.finishedLength).toFixed(3)+') = '+
                   Number(demand.angleDegrees).toFixed(3)+'° · rise = √('+Number(demand.finishedLength).toFixed(3)+'² − 8²) = '+
