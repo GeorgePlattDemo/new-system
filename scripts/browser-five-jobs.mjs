@@ -39,7 +39,7 @@ import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
-const expectedPin = 'c9b75a23f7dc79258bb43f7100415a0c2db0c1e7';
+const expectedPin = '7712df2500d5b61365333178c226c4791275a5db';
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: ['--no-sandbox', '--disable-dev-shm-usage'] });
 let failed = false;
 try {
