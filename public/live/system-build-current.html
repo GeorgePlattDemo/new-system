@@ -803,38 +803,46 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   formatInches(definition.derived.achievedRiseIn.value)+' · '+
                   formatDegrees(demand.angleDegrees)+' ends');
                 setText('stb-config-angle-value',demand.angleDegrees+'° · both ends · parallel');
-                setText('stb-config-spot-value',demand.spotDemand?'1 centered spot / part':'no spot');
+                setText('stb-config-spot-value',demand.spotDemand?(pickedSpots?'1 selected spot / part':'1 centered spot / part'):'no spot');
                 // Preserve the original 16/18 explanation, supplemented by the live math of this job.
                 const currentSpot=definition.derived.centerSpotAlongLengthIn?.value;
+                const pickedSpots=definition.intent?.centerSpot?.basis==='CUSTOMER_INPUT';
+                const definedSpotXs=demand.parts.map(p=>p.features?.[0]?.xIn);
+                const spotDescription=pickedSpots
+                  ? definedSpotXs.map((x,i)=>'part '+(i+1)+' '+formatInches(x)+' from start').join(' · ')
+                  : formatInches(currentSpot)+' from either finished end';
+                const depthLabel=Number(definition.derived.spotFullDiameterDepthIn?.value);
+                const depthDescription=Number.isFinite(depthLabel)?' · '+depthLabel+' in full diameter beyond 118° point':'';
                 setText('stb-bench-live-math',
                   'Current '+formatInches(demand.finishedLength)+' · angle = asin(8 ÷ '+Number(demand.finishedLength).toFixed(3)+') = '+
                   Number(demand.angleDegrees).toFixed(3)+'° · rise = √('+Number(demand.finishedLength).toFixed(3)+'² − 8²) = '+
                   Number(definition.derived.achievedRiseIn.value).toFixed(3)+' in · spot '+
-                  (demand.spotDemand?'at '+formatInches(currentSpot):'not requested')+'. '+
+                  (demand.spotDemand?'at '+spotDescription:'not requested')+depthDescription+'. '+
                   'The requested minimum is 60 in. Store alone chooses the parent board and its price.');
                 setText('stb-bench-length-spec',formatInches(demand.finishedLength));
                 setText('stb-bench-angle-spec',formatDegrees(demand.angleDegrees));
                 setText('stb-bench-parts-spec',String(demand.quantity));
                 setText('stb-carry-cut',demand.quantity+' part'+(demand.quantity===1?'':'s')+' · '+formatInches(demand.finishedLength)+' each');
                 setText('stb-carry-angle',formatDegrees(demand.angleDegrees)+' ends');
-                setText('stb-carry-spot',demand.spotDemand?formatInches(definition.derived.centerSpotAlongLengthIn.value)+' from either end':'no spot');
+                setText('stb-carry-spot',demand.spotDemand?spotDescription:'no spot');
                 setText('stb-user1-lineage',demand.spotDemand
-                  ? 'Spot drill = '+Number(demand.finishedLength)+' ÷ 2 = '+formatInches(definition.derived.centerSpotAlongLengthIn.value)+' from either finished end.'
+                  ? pickedSpots?'Spot positions selected on this revision: '+spotDescription+'.'
+                    :'Centered spot drill = '+Number(demand.finishedLength)+' ÷ 2 = '+formatInches(currentSpot)+' from either finished end.'
                   : 'No spot on this version.');
                 setText('stb-def-parts',String(demand.quantity));
                 setText('stb-def-length',demand.finishedLength+' in each');
                 setText('stb-def-angle',Number(demand.angleDegrees).toFixed(3)+'° · derived to preserve 8.000 in span · both · parallel');
-                setText('stb-def-spot',demand.spotDemand?'1 centered spot / part':'none');
+                setText('stb-def-spot',demand.spotDemand?(pickedSpots?'1 selected spot / part':'1 centered spot / part'):'none');
                 setText('stb-def-spot-location',demand.spotDemand
-                  ? definition.derived.centerSpotAlongLengthIn.value+' in · derived from '+demand.finishedLength+' ÷ 2 · 3/16 in SPOT_ON_LOCATION demand'
+                  ? spotDescription+depthDescription+' · 3/16 in pointed drill'
                   : 'not requested');
                 setText('stb-bench-cut-copy','cut demand — '+formatDegrees(demand.angleDegrees)+' ends · '+productionCuts+' declared saw operation'+(productionCuts===1?'':'s')+' · '+demand.quantity+' part'+(demand.quantity===1?'':'s'));
                 const cutsBold = childDoc.getElementById('stb-bench-cut-step');
                 if (cutsBold) cutsBold.innerHTML = '<b>Cut it.</b> '+productionCuts+' cut'+(productionCuts===1?'':'s')+' along the one board — '+formatDegrees(demand.angleDegrees)+' each — make the '+demand.quantity+' part'+(demand.quantity===1?'':'s')+'.';
                 const drillBold = childDoc.getElementById('stb-bench-drill-step');
                 if (drillBold) drillBold.innerHTML = demand.spotDemand
-                  ? '<b>Drill it.</b> One 3/16 in spot right in the middle of each part — '+formatInches(definition.derived.centerSpotAlongLengthIn.value)+' from either end.'
-                  : '<b>Drill it.</b> No spot on this version.';
+                  ? '<b>Spot drill.</b> A 3/16 in pointed bit, '+spotDescription+depthDescription+'.'
+                  : '<b>Spot drill.</b> No spot on this version.';
                 const woodWords = SPECIES_WORDS[definition.material?.stated?.species] || null;
                 if (woodWords) setText('stb-carry-wood', '2×4 ' + woodWords);
 
@@ -889,7 +897,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   svg.setAttribute(
                     'aria-label',
                     'This version calls for '+demand.quantity+' part'+(demand.quantity===1?'':'s')+' at '+Number(demand.finishedLength).toFixed(3)+' inches with '+Number(demand.angleDegrees).toFixed(3)+' degree ends, derived to preserve the same 8.000 inch horizontal span. '
-                    +(demand.spotDemand?'One centered 3/16 in spot demand per part is derived at '+definition.derived.centerSpotAlongLengthIn.value+' inches. ':'No spot is requested. ')
+                    +(demand.spotDemand?'One 3/16 in spot demand per part: '+spotDescription+depthDescription+'. ':'No spot is requested. ')
                     +(selection
                       ? 'The Store selected a '+selection.stockLengthIn+' inch board'+(remainder != null ? ' and returned '+formatInches(remainder)+' remaining.' : '.')
                       : 'The board is drawn at the '+requestedMinimum+' inch requested minimum; the Store has not selected one for this revision.')
@@ -1024,6 +1032,19 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                 originalShow.call(win,'projects');
               });
 
+              spotPositionMode?.addEventListener('change',()=>{
+                const custom=spotPositionMode.value==='selected';
+                for(const input of spotPartInputs) {
+                  if(!input)continue;
+                  input.disabled=!custom;
+                  if(custom)input.value=String(Number(lengthInput?.value)/2);
+                }
+                revise('CUSTOMER_SPOT_LOCATION_MODE');
+              });
+              spotPartInputs.forEach(input=>input?.addEventListener('input',()=>{
+                if(spotPositionMode?.value==='selected')revise('CUSTOMER_SPOT_LOCATION');
+              }));
+              spotDepthInput?.addEventListener('input',()=>revise('CUSTOMER_SPOT_DEPTH'));
               lengthInput?.addEventListener('input', () => {
                 const next=Number(lengthInput.value);
                 if (!Number.isFinite(next)) return;
