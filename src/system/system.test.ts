@@ -24,6 +24,7 @@ import {
 } from "./session.ts";
 import { shapeProblems, DEFINITION_SHAPES } from "./shape.ts";
 import { STORE_CANDIDATE } from "./store-candidate.ts";
+import {resolvePlanEnd,featureMeaning} from "./terminology.ts";
 
 const publishedDemand = JSON.parse(readFileSync(new URL("./fixtures/definition-and-demand.json", import.meta.url), "utf8")).demand;
 const publishedReview = JSON.parse(readFileSync(new URL("./fixtures/review-summary.json", import.meta.url), "utf8"));
@@ -487,3 +488,36 @@ test("physical authority on machine evidence is not success", () => {
 function awaitedDigest(body: string) {
   return sha256Bytes(body);
 }
+
+test("source manufacturing vocabulary never substitutes for end-plane geometry",()=>{
+ const description=resolvePlanEnd({angleDeg:25,sourceTerm:"bevel" });
+ assert.equal(description.ok,false);
+ if(!description.ok)assert.equal(description.code,"ANGLED_END_GEOMETRY_UNRESOLVED");
+ const geometry=resolvePlanEnd({sourceTerm:"bevel",angleDeg:25,
+   endRelation:"parallel",lengthDatum:"long-point-to-short-point",
+   endPointOrientation:"long-to-short",plane:"miter-face"});
+ assert.equal(geometry.ok,true);
+ if(geometry.ok){
+   assert.equal(geometry.value.endCut.plane,"miter-face");
+   assert.equal(geometry.value.endCut.lengthDatum,"long-point-to-short-point");
+   assert.equal(geometry.value.evidence.sourceTerm,"bevel");
+   assert.equal(geometry.value.evidence.sourceTermUsedAsAuthority,false);
+ }
+ const noDatum=resolvePlanEnd({angleDeg:25,plane:"miter-face",endRelation:"parallel",sourceTerm:"miter"});
+ assert.equal(noDatum.ok,false);
+});
+test("a plan's use of spotface or pilot is not a registered pointed-drill feature",()=>{
+ const ambiguous=featureMeaning({sourceTerm:"pilot hole",xIn:4,diameterIn:0.1875});
+ assert.equal(ambiguous.status,"UNRESOLVED");
+ const flat=featureMeaning({sourceTerm:"spot drill",physicalResult:"FLAT_BOTTOM_SPOTFACE",xIn:4,diameterIn:0.1875});
+ assert.equal(flat.status,"DEFINED");
+ if(flat.status==="DEFINED")assert.equal(flat.requirement.physicalResult,"FLAT_BOTTOM_SPOTFACE");
+ const shallow=featureMeaning({sourceTerm:"spotface",physicalResult:"POINTED_DRILLED_SPOT",
+   xIn:4,diameterIn:0.1875,fullDiameterDepthIn:0.125});
+ assert.equal(shallow.status,"DEFINED");
+ if(shallow.status==="DEFINED"){
+   assert.equal(shallow.requirement.physicalResult,"POINTED_DRILLED_SPOT");
+   assert.equal(shallow.requirement.fullDiameterDepthIn,0.125);
+   assert.equal(shallow.sourceTermUsedAsAuthority,false);
+ }
+});
