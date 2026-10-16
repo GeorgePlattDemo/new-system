@@ -261,7 +261,11 @@ try {
       assert.equal(retried.jobSupportability.quoteComplete,false);
       assert.equal(await bench.locator('#stb-start-bench-screen').isVisible(),true);
       assert.equal(await content.locator('#proof-store').isVisible(),false);
-      const noPacket=await content.locator('body').evaluate(async()=>window.STBTermsFlow.instance('start-own').acceptedPacket());
+      const noPacket=await content.locator('body').evaluate(async()=>{
+        let owner=window;
+        while(!owner.STBTermsFlow&&owner!==owner.parent)owner=owner.parent;
+        return owner.STBTermsFlow.instance('start-own').acceptedPacket();
+      });
       assert.equal(noPacket.status,'REFUSED','Refusal must invalidate the previous accepted revision');
       assert.equal(await content.getByRole('button',{name:'4 · Your call',exact:true}).isDisabled(),true);
       project1Refusals.push(refused,retried);
