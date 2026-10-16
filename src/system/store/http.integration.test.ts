@@ -136,11 +136,15 @@ test("HTTP: Project 1, the other board, alcove, playhouse, cleats, partial outdo
     if (windowMoney.kind === "full") assert.equal(windowMoney.amount, 1313.61);
 
     const aFrame = await ask("outdoor", { planId: "a-frame", wood: "treated", hardwareTier: "BYO" });
-    assert.equal(aFrame.status, "UNRESOLVED");
+    assert.equal(aFrame.status, "SUPPORTABLE", JSON.stringify(aFrame.reasonRecords));
     const aFrameMoney = presentMoney(aFrame);
-    assert.notEqual(aFrameMoney.kind, "full");
-    assert.equal(aFrame.Q,null);
-    assert.ok((aFrame.reasonCodes as string[]).includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
+    assert.equal(aFrameMoney.kind, "full");
+    assert.ok(typeof aFrame.Q === "number" && aFrame.Q > 0);
+    const envelope=32.875+3.5*Math.tan(25*Math.PI/180);
+    const braced=(aFrame.operations as {kind:string;subject:string;stockEnvelopeLengthIn?:number}[])
+      .filter(e=>e.kind==="STOCK_ENVELOPE_DERIVED" && e.subject.startsWith("BRACE-"));
+    assert.equal(braced.length,2);
+    assert.ok(braced.every(e=>Math.abs((e.stockEnvelopeLengthIn??0)-envelope)<1e-9));
 
     const cleats = await ask("closet-cleats");
     assert.equal(cleats.status, "SUPPORTABLE");
