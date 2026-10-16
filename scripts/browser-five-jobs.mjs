@@ -205,7 +205,28 @@ try {
       await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
       await journey(content,'start-own',label);
       assert.equal(await content.locator('#proof-record details').evaluate(e=>e.open),true,'Project documentation must start visible');
-      console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13, liveStore: true }));
+      // Exercise the real customer's independent spot X and depth inputs, not
+      // a synthesized direct API call. The original accepted proof remains intact.
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      const beforeSpotRequests=responses.filter(r=>r.path==='/api/store-zero/job'&&r.status===200).length;
+      await bench.locator('#stb-spot-location-mode').selectOption('selected');
+      await bench.locator('#stb-spot-part1-x').fill('5.25');
+      await bench.locator('#stb-spot-part2-x').fill('10.25');
+      await bench.locator('#stb-spot-full-depth').fill('0.125');
+      await bench.locator('#stb-def-spot-location').filter({hasText:'part 1 5¼ in from start'})
+        .waitFor({state:'visible',timeout:15000});
+      await bench.locator('#stb-price-total').filter({hasText:/\$\d/})
+        .waitFor({state:'visible',timeout:45000});
+      const selected=await content.evaluate(()=>window.STBStartOwnLive?.revision());
+      const entered=selected?.facts?.['start-own.parts']?.value;
+      assert.equal(entered?.[0]?.features?.[0]?.xIn,5.25);
+      assert.equal(entered?.[1]?.features?.[0]?.xIn,10.25);
+      assert.equal(entered?.[0]?.features?.[0]?.fullDiameterDepthIn,0.125);
+      assert.equal(entered?.[0]?.features?.[0]?.locationRule,'PART_RELATIVE_FROM_START');
+      assert.ok(responses.filter(r=>r.path==='/api/store-zero/job'&&r.status===200).length>beforeSpotRequests,
+        'Selected spot coordinates and depth must trigger a fresh Store inquiry');
+      console.log(JSON.stringify({ project: label, initialQ: 8.62, changedLengthIn: 18, revisedQ: 9.13,
+        selectedSpotXIn:[5.25,10.25],fullDiameterDepthIn:0.125,liveStore:true }));
     }
     if (label === 'Alcove') {
       // The Alcove project tile opens its unnumbered Idea page first.
