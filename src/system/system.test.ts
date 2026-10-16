@@ -123,9 +123,17 @@ test("outdoor sends nothing until a plan and a wood are chosen", () => {
   assert.equal(compileRecipe(recipe, recipe.defaults).demand, null);
   const chosen = compileRecipe(recipe, { ...recipe.defaults, planId: "a-frame", wood: "treated" });
   assert.equal(chosen.blockers.length, 0);
-  const packages = (chosen.demand as { cutPackages: { packageId: string; endCut: { angleDeg: number }; parts: { lengthIn: number }[] }[]; itemLines?: unknown[] }).cutPackages;
+  const packages = (chosen.demand as { cutPackages: { packageId: string; endCut: { angleDeg: number; lengthDatum: string; plane: string; endRelation: string }; parts: { lengthIn: number }[] }[]; itemLines?: unknown[] }).cutPackages;
   assert.equal(packages.find((pkg) => pkg.packageId === "LEGS")?.endCut.angleDeg, 25);
   assert.equal(packages.find((pkg) => pkg.packageId === "LEGS")?.parts[0].lengthIn, 31.375);
+  for (const [id, length] of [["LEGS", 31.375], ["BRACES", 32.875]] as const) {
+    const pkg = packages.find((p) => p.packageId === id);
+    assert.equal(pkg?.endCut.angleDeg, 25);
+    assert.equal(pkg?.endCut.endRelation, "parallel");
+    assert.equal(pkg?.endCut.lengthDatum, "long-point-to-short-point");
+    assert.equal(pkg?.endCut.plane, "miter-face");
+    assert.equal(pkg?.parts[0].lengthIn, length);
+  }
   assert.equal(packages.find((pkg) => pkg.packageId === "SLATS")?.parts[0].lengthIn, 72);
   assert.equal((chosen.demand as { itemLines?: unknown[] }).itemLines, undefined);
 });
