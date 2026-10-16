@@ -46,7 +46,7 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 **Through-edge profile requirement** — A named feature on a finished part, stating its path length, position across the width and through depth. The cut-package inquiry carries these literal values in `parts[].edgeProfiles`. Store answers whether its parent-board preparation fulfills them; System does not substitute a different profile.
 
-**Explicit D-001 spot constraints** — A named `SPOT_ON_LOCATION` is a shallow drilled spot with a conical bottom, not a flat-bottom spotface, arbitrary pilot or through-hole. The registered test drill is 3/16 inch in diameter with a 118° included point; the nominal full-diameter depth is 3/16 inch *beyond* the point, requiring approximately 0.24383 inch of total tip travel from the board surface. This is the current registered maximum. System preserves any stated `toolDiameterIn` and `fullDiameterDepthIn` with the feature and its explicit or derived part-relative location. Store currently requires exact registered diameter and depth when they are specified and models the registered 3/16-inch depth when omitted; an independently requested shorter depth is not yet an evaluated range. The customer's location and other feature facts cannot be dropped to obtain a complete Q. Project 1 chooses a centered location derived from length; other supported definitions may name other valid locations.
+**Explicit D-001 spot constraints** — A named `SPOT_ON_LOCATION` is a shallow drilled spot with a conical bottom, not a flat-bottom spotface, arbitrary pilot or through-hole. The registered test drill is 3/16 inch in diameter with a 118° included point; the nominal full-diameter depth is 3/16 inch *beyond* the point, requiring approximately 0.24383 inch of total tip travel from the board surface. This is the current registered maximum. System preserves any stated `toolDiameterIn` and `fullDiameterDepthIn` with the feature and its explicit or derived part-relative location. Store requires the exact registered diameter when specified. It now admits a positive explicitly requested full-diameter depth no greater than 3/16 inch and models that feature's actual Z plunge and time; when the named standard spot requests no separate depth, it uses the registered nominal. An unspecified hole in a plan does not thereby acquire a guessed depth. The customer's location and other feature facts cannot be dropped to obtain a complete Q. Project 1 chooses a centered location derived from length; other supported definitions may name other valid locations.
 
 **Virtual evidence** — Identified local-job, operation records, replay and blocked-admission result returned by Store's machine-evidence entry point for a verified accepted packet and expected registered configuration. Current schema `STB-MODELED-OPERATIONS-1` has evidence class `PREDICTED_OCCUPANCY_ONLY`. Dimensional records carry nominal moves/tool states; sheet occupancy does not establish a complete XY controller trajectory. System preserves this evidence rather than inventing it.
 
@@ -61,6 +61,45 @@ End geometry is part of the priced manufacturing definition. `endRelation` state
 `endIdentity` is an additional endpoint statement. The public board translator records a supplied redundant value such as `both` under `REDUNDANT_WITH_PRICED_LENGTH_DATUM` and sends null when parallel/long-long already expresses it. A nonredundant value travels unchanged. The current Store board compiler requires `endIdentity == null`; incompatible geometry is refused as `END_GEOMETRY_NOT_DECLARED`. This is the current contract, rather than the retired `END_IDENTITY_NOT_REGISTERED_ON_MACHINE` narrative.
 
 Square cuts and sheet edges retain their own defined geometry. Current Store machine evidence accepts board, cut-package and sheet-package classes; it does not return the retired board-only `LOWERING_NOT_REGISTERED_FOR` disposition. Coverage means modeled ledger binding and replay, not a universally implemented controller program. The typed System machine helper recognizes the same three registered manufacturing classes and preserves those evidence limits.
+
+## Manufacturing terminology: source words versus physical requirements
+
+*Authority category: Current System Behavior for bounded current compilation; Future Work for generalized plan ingestion*
+
+**Governing rule.** A source plan's words are evidence, not the machine's authority. A source may say *bevel*, *spotface*, *pilot*, *groove*, or *drill* imprecisely. Preserve the original phrase, its document and revision, and any contradicting drawing. System must separately establish physical feature, geometry, measurement references, material requirements and required operations. Store alone evaluates stock, registered tooling/capability, planning, time, Q and refusal. Program investigates the purpose and evidence; neither Program nor System may manufacture a successful Store result.
+
+Every apparent manufacturing term has **five distinct meanings**, which are never interchangeable:
+
+1. **Source expression:** quoted text, drawing mark or human phrase, with provenance and competing evidence.
+2. **Physical result:** the measurable surface, cut, hole, orientation, tolerance and material property actually requested.
+3. **Normalized System definition:** established component/feature identities, explicit values, datums, derivation basis and unresolved conditions. This is machine-neutral.
+4. **Registered Store operation:** installed tool/station, geometry, motion/control limits and admissible material envelope. A recognized word does not register a tool.
+5. **Evaluated and executed state:** the fresh Store plan, receipt, accepted packet and verified lowering; modeled occupancy is not controller execution or inspected production.
+
+### Manufacturing words likely to mislead the compiler
+
+| Word or family | Distinction required before compilation | Bounded current meaning |
+| --- | --- | --- |
+| Spot / shallow drilled mark | Part identity, X/Y coordinate, drill diameter, point and full-diameter depth | D-001 `SPOT_ON_LOCATION` makes a pointed-bottom depression, not a flat-bottom surface |
+| Spotface / spotfacing | Flat-bottom seating face, depth, diameter and tooling | A separate physical feature; cannot be substituted with D-001's 118° pointed drill |
+| Pilot hole | Fastener purpose, diameter, tolerances, depth and material | Generic word alone neither fixes dimensions nor proves installed drilling capability |
+| Through-hole / blind hole | Through condition, bottom geometry, depth and exit | Not equivalent to a shallow spot |
+| Counterbore / countersink | Flat-bottom or conical seat, diameter, angle, depth | Distinct functions; no implicit translation to a spot drill |
+| Face miter | Actual cutting plane, angle, end relation and length reference | Only separately established geometry reaches Store's registered face-miter path |
+| Bevel / compound cut | Which faces are tilted and whether two axes are required | Plan term alone cannot create a miter; unsupported physical planes remain refused |
+| Parallel / opposed ends | End-point orientation of both cut planes | Preserve the relationship independently of the plan's vocabulary |
+| Long-long / long-short | Measurement points and selected actual board width | Store derives stock envelope only from a supported declared datum |
+| Crosscut / rip / kerf | Cut direction, consumed kerf, final datum and retained material | A nominal modeled cut is not a physically inspected retained face |
+| Groove / dado / rabbet / slot | Cross-section, path, orientation, depth, ends | Do not pass as a longitudinal edge profile unless the physical geometry is identical |
+| Edge profile / edge preparation | Prepared face(s), path length, depth and engagement | D-001 registered router operations have explicit independent limits |
+| Nominal / actual material | Stock form, species, grade, actual section, condition | System states requirements; Store identifies offered material |
+| Datum / origin / tool coordinate | Formal reference, part-local coordinate and registration | A convenience zero or customer X is not itself a commissioned machine datum |
+
+**D-001 explicit rule:** Its registered spot function is a 0.1875-inch pointed drill at 118° included angle, with 0.1875 inch of *full-diameter penetration beyond the conical point* as the nominal and maximum. An explicitly requested positive shallower depth changes that feature's modeled Z target and occupied time; excessive depth is refused. At the maximum the tip penetrates approximately 0.243830683 inch from the material surface. The default Project 1 spot is a defined center rule, X = L/2; the Job 1 Bench now also states independent part-relative X coordinates and a selected depth when changed. These requirements travel with their feature IDs; Store cannot move them to achieve supportability.
+
+**Interpretation decisions:** Where a drawing independently establishes the geometry despite an erroneous term, record source wording and compile those proven measurements. Where a critical fact is missing, retain `UNRESOLVED`; where the feature is defined but unregistered, Store refuses it with an attributable reason. Where text and drawings disagree, preserve the contradiction, rather than secretly choose. The typed `src/system/terminology.ts` gate applies this discipline to current plan end definitions. It is not an OCR, CAD inference engine or general plan parser.
+
+**Future plan ingestion acceptance:** Each inferred part and feature must link to the source document/revision, page or mark, original text, observable geometric evidence, inference/verification level, and any contradiction. Unrecognized or ambiguous words never authorize a toolpath. Supported jobs require an intact manifest, the customer's approved definition, a fresh Store result and a verified accepted packet; machine authorization and inspected production require separate physical evidence. Tests shall distinguish misleading plan words from independently defined geometry and expose real unavailable capability rather than weaken a test or translate to an easier operation.
 
 ## Shared terms
 
