@@ -344,11 +344,22 @@ try {
         return answer;
       };
       const sourcePlan=await waitOutdoorAnswer();
-      assert.equal(sourcePlan.rawEvaluation.status,'UNRESOLVED');
-      assert.equal(sourcePlan.rawEvaluation.Q,null);
-      assert.ok(sourcePlan.rawEvaluation.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
-      assert.equal((await money.innerText()).trim(),'No complete price');
-      assert.equal((await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state())).terms.callOpen,false);
+      assert.equal(sourcePlan.rawEvaluation.status,'SUPPORTABLE',JSON.stringify(sourcePlan.rawEvaluation.reasonCodes));
+      assert.equal(sourcePlan.rawEvaluation.complete,true);
+      assert.equal(sourcePlan.rawEvaluation.Q,293.16);
+      assert.equal((await money.innerText()).trim(),'$293.16');
+      const sourceCuts=sourcePlan.mappedCallInputs.demand.cutPackages;
+      for(const [id,length] of [['LEGS',31.375],['BRACES',32.875]]){
+        const pkg=sourceCuts.find(p=>p.packageId.endsWith('|'+id));
+        assert.equal(pkg.endCut.angleDeg,25);
+        assert.equal(pkg.endCut.endRelation,'parallel');
+        assert.equal(pkg.endCut.lengthDatum,'long-point-to-short-point');
+        assert.equal(pkg.endCut.plane,'miter-face');
+        assert.ok(pkg.parts.every(p=>p.lengthIn===length));
+        assert.ok(sourcePlan.rawEvaluation.operations.some(e=>e.kind==='DEFINED_END_PLANES'&&e.subject.startsWith(id==='LEGS'?'LEG-':'BRACE-')));
+      }
+      assert.equal(sourcePlan.rawEvaluation.physicalRelease,false);
+      assert.equal((await outdoor.locator('body').evaluate(()=>window.STBOutdoorPicnic.state())).terms.callOpen,true);
       const planResults=[];
       for (const [plan, initialQ, revisedQ] of [['table-benches',288.23,321.94]]) {
         if (plan==='table-benches') {
