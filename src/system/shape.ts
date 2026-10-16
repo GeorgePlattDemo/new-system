@@ -134,7 +134,7 @@ export const DEFINITION_SHAPES = {
           object: {
             packageId: "string",
             material: boardMaterial,
-            endCut: { object: { angleDeg: "number", endRelation:"string",lengthDatum:"string",plane:"string" } },
+            endCut: { object: { angleDeg: "number", endRelation:"string",lengthDatum:"string",plane:"string",endPointOrientation:"string" } },
             finishedWidthIn: "number",
             edgePreparation: { object: { farEdgeRemovalIn: "number", fenceEdgeRemovalIn: "number" } },
             parts: {
