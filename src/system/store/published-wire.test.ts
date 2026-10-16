@@ -344,7 +344,7 @@ test('current Project 1 accepts both published settings and sends unchanged pack
  }
 });
 
-test('Outdoor preserves source end dimensions and bevel instead of obtaining Q for substituted face miters',async()=>{
+test('Outdoor translates source end dimensions into evaluated parallel broad-face geometry, and still refuses an unsupported plane',async()=>{
  const page=readFileSync(new URL('../../../public/live/stb-outdoor-picnic-0.4.html',import.meta.url),'utf8');
  const match=page.match(/const PLANS=([^]*?)\n};/);assert.ok(match);
  const plans=runInNewContext('('+match[1]+'\n})',{fmt:String});
@@ -355,11 +355,30 @@ test('Outdoor preserves source end dimensions and bevel instead of obtaining Q f
  const packages=packagesFor({plan:'a-frame',parts:{}},['treated']);
  const legs=packages.find((p:any)=>p.packageId.endsWith('|LEGS')),braces=packages.find((p:any)=>p.packageId.endsWith('|BRACES'));
  assert.equal(legs.endCut.lengthDatum,'long-point-to-short-point');assert.equal(legs.parts[0].lengthIn,31.375);
- assert.equal(braces.endCut.plane,'bevel-edge');assert.equal(braces.parts[0].lengthIn,32.875);
- const response=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends',{definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends',cutPackages:packages}}),await storeOrigin());
- assert.equal((response.body as any).storeAnswer.status,'UNRESOLVED');
- assert.equal((response.body as any).storeAnswer.Q,null);
- assert.ok((response.body as any).storeAnswer.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
+ assert.equal(braces.endCut.plane,'miter-face');assert.equal(braces.parts[0].lengthIn,32.875);
+ assert.equal(legs.endCut.plane,'miter-face');
+ assert.equal(legs.endCut.endRelation,'parallel');
+ assert.equal(braces.endCut.endRelation,'parallel');
+ assert.equal(braces.endCut.lengthDatum,'long-point-to-short-point');
+ const origin=await storeOrigin();
+ const demand={configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends',cutPackages:packages};
+ const response=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends',{definition:demand}),origin);
+ const value=(response.body as any).storeAnswer;
+ assert.equal(value.status,'SUPPORTABLE',JSON.stringify(value.reasonCodes));
+ assert.equal(value.complete,true);
+ assert.ok(value.Q>0);
+ assert.ok(value.operations.some((e:any)=>e.kind==='DEFINED_END_PLANES'&&e.subject==='LEG-01'));
+ assert.ok(value.operations.some((e:any)=>e.kind==='DEFINED_END_PLANES'&&e.subject==='BRACE-01'));
+ assert.equal(value.physicalRelease,false);
+ // A changed cut-plane requirement is still refused, not silently converted.
+ const impossible=JSON.parse(JSON.stringify(packages));
+ impossible.find((p:any)=>p.packageId.endsWith('|BRACES')).endCut.plane='thickness-plane-unregistered';
+ const invalid=await answerPublishedWire(wireFor('outdoor','CUT_PACKAGE_V1','source-ends-invalid',{
+  definition:{configurationId:'OUTDOOR-SOURCE',configurationVersion:'source-ends-invalid',cutPackages:impossible}
+ }),origin);
+ assert.equal((invalid.body as any).storeAnswer.status,'UNRESOLVED');
+ assert.equal((invalid.body as any).storeAnswer.Q,null);
+ assert.ok((invalid.body as any).storeAnswer.reasonCodes.includes('MITER_END_GEOMETRY_NOT_EVALUATED'));
 });
 
 test("Job 1 demo checkout uses the current Store Q and one verified transaction through pickup", async () => {
