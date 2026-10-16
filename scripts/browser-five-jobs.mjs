@@ -346,7 +346,13 @@ try {
       const sourcePlan=await waitOutdoorAnswer();
       assert.equal(sourcePlan.rawEvaluation.status,'SUPPORTABLE',JSON.stringify(sourcePlan.rawEvaluation.reasonRecords));
       assert.ok(typeof sourcePlan.rawEvaluation.Q==='number' && sourcePlan.rawEvaluation.Q>0);
-      assert.equal((await money.innerText()).trim(),'
+      assert.equal((await money.innerText()).trim(),String.fromCharCode(36)+sourcePlan.rawEvaluation.Q.toFixed(2));
+      const braces=sourcePlan.rawEvaluation.operations.filter(e=>e.kind==='STOCK_ENVELOPE_DERIVED' && e.subject.startsWith('BRACE-'));
+      const braceEnvelope=32.875+3.5*Math.tan(25*Math.PI/180);
+      assert.equal(braces.length,2,'Both cross supports must have separate stock envelopes');
+      assert.ok(braces.every(e=>Math.abs(e.stockEnvelopeLengthIn-braceEnvelope)<1e-9));
+      assert.ok(sourcePlan.rawEvaluation.parents.some(p=>p.components?.some(c=>c.partId.startsWith('BRACE-'))),
+        'The quote must contain Store parent-stock planning');
       const planResults=[];
       for (const [plan, initialQ, revisedQ] of [['table-benches',288.23,321.94]]) {
         if (plan==='table-benches') {
