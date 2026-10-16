@@ -48,7 +48,7 @@ Outdoor previews start when Intent opens. Outdoor sends one manufacturing inquir
 
 **Through-edge profile requirement** — A named feature on a finished part, stating its path length, position across the width and through depth. The cut-package inquiry carries these literal values in `parts[].edgeProfiles`. Store answers whether its parent-board preparation fulfills them; System does not substitute a different profile.
 
-**Explicit spot constraints** — The required tool diameter and full-diameter depth, when the job states them. They travel with the named spot and its location. Store checks them against its registered operation; a placement is not a generic drilled-hole specification.
+**Explicit spot constraints** — The required tool diameter and full-diameter depth, when the job states them. The adopted contract requires both to travel unchanged with the named spot and its location. A recognized shape does not establish lossless transfer: the published board adapter's pending diameter/depth repair is identified in the [conformance register](../SYSTEM-MASTER.md#155-manufacturing-contract-conformance-register). Store checks received constraints against its registered operation; a placement is not a generic drilled-hole specification.
 
 **Virtual evidence** — Identified local-job, operation records, replay and blocked-admission result returned by Store's machine-evidence entry point for a verified accepted packet and expected registered configuration. Current schema `STB-MODELED-OPERATIONS-1` has evidence class `PREDICTED_OCCUPANCY_ONLY`. Dimensional records carry nominal moves/tool states; sheet occupancy does not establish a complete XY controller trajectory. System preserves this evidence rather than inventing it.
 
