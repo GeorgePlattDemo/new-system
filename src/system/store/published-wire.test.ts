@@ -119,6 +119,30 @@ test("priced end geometry is sent, and a redundant end identity is reconciled ra
   assert.equal(translated.endIdentityCanonicalization?.rule, "REDUNDANT_WITH_PRICED_LENGTH_DATUM");
 });
 
+test("Start Your Own preserves stated drill diameter and full-diameter depth into real Store refusal", async () => {
+  const origin = await storeOrigin();
+  const ask = async (field: "toolDiameterIn"|"fullDiameterDepthIn", value: number, revision: string) => {
+    const line = structuredClone(braceLine());
+    const feature = line.parts[0].features[0] as Record<string, unknown>;
+    feature[field] = value;
+    const normalized = boardDemandFromPublishedLine(line);
+    assert.equal(((normalized.demand.parts as {features:Record<string,unknown>[]}[])[0].features[0])[field], value);
+    return answerPublishedWire(wireFor("start-own", "USER_DEFINED_BOARD_V1", revision, {
+      line, definitionKind:"user_defined_board.v1", ruleVersion:"0.1",
+    }), origin);
+  };
+  const diameter = await ask("toolDiameterIn", 0.25, "wrong-diameter");
+  assert.equal((diameter.body.rawEvaluation as {status?:string}).status, "REFUSED");
+  assert.ok(((diameter.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_DIAMETER_NOT_DECLARED"));
+  const depth = await ask("fullDiameterDepthIn", 0.25, "too-deep");
+  assert.equal((depth.body.rawEvaluation as {status?:string}).status, "REFUSED");
+  assert.ok(((depth.body.rawEvaluation as {reasonCodes?:string[]}).reasonCodes??[]).includes("SPOT_DEPTH_NOT_DECLARED"));
+  const registered = await ask("fullDiameterDepthIn", 0.1875, "registered-depth");
+  assert.equal((registered.body.rawEvaluation as {status?:string}).status, "SUPPORTABLE");
+  const explicitDepth=(registered.body.mappedCallInputs as {demand:{parts:{features:Record<string,unknown>[]}[]}}).demand.parts[0].features[0].fullDiameterDepthIn;
+  assert.equal(explicitDepth,0.1875);
+});
+
 test("a declared spot with no feature id gets a stable id, and a missing location is not zero", () => {
   const line = braceLine();
   delete (line.parts[0].features[0] as { featureId?: string }).featureId;
