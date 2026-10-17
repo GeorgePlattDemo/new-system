@@ -17,9 +17,20 @@ ROOTS = {
     '3d-solutions-program': Path(os.environ.get('PROGRAM_ROOT', SYSTEM / '.program')).resolve(),
 }
 FROZEN = {
-    'new-system': '1c2926ab094ca3a9a6d1396b749a36c92f819a55',
-    'store-zero': 'f4d4abdf01a78d4cdb180e97b8d04765647ccc02',
-    '3d-solutions-program': 'de9a5437c5cb453633eff87b737017aa9ea884de',
+    'new-system': 'b1b7a4a3db775b3694f4e7debd09f2b977589999',
+    'store-zero': '35aa77cb0586b66728962e066cac129a8b92d9a2',
+    '3d-solutions-program': '94a6300a6e8ff4d01f5459f6bc2866fa85453a24',
+}
+# Pinned historical checkouts retain their historical approved README bytes.
+# An exact source revision determines the expected identity; never move a pin
+# or substitute current-main README bytes merely to satisfy this assertion.
+FROZEN_PINNED = {
+    'store-zero': {
+        '10d36c09ff6e0dac3c098a004821efea81a2b58d': 'f4d4abdf01a78d4cdb180e97b8d04765647ccc02',
+    },
+    '3d-solutions-program': {
+        'ab23b32fa4b72aece9d0a43f60806d9b2cca0a88': 'de9a5437c5cb453633eff87b737017aa9ea884de',
+    },
 }
 
 def anchors(text):
@@ -66,7 +77,9 @@ def check(repo, path, target, *, resource=False):
 
 for repo, root in ROOTS.items():
     readme = (root / 'README.md').read_bytes() # Missing owner checkout is a failure.
-    assert hashlib.sha1(f'blob {len(readme)}\0'.encode() + readme).hexdigest() == FROZEN[repo], f'{repo}: root README freeze violated'
+    checkout_sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    expected_readme_sha = FROZEN_PINNED.get(repo, {}).get(checkout_sha, FROZEN[repo])
+    assert hashlib.sha1(f'blob {len(readme)}\0'.encode() + readme).hexdigest() == expected_readme_sha, f'{repo}: root README freeze violated at {checkout_sha}'
     # Tracked paths include current and sealed evidence without walking generated dependencies.
     for name in subprocess.check_output(['git', 'ls-files'], cwd=root, text=True).splitlines():
         path = root / name
