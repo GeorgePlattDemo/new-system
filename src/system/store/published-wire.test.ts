@@ -654,6 +654,23 @@ test("Alcove's published gate opens Your call for a fully evaluated current Stor
   assert.equal(terms.state().pendingReason,"SELLER_OFFER_AND_TERMS_REQUIRED");
 });
 
+test("Alcove clears every displayed amount while a replacement Store answer is pending", () => {
+  const nodes = new Map<string, { textContent: string; value: string; innerHTML: string }>();
+  const document = { getElementById: (id: string) => {
+    if (!nodes.has(id)) nodes.set(id, { textContent: "$372.19", value: "14", innerHTML: "" });
+    return nodes.get(id)!;
+  } };
+  const context = { document, alcove: { material: "pine" }, ALCOVE_MATERIAL_DISPLAY: { pine: { name: "Pine" } }, fmt: String };
+  const syncTransaction = publishedFunction("system-build-base-8d8a9dd.html", "syncTransaction", context);
+  syncTransaction();
+  const pending = publishedFunction("system-build-base-8d8a9dd.html", "setAlcoveStorePending", {
+    document, syncTransaction, renderAlcoveCycleRun: () => {},
+  });
+  pending();
+  for (const id of ["p-price", "r-q", "review-price", "store-price"])
+    assert.equal(document.getElementById(id).textContent, "ASKING STORE ZERO…", id);
+});
+
 test("Alcove unresolved installation requirements block whole-job Q and all commercial stages",async()=>{
   const definition={configurationId:"ALCOVE-USER1",configurationVersion:"unresolved",materialDemand:{species:"poplar",form:"board",nominalT:1,grade:"select"},boardRequirements:[{requirementId:"SHELVES",requiredOps:["CROSSCUT"]}],componentPrograms:[{componentId:"SHELF-01",requirementId:"SHELVES",nominalW:6,finishedLengthIn:30,finishedWidthIn:5.5,features:[]}],unresolvedConditions:["INSTALLATION_LOAD_RATING_REQUIRED"]};
   const answered=await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1","unresolved",{definition}),await storeOrigin());
@@ -673,8 +690,8 @@ test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Id
   assert.match(idea,/<button[^>]*data-go="alcove-capture"[^>]*>NEXT → INTENT<\/button>/);
   const front=readFileSync(new URL("../../../public/live/system-build-front-door-0.5.html",import.meta.url),"utf8");
   const current=readFileSync(new URL("../../../public/live/system-build-current.html",import.meta.url),"utf8");
-  assert.match(front,/system-build-base-8d8a9dd\.html\?v=demo-checkout-20261011/);
-  assert.match(current,/system-build-front-door-0\.5\.html\?v=demo-checkout-20261011/);
+  assert.match(front,/system-build-base-8d8a9dd\.html\?v=verified-front-doors-20261017/);
+  assert.match(current,/system-build-front-door-0\.5\.html\?v=verified-front-doors-20261017/);
 });
 
 test("Alcove submits actual 1x8 demands: Store mills stocked Oak and refuses missing Cherry stock", async () => {
