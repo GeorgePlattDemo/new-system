@@ -299,7 +299,7 @@ let alcoveStoreAnswer=null;
 let alcoveStoreRequestGeneration=0;
 let alcoveStoreSignature=null;
 // Every Alcove Store inquiry is one job-definition revision through admit() then inquire(), from the one deployed
-// tile-host admission contract (apps/stb/shared/tile-host-admission-contract.mjs, deployed byte for byte).
+// tile-host admission contract (public/live/shared/tile-host-admission-contract.mjs, deployed byte for byte).
 const alcoveContract=import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011');
 let alcoveAdmission=null,alcoveAsking=false;
 // What the bounded Alcove tile already knows from User 1's scan and tape. Idea shows it as carried forward and Intent
