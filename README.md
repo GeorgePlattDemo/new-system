@@ -42,7 +42,7 @@ The library offers five bounded project classes:
 | [**Outdoor build**](public/live/stb-outdoor-picnic-0.4.html) | A picnic-table project starting from a published plan. |
 | [**Playhouse arched window**](public/live/system-build-current.html) | A sheet opening through the S-001 path, with retained tabs. |
 
-Each keeps its own project facts while using the same journey. These source links identify the project owners; enter the application through **Open the app** to use the complete nested experience. The [registered component tool](https://system-candidate-production.up.railway.app/live/component-tool.html) defines a separate six-part component set through the same compiler and Store boundary; its [source and registration](public/live/component-tool.mjs) preserve both supported revisions.
+Each keeps its own project facts while using the same journey. These source links identify the project owners; enter the application through **Open the app** to use the complete nested experience. The [registered component tool](https://system-candidate-production.up.railway.app/live/component-tool.html?v=public-conformance-20261017) defines a separate six-part component set through the same compiler and Store boundary; its [source and registration](public/live/component-tool.mjs) preserve both supported revisions.
 
 ## One trail from Intent to build
 

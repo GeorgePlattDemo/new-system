@@ -198,6 +198,8 @@ These requirements govern future general plan ingestion as well as bounded struc
 
 These references support terminology distinctions; they do not certify this demonstration, its machine model or its proposed apparatus. DEWALT's [DWS779 instruction manual](https://www.dewalt.com/GLOBALBOM/QU/DWS779/20/Instruction_Manual/EN/N445793_DWS779.pdf) distinguishes miter, bevel and compound settings. Gühring's [RT 100 P tooling publication](https://www.guhring.co.jp/cms/wordpress/wp-content/plugins/guhring/pdf/catalog_115.pdf) distinguishes pointed and flat-bottom tooling results. Mitutoyo's [Quick Guide to Precision Measuring Instruments](https://www.mitutoyo.com/webfoo/wp-content/uploads/E11003-Quick-Guide.pdf) provides dimensional-metrology context. The geometric operands and refusal obligations above are this system's adopted requirements; external terminology never expands the registered Store capability.
 
+The cited DEWALT PDF URL returned 404 on 17 October 2026. Its original source context is retained, but that external destination is currently unverified; this does not change the adopted cut-plane requirements above.
+
 ## Shared terms
 
 *Authority category: Current System Behavior*

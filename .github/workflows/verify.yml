@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: GeorgePlattDemo/3d-solutions-program
-          ref: 5773e980ec930f897952170bf4302696d19c21d0
+          ref: ab23b32fa4b72aece9d0a43f60806d9b2cca0a88
           path: .program
       - name: System behavior and the pinned Store
         run: npm test
@@ -68,10 +68,13 @@ jobs:
       - name: Exercise five published projects in Chromium
         run: node scripts/browser-five-jobs.mjs
       - name: Publish current Project 1 end-to-end proof
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: project-1-current-proof
-          path: artifacts/project-1-current-proof.json
+          path: |
+            artifacts/project-1-current-proof.json
+            artifacts/visual/
           if-no-files-found: error
       - name: Display service logs on failure
         if: failure()

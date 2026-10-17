@@ -42,7 +42,7 @@ export async function lowerAcceptedPacket(packet, {storeOrigin, storePin, health
 }
 
 /** Real public controls, shared client, fresh independent Store, original acceptance and exact packet. */
-export async function exerciseComponentTool(page, { base, storeOrigin, storePin }) {
+export async function exerciseComponentTool(page, { base, storeOrigin, storePin, entryPath }) {
   const replies = [],
     requests = [],
     readers = [];
@@ -59,7 +59,8 @@ export async function exerciseComponentTool(page, { base, storeOrigin, storePin 
   const records = [],
     refusals = [];
   try {
-    await page.goto(base + "/live/component-tool.html");
+    assert.equal(entryPath,"/live/component-tool.html?v=public-conformance-20261017",'Use the actual versioned README tool destination');
+    await page.goto(base + entryPath);
     await page.locator("#input-shelfIn").waitFor();
     assert.equal(await page.locator("#ask").isDisabled(), true);
     const prepare = async () => {

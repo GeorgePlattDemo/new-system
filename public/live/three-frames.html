@@ -144,6 +144,10 @@
   @media(prefers-color-scheme:dark){.store-answer-panel{border-color:#35536b;background:#17222c}.store-answer-panel .kicker{color:#8fb8da}}
   .bench-higher{margin:14px 0 0;padding:12px 14px;border:1px solid var(--border-accent);border-radius:10px;background:var(--tint)}
   .higher-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  #stb-spot-geometry-controls{min-width:0;max-width:100%}
+  #stb-spot-geometry-controls select{min-width:0;max-width:100%;width:100%}
+  #stb-spot-geometry-controls label{min-width:0;max-width:100%}
+  #stb-spot-geometry-controls input{min-width:0;max-width:100%}
   .higher-row h2{font-size:16px;margin:0}
   .higher-row .choice-row{margin:0}
   .higher-row .choice-row button{font-size:12px;padding:6px 12px}
@@ -163,19 +167,20 @@
   .choice-row button{font:inherit;font-size:11px;padding:5px 8px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text-2);cursor:pointer}
   .choice-row button.on{border-color:var(--border-accent);background:var(--tint);color:var(--accent);font-weight:700}
   .definition-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-  .defrow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding:7px 0;font-size:12px}
+  .defrow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);padding:7px 0;font-size:12px;min-width:0}
+  .defrow span{min-width:0;overflow-wrap:anywhere}
   .defrow span:first-child{color:var(--text-3)} .defrow span:last-child{text-align:right;font-weight:600}
   .price-block{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:end;padding:12px 0}
   .price-big{font-size:27px;font-weight:750;white-space:nowrap}
   .basis-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-  .basis-box{border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:9px}
+  .basis-box{min-width:0;overflow-wrap:anywhere;border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:9px}
   .basis-box b,.basis-box span{display:block}.basis-box b{font-size:9px;letter-spacing:.05em;color:var(--text-3)}.basis-box span{margin-top:3px;font-size:11.5px}
   .warn{border-left:4px solid #9b7540;padding-left:12px}
   .confirm-block{border-top:1px solid var(--border-accent);padding-top:16px;margin-top:16px}
   .confirm-block p{font-size:12px;color:var(--text-2);margin:6px 0 12px}
   .confirm-block button{font:inherit;cursor:pointer;padding:10px 16px;border-radius:8px;border:1px solid var(--border-accent);background:var(--tint);color:var(--accent);font-weight:750}
   @media(max-width:760px){.stb-ways{grid-template-columns:repeat(2,minmax(0,1fr))}}
-  @media(max-width:640px){.stb-ways{grid-template-columns:1fr}.stb-grab{font-size:19px}.stb-lookup{margin-left:0}.stb-user1-body{grid-template-columns:1fr}.stb-user1-pic{max-width:260px}.stb-user1-img{max-width:260px}.specrow,.control-grid,.definition-grid,.basis-grid{grid-template-columns:1fr}.price-block{grid-template-columns:1fr}}
+  @media(max-width:640px){.stb-ways{grid-template-columns:1fr}.stb-grab{font-size:19px}.stb-lookup{margin-left:0}.stb-user1-body{grid-template-columns:1fr}.stb-user1-pic{max-width:260px}.stb-user1-img{max-width:260px}.specrow,.control-grid,.definition-grid,.basis-grid{grid-template-columns:minmax(0,1fr)}.price-block{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -188,7 +193,7 @@
       <!-- The Job 1 picture: the same image Intent and the bench show (this page's script gives it Intent's source). -->
       <img class="stb-idea-img" id="stb-idea-img" alt="Two damaged crossmembers under a picnic-table bench.">
       <p class="stb-idea-line">Two broken crossmembers, both cut from a 2×4.</p>
-      <p class="stb-idea-also">A scan, a photo, a sketch, a cut list or a file from the tool you already use lands here too.</p>
+      <p class="stb-idea-also">A scan, a photo, a sketch, a cut list or a file from the tool you already use belongs at intake. This demonstration uses the original repair photograph; attaching your own sources is planned.</p>
     </div>
   </div>
 </section>
@@ -276,6 +281,7 @@
             <div><b>Draw it here.</b>Boxes at right angles, which is most of what wood is.</div>
             <div><b>Bring what you already have.</b>A cut list, a PDF, a CAD export.</div>
           </div>
+          <p class="stb-idea-also">These intake methods are the intended design. This demonstration uses the original repair reference and the material/tool controls below; free-text, scan, drawing and file import remain planned.</p>
         </div>
         <div>
           <p class="lead">Add a tool the job needs to define</p>

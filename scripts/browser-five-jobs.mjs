@@ -3,14 +3,156 @@
 // The Store is a separate local service at System's pinned revision; no mocks,
 // alternate quote paths or fixture prices are inserted into the browser.
 import assert from 'node:assert/strict';
-import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { runInNewContext } from 'node:vm';
 import {resolve, join} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import { chromium } from 'playwright';
 import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
 import {exerciseComponentTool, lowerAcceptedPacket} from './browser-component-tool.mjs';
+
+// Visual evidence belongs to this same public acceptance, beside its complete manufacturing proof.
+const visualEvidence=[];
+rmSync('artifacts/project-1-current-proof.json',{force:true});
+rmSync('artifacts/visual',{recursive:true,force:true});
+mkdirSync('artifacts/visual',{recursive:true});
+async function inspectVisuals(page,surface,label,{required=[],expectArt=true}={}) {
+  for(const selector of required)assert.equal(await surface.locator(selector).isVisible(),true,label+': '+selector);
+  const assets=surface.locator('img:visible,svg:not([aria-hidden="true"]):visible,canvas:visible');
+  let important=0;
+  for(let i=0;i<await assets.count();i++){
+    const asset=assets.nth(i),box=await asset.boundingBox();
+    if(!box||box.width<48||box.height<40)continue; // Small controls are checked by their actual actions.
+    await asset.scrollIntoViewIfNeeded();
+    const facts=await asset.evaluate(async el=>{
+      const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+      const hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
+      const base={tag:el.tagName.toLowerCase(),id:el.id,alt:el.getAttribute('alt')||el.getAttribute('aria-label'),box:{x:r.x,y:r.y,width:r.width,height:r.height},visible:el.checkVisibility({checkOpacity:true,checkVisibilityCSS:true}),uncovered:hit===el||el.contains(hit)||hit?.closest('svg')===el,viewport:{width:innerWidth,height:innerHeight,documentWidth:document.documentElement.scrollWidth}};
+      if(el instanceof HTMLImageElement){
+        await el.decode();
+        return {...base,source:el.currentSrc,complete:el.complete,naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight};
+      }
+      if(el instanceof SVGSVGElement){
+        const geometry=[...el.querySelectorAll('path,rect,line,circle,ellipse,polygon,polyline')].filter(n=>!n.closest('defs,clipPath,mask')).map(n=>{
+          const b=n.getBBox();return {kind:n.tagName,box:{x:b.x,y:b.y,width:b.width,height:b.height},path:n.getAttribute('d'),points:n.getAttribute('points')};
+        }).filter(n=>n.box.width>0||n.box.height>0);
+        return {...base,geometry};
+      }
+      const ctx=el.getContext('2d'),pixels=ctx?.getImageData(0,0,el.width,el.height).data;
+      return {...base,canvasWidth:el.width,canvasHeight:el.height,painted:pixels&&pixels.some((v,i)=>i%4===3&&v>0)};
+    });
+    assert.equal(facts.visible,true,label+': hidden '+facts.id);
+    assert.equal(facts.uncovered,true,label+': covered '+facts.id);
+    if(label.startsWith('mobile'))assert.ok(facts.viewport.documentWidth<=facts.viewport.width+1,label+': horizontal page overflow '+JSON.stringify(facts.viewport));
+    if(facts.tag==='img'){
+      assert.equal(facts.complete,true,label);assert.ok(facts.naturalWidth>0&&facts.naturalHeight>0,label+': decoded dimensions');
+      assert.ok(facts.alt,label+': image needs an accessible description');
+      facts.sourceHash=createHash('sha256').update(facts.source).digest('hex');
+      if(facts.source.startsWith('data:'))facts.source=facts.source.slice(0,40)+'…';
+    }else if(facts.tag==='svg')assert.ok(facts.geometry.length>0,label+': no drawn geometry');
+    else assert.equal(facts.painted,true,label+': blank canvas');
+    const screenshot='artifacts/visual/'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+important+'.png';
+    await page.screenshot({path:screenshot});
+    visualEvidence.push({label,...facts,screenshot});important++;
+  }
+  if(expectArt)assert.ok(important>0,label+': no visible project art');
+  if(!important){
+    const screenshot='artifacts/visual/'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.png';
+    await page.screenshot({path:screenshot});visualEvidence.push({label,screenshot,artExpected:expectArt});
+  }
+}
+
+async function inspectNarrowJourneys(page,base){
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(base+'/live/component-tool.html?v=public-conformance-20261017');
+  await page.locator('#prepare').click();
+  await page.waitForFunction(()=>!document.getElementById('ask').disabled);
+  assert.equal(await page.locator('#parts tr').count(),6);
+  const componentReply=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'&&r.request().postDataJSON()?.projectId==='registered-components');
+  await page.locator('#ask').click();
+  const componentAnswer=await(await componentReply).json();
+  assert.equal(componentAnswer.storeAnswer.status,'SUPPORTABLE');
+  await page.locator('#result').filter({hasText:'Store answer: $'+componentAnswer.storeAnswer.Q.toFixed(2)}).waitFor({timeout:45000});
+  assert.equal(await page.locator('body').evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Component requirements must fit the narrow viewport');
+  await inspectVisuals(page,page,'mobile component tool',{expectArt:false});
+  await page.getByRole('link',{name:'Project Library',exact:true}).click();
+  const content=page.frameLocator('#stb-current').frameLocator('#stb-current');
+  await content.locator('#projects').waitFor({state:'visible'});
+  await inspectVisuals(page,content.locator('#projects'),'mobile returning library');
+  for(const [job,tile] of [['job1','[data-start-own-artifact]'],['alcove','[data-go="alcove-capture"]'],['window-seat','[data-window-seat-artifact]'],['outdoor','[data-outdoor-build-artifact]'],['playhouse','[data-go="window-parts"]']]){
+    await content.locator('#projects button.tile'+tile).click();
+    let surface=content,benchSurface;
+    if(job==='job1'){
+      surface=content.frameLocator('#start-own-proof-frame');
+      await surface.locator('#stb-intent-next').waitFor();
+      await inspectVisuals(page,surface,'mobile job1 intent');
+      await content.getByRole('button',{name:'Idea',exact:true}).click();
+      await inspectVisuals(page,surface,'mobile job1 idea',{required:['#stb-idea-img']});
+      await surface.locator('#stb-idea-next').click();
+      await surface.locator('#stb-add-tool').click();
+      assert.equal(await surface.locator('#stb-ops-list').isVisible(),true);
+      await surface.locator('#stb-ops-close').click();
+      assert.equal(await surface.locator('#stb-ops-list').isVisible(),false);
+      await surface.locator('#stb-intent-next').click();
+      await surface.locator('#stb-price-total').filter({hasText:/\$\d/}).waitFor({timeout:45000});
+      benchSurface=surface;
+    }else if(job==='alcove'){
+      await inspectVisuals(page,content.locator('#alcove-idea'),'mobile alcove idea');
+      await content.locator('#alcove-idea button[data-go="alcove-capture"]').first().click();
+      await inspectVisuals(page,content.locator('#alcove-capture'),'mobile alcove intent');
+      await content.locator('#alcove-capture button[data-go="alcove-config"]').first().click();
+      await content.locator('#alcove-bench-store-price').filter({hasText:/\$\d/}).waitFor({timeout:45000});
+      benchSurface=content.locator('#alcove-config');
+    }else if(job==='window-seat'){
+      surface=content.frameLocator('#window-seat-frame');await surface.locator('#s-hero').waitFor();
+      await inspectVisuals(page,surface,'mobile window seat idea');
+      await surface.locator('#s-hero button[data-to="intent"]').click();
+      await inspectVisuals(page,surface,'mobile window seat intent');
+      await surface.locator('#s-intent .forward-heading button[data-to="bench"]').click();
+      await surface.locator('#bench-money').filter({hasText:/\$[\d,]/}).waitFor({timeout:45000});
+      benchSurface=surface;
+    }else if(job==='outdoor'){
+      surface=content.frameLocator('#outdoor-bench-leg-frame');await surface.locator('#idea-next').waitFor();
+      await inspectVisuals(page,surface,'mobile outdoor idea',{expectArt:false});
+      await surface.locator('#idea-next').click();
+      await inspectVisuals(page,surface,'mobile outdoor intent');
+      await surface.locator('#s-intent [data-to-bench]').click();
+      await surface.locator('#outdoor-definition-price').filter({hasText:/\$\d/}).waitFor({timeout:45000});
+      benchSurface=surface;
+    }else{
+      await inspectVisuals(page,content.locator('#playhouse-idea'),'mobile playhouse idea');
+      await content.locator('#playhouse-idea button[data-canonical-go="playhouse-s001"]').click();
+      await inspectVisuals(page,content.locator('#playhouse-s001'),'mobile playhouse intent');
+      await content.locator('#ph-to-bench').click();
+      benchSurface=content.locator('#playhouse-machine');
+      assert.equal(await benchSurface.evaluate(e=>{const main=e.querySelector('.main').getBoundingClientRect(),rail=e.querySelector('.rail').getBoundingClientRect();return rail.width>=300&&rail.top>=main.bottom-1;}),true,'The narrow Playhouse rail must stack below its job');
+    }
+    await inspectVisuals(page,benchSurface,'mobile '+job+' bench');
+    const clipped=await benchSurface.locator('input:visible,select:visible,button:visible').evaluateAll(nodes=>nodes.filter(e=>{const r=e.getBoundingClientRect();return r.left < -1 || r.right > innerWidth+1;}).map(e=>({id:e.id,label:e.getAttribute('aria-label')||e.textContent?.trim(),right:e.getBoundingClientRect().right,width:innerWidth})));
+    assert.deepEqual(clipped,[],job+': narrow controls must stay within the visible column');
+    if(job==='outdoor')for(const id of ['woods','tiers'])await surface.locator('#'+id).filter({hasNotText:/…|\?/}).waitFor({timeout:180000});
+    const services=surface.getByRole('button',{name:'Additional services',exact:true});
+    await services.click();
+    const panel=surface.getByRole('dialog',{name:'Additional services',exact:true});
+    assert.equal(await panel.getByRole('checkbox').count(),62);
+    const choice=panel.getByRole('checkbox').first();await choice.check();
+    await panel.getByRole('button',{name:'Close additional services',exact:true}).click();
+    await services.click();assert.equal(await choice.isChecked(),true);
+    await choice.uncheck();await panel.press('Escape');assert.equal(await panel.isVisible(),false);
+    await content.getByRole('button',{name:'← Project Library',exact:true}).click();
+    await content.locator('#projects').waitFor({state:'visible'});
+  }
+  // The same browser returns with its HTTP cache and owner storage intact.
+  await page.reload();
+  await content.locator('#projects').waitFor({state:'visible'});
+  await content.locator('#projects button.tile[data-start-own-artifact]').click();
+  const job1=content.frameLocator('#start-own-proof-frame');
+  await inspectVisuals(page,job1,'mobile cached job1 intent');
+  await content.getByRole('button',{name:'Idea',exact:true}).click();
+  await inspectVisuals(page,job1,'mobile cached job1 idea');
+}
 
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
 {
@@ -63,17 +205,25 @@ assert.deepEqual(storeHealth.machineEvidence,machineEvidenceIdentity());
 const launchArgs=['--no-sandbox','--disable-dev-shm-usage',...JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS||'[]')];
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: launchArgs });
 let failed = false;
+let page;
 try {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
   const project1Specimens = [], project1Refusals = [];
   const publishedJobs = [], publishedRefusals = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
   const outdoorRequests=[],pageErrors=[],outdoorProfileTargets=[];
+  const resourceErrors=[],consoleErrors=[],resourceChecks=[],navigationAborts=[];
   let outdoorInFlight=0,outdoorMaxInFlight=0;
   const outdoorWire=r=>{try{const body=r.postDataJSON();return body?.projectId==='outdoor'?body:null;}catch{return null;}};
   page.on('pageerror',error=>pageErrors.push(String(error)));
+  page.on('console',message=>{if(message.type()==='error')consoleErrors.push(message.text());});
+  page.on('requestfailed',request=>{
+    const record={url:request.url(),type:request.resourceType(),error:request.failure()?.errorText};
+    if(record.error==='net::ERR_ABORTED'&&['document','fetch','xhr'].includes(record.type))navigationAborts.push(record);
+    else resourceErrors.push(record);
+  });
   let extendedSeatConfigReads = 0, extendedOutdoorConfigReads = 0;
   page.on('request', r => {
     if (new URL(r.url()).pathname === '/live/stb-store-runtime.json') configRequests.push(r.url());
@@ -90,6 +240,13 @@ try {
     }
   });
   page.on('response', r => {
+    const type=r.request().resourceType(),mime=r.headers()['content-type']||'';
+    const expected={document:/text\/html/,script:/(?:javascript|ecmascript)/,stylesheet:/text\/css/,image:/image\//,font:/(?:font|octet-stream)/}[type];
+    if(expected){
+      const record={url:r.url(),type,status:r.status(),mime,cacheControl:r.headers()['cache-control']||''};resourceChecks.push(record);
+      if(r.status()>=400||!expected.test(mime))resourceErrors.push(record);
+      if(new URL(r.url()).pathname.startsWith('/live/')&&!record.cacheControl.includes('no-cache'))resourceErrors.push({...record,error:'Published assets must revalidate rather than silently retain an earlier release'});
+    }
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
     if (new URL(r.url()).pathname === '/api/store-zero/job') responseReads.push(r.json().then(
       body=>evaluations.push(body), error=>responseReadErrors.push(String(error))));
@@ -100,7 +257,7 @@ try {
     ?.getElementById('stb-current')?.contentWindow?.document?.querySelector('#projects')), { timeout: 30000 });
   const content = page.frameLocator('iframe#stb-current').frameLocator('iframe#stb-current');
   for (const frame of [page.locator('iframe#stb-current'), page.frameLocator('iframe#stb-current').locator('iframe#stb-current')])
-    assert.ok((await frame.getAttribute('src')).includes('?v=verified-front-doors-20261017'), 'The updated nested page must invalidate its earlier cached source');
+    assert.ok((await frame.getAttribute('src')).includes('?v=public-conformance-20261017'), 'The updated nested page must invalidate its earlier cached source');
   await content.locator('#projects').waitFor({ state: 'attached', timeout: 30000 });
   const journey = async (surface, projectId, label) => {
     const nav = content.locator('.recovery-nav');
@@ -223,6 +380,7 @@ try {
       }));
       throw new Error(label + ': library did not open: ' + JSON.stringify(details) + '\\n' + error);
     }
+    if(!index)await inspectVisuals(page,content.locator('#projects'),'desktop project library');
     await tile.click();
     const activePages = await content.locator('.page.on').evaluateAll(nodes => nodes.map(n => n.id));
     assert.ok(activePages.length > 0, label + ': tile click left no visible page');
@@ -233,11 +391,23 @@ try {
     }
     if (label === 'Start Your Own') {
       const bench = content.frameLocator('iframe#start-own-proof-frame');
+      await bench.locator('#stb-start-intent-screen').waitFor({state:'visible'});
+      await inspectVisuals(page,bench,'desktop job1 intent',{required:['#stb-start-intent-screen .stb-user1-img','.stb-pick-ring']});
+      const originalPhoto=await bench.locator('#stb-start-intent-screen .stb-user1-img').getAttribute('src');
+      assert.equal(createHash('sha256').update(originalPhoto).digest('hex'),'2e494febcfc41895534055ab11e7ded433b3bd4e1319d82537d58489de4ba6b2','Preserve the exact original Job 1 photograph');
+      await content.getByRole('button',{name:'Idea',exact:true}).click();
+      await bench.locator('#stb-start-idea-screen').waitFor({state:'visible'});
+      assert.equal(await bench.locator('#stb-idea-img').getAttribute('src'),originalPhoto,'Idea must retain the original Intent photograph');
+      await inspectVisuals(page,bench,'desktop job1 idea',{required:['#stb-idea-img']});
+      await bench.locator('#stb-idea-next').click();
       await bench.locator('#stb-intent-next').click({ timeout: 15000 });
       await bench.locator('#stb-start-bench-screen').waitFor({ state: 'visible', timeout: 15000 });
       // Both values must be from live Store replies, never from test fixtures.
       await bench.locator('#stb-price-total').filter({ hasText: '$8.62' })
         .waitFor({ state: 'visible', timeout: 30000 });
+      await inspectVisuals(page,bench,'desktop job1 bench',{required:['#stb-user1-bench-svg']});
+      assert.equal(await bench.locator('#stb-bench-dynamic-geometry line[stroke-width="5"]').count(),3,'Draw all three angled cuts');
+      assert.equal(await bench.locator('#stb-bench-dynamic-geometry circle[stroke="#2f6f9e"]').count(),2,'Draw both defined spots');
       await bench.locator('#stb-confirm-store').click();
       await content.locator('#proof-store').waitFor({state:'visible',timeout:45000});
       await journey(content,'start-own','Project 1 default');
@@ -263,6 +433,8 @@ try {
         .waitFor({state:'visible',timeout:15000});
       await bench.locator('#stb-price-total').filter({hasText:/\$\d/})
         .waitFor({state:'visible',timeout:45000});
+      const drawnSpots=await bench.locator('#stb-bench-dynamic-geometry circle[stroke="#2f6f9e"]').evaluateAll(nodes=>nodes.map(n=>Number(n.getAttribute('cx'))));
+      for(const [i,x] of [5.25,18+10.25].entries())assert.ok(Math.abs(drawnSpots[i]-(40+x*820/72))<1e-8,'The drawing must follow each selected longitudinal spot');
       const selected=await bench.locator('body').evaluate(()=>window.parent.STBStartOwnLive?.revision());
       const entered=selected?.facts?.['start-own.parts']?.value;
       assert.equal(entered?.[0]?.features?.[0]?.xIn,5.25);
@@ -313,12 +485,15 @@ try {
     if (label === 'Alcove') {
       // The Alcove project tile opens its unnumbered Idea page first.
       if (await content.locator('#alcove-idea').isVisible()) {
+        await inspectVisuals(page,content.locator('#alcove-idea'),'desktop alcove idea');
         await content.locator('#alcove-idea button[data-go="alcove-capture"]').first().click();
       }
       await content.locator('#alcove-capture').waitFor({ state: 'visible', timeout: 15000 });
+      await inspectVisuals(page,content.locator('#alcove-capture'),'desktop alcove intent');
       await content.locator('#alcove-capture button[data-go="alcove-config"]').first().click();
       const price = content.locator('#alcove-bench-store-price');
       await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      await inspectVisuals(page,content.locator('#alcove-config'),'desktop alcove bench');
       const pine = (await price.innerText()).trim();
       await content.locator('#confirm-alcove-inline').click();
       await content.locator('#store').waitFor({state:'visible',timeout:45000});
@@ -362,13 +537,17 @@ try {
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
     if (label === 'Window Seat') {
-      assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=current-proof-1'),'The host must invalidate the previously cached Window Seat page');
+      assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=public-conformance-20261017'),'The host must invalidate the previously cached Window Seat page');
       const seat = content.frameLocator('iframe#window-seat-frame');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await seat.locator('#s-hero').waitFor({state:'visible'});
+      await inspectVisuals(page,seat,'desktop window seat idea');
       await seat.locator('#s-hero button[data-to="intent"]').click({ timeout: 15000 });
+      await inspectVisuals(page,seat,'desktop window seat intent');
       await seat.locator('#s-intent .forward-heading button[data-to="bench"]').click({ timeout: 15000 });
       const money = seat.locator('#bench-money');
       await money.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
+      await inspectVisuals(page,seat,'desktop window seat bench');
       const quote = (await money.innerText()).trim();
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Window Seat Bench displayed no fresh Store response');
@@ -456,11 +635,14 @@ try {
         oakMillingQ:oak.rawEvaluation.Q,missingStockRefusalVisible:true,freshStoreAnswer:true}));
     }
     if (label === 'Outdoor') {
-      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=current-proof-1'),'The host must invalidate the previously cached Outdoor page');
+      assert.ok((await content.locator('iframe#outdoor-bench-leg-frame').getAttribute('src')).includes('?v=public-conformance-20261017'),'The host must invalidate the previously cached Outdoor page');
       const outdoor = content.frameLocator('iframe#outdoor-bench-leg-frame');
       assert.ok((await outdoor.locator('script[src*="stb-outdoor-option-requests.js"]').getAttribute('src')).includes('?v=selected-first-20261015'),'The corrected queue must not reuse the previously cached script');
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await outdoor.locator('#s-idea').waitFor({state:'visible'});
+      await inspectVisuals(page,outdoor,'desktop outdoor idea',{expectArt:false});
       await outdoor.locator('#idea-next').click({ timeout: 15000 });
+      await inspectVisuals(page,outdoor,'desktop outdoor intent');
       await outdoor.locator('#s-intent [data-to-bench]').click({ timeout: 15000 });
       const money = outdoor.locator('#outdoor-definition-price');
       let quote;
@@ -481,6 +663,7 @@ try {
         return answer;
       };
       const sourcePlan=await waitOutdoorAnswer();
+      await inspectVisuals(page,outdoor,'desktop outdoor bench');
       assert.equal(sourcePlan.rawEvaluation.status,'SUPPORTABLE',JSON.stringify(sourcePlan.rawEvaluation.reasonRecords));
       assert.ok(typeof sourcePlan.rawEvaluation.Q==='number' && sourcePlan.rawEvaluation.Q>0);
       assert.equal((await money.innerText()).trim(),String.fromCharCode(36)+sourcePlan.rawEvaluation.Q.toFixed(2));
@@ -617,21 +800,50 @@ try {
       await outdoor.locator('#woods').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
       await outdoor.locator('#tiers').filter({hasNotText:/…|\?/}).waitFor({state:'visible',timeout:180000});
       await Promise.all(responseReads);
+      await outdoor.locator('#to-edge').click();
+      await outdoor.locator('#s-edge').waitFor({state:'visible'});
+      const part=outdoor.locator('#parts-bench .part').first();
+      const kind=await part.getAttribute('data-part');
+      await part.locator('[data-tool="spots"]').click();
+      assert.equal(await outdoor.locator('#send-work').isDisabled(),true,'Missing spot locations must block this work');
+      await part.locator('[data-in="fromEndIn"]').fill('2');
+      await part.locator('[data-in="place"]').selectOption('CENTER');
+      const spotted=await waitOutdoorAnswer();
+      assert.equal(spotted.rawEvaluation.status,'SUPPORTABLE');
+      assert.ok(spotted.mappedCallInputs.manifest.featureIds.some(id=>id.startsWith(kind+'-')&&id.includes('SPOT')),'Added locations must reach the independent manifest');
+      await inspectVisuals(page,outdoor,'desktop outdoor bigger bench');
+      await part.locator('[data-tool="deco"]').click();
+      await part.locator('[data-in="angle"]').fill('85');
+      const steep=await waitOutdoorAnswer();
+      assert.equal(steep.rawEvaluation.status,'REFUSED');assert.equal(steep.rawEvaluation.Q,null);
+      assert.equal(await outdoor.locator('#send-work').isDisabled(),true);
+      await outdoor.locator('#back-plan').click();
+      const recovered=await waitOutdoorAnswer();
+      assert.equal(recovered.rawEvaluation.status,'SUPPORTABLE');
+      assert.equal(recovered.mappedCallInputs.manifest.featureIds.some(id=>id.includes('SPOT')),false,'Back to the plan must remove only the added work');
       extendedOutdoorConfigReads=configRequests.length-extraConfigStart;
       console.log(JSON.stringify({ project: label, benchPrice: quote, liveStore: true, planResults }));
     }
     if (label === 'Playhouse') {
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
+      await inspectVisuals(page,content.locator('#playhouse-idea'),'desktop playhouse idea');
       await content.locator('#playhouse-idea button[data-canonical-go="playhouse-s001"]').click({ timeout: 15000 });
       await content.locator('#playhouse-s001').waitFor({ state: 'visible', timeout: 15000 });
+      await inspectVisuals(page,content.locator('#playhouse-s001'),'desktop playhouse intent');
       await content.locator('#ph-to-bench').click({ timeout: 15000 });
       await content.locator('#playhouse-machine').waitFor({ state: 'visible', timeout: 15000 });
+      await inspectVisuals(page,content.locator('#playhouse-machine'),'desktop playhouse bench');
+      const originalOpeningPath=await content.locator('#s001-opening-path').getAttribute('d');
+      assert.match(originalOpeningPath,/ A /,'The opening must contain its actual circular arc');
+      assert.equal(await content.locator('#s001-tab-markers circle').count(),4,'Show all four reference retention tabs');
       await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click({ timeout: 15000 });
       const quote = content.locator('#s001-live-q');
       await quote.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Playhouse sheet definition received no current Store answer');
       await journey(content,'playhouse','Playhouse default');
+      assert.equal(await content.locator('#playhouse-result [data-s001-bind="status"]').textContent(),'SUPPORTABLE','Recap must show the actual matching Store status');
+      assert.equal(await content.locator('#playhouse-record [data-s001-bind="status"]').textContent(),'SUPPORTABLE','The owner record must carry that same actual result');
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await content.locator('#playhouse-machine').waitFor({state:'visible'});
       const opening=content.locator('#s001-opening-width');
@@ -641,6 +853,7 @@ try {
       const widthBefore=Number(await opening.inputValue());
       await opening.focus();await opening.press('ArrowLeft');
       assert.equal(Number(await opening.inputValue()),widthBefore-0.5);
+      assert.notEqual(await content.locator('#s001-opening-path').getAttribute('d'),originalOpeningPath,'The drawing must update with the revised opening');
       assert.ok(Number(await content.locator('#s001-straight-height').getAttribute('min'))>0);
       assert.ok(Number(await content.locator('#s001-arch-rise').getAttribute('min'))>0);
       const oldPlayhouse=publishedJobs.findLast(r=>r.projectId==='playhouse');
@@ -693,18 +906,28 @@ try {
     assert.equal(new Set(jobs.map(r=>r.applicationAnswer.evaluationReceipt.receiptHash)).size,jobs.length,id+': later work must not reuse an earlier receipt');
     assert.equal(new Set(jobs.map(r=>r.machineReply.answer.localJob.packetHash)).size,jobs.length,id+': each lowering must bind its actual packet');
   }
-  const additionalJob=await exerciseComponentTool(page,{base,storeOrigin:process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091',storePin:expectedPin});
+  const toolLink=readFileSync('README.md','utf8').match(/\[registered component tool\]\(([^)]+)\)/)?.[1];
+  assert.ok(toolLink,'The README must expose its registered tool');
+  const toolDestination=new URL(toolLink);
+  assert.equal(toolDestination.origin,'https://system-candidate-production.up.railway.app');
+  const additionalJob=await exerciseComponentTool(page,{base,entryPath:toolDestination.pathname+toolDestination.search,storeOrigin:process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091',storePin:expectedPin});
+  await inspectNarrowJourneys(page,base);
+  await Promise.all(responseReads);
   assert.deepEqual(pageErrors,[], 'The additional public tool must not introduce browser errors');
+  assert.deepEqual(consoleErrors,[],'Customer journeys must not emit console errors');
+  assert.deepEqual(resourceErrors,[],'Essential browser resources must load with their correct MIME types');
   const systemRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
   const dirty=execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim().length>0;
   if(process.env.CI)assert.equal(dirty,false,'Published proof must identify a clean System checkout');
   mkdirSync('artifacts',{recursive:true});
-  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,conditions:{node:process.version,chromium:browser.version(),base,launchArgs},physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals,publishedJobs,publishedRefusals,additionalJob},null,2)+'\n');
+  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,conditions:{node:process.version,chromium:browser.version(),base,launchArgs},physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals,publishedJobs,publishedRefusals,additionalJob,visualEvidence,resourceChecks,navigationAborts},null,2)+'\n');
   await page.close();
 } catch (error) {
   failed = true;
+  if(page&&!page.isClosed())await page.screenshot({path:'artifacts/visual/failure.png'}).catch(()=>{});
   console.error(error?.stack || String(error));
 } finally {
+  writeFileSync('artifacts/visual/inspection.json',JSON.stringify({failed,visualEvidence},null,2)+'\n');
   await browser.close();
 }
 if (failed) process.exitCode = 1;
