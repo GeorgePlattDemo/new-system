@@ -153,7 +153,9 @@ async function inspectNarrowJourneys(page,base){
   const job1=content.frameLocator('#start-own-proof-frame');
   await inspectVisuals(page,job1,'mobile cached job1 intent');
   await content.getByRole('button',{name:'Idea',exact:true}).click();
-  await inspectVisuals(page,job1,'mobile cached job1 idea');
+  // Re-entering from a cached page still switches the nested Idea screen asynchronously.
+  await job1.locator('#stb-start-idea-screen').waitFor({state:'visible'});
+  await inspectVisuals(page,job1,'mobile cached job1 idea',{required:['#stb-idea-img']});
 }
 
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
