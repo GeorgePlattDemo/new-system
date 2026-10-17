@@ -1,5 +1,5 @@
 {
   "jobEndpoint": "same-origin:/api/store-zero/job",
   "offeringEndpoint": "same-origin:/api/store-zero/offering",
-  "storePin": "a3a83a6aefdeb9eba7f85beaf09323de72ed7e8d"
+  "storePin": "10d36c09ff6e0dac3c098a004821efea81a2b58d"
 }

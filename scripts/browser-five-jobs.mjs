@@ -49,7 +49,7 @@ for (const endpoint of ['job', 'offering']) {
     assert.deepEqual(await response.json(), { adapterError: true, code });
   }
 }
-const expectedPin = 'a3a83a6aefdeb9eba7f85beaf09323de72ed7e8d';
+const expectedPin = '10d36c09ff6e0dac3c098a004821efea81a2b58d';
 const storeRoot=resolve(process.env.STORE_ZERO_ROOT||fileURLToPath(new URL('../.store-zero/',import.meta.url)));
 assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:storeRoot,encoding:'utf8'}).trim(),expectedPin,'Browser acceptance requires the exact Store checkout');
 assert.equal(execFileSync('git',['status','--porcelain'],{cwd:storeRoot,encoding:'utf8'}).trim(),'','Browser acceptance requires clean Store source');
@@ -324,7 +324,24 @@ try {
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await content.locator('#alcove-config').waitFor({state:'visible'});
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
-      await content.locator('#alcove-config button[data-material="poplar"]').click();
+      // Hold the real next inquiry in transit; no answer or price is substituted.
+      let releaseInquiry;
+      const pendingInquiry = new Promise(resolve => { releaseInquiry = resolve; });
+      const holdInquiry = async route => {
+        if (route.request().postDataJSON()?.projectId === 'alcove') await pendingInquiry;
+        await route.continue();
+      };
+      await page.route('**/api/store-zero/job', holdInquiry);
+      const sent = page.waitForRequest(r => new URL(r.url()).pathname === '/api/store-zero/job' && r.postDataJSON()?.projectId === 'alcove');
+      try {
+        await content.locator('#alcove-config button[data-material="poplar"]').click();
+        await sent;
+        for (const id of ['p-price','r-q','review-price','store-price'])
+          assert.equal(await content.locator('#'+id).textContent(), 'ASKING STORE ZERO…', id+': obsolete amount remained while pending');
+      } finally {
+        releaseInquiry();
+        await page.unroute('**/api/store-zero/job', holdInquiry);
+      }
       await price.filter({ hasNotText: pine }).waitFor({ state: 'visible', timeout: 45000 });
       await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       const poplar = (await price.innerText()).trim();

@@ -36,13 +36,13 @@ The library offers five bounded project classes:
 
 | Project | What you work on |
 | --- | --- |
-| **Start your own** | A user-defined board job with cuts and a bounded spot operation. |
-| **Critical fit** | An alcove/shelf insert shaped by the opening it must fit. |
-| **Space utilization** | A window-seat assembly that makes use of available space. |
-| **Outdoor build** | A picnic-table project starting from a published plan. |
-| **Playhouse arched window** | A sheet opening through the S-001 path, with retained tabs. |
+| [**Start your own**](public/live/three-frames.html) | A user-defined board job with cuts and a bounded spot operation. |
+| [**Critical fit**](public/live/system-build-base-8d8a9dd.html) | An alcove/shelf insert shaped by the opening it must fit. |
+| [**Space utilization**](public/live/stb-window-seat-0.9.html) | A window-seat assembly that makes use of available space. |
+| [**Outdoor build**](public/live/stb-outdoor-picnic-0.4.html) | A picnic-table project starting from a published plan. |
+| [**Playhouse arched window**](public/live/system-build-current.html) | A sheet opening through the S-001 path, with retained tabs. |
 
-Each keeps its own project facts while using the same journey.
+Each keeps its own project facts while using the same journey. These source links identify the project owners; enter the application through **Open the app** to use the complete nested experience. The [registered component tool](https://system-candidate-production.up.railway.app/live/component-tool.html) defines a separate six-part component set through the same compiler and Store boundary; its [source and registration](public/live/component-tool.mjs) preserve both supported revisions.
 
 ## One trail from Intent to build
 
@@ -82,7 +82,7 @@ Current integration acceptance uses the Project 1 SPF cases. The original Projec
 | **System** | The five published job screens, their definitions, and the request each one sends. |
 | [**Store**](https://github.com/GeorgePlattDemo/store-zero) | Material, capability, modeled work, economics, and machine evidence for a bounded request. |
 
-System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate.ts). That record is an inspected commit, not a production release. The Store evaluates the request; the application presents that answer and preserves its identity.
+System asks the Store recorded in [`STORE_CANDIDATE`](src/system/store-candidate.ts). That record selects the inspected dependency. Verify the running release separately against Store health, its shipped-source digest and fresh receipts. The Store evaluates the request; the application presents that answer and preserves its identity.
 
 Read the [complete System reference](SYSTEM-MASTER.md) for the working application, definition semantics and Store handoff.
 
@@ -97,8 +97,13 @@ The public door is [the published shell](public/live/system-build-current.html).
 | What do the words mean? | [Definitions](docs/DEFINITIONS.md) |
 | Which Store commit is inspected? | [Store candidate](src/system/store-candidate.ts) |
 | What has been shown for the five jobs? | [Verification note](SYSTEM-MASTER.md#14-testing-and-verification) |
+| Where are definitions compiled and carried? | [Compiler](src/system/compile.ts), [independent manifest](src/system/manifest.ts), [published adapter](src/system/store/published-wire.ts) and [browser client](public/live/stb-store-client.js) |
+| Which runtime and build are used? | [Architecture and deployment](SYSTEM-MASTER.md#13-application-architecture-and-deployment), [runtime config](public/live/stb-store-runtime.json), [Dockerfile](Dockerfile.railway) and [local startup](startup.sh) |
+| How are the published jobs verified? | [Required CI](.github/workflows/verify.yml), [five-project Chromium acceptance](scripts/browser-five-jobs.mjs) and its generated `project-1-current-proof` artifact |
 | What is the shared SKU, machine-time and Q engine? | [Store-owned manufacturing core](https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs) |
 | What evidence must each commercial and fulfillment event carry? | [Commercial sequence template](SYSTEM-MASTER.md#10-customer-decision-and-commercial-progression) |
+
+Maintainers: read [AGENTS.md](AGENTS.md), then run the [verification commands](SYSTEM-MASTER.md#141-commands-and-observed-results) with the exact clean pinned Store and reviewed Program checkouts. The [release and rollback procedure](docs/verification/start-your-own.md#release-configuration-and-rollback-procedure) governs deployment.
 
 Store owns the active manufacturing core. System submits the complete definition manifest and consumes its answers. The commercial specification and executable event gate are shared with Store; each simulated stage requires explicit source evidence. Physical and financial authority remain blocked.
 

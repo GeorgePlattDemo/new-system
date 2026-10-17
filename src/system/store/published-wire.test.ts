@@ -654,6 +654,23 @@ test("Alcove's published gate opens Your call for a fully evaluated current Stor
   assert.equal(terms.state().pendingReason,"SELLER_OFFER_AND_TERMS_REQUIRED");
 });
 
+test("Alcove clears every displayed amount while a replacement Store answer is pending", () => {
+  const nodes = new Map<string, { textContent: string; value: string; innerHTML: string }>();
+  const document = { getElementById: (id: string) => {
+    if (!nodes.has(id)) nodes.set(id, { textContent: "$372.19", value: "14", innerHTML: "" });
+    return nodes.get(id)!;
+  } };
+  const context = { document, alcove: { material: "pine" }, ALCOVE_MATERIAL_DISPLAY: { pine: { name: "Pine" } }, fmt: String };
+  const syncTransaction = publishedFunction("system-build-base-8d8a9dd.html", "syncTransaction", context);
+  syncTransaction();
+  const pending = publishedFunction("system-build-base-8d8a9dd.html", "setAlcoveStorePending", {
+    document, syncTransaction, renderAlcoveCycleRun: () => {},
+  });
+  pending();
+  for (const id of ["p-price", "r-q", "review-price", "store-price"])
+    assert.equal(document.getElementById(id).textContent, "ASKING STORE ZERO…", id);
+});
+
 test("Alcove unresolved installation requirements block whole-job Q and all commercial stages",async()=>{
   const definition={configurationId:"ALCOVE-USER1",configurationVersion:"unresolved",materialDemand:{species:"poplar",form:"board",nominalT:1,grade:"select"},boardRequirements:[{requirementId:"SHELVES",requiredOps:["CROSSCUT"]}],componentPrograms:[{componentId:"SHELF-01",requirementId:"SHELVES",nominalW:6,finishedLengthIn:30,finishedWidthIn:5.5,features:[]}],unresolvedConditions:["INSTALLATION_LOAD_RATING_REQUIRED"]};
   const answered=await answerPublishedWire(wireFor("alcove","ALCOVE_INSERT_V1","unresolved",{definition}),await storeOrigin());
