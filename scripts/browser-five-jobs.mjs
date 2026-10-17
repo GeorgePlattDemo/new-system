@@ -6,9 +6,11 @@ import assert from 'node:assert/strict';
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { runInNewContext } from 'node:vm';
+import {resolve, join} from 'node:path';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import { chromium } from 'playwright';
 import { profilePinnedStoreAnswer } from './profile-pinned-store.mjs';
-import {exerciseComponentTool} from './browser-component-tool.mjs';
+import {exerciseComponentTool, lowerAcceptedPacket} from './browser-component-tool.mjs';
 
 // Exercise promise settlement and dispatch independently of Store's manufacturing answers.
 {
@@ -47,7 +49,17 @@ for (const endpoint of ['job', 'offering']) {
     assert.deepEqual(await response.json(), { adapterError: true, code });
   }
 }
-const expectedPin = '95187a9f7788d600181e56282343fa57cf843a46';
+const expectedPin = 'a3a83a6aefdeb9eba7f85beaf09323de72ed7e8d';
+const storeRoot=resolve(process.env.STORE_ZERO_ROOT||fileURLToPath(new URL('../.store-zero/',import.meta.url)));
+assert.equal(execFileSync('git',['rev-parse','HEAD'],{cwd:storeRoot,encoding:'utf8'}).trim(),expectedPin,'Browser acceptance requires the exact Store checkout');
+assert.equal(execFileSync('git',['status','--porcelain'],{cwd:storeRoot,encoding:'utf8'}).trim(),'','Browser acceptance requires clean Store source');
+const {sourceDigest}=await import(pathToFileURL(join(storeRoot,'src/service/server.mjs')).href);
+const {machineEvidenceIdentity}=await import(pathToFileURL(join(storeRoot,'src/machine/evidence.mjs')).href);
+const storeOrigin=process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091';
+const storeHealth=await(await fetch(storeOrigin+'/health')).json();
+assert.equal(storeHealth.release,expectedPin);
+assert.deepEqual(storeHealth.source,sourceDigest());
+assert.deepEqual(storeHealth.machineEvidence,machineEvidenceIdentity());
 const launchArgs=['--no-sandbox','--disable-dev-shm-usage',...JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS||'[]')];
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: launchArgs });
 let failed = false;
@@ -55,6 +67,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const responses = [];
   const project1Specimens = [], project1Refusals = [];
+  const publishedJobs = [], publishedRefusals = [];
   const evaluations = [], responseReads = [], responseReadErrors = [];
   const configRequests = [];
   const outdoorRequests=[],pageErrors=[],outdoorProfileTargets=[];
@@ -105,40 +118,54 @@ try {
     assert.equal(await visibleChain.locator('[data-terms-event="arrived"]').isVisible(),true);
     assert.ok((await visibleChain.innerText()).includes(answer.evaluationReceipt.receiptHash.slice(0,16)),label+': receipt must be visible without expansion');
     await accept.click();
-    if(projectId==='start-own'){
-      const exported=await surface.locator('body').evaluate(async()=>{
+    {
+      const exported=await surface.locator('body').evaluate(async (_body,projectId)=>{
         let owner=window;
         while(!owner.STBTermsFlow&&owner!==owner.parent)owner=owner.parent;
-        const flow=owner.STBTermsFlow.instance('start-own');
+        const flow=owner.STBTermsFlow.instance(projectId);
         return {accepted:await flow.acceptedPacket(),transaction:flow.state().commercial};
-      });
+      },projectId);
       assert.equal(exported.accepted.status,'ACCEPTED_PACKET_READY',JSON.stringify(exported));
       const packet=exported.accepted.packet;
       assert.deepEqual(packet.definition.demand,answer.mappedCallInputs.demand);
       assert.deepEqual(packet.definition.manifest,answer.mappedCallInputs.manifest);
       assert.deepEqual(packet.storeAnswer,answer.storeAnswer);
-      const origin=process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091';
-      const health=await(await fetch(origin+'/health')).json();
-      assert.equal(health.release,expectedPin);
-      const request={packet,expectedMachineConfigId:health.machineEvidence.machineConfigId,expectedMachineConfigHash:health.machineEvidence.machineConfigHash};
-      const reply=await(await fetch(origin+'/v1/machine-evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(request)})).json();
-      assert.equal(reply.storeRelease,expectedPin);
+      const {request,reply,http}=await lowerAcceptedPacket(packet,{storeOrigin,storePin:expectedPin,health:storeHealth});
       const evidence=reply.answer;
-      assert.equal(evidence.status,'VIRTUAL_EVIDENCE_READY',JSON.stringify(reply));
-      assert.deepEqual(evidence.localJob.operations,packet.storeAnswer.operations);
-      assert.deepEqual(evidence.localJob.parents,packet.storeAnswer.parents);
-      const point=(0.1875/2)/Math.tan(118*Math.PI/360);
-      for(const part of packet.definition.demand.parts)for(const feature of part.features){
+      if(projectId==='start-own'){
+       const point=(0.1875/2)/Math.tan(118*Math.PI/360);
+       for(const part of packet.definition.demand.parts)for(const feature of part.features){
         const depth=feature.fullDiameterDepthIn??0.1875;
         const parent=packet.storeAnswer.parents.find(p=>p.partIds?.includes(part.partId));
         assert.ok(parent,'Each spot must belong to its evaluated parent');
         const moves=evidence.localJob.operations.filter(o=>o.kind==='MOVE'&&o.axis==='Z'&&o.subject===feature.featureId&&o.target<parent.actualT);
         assert.equal(moves.length,1);assert.ok(Math.abs(moves[0].target-(parent.actualT-point-depth))<1e-12);
+       }
       }
-      assert.equal(evidence.run.timeSec,packet.storeAnswer.time.totalSeconds);
-      assert.equal(evidence.run.status,'VIRTUAL_MODEL_COMPLETE');
-      assert.equal(evidence.admission.status,'BLOCKED');assert.equal(evidence.admission.motionCommands,0);
-      project1Specimens.push({label,lengthIn:packet.definition.demand.parts[0].lengthIn,health,applicationAnswer:answer,transaction:exported.transaction,machineRequest:request,machineReply:reply});
+      const record={label,projectId,health:storeHealth,applicationAnswer:answer,transaction:exported.transaction,machineRequest:request,machineReply:reply,machineHttp:http};
+      publishedJobs.push(record);
+      if(projectId==='start-own')project1Specimens.push({...record,lengthIn:packet.definition.demand.parts[0].lengthIn});
+      if(['alcove','window-seat','outdoor'].includes(projectId))assert.ok(http.requestBytes>256*1024,label+': exercise the formerly rejected complete packet');
+      if(label==='Outdoor · A-frame'){
+        const envelopes=evidence.records.sequence.filter(e=>e.kind==='STOCK_ENVELOPE_DERIVED');
+        assert.deepEqual(envelopes,packet.storeAnswer.operations.filter(e=>e.kind==='STOCK_ENVELOPE_DERIVED'));
+        assert.ok(envelopes.some(e=>e.subject.startsWith('LEG-')));
+        assert.equal(envelopes.filter(e=>e.subject.startsWith('BRACE-')).length,2);
+      }
+      if(label==='Window Seat default'){
+        for(const [kind,change]of [
+          ['missing component',r=>r.packet.definition.demand.cutPackages[0].parts.pop()],
+          ['missing operation',r=>r.packet.storeAnswer.operations.pop()],
+          ['incompatible configuration',r=>r.expectedMachineConfigHash='0'.repeat(64)]
+        ]){
+          const mutant=structuredClone(request);change(mutant);
+          // Keep the original UI packet untouched; deliberately invalid copies must refuse.
+          const response=await fetch(storeOrigin+'/v1/machine-evidence',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(mutant)}),refusal=await response.json();
+          assert.equal(response.status,200);assert.equal(refusal.answer.status,'REFUSED');assert.equal(refusal.answer.localJob,undefined);
+          publishedRefusals.push({kind,request:mutant,reply:refusal,httpStatus:response.status});
+        }
+      }
+      console.log(JSON.stringify({project:label,packetId:packet.packetId,packetHash:evidence.localJob.packetHash,machineHttp:http,lowering:evidence.status,replay:evidence.run.status,physicalAdmission:evidence.admission.status}));
     }
     const yard=surface.locator('[data-terms-action="yard"]:visible');
     await yard.waitFor({timeout:15000});
@@ -291,6 +318,11 @@ try {
       const price = content.locator('#alcove-bench-store-price');
       await price.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       const pine = (await price.innerText()).trim();
+      await content.locator('#confirm-alcove-inline').click();
+      await content.locator('#store').waitFor({state:'visible',timeout:45000});
+      await journey(content,'alcove','Alcove default');
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      await content.locator('#alcove-config').waitFor({state:'visible'});
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
       await content.locator('#alcove-config button[data-material="poplar"]').click();
       await price.filter({ hasNotText: pine }).waitFor({ state: 'visible', timeout: 45000 });
@@ -301,7 +333,7 @@ try {
       assert.ok(after > before, 'Alcove species change did not receive a new Store answer');
       await content.locator('#confirm-alcove-inline').click();
       await content.locator('#store').waitFor({state:'visible',timeout:45000});
-      await journey(content,'alcove',label);
+      await journey(content,'alcove','Alcove revised species');
       console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
     }
     if (label === 'Window Seat') {
@@ -335,6 +367,10 @@ try {
       assert.deepEqual(auditRequest.demand,pine.mappedCallInputs.demand);
       assert.deepEqual(auditRequest.manifest,pine.mappedCallInputs.manifest);
       await profilePinnedStoreAnswer({...pine,requestId:auditRequest.requestId,mappedCallInputs:auditRequest});
+      await seat.locator('#btn-ask').click();
+      await journey(seat,'window-seat','Window Seat default');
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      await seat.locator('#s-bench').waitFor({state:'visible'});
       const configReadsBeforeSpeciesChecks=configRequests.length;
       await seat.locator('#bench-species [data-material="poplar"]').click();
       const poplar = await waitAnswer();
@@ -385,7 +421,7 @@ try {
       await seat.locator('#bench-species [data-material="pine"]').click();
       await waitAnswer();
       await seat.locator('#btn-ask').click();
-      await journey(seat,'window-seat',label);
+      await journey(seat,'window-seat','Window Seat revised dimensions');
       const seatTerms=await seat.locator('body').evaluate(()=>window.STBWindowSeat.state().terms);
       assert.equal(seatTerms.commercial.physicalAuthority,false);
       assert.equal(seatTerms.commercial.paymentAuthority,false);
@@ -429,6 +465,8 @@ try {
       assert.ok(braces.every(e=>Math.abs(e.stockEnvelopeLengthIn-braceEnvelope)<1e-9));
       assert.ok(sourcePlan.rawEvaluation.parents.some(p=>p.components?.some(c=>c.partId.startsWith('BRACE-'))),
         'The quote must contain Store parent-stock planning');
+      await outdoor.locator('#bench-confirm').click();
+      await journey(outdoor,'outdoor','Outdoor · A-frame');
       const planResults=[];
       for (const [plan, initialQ, revisedQ] of [['table-benches',288.23,321.94]]) {
         if (plan==='table-benches') {
@@ -568,7 +606,27 @@ try {
       await quote.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Playhouse sheet definition received no current Store answer');
-      await journey(content,'playhouse',label);
+      await journey(content,'playhouse','Playhouse default');
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      await content.locator('#playhouse-machine').waitFor({state:'visible'});
+      const opening=content.locator('#s001-opening-width');
+      assert.equal(await opening.isDisabled(),true,'The library copy remains read only');
+      await content.locator('[data-canonical-preview-action="edit"]:visible').click();
+      assert.equal(await opening.isEnabled(),true);
+      const widthBefore=Number(await opening.inputValue());
+      await opening.focus();await opening.press('ArrowLeft');
+      assert.equal(Number(await opening.inputValue()),widthBefore-0.5);
+      assert.ok(Number(await content.locator('#s001-straight-height').getAttribute('min'))>0);
+      assert.ok(Number(await content.locator('#s001-arch-rise').getAttribute('min'))>0);
+      const oldPlayhouse=publishedJobs.findLast(r=>r.projectId==='playhouse');
+      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
+      await quote.filter({hasText:'$76.49'}).waitFor({state:'visible',timeout:45000});
+      await journey(content,'playhouse','Playhouse revised width');
+      const revisedPlayhouse=publishedJobs.at(-1);
+      assert.equal(revisedPlayhouse.machineRequest.packet.definition.demand.features.find(f=>f.featureId==='OPENING').widthIn,widthBefore-0.5);
+      assert.notEqual(revisedPlayhouse.applicationAnswer.candidateRevisionId,oldPlayhouse.applicationAnswer.candidateRevisionId);
+      assert.notEqual(revisedPlayhouse.applicationAnswer.evaluationReceipt.receiptHash,oldPlayhouse.applicationAnswer.evaluationReceipt.receiptHash);
+      assert.notEqual(revisedPlayhouse.machineReply.answer.localJob.packetHash,oldPlayhouse.machineReply.answer.localJob.packetHash);
       const playhouse=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.terms());
       assert.equal(playhouse.commercial.physicalAuthority,false);
       assert.equal(playhouse.commercial.paymentAuthority,false);
@@ -602,13 +660,21 @@ try {
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
   assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18,18]);
+  assert.deepEqual(Object.fromEntries(['start-own','alcove','window-seat','outdoor','playhouse'].map(id=>[id,publishedJobs.filter(r=>r.projectId===id).length])),{'start-own':3,alcove:2,'window-seat':2,outdoor:2,playhouse:2});
+  for(const id of ['start-own','alcove','window-seat','outdoor','playhouse']){
+    const jobs=publishedJobs.filter(r=>r.projectId===id);
+    // Master §3 distinguishes owner revisions from reusable manufacturing configuration labels.
+    assert.equal(new Set(jobs.map(r=>r.applicationAnswer.candidateRevisionId)).size,jobs.length,id+': each accepted owner definition must have its own revision');
+    assert.equal(new Set(jobs.map(r=>r.applicationAnswer.evaluationReceipt.receiptHash)).size,jobs.length,id+': later work must not reuse an earlier receipt');
+    assert.equal(new Set(jobs.map(r=>r.machineReply.answer.localJob.packetHash)).size,jobs.length,id+': each lowering must bind its actual packet');
+  }
   const additionalJob=await exerciseComponentTool(page,{base,storeOrigin:process.env.STORE_ZERO_ORIGIN||'http://127.0.0.1:8091',storePin:expectedPin});
   assert.deepEqual(pageErrors,[], 'The additional public tool must not introduce browser errors');
   const systemRevision=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
   const dirty=execFileSync('git',['status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim().length>0;
   if(process.env.CI)assert.equal(dirty,false,'Published proof must identify a clean System checkout');
   mkdirSync('artifacts',{recursive:true});
-  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,conditions:{node:process.version,chromium:browser.version(),base,launchArgs},physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals,additionalJob},null,2)+'\n');
+  writeFileSync('artifacts/project-1-current-proof.json',JSON.stringify({schema:'PROJECT-1-BROWSER-PROOF-1',systemRevision,workingTreeModified:dirty,storeRevision:expectedPin,conditions:{node:process.version,chromium:browser.version(),base,launchArgs},physicalAuthority:false,specimens:project1Specimens,refusals:project1Refusals,publishedJobs,publishedRefusals,additionalJob},null,2)+'\n');
   await page.close();
 } catch (error) {
   failed = true;

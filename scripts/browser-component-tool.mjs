@@ -1,4 +1,45 @@
 import assert from "node:assert/strict";
+import {createHash} from "node:crypto";
+
+/** Submit the original UI packet, retaining exact HTTP bytes and complete Store evidence. */
+export async function lowerAcceptedPacket(packet, {storeOrigin, storePin, health, expectReady = true}) {
+  assert.equal(health.release, storePin);
+  const request = {packet, expectedMachineConfigId: health.machineEvidence.machineConfigId, expectedMachineConfigHash: health.machineEvidence.machineConfigHash};
+  const raw = JSON.stringify(request);
+  const response = await fetch(storeOrigin + "/v1/machine-evidence", {method: "POST", headers: {"content-type": "application/json"}, body: raw});
+  const text = await response.text(), reply = JSON.parse(text);
+  assert.equal(response.status, 200, JSON.stringify(reply));
+  assert.equal(reply.protocol, health.machineEvidence.protocol);
+  assert.equal(reply.storeRelease, storePin);
+  assert.equal(reply.payloadDigest, createHash("sha256").update(raw).digest("hex"));
+  if (expectReady) {
+    const evidence = reply.answer, accepted = packet.storeAnswer;
+    assert.equal(accepted.freshEvaluation, true);
+    assert.equal(accepted.evaluationReceipt.authority.storeRevision, storePin);
+    for (const key of ["boardPartIds", "sheetPackageIds", "featureIds"])
+      assert.deepEqual([...accepted.manifestCoverage[key]].sort(), [...packet.definition.manifest[key]].sort());
+    assert.deepEqual([...accepted.manifestCoverage.itemLineIds].sort(), packet.definition.manifest.items.map(item => item.lineId).sort());
+    assert.equal(evidence.status, "VIRTUAL_EVIDENCE_READY", JSON.stringify(reply));
+    assert.equal(evidence.localJob.packetId, packet.packetId);
+    assert.equal(evidence.localJob.definitionId, packet.definition.definitionId);
+    assert.equal(evidence.localJob.definitionRevision, packet.definition.revisionId);
+    assert.equal(evidence.localJob.demandHash, accepted.evaluationReceipt.demandHash);
+    assert.equal(evidence.localJob.manifestHash, accepted.evaluationReceipt.manifestHash);
+    assert.deepEqual(evidence.localJob.storeCalculationIdentity, accepted.calculationIdentity);
+    assert.deepEqual(evidence.localJob.operations, accepted.operations);
+    assert.deepEqual(evidence.localJob.parents, accepted.parents);
+    assert.deepEqual(evidence.localJob.predictedTime, accepted.time);
+    assert.deepEqual(evidence.records.sequence, accepted.operations);
+    assert.equal(evidence.records.binding.packetHash, evidence.localJob.packetHash);
+    assert.equal(evidence.records.binding.machineConfigHash, health.machineEvidence.machineConfigHash);
+    assert.equal(evidence.run.status, "VIRTUAL_MODEL_COMPLETE");
+    assert.equal(evidence.run.timeSec, accepted.time.totalSeconds);
+    assert.equal(evidence.physicalAuthority, false);
+    assert.equal(evidence.admission.status, "BLOCKED");
+    assert.equal(evidence.admission.motionCommands, 0);
+  }
+  return {request, reply, http: {status: response.status, requestBytes: Buffer.byteLength(raw), responseBytes: Buffer.byteLength(text)}};
+}
 
 /** Real public controls, shared client, fresh independent Store, original acceptance and exact packet. */
 export async function exerciseComponentTool(page, { base, storeOrigin, storePin }) {
@@ -35,19 +76,7 @@ export async function exerciseComponentTool(page, { base, storeOrigin, storePin 
     };
     const health = await (await fetch(storeOrigin + "/health")).json();
     assert.equal(health.release, storePin);
-    const lower = async (packet) => {
-      const request = {
-        packet,
-        expectedMachineConfigId: health.machineEvidence.machineConfigId,
-        expectedMachineConfigHash: health.machineEvidence.machineConfigHash,
-      };
-      const response = await fetch(storeOrigin + "/v1/machine-evidence", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(request),
-      });
-      return { request, reply: await response.json() };
-    };
+    const lower = (packet, expectReady = true) => lowerAcceptedPacket(packet, {storeOrigin, storePin, health, expectReady});
     for (const shelfIn of [24, 30]) {
       if (shelfIn !== 24) {
         await page.locator("#input-shelfIn").fill(String(shelfIn));
@@ -76,17 +105,6 @@ export async function exerciseComponentTool(page, { base, storeOrigin, storePin 
       assert.deepEqual(packet.definition.manifest, body.mappedCallInputs.manifest);
       assert.deepEqual(packet.storeAnswer, body.storeAnswer);
       const evidence = await lower(packet);
-      assert.equal(evidence.reply.storeRelease, storePin);
-      assert.equal(
-        evidence.reply.answer.status,
-        "VIRTUAL_EVIDENCE_READY",
-        JSON.stringify(evidence.reply),
-      );
-      assert.deepEqual(evidence.reply.answer.localJob.operations, body.storeAnswer.operations);
-      assert.equal(evidence.reply.answer.run.timeSec, body.storeAnswer.time.totalSeconds);
-      assert.equal(evidence.reply.answer.run.status, "VIRTUAL_MODEL_COMPLETE");
-      assert.equal(evidence.reply.answer.admission.status, "BLOCKED");
-      assert.equal(evidence.reply.answer.admission.motionCommands, 0);
       records.push({ shelfIn, body, packet, commercial: state.commercial, machine: evidence });
     }
     assert.notEqual(records[0].body.candidateRevisionId, records[1].body.candidateRevisionId);
@@ -96,7 +114,7 @@ export async function exerciseComponentTool(page, { base, storeOrigin, storePin 
     );
     const altered = structuredClone(records[1].packet);
     altered.definition.demand.cutPackages[0].parts[0].lengthIn += 1;
-    const tampered = await lower(altered);
+    const tampered = await lower(altered, false);
     assert.equal(tampered.reply.answer.status, "REFUSED");
     assert.equal(tampered.reply.answer.localJob, undefined);
     refusals.push({ kind: "altered-packet", ...tampered });
