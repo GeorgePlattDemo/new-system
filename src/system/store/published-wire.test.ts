@@ -226,7 +226,15 @@ test("the served Start your own runtime names this Store", () => {
   const browser=readFileSync(new URL('../../../scripts/browser-five-jobs.mjs',import.meta.url),'utf8');
   assert.equal(startup.match(/^want=(\w+)$/m)?.[1],release);
   assert.equal(browser.match(/const expectedPin = '([a-f0-9]+)'/)?.[1],release);
-  assert.deepEqual([...workflow.matchAll(/repository: GeorgePlattDemo\/store-zero\s+ref: ([a-f0-9]{40})/g)].map(m=>m[1]),[release,release]);
+  const storeCheckouts=[...workflow.matchAll(/repository: GeorgePlattDemo\/store-zero\s+ref: ([a-f0-9]{40})\s+path: ([^\s]+)/g)]
+    .map(m=>({revision:m[1],path:m[2]}));
+  assert.deepEqual(storeCheckouts,[
+    {revision:release,path:'.store-zero'},
+    {revision:'c4cd6b0d520005bde63223fb7b87b7e6c722d583',path:'.store-zero-docs'},
+    {revision:release,path:'.store-zero'},
+  ],'Both executable Store checkouts retain the pin; only documentary evidence has its reviewed identity');
+  assert.equal(workflow.includes('STORE_ZERO_ROOT: ${{ github.workspace }}/.store-zero-docs'),false);
+  assert.equal(workflow.includes('STORE_ZERO_ORIGIN=.store-zero-docs'),false);
   const programRoot=process.env.PROGRAM_ROOT || new URL('../../../.program',import.meta.url);
   const programHead=execFileSync('git',['rev-parse','HEAD'],{cwd:programRoot,encoding:'utf8'}).trim();
   assert.equal(workflow.match(/repository: GeorgePlattDemo\/3d-solutions-program\s+ref: ([a-f0-9]{40})/)?.[1],programHead);
