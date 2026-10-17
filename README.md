@@ -30,6 +30,8 @@ The current public library presents five demonstrations in the order defined by 
 
 These are different project classes, not five copies of one configurator. Their shared journey is the protocol; their project facts remain their own.
 
+The [registered component tool](https://system-candidate-production.up.railway.app/live/component-tool.html) supports separate component work through the same definition and Store boundary.
+
 ## One trail
 
 Every project uses the same six labels, in the same order:
