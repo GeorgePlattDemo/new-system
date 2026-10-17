@@ -17,9 +17,9 @@ ROOTS = {
     '3d-solutions-program': Path(os.environ.get('PROGRAM_ROOT', SYSTEM / '.program')).resolve(),
 }
 FROZEN = {
-    'new-system': '1c2926ab094ca3a9a6d1396b749a36c92f819a55',
-    'store-zero': 'f4d4abdf01a78d4cdb180e97b8d04765647ccc02',
-    '3d-solutions-program': 'de9a5437c5cb453633eff87b737017aa9ea884de',
+    'new-system': 'cc20bdbcf6922e537236a145da596a676b69f9ba',
+    'store-zero': '35aa77cb0586b66728962e066cac129a8b92d9a2',
+    '3d-solutions-program': '94a6300a6e8ff4d01f5459f6bc2866fa85453a24',
 }
 
 def anchors(text):
