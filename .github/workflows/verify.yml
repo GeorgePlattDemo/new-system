@@ -24,10 +24,17 @@ jobs:
           repository: GeorgePlattDemo/3d-solutions-program
           ref: ab23b32fa4b72aece9d0a43f60806d9b2cca0a88
           path: .program
+      # Read-only current proof source, distinct from the runtime Store revision above.
+      - uses: actions/checkout@v4
+        with:
+          repository: GeorgePlattDemo/store-zero
+          ref: c4cd6b0d520005bde63223fb7b87b7e6c722d583
+          path: .store-zero-docs
       - name: System behavior and the pinned Store
         run: npm test
         env:
           STORE_ZERO_ROOT: ${{ github.workspace }}/.store-zero
+          STORE_DOCS_ROOT: ${{ github.workspace }}/.store-zero-docs
 
       - name: Railway production build
         run: npm run build && test -f .output/server/index.mjs
