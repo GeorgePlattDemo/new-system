@@ -327,9 +327,14 @@ try {
       // Hold the real next inquiry in transit; no answer or price is substituted.
       let releaseInquiry;
       const pendingInquiry = new Promise(resolve => { releaseInquiry = resolve; });
-      const holdInquiry = async route => {
-        if (route.request().postDataJSON()?.projectId === 'alcove') await pendingInquiry;
-        await route.continue();
+      const inTransit = [];
+      const holdInquiry = route => {
+        const handled = (async () => {
+          if (route.request().postDataJSON()?.projectId === 'alcove') await pendingInquiry;
+          await route.continue();
+        })();
+        inTransit.push(handled);
+        return handled;
       };
       await page.route('**/api/store-zero/job', holdInquiry);
       const sent = page.waitForRequest(r => new URL(r.url()).pathname === '/api/store-zero/job' && r.postDataJSON()?.projectId === 'alcove');
@@ -340,6 +345,7 @@ try {
           assert.equal(await content.locator('#'+id).textContent(), 'ASKING STORE ZERO…', id+': obsolete amount remained while pending');
       } finally {
         releaseInquiry();
+        await Promise.all(inTransit);
         await page.unroute('**/api/store-zero/job', holdInquiry);
       }
       await price.filter({ hasNotText: pine }).waitFor({ state: 'visible', timeout: 45000 });
