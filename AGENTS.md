@@ -31,7 +31,17 @@ This repository runs the five published Scan-to-Build project experiences. The p
 | System verification | `src/system/**/*.test.ts` and `npm test` |
 | Application build and Railway host | `vite.config.ts`, `Dockerfile.railway` |
 
-The concise public introduction is `README.md`. Shared vocabulary is `docs/DEFINITIONS.md`. Full technical explanation is `SYSTEM-MASTER.md`; the current commercial event contract is exercised by `public/live/stb-commercial-sequence.js` and the Store's `src/contracts/commercial-sequence.js`. Deep explanation does not override executable behavior: discrepancies require source-level reconciliation and appropriate tests.
+The concise public introduction is [README.md](README.md). Use these existing authorities for the affected responsibility:
+
+| Authority | Owns |
+| --- | --- |
+| [docs/DEFINITIONS.md](docs/DEFINITIONS.md) | The sole authoritative shared manufacturing definitions and handoff meanings; runtime schemas implement these requirements |
+| [SYSTEM-MASTER.md](SYSTEM-MASTER.md) | Complete application, definition and transport explanation; [chapter 8](SYSTEM-MASTER.md#8-system-compilation-and-shared-meaning) governs the handoff and the [conformance register](SYSTEM-MASTER.md#155-manufacturing-contract-conformance-register) tracks cross-repository obligations |
+| [Commercial design map](docs/commercial-sequence-template.md) and [public executable gate](public/live/stb-commercial-sequence.js) | Intended transaction design and installed event serialization respectively; Store's corresponding runtime copy remains in its own repository |
+| [Start Your Own verification](docs/verification/start-your-own.md), [five-project browser check](scripts/browser-five-jobs.mjs) and [component-tool check](scripts/browser-component-tool.mjs) | Identified verification scope and actual public application checks |
+| [Documentation checker](scripts/check-documentation.py) and [required CI](.github/workflows/verify.yml) | Current owner links, frozen README bytes and the supported verification sequence |
+
+Disagreements between adopted requirements and executable behavior are conformance defects under the documentation authority and completion contract below.
 
 ## Current integrated proof
 
