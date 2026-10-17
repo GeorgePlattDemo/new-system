@@ -663,7 +663,8 @@ try {
   assert.deepEqual(Object.fromEntries(['start-own','alcove','window-seat','outdoor','playhouse'].map(id=>[id,publishedJobs.filter(r=>r.projectId===id).length])),{'start-own':3,alcove:2,'window-seat':2,outdoor:2,playhouse:2});
   for(const id of ['start-own','alcove','window-seat','outdoor','playhouse']){
     const jobs=publishedJobs.filter(r=>r.projectId===id);
-    assert.equal(new Set(jobs.map(r=>r.machineRequest.packet.definition.revisionId)).size,jobs.length,id+': each accepted definition must have its own revision');
+    // Master §3 distinguishes owner revisions from reusable manufacturing configuration labels.
+    assert.equal(new Set(jobs.map(r=>r.applicationAnswer.candidateRevisionId)).size,jobs.length,id+': each accepted owner definition must have its own revision');
     assert.equal(new Set(jobs.map(r=>r.applicationAnswer.evaluationReceipt.receiptHash)).size,jobs.length,id+': later work must not reuse an earlier receipt');
     assert.equal(new Set(jobs.map(r=>r.machineReply.answer.localJob.packetHash)).size,jobs.length,id+': each lowering must bind its actual packet');
   }
