@@ -244,7 +244,8 @@ try {
     const expected={document:/text\/html/,script:/(?:javascript|ecmascript)/,stylesheet:/text\/css/,image:/image\//,font:/(?:font|octet-stream)/}[type];
     if(expected){
       const record={url:r.url(),type,status:r.status(),mime,cacheControl:r.headers()['cache-control']||''};resourceChecks.push(record);
-      if(r.status()>=400||!expected.test(mime))resourceErrors.push(record);
+      // 304 reuses previously validated bytes, while 3xx redirects carry no resource body; MIME belongs to 2xx content.
+      if(r.status()>=400||(r.status()>=200&&r.status()<300&&!expected.test(mime)))resourceErrors.push(record);
       if(new URL(r.url()).pathname.startsWith('/live/')&&!record.cacheControl.includes('no-cache'))resourceErrors.push({...record,error:'Published assets must revalidate rather than silently retain an earlier release'});
     }
     if (r.url().includes('/api/store-zero/')) responses.push({ path: new URL(r.url()).pathname, status: r.status() });
