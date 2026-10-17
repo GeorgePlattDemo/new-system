@@ -1,13 +1,15 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { webcrypto } from "node:crypto";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
 import { answerPublishedWire, boardDemandFromPublishedLine, postPublishedWire } from "./published-wire.ts";
 import { DEFINITION_SHAPES } from "../shape.ts";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {componentDefinition} from "../component-tool.ts";
 
 const root = process.env.STORE_ZERO_ROOT;
@@ -16,13 +18,53 @@ const tileHostContract = await import(new URL("../../../public/live/shared/tile-
 let child: ChildProcess | null = null;
 let origin = "";
 
-function assertCheckout() {
-  if (!root) throw new Error("STORE_ZERO_ROOT is required. This test does not mock the Store.");
-  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
+function assertCheckout(checkout = root) {
+  if (!checkout) throw new Error("STORE_ZERO_ROOT is required. This test does not mock the Store.");
+  const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: checkout, encoding: "utf8" }).trim();
   if (head !== release) throw new Error(`Store checkout ${head} is not the pinned commit ${release}.`);
-  const dirty=execFileSync("git",["status","--porcelain"],{cwd:root,encoding:"utf8"}).trim();
+  const dirty=execFileSync("git",["status","--porcelain"],{cwd:checkout,encoding:"utf8"}).trim();
   if(dirty)throw new Error("Pinned Store checkout has modified or untracked files; refusing to label it as the inspected release.");
 }
+
+const systemRoot = fileURLToPath(new URL("../../../", import.meta.url));
+const commercialFile = fileURLToPath(new URL("../../../public/live/stb-commercial-sequence.js", import.meta.url));
+
+// Private arguments permit negative test copies; the required pairing test uses
+// the actual System source and the same exact, clean Store checkout as HTTP tests.
+function assertCommercialPair(checkout = root, systemFile = commercialFile) {
+  const systemRevision = execFileSync("git", ["rev-parse", "HEAD"], { cwd: systemRoot, encoding: "utf8" }).trim();
+  const storeFile = join(checkout ?? "<STORE_ZERO_ROOT missing>", "src/contracts/commercial-sequence.js");
+  const sources = `System ${systemFile} @ ${systemRevision}; Store ${storeFile} @ required ${release}`;
+  try {
+    assertCheckout(checkout);
+    assert.ok(readFileSync(systemFile).equals(readFileSync(storeFile)), "commercial contract bytes differ");
+  } catch (error) {
+    throw new Error(`${sources}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
+  }
+  return sources;
+}
+
+test("commercial contract bytes match the exact inspected Store pairing", (t) => {
+  t.diagnostic(assertCommercialPair());
+});
+
+test("commercial pairing rejects altered bytes, missing sources and an unrelated revision", (t) => {
+  const temporary = mkdtempSync(join(tmpdir(), "commercial-pair-negative-"));
+  try {
+    const copy = join(temporary, "altered-system-contract.js");
+    writeFileSync(copy, Buffer.concat([readFileSync(commercialFile), Buffer.from("\n")]));
+    assert.throws(() => assertCommercialPair(root, copy), /commercial contract bytes differ/);
+    t.diagnostic("Rejected altered test copy with unchanged exported names and version strings.");
+    rmSync(copy);
+    assert.throws(() => assertCommercialPair(root, copy), /ENOENT/);
+    assert.throws(() => assertCommercialPair(join(temporary, "unavailable-store")), /ENOENT/);
+    t.diagnostic("Rejected missing contract file and unavailable Store checkout; neither comparison skipped.");
+    assert.throws(() => assertCommercialPair(systemRoot), /is not the pinned commit/);
+    t.diagnostic("Rejected the actual System checkout as Store: its revision is not the inspected Store pin.");
+  } finally {
+    rmSync(temporary, { recursive: true, force: true });
+  }
+});
 
 async function storeOrigin() {
   if (origin) return origin;
