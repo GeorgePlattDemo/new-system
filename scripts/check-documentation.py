@@ -24,6 +24,14 @@ FROZEN = {
 # Pinned historical checkouts retain their historical approved README bytes.
 # An exact source revision determines the expected identity; never move a pin
 # or substitute current-main README bytes merely to satisfy this assertion.
+# Documentary current proof has its own reviewed Store commit. The runtime
+# checkout in ROOTS remains fixed to System's independently inspected Store.
+STORE_DOCS_ROOT = Path(os.environ.get('STORE_DOCS_ROOT', SYSTEM / '.store-zero-docs')).resolve()
+STORE_DOCS_COMMIT = 'c4cd6b0d520005bde63223fb7b87b7e6c722d583'
+STORE_DOCS_README_BLOB = 'd15de599d9f86f7354b7a92f56d8ca4136de7ea8'
+STORE_DOCS_PROOF_BLOB = '0cbd5a067250ca394b92529d75c0e009a56e3e89'
+STORE_CURRENT_PROOF_PATH = 'PROJECT-1-CURRENT-DIGITAL-MANUFACTURING-PROOF.md'
+
 FROZEN_PINNED = {
     'store-zero': {
         '10d36c09ff6e0dac3c098a004821efea81a2b58d': 'f4d4abdf01a78d4cdb180e97b8d04765647ccc02',
@@ -61,7 +69,7 @@ def check(repo, path, target, *, resource=False):
             if len(parts) == 2:
                 dest = ROOTS[parts[1]] / 'README.md'
             elif len(parts) >= 5 and parts[2] in {'blob', 'tree'} and parts[3] == 'main':
-                dest = ROOTS[parts[1]] / '/'.join(parts[4:])
+                dest = (STORE_DOCS_ROOT if parts[1] == 'store-zero' and '/'.join(parts[4:]) == STORE_CURRENT_PROOF_PATH else ROOTS[parts[1]]) / '/'.join(parts[4:])
     if dest is None:
         return # External and immutable sources retain their own identities.
     checked += 1
@@ -74,6 +82,17 @@ def check(repo, path, target, *, resource=False):
             ids.add('readme') # GitHub's repository README container.
         if url.fragment not in ids:
             errors.append(f'{repo}/{path.relative_to(ROOTS[repo])}: missing heading {target}')
+
+# The current public proof is checked against an exact Store documentary
+# checkout, never against the old executable runtime and never by skipping links.
+if not STORE_DOCS_ROOT.is_dir():
+    raise SystemExit('Missing Store documentary proof checkout')
+docs_head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=STORE_DOCS_ROOT, text=True).strip()
+assert docs_head == STORE_DOCS_COMMIT, 'Store documentary proof checkout differs from approved revision'
+for filename, sha in [('README.md', STORE_DOCS_README_BLOB), (STORE_CURRENT_PROOF_PATH, STORE_DOCS_PROOF_BLOB)]:
+    b = (STORE_DOCS_ROOT / filename).read_bytes()
+    assert hashlib.sha1(f'blob {len(b)}\0'.encode() + b).hexdigest() == sha, 'Store documentary proof identity changed: ' + filename
+assert not subprocess.check_output(['git', 'status', '--porcelain'], cwd=STORE_DOCS_ROOT, text=True).strip(), 'Store documentary checkout not clean'
 
 for repo, root in ROOTS.items():
     readme = (root / 'README.md').read_bytes() # Missing owner checkout is a failure.
