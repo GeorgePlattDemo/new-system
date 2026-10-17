@@ -89,6 +89,8 @@ async function inspectNarrowJourneys(page,base){
       await surface.locator('#stb-intent-next').waitFor();
       await inspectVisuals(page,surface,'mobile job1 intent');
       await content.getByRole('button',{name:'Idea',exact:true}).click();
+      // The tile host schedules the child-screen switch; wait for the actual Idea page, then require its photo.
+      await surface.locator('#stb-start-idea-screen').waitFor({state:'visible'});
       await inspectVisuals(page,surface,'mobile job1 idea',{required:['#stb-idea-img']});
       await surface.locator('#stb-idea-next').click();
       await surface.locator('#stb-add-tool').click();
