@@ -5,7 +5,7 @@ import test from "node:test";
 import { runInNewContext } from "node:vm";
 import { webcrypto } from "node:crypto";
 import { STORE_CANDIDATE } from "../store-candidate.ts";
-import { answerPublishedWire, boardDemandFromPublishedLine } from "./published-wire.ts";
+import { answerPublishedWire, boardDemandFromPublishedLine, postPublishedWire } from "./published-wire.ts";
 import { DEFINITION_SHAPES } from "../shape.ts";
 import { pathToFileURL } from "node:url";
 import {componentDefinition} from "../component-tool.ts";
@@ -57,6 +57,46 @@ async function storeOrigin() {
 
 test.after(() => {
   child?.kill("SIGTERM");
+});
+
+test("shared HTTP boundary preserves malformed JSON and unrecognized-wire errors", async () => {
+  for (const body of ["{", "null", "false", "7", '"wire"']) {
+    const reply = await postPublishedWire(new Request("http://system/api/store-zero/job", { method: "POST", body }), "http://127.0.0.1:1");
+    assert.equal(reply.status, 400, body);
+    assert.deepEqual(await reply.json(), { adapterError: true, code: "PUBLISHED_WIRE_NOT_JSON" });
+  }
+  for (const body of ["[]", "{}"]) {
+    const reply = await postPublishedWire(new Request("http://system/api/store-zero/offering", { method: "POST", body }), "http://127.0.0.1:1");
+    assert.equal(reply.status, 422, body);
+    assert.deepEqual(await reply.json(), { adapterError: true, code: "PUBLISHED_WIRE_NOT_RECOGNIZED" });
+  }
+});
+
+test("shared HTTP boundary carries fresh Store job and discovery replies unchanged", async () => {
+  const origin = await storeOrigin();
+  const wire = wireFor("start-own", "USER_DEFINED_BOARD_V1", "http-boundary", { line: braceLine() });
+  const reply = await postPublishedWire(new Request("http://system/api/store-zero/job", { method: "POST", body: JSON.stringify(wire) }), origin);
+  assert.equal(reply.status, 200);
+  const body = await reply.json();
+  assert.equal(body.requestId, wire.requestId);
+  assert.equal(body.rawEvaluation.status, "SUPPORTABLE");
+  assert.equal(body.rawEvaluation.freshEvaluation, true);
+  assert.equal(body.rawEstimate.totals.Q, 8.62);
+  assert.equal(body.evaluationReceipt.authority.storeRevision, release);
+  assert.equal(body.machineAdmission.physicalRelease, false);
+  const lookup = wireFor("lookup", "OFFERING_LOOKUP", "http-boundary", { searchText: "pine" });
+  const discovered = await postPublishedWire(new Request("http://system/api/store-zero/offering", { method: "POST", body: JSON.stringify(lookup) }), origin);
+  assert.equal(discovered.status, 200);
+  const offerings = await discovered.json();
+  assert.equal(offerings.requestId, lookup.requestId);
+  assert.equal(offerings.storePin, release);
+  assert.ok(offerings.rawOfferings.length > 0);
+  assert.equal(offerings.rawEstimate, undefined);
+  const unavailable = await postPublishedWire(new Request("http://system/api/store-zero/job", { method: "POST", body: JSON.stringify(wire) }), "http://127.0.0.1:1");
+  assert.equal(unavailable.status, 502);
+  const failed = await unavailable.json();
+  assert.equal(failed.adapterError, true);
+  assert.equal(failed.rawEstimate, undefined);
 });
 
 test('registered component work preserves six independent parts through the published adapter and refuses an overlong revision',async()=>{

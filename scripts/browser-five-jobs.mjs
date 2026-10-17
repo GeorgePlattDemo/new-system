@@ -40,6 +40,13 @@ import {exerciseComponentTool} from './browser-component-tool.mjs';
 }
 
 const base = process.env.STB_BROWSER_BASE || 'http://127.0.0.1:8080';
+for (const endpoint of ['job', 'offering']) {
+  for (const [body, status, code] of [['{', 400, 'PUBLISHED_WIRE_NOT_JSON'], ['null', 400, 'PUBLISHED_WIRE_NOT_JSON'], ['[]', 422, 'PUBLISHED_WIRE_NOT_RECOGNIZED'], ['{}', 422, 'PUBLISHED_WIRE_NOT_RECOGNIZED']]) {
+    const response = await fetch(`${base}/api/store-zero/${endpoint}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body });
+    assert.equal(response.status, status, `${endpoint}: ${body}`);
+    assert.deepEqual(await response.json(), { adapterError: true, code });
+  }
+}
 const expectedPin = '95187a9f7788d600181e56282343fa57cf843a46';
 const launchArgs=['--no-sandbox','--disable-dev-shm-usage',...JSON.parse(process.env.PLAYWRIGHT_CHROMIUM_ARGS||'[]')];
 const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE}:{}), args: launchArgs });
