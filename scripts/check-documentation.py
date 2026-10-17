@@ -17,7 +17,7 @@ ROOTS = {
     '3d-solutions-program': Path(os.environ.get('PROGRAM_ROOT', SYSTEM / '.program')).resolve(),
 }
 FROZEN = {
-    'new-system': '9f5f48ff883149b69f3e6d01a1d637ef54ff0e95',
+    'new-system': 'b1b7a4a3db775b3694f4e7debd09f2b977589999',
     'store-zero': '35aa77cb0586b66728962e066cac129a8b92d9a2',
     '3d-solutions-program': '94a6300a6e8ff4d01f5459f6bc2866fa85453a24',
 }
