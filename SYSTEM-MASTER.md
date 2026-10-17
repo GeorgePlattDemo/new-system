@@ -1030,7 +1030,7 @@ Image assets and SVG/data-URL drawings remain at their existing identities. The 
 
 *Authority category: Current System Behavior*
 
-The public API routes parse the outer wire and call `answerPublishedWire`, using server-side `STORE_ZERO_ORIGIN` (local default `http://127.0.0.1:8091`). The adapter forwards only to the identified replacement Store. `/healthz` is System liveness; it does not attest Store availability or physical authority.
+Both public Store API routes delegate to `postPublishedWire` in `src/system/store/published-wire.ts`. This single HTTP boundary parses the outer wire, preserves malformed-JSON errors, calls `answerPublishedWire` and serializes its exact status/body, using server-side `STORE_ZERO_ORIGIN` (local default `http://127.0.0.1:8091`). The adapter forwards only to the identified replacement Store. `/healthz` is System liveness; it does not attest Store availability or physical authority.
 
 The former generic React routes and their private `storeHealth`, `forwardStoreRequest`, `forwardMachineEvidence` transport and `useRecord` hook were retired together. Their executable source and historical record behavior remain in Git. The live five-project application uses only `/api/store-zero/job`, `/api/store-zero/offering` and the published-wire adapter; those APIs retain their own bounded request handling and pinned Store answer checks.
 

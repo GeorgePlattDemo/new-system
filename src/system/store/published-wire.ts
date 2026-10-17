@@ -598,6 +598,14 @@ function rejected(wire: Json, code: string, extra: Json = {}): { httpStatus: num
   return { httpStatus: code === "CALLER_PIN_DOES_NOT_GOVERN" ? 422 : 502, body: echo(wire, { adapterError: true, code, ...extra }) };
 }
 
+/** One HTTP boundary for the job and offering routes; manufacturing answers remain Store-owned. */
+export async function postPublishedWire(request: Request, origin = process.env.STORE_ZERO_ORIGIN || "http://127.0.0.1:8091"): Promise<Response> {
+  const wire = await request.json().catch(() => null);
+  if (!wire || typeof wire !== "object") return Response.json({ adapterError: true, code: "PUBLISHED_WIRE_NOT_JSON" }, { status: 400 });
+  const answered = await answerPublishedWire(wire as Json, origin);
+  return Response.json(answered.body, { status: answered.httpStatus });
+}
+
 /** Answer one published wire. Does not call any host except the replacement Store. */
 export async function answerPublishedWire(wire: Json, origin: string): Promise<{ httpStatus: number; body: Json }> {
   if (wire.protocolVersion !== "stb-store-zero-http/1") {
