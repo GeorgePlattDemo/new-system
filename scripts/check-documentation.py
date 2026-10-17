@@ -17,9 +17,9 @@ ROOTS = {
     '3d-solutions-program': Path(os.environ.get('PROGRAM_ROOT', SYSTEM / '.program')).resolve(),
 }
 FROZEN = {
-    'new-system': 'b1b7a4a3db775b3694f4e7debd09f2b977589999',
-    'store-zero': '35aa77cb0586b66728962e066cac129a8b92d9a2',
-    '3d-solutions-program': '94a6300a6e8ff4d01f5459f6bc2866fa85453a24',
+    'new-system': '150966771d13833c1c84bdd8ae0043cc1f3ecc8c',
+    'store-zero': 'd15de599d9f86f7354b7a92f56d8ca4136de7ea8',
+    '3d-solutions-program': 'da0eea7633c33f516ea68859e406227707e03b56',
 }
 # Pinned historical checkouts retain their historical approved README bytes.
 # An exact source revision determines the expected identity; never move a pin
