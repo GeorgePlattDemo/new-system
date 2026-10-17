@@ -50,6 +50,10 @@
         border-collapse: collapse;
         width: 100%;
       }
+      @media (max-width: 600px) {
+        table { table-layout: fixed; }
+        th, td { overflow-wrap: anywhere; }
+      }
       th,
       td {
         text-align: left;
@@ -62,13 +66,14 @@
       #result {
         font-weight: 600;
       }
+      #revision { overflow-wrap: anywhere; }
       small {
         display: block;
       }
     </style>
   </head>
   <body>
-    <a href="/">Project Library</a>
+    <a href="/#projects">Project Library</a>
     <h1>Registered component tool</h1>
     <p>
       Define identified component work using registered project rules. The Store selects stock and

@@ -15,9 +15,8 @@
   const WHOLE_RESULT='The Store budgetary answer is the whole Store result.';
   const NO_COMPLETE='Missing required component → no complete budgetary estimate.';
   const README_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/README.md';
-  const TRAVEL_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/d001-travel-standard.mjs';
-  const D001_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/envelopes/d001-stage2-envelope.mjs';
-  const S001_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/envelopes/s001-stage2-envelope.mjs';
+  const CORE_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/src/evaluation/engine/store-manufacturing-core.mjs';
+  const CONFIG_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/data/machine/manufacturing-core-0.1.json';
   const REVIEW_URL='https://github.com/GeorgePlattDemo/store-zero/blob/main/docs/project-1-digital-trail/D001_Project1_Review.md';
   const sec=(title,items,quiet)=>quiet?{title,items,quiet:true}:{title,items};
   const rail=(header,flag,bullets,sections=[])=>({header,flag,bullets,sections});
@@ -139,7 +138,7 @@
         'PICKED UP · CUSTODY.'
       ]),
       sec('Gap',['S/O is not carried through this Store path. Never simulate an answer for it.']),
-      sec('Links',['Store Zero README: '+README_URL,'Travel standard: '+TRAVEL_URL,'D-001 envelope: '+D001_URL])
+      sec('Links',['Store Zero README: '+README_URL,'Modeled movement and time: '+CORE_URL,'Registered D-001 limits: '+CONFIG_URL])
     ])
   };
 
@@ -171,7 +170,7 @@
       'This page is always the bench. Do not rename it configurator.',
       'Depth in ¼ in steps. Boards milled to width. No milling when a board lands exact.',
       'The mill limit is the Store’s. No shadow limit here. Too much → the Store refuses. Turn the knob, ask again.',
-      'Spots on tower sides only.',
+      'Tower-side, divider and explicitly added part-specific spots retain their defined locations.',
       'Screws travel as a requirement. The Store picks the item or refuses.',
       'Any change → new version → Store asked again.'
     ],[
@@ -190,7 +189,7 @@
       NO_COMPLETE,
       'The Store Zero text is the shared file. Never a copy.'
     ],[
-      sec('Links',['Store Zero README: '+README_URL,'Travel standard: '+TRAVEL_URL,'D-001 envelope: '+D001_URL])
+      sec('Links',['Store Zero README: '+README_URL,'Modeled movement and time: '+CORE_URL,'Registered D-001 limits: '+CONFIG_URL])
     ]),
     'ws-request':rail('DEV/REV GUIDE — JOB 3 · WINDOW SEAT · PAGE 5 · YOUR CALL',FLAG,[
       ...YOUR_CALL('Window Seat'),
@@ -220,7 +219,7 @@
       'Reading a plan is not CAM. Bounded CAM can then be generated from controlling requirements plus declared machine rules.',
       'The “From” price is a live Store answer. Never cached. No answer → the card says so.'
     ],[
-      sec('Gap',['A-frame source remains attached to its definition; source long-short end dimensions and the cross-support bevel are unregistered and have no complete Q.','Wood defaults and the benches plan’s hardware counts are our reading, not the plans’.']),
+      sec('Source interpretation',['A-frame ends explicitly carry face-miter plane, long-point-to-short-point datum and long-to-short orientation. Store evaluates those requirements; the source wording remains attached.','Wood defaults and the benches plan’s hardware counts are our reading, not the plans’.']),
       PLUMB_FRAME
     ]),
     'od-bench':rail('DEV/REV GUIDE — JOB 4 · OUTDOOR BUILD · PAGE 2 · THE BENCH',STORE_FLAG,[
@@ -250,8 +249,8 @@
       'Information travels before atoms. Name what’s missing and who owns it.'
     ],[
       sec('The Store',[STORE_ZERO,WHOLE_RESULT,NO_COMPLETE]),
-      sec('Gap',['One angle per set of boards, both ends, one plane.','Long point or short point: not defined. The Store answers the number it’s sent.','A spot is not a finished hole.']),
-      sec('Links',['Store Zero README: '+README_URL,'D-001 envelope: '+D001_URL])
+      sec('Scope',['One angle per set of boards, both ends, one face-miter plane.','Length datum and endpoint orientation travel with each angled class; the Store derives its actual-width stock envelope.','A spot is not a finished hole.']),
+      sec('Links',['Store Zero README: '+README_URL,'Registered D-001 limits: '+CONFIG_URL])
     ]),
     'od-call':rail('DEV/REV GUIDE — JOB 4 · OUTDOOR BUILD · PAGE 4 · YOUR CALL',FLAG,YOUR_CALL('Outdoor')),
     'od-yard':rail('DEV/REV GUIDE — JOB 4 · OUTDOOR BUILD · PAGE 5 · WE CUT IT',FLAG,SIMULATED_YARD),
@@ -291,7 +290,7 @@
       'No answer → closed steps. Never a reference answer.',
       'The 36 / 24 / 12 hand check ($65.04) is history. Not current proof.'
     ],[
-      sec('Links',['Store Zero README: '+README_URL,'S-001 envelope: '+S001_URL])
+      sec('Links',['Store Zero README: '+README_URL,'Registered S-001 limits: '+CONFIG_URL])
     ]),
     'ph-review':rail('DEV/REV GUIDE — JOB 5 · PLAYHOUSE · PAGE 4 · REVIEW',FLAG,[
       'Freeze the whole ask, supported or not.',

@@ -14,7 +14,9 @@ export default defineConfig(({ command }) => ({
   plugins: [
     tailwindcss(),
     tanstackStart(),
-    ...(command === "build" ? [nitro({ preset: "node-server" })] : []),
+    ...(command === "build" ? [nitro({ preset: "node-server", routeRules: {
+      "/live/**": { headers: { "cache-control": "no-cache" } },
+    } })] : []),
     viteReact(),
   ],
 }));

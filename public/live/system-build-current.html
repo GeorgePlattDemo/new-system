@@ -11,7 +11,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 </style>
 </head>
 <body>
-<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=verified-front-doors-20261017"></iframe>
+<iframe id="stb-current" title="Scan-to-Build System" src="system-build-front-door-0.5.html?v=public-conformance-20261017"></iframe>
 <script src="stb-canonical-journey.js?v=demo-checkout-20261011"></script>
 <script src="stb-store-client.js?v=demo-checkout-20261011"></script>
 <script src="stb-user-defined-board-runtime-bridge.js?v=demo-checkout-20261011"></script>
@@ -23,7 +23,7 @@ window.STBStartOwnAnswer = startOwnAnswer;
 <script src="stb-demo-commerce.js?v=demo-checkout-20261011"></script>
 <script src="stb-terms-flow.js?v=current-proof-1"></script>
 <script src="store-zero-canonical-doctrine.js?v=demo-checkout-20261011"></script>
-<script src="stb-build-guide-spec.js?v=current-proof-1"></script>
+<script src="stb-build-guide-spec.js?v=public-conformance-20261017"></script>
 <script src="stb-trail-contract.js?v=demo-checkout-20261011"></script>
 <script src="stb-additional-services.js?v=20261011"></script>
 <script>
@@ -132,11 +132,12 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       .s001-v2-order b,.s001-v2-order span{display:block}.s001-v2-order b{font-size:9px;letter-spacing:.05em;color:var(--text2)}.s001-v2-order span{margin-top:3px;font-size:11.5px}
       @media(max-width:820px){.s001-v2-intent-grid,.s001-v2-machine-grid{grid-template-columns:1fr}}
       .alcove-chain{margin:0 0 18px;padding:14px 16px;border:1px solid var(--border-accent,var(--border));border-radius:10px;background:var(--surface,#fff)}.alcove-chain .chainhd{margin:0 0 10px;font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--accent,#8a5a2b)}.alcove-chain code{font:10.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all;color:var(--text)}.alcove-chain .chainpair{display:grid;gap:10px;margin:0 0 12px}.alcove-chain .chainpair div{padding:10px 12px;border-radius:8px;background:var(--tint,#f6efe6)}.alcove-chain .chainpair b{display:block;margin:0 0 4px;font-size:10px;letter-spacing:.07em;color:var(--text2)}.alcove-chain .chainpair code{font-size:12px}.alcove-chain .chainlinks{margin:0;padding:0;list-style:none;display:grid;gap:8px}.alcove-chain .chainlinks li{padding:8px 10px;border-left:3px solid var(--border-accent,var(--border));background:var(--bg)}.alcove-chain .chainstep{margin:0 0 4px;font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--text2)}.alcove-chain .chainrow{display:grid;grid-template-columns:128px 1fr;gap:8px;font-size:11px;padding:1px 0}.alcove-chain .chainrow span{color:var(--text2)}.alcove-chain .chainhistory{margin:0;padding-left:16px;font-size:11px}
-      /* Playhouse Intent and Bench: one drawing column, tools on the right, the dev rail at 17% on every Playhouse page. */
+      /* Playhouse uses a separate developer rail on desktop and stacks it below the job on narrow screens. */
       .page.on[id^="playhouse-"]{display:grid;grid-template-columns:minmax(0,1fr) 17vw}
       .wrap:has(.page.on[id^="playhouse-"]){max-width:none;padding-left:12px;padding-right:12px}
       .page[id^="playhouse-"] > .main{padding:22px 24px 18px;min-width:0}
       .page[id^="playhouse-"] > .rail{min-width:0;overflow-wrap:anywhere}
+      @media(max-width:760px){.page.on[id^="playhouse-"]{display:block}.page[id^="playhouse-"] > .main{padding:20px 16px}.page[id^="playhouse-"] > .rail{border-left:0;border-top:1px solid var(--border)}}
       .s001-ph-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start;margin:14px 0}
       .s001-ph-below{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px;align-items:start}
       .s001-ph-left{display:grid;gap:10px;align-content:start;min-width:0}
@@ -265,7 +266,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   id="start-own-proof-frame"
                   class="start-own-shell-frame"
                   title="Start Your Own · User 1 · definition to doing"
-                  src="three-frames.html?v=demo-checkout-20261011"
+                  src="three-frames.html?v=public-conformance-20261017"
                 ></iframe>
               </div>
             `;
@@ -274,7 +275,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
           const liveFrame = startOwnPage.querySelector('#start-own-proof-frame');
           if (liveFrame && !String(liveFrame.getAttribute('src')||'').includes('three-frames.html')) {
-            liveFrame.src = 'three-frames.html?v=demo-checkout-20261011';
+            liveFrame.src = 'three-frames.html?v=public-conformance-20261017';
           }
           const banner = startOwnPage.querySelector('[data-proof-job="1"]');
           if (banner && /generic floor/.test(banner.textContent||'')) {
@@ -1485,7 +1486,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   id="outdoor-bench-leg-frame"
                   class="outdoor-build-shell-frame"
                   title="Outdoor Build · picnic table"
-                  src="stb-outdoor-picnic-0.4.html?v=current-proof-1"
+                  src="stb-outdoor-picnic-0.4.html?v=public-conformance-20261017"
                 ></iframe>
               </div>
             `;
@@ -1518,7 +1519,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                   id="window-seat-frame"
                   class="window-seat-shell-frame"
                   title="Space utilization · Window seat"
-                  src="stb-window-seat-0.9.html?v=current-proof-1"
+                  src="stb-window-seat-0.9.html?v=public-conformance-20261017"
                 ></iframe>
               </div>
             `;
@@ -1567,6 +1568,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           <p>Pick the project closest to yours. It has already been worked out: the parts, how they fit together, the cuts, and the questions that matter. So you skip all of that and answer only the part that's yours: your space, your measurements, your choices. Then change the numbers to yours.</p>
           <p>You won't be asked to design anything. A question only shows up when your answer changes what gets cut. Pick no doors, and the door questions never appear.</p>
           <p>Nothing close? Start your own is first on the list. Bring a board, a sketch, a photo or a file. We keep what you bring and show you what's still missing. That road takes longer, because nobody has mapped it yet.</p>
+          <p class="dim">The current Start your own demonstration uses its original crossed-brace repair reference. Material and defined tool controls work now; attaching arbitrary files, photos and scans remains planned.</p>
           <p>Either way, the Store gets one clear question, and you get an instant answer.</p>
         `);
       }
@@ -4387,6 +4389,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
     annotateJourneyNav();
     if (!canonicalJourneyReady()) return false;
     doc.documentElement.dataset.canonicalJourneyVersion = canonicalJourney.version;
+    if(window.location.hash === '#projects')win.show('projects');
     return true;
   };
 

@@ -690,8 +690,8 @@ test("Alcove shows direct Store-backed 1x8 selection on Intent and Bench, and Id
   assert.match(idea,/<button[^>]*data-go="alcove-capture"[^>]*>NEXT → INTENT<\/button>/);
   const front=readFileSync(new URL("../../../public/live/system-build-front-door-0.5.html",import.meta.url),"utf8");
   const current=readFileSync(new URL("../../../public/live/system-build-current.html",import.meta.url),"utf8");
-  assert.match(front,/system-build-base-8d8a9dd\.html\?v=verified-front-doors-20261017/);
-  assert.match(current,/system-build-front-door-0\.5\.html\?v=verified-front-doors-20261017/);
+  assert.match(front,/system-build-base-8d8a9dd\.html\?v=public-conformance-20261017/);
+  assert.match(current,/system-build-front-door-0\.5\.html\?v=public-conformance-20261017/);
 });
 
 test("Alcove submits actual 1x8 demands: Store mills stocked Oak and refuses missing Cherry stock", async () => {
