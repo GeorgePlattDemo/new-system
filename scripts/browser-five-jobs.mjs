@@ -99,6 +99,8 @@ try {
   await page.waitForFunction(() => Boolean(document.getElementById('stb-current')?.contentWindow?.document
     ?.getElementById('stb-current')?.contentWindow?.document?.querySelector('#projects')), { timeout: 30000 });
   const content = page.frameLocator('iframe#stb-current').frameLocator('iframe#stb-current');
+  for (const frame of [page.locator('iframe#stb-current'), page.frameLocator('iframe#stb-current').locator('iframe#stb-current')])
+    assert.ok((await frame.getAttribute('src')).includes('?v=verified-front-doors-20261017'), 'The updated nested page must invalidate its earlier cached source');
   await content.locator('#projects').waitFor({ state: 'attached', timeout: 30000 });
   const journey = async (surface, projectId, label) => {
     const nav = content.locator('.recovery-nav');

@@ -1014,7 +1014,7 @@ Commercial exceptions remain attributable records. The current shared gate's con
 | `stb-outdoor-picnic-0.4.html` | Selected plans, public/source imagery, option/committed requests, bigger Bench and evidence export | Published Outdoor |
 | Playhouse injected pages in wrappers | Current sheet/tool/admission/drawing and read-only/working state | Published Playhouse and saved state parts |
 
-The default release query marker is `v=demo-checkout-20261011` on page/script URLs where declared. The marker is a cache-loading identity, not the inspected Store commit. Keeping a current Store pin while loading an old response reader can still misdescribe an answer, so page/script identities and deployment verification matter.
+The public entry and its nested front-door/base pages use `v=verified-front-doors-20261017` so returning browsers load their current answer presentation. Unchanged script URLs retain their declared version markers. These markers are cache-loading identities, not the inspected Store commit. Keeping a current Store pin while loading an old response reader can still misdescribe an answer, so page/script identities and deployment verification matter.
 
 The public application uses nested same-origin documents. Child frames own project state and definition; the host owns shared navigation. Messages are checked for origin, source/schema, project identity, stage and correlation. A host navigation message carries no demand or inquiry admission. Restoring the same page chain preserves DOM IDs and registered state parts used by saved copies.
 
