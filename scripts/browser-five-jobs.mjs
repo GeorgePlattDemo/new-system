@@ -264,6 +264,16 @@ try {
   for (const frame of [page.locator('iframe#stb-current'), page.frameLocator('iframe#stb-current').locator('iframe#stb-current')])
     assert.ok((await frame.getAttribute('src')).includes('?v=public-conformance-20261017'), 'The updated nested page must invalidate its earlier cached source');
   await content.locator('#projects').waitFor({ state: 'attached', timeout: 30000 });
+  const programReadme=content.locator('#landing > .rail > .foot a.landing-program-link');
+  await programReadme.waitFor({state:'visible'});
+  assert.equal(await programReadme.getAttribute('href'),'https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/README.md');
+  assert.equal((await programReadme.locator('.program-caption').innerText()).trim(),'program readme');
+  assert.equal(await programReadme.locator('svg[viewBox="0 0 16 16"] path').count(),1);
+  const pillBox=await programReadme.locator('.ghpill').boundingBox();
+  const railBox=await content.locator('#landing > .rail').boundingBox();
+  assert.ok(pillBox&&railBox&&pillBox.width<=50&&pillBox.height<=33
+    &&pillBox.x>=railBox.x&&pillBox.x+pillBox.width<=railBox.x+railBox.width,
+    'Program link pill must remain understated and fit in the landing rail');
   const journey = async (surface, projectId, label) => {
     const nav = content.locator('.recovery-nav');
     const stages = ['1 · Intent','2 · The bench','3 · The Store answers','4 · Your call','5 · We cut it','6 · Pick up & build'];
