@@ -565,7 +565,7 @@ try {
       await content.locator('#p-price').filter({hasNotText:/ASKING STORE ZERO|NOT SENT TO THE STORE/}).waitFor({timeout:45000});
       const oakAdmission=await content.locator('body').evaluate(()=>window.STBAlcoveLive.admission());
       assert.equal(oakAdmission.admission.result,'ADMITTED');
-      assert.equal(oakAdmission.request.facts['alcove.material'].value.species,'oak');
+      assert.equal(oakAdmission.request.facts['alcove.material'].species,'oak');
       const oakState=await content.locator('body').evaluate(()=>window.STBAlcoveLive.state());
       assert.equal(oakState.answer.authority,'CURRENT','Oak must show its actual returned answer');
       // Restore a known stocked species so dimension regressions compare actual Store replies.
