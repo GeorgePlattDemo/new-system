@@ -204,6 +204,12 @@
 #alcove-config .alcove-bench-spot #spot-inset{margin:8px 0 0!important;display:flex;flex-wrap:wrap;gap:12px}
 @media(max-width:760px){#alcove-config .alcove-wood-on-bench .swatches{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
+<style>
+#landing .rail .foot .landing-program-link{display:inline-flex;flex-direction:column;align-items:center;gap:4px;text-decoration:none;color:var(--text2);font-size:10px;line-height:1.25}
+#landing .rail .foot .landing-program-link .ghpill{width:48px;height:31px;justify-content:center;padding:4px 10px}
+#landing .rail .foot .landing-program-link .ghpill svg{width:18px;height:18px}
+#landing .rail .foot .landing-program-link:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px}
+</style>
 <link rel="stylesheet" href="stb-intent-kit.css?v=1">
 <script src="stb-intent-kit.js?v=demo-checkout-20261011"></script>
 </head>
@@ -294,6 +300,13 @@ const pages=[...document.querySelectorAll('.page')];let current='landing',stack=
 function addChrome(){pages.forEach(p=>{const rail=p.querySelector('.rail');if(rail&&!rail.querySelector('.foot')){const f=document.createElement('div');f.className='foot';f.innerHTML='<a class="ghpill" href="'+README+'" target="_blank" rel="noopener">'+GH+'Readme</a>';rail.append(f)}if(p.id!=='landing'){const first=p.querySelector('.main,.body,.ribbonbody,div[style*="border-right"]');if(first&&!first.querySelector(':scope > .backbar')){const b=document.createElement('div');b.className='backbar';b.innerHTML='<button class="back" data-back="1">← Back</button><span class="where">'+p.id.replaceAll('-',' ')+'</span>';first.prepend(b)}}});}
 function show(id,push=true){const next=document.getElementById(id);if(!next)return;if(push&&current&&current!==id)stack.push(current);pages.forEach(p=>p.classList.remove('on'));next.classList.add('on');current=id;window.scrollTo({top:0,behavior:'instant'});syncReview();syncTransaction();history.replaceState(null,"","#"+id);const nav=document.querySelector(".recovery-nav");if(nav)nav.hidden=(id==="landing");document.querySelectorAll(".recovery-nav button").forEach(b=>{if(b.dataset.go===id)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current")});}
 function back(){const prev=stack.pop()||'landing';show(prev,false)}
+function installLandingProgramReadme(){
+  const foot=document.querySelector('#landing > .rail > .foot');
+  if(!foot)return;
+  foot.innerHTML='<a class="landing-program-link" href="https://github.com/GeorgePlattDemo/3d-solutions-program/blob/main/README.md" target="_blank" rel="noopener noreferrer" aria-label="Open Program README on GitHub">'
+    +'<span class="ghpill" aria-hidden="true"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span>'
+    +'<span class="program-caption">program readme</span></a>';
+}
 const ALCOVE_MATERIAL_DISPLAY={pine:{name:'Pine',color:'#C9A227'},poplar:{name:'Poplar',color:'#9FA678'},cherry:{name:'Cherry',color:'#A6522C'},oak:{name:'Oak',color:'#C4A06A'}};
 let alcoveStoreAnswer=null;
 let alcoveStoreRequestGeneration=0;
@@ -612,7 +625,7 @@ document.addEventListener('click',e=>{
  const pick=e.target.closest('.pick');if(pick){document.querySelectorAll('.pick').forEach(x=>x.classList.remove('on'));pick.classList.add('on')}
 });
 
-renderAlcoveKnown();addChrome();renderHeights();syncAlcove();updateAlcoveOfferings();
+renderAlcoveKnown();addChrome();installLandingProgramReadme();renderHeights();syncAlcove();updateAlcoveOfferings();
 // Mirror only the actual Store Zero price already displayed in the calculated reference panel.
 const alcoveStorePrice=document.getElementById('p-price'),alcoveBenchPrice=document.getElementById('alcove-bench-store-price');
 if(alcoveStorePrice&&alcoveBenchPrice){
