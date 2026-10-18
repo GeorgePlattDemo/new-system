@@ -720,7 +720,7 @@ test("Alcove submits actual 1x8 demands: Store mills stocked Oak and refuses mis
       alcove:{pilotShelves:false},alcoveBoardSpecifications:boardSpecs,alcoveComponentPrograms:components,
       alcoveDefinitionSignature:signature,ALCOVE_PROJECT_ID:"alcove"
     });
-    const revision=revisionFor({h:72,w:45.5,d:14,n:5,span:44,material:species,pilotFeatures:[]});
+    const revision=revisionFor({h:72,w:45.5,d:14,n:5,span:44,material:species,pilotFeatures:[],problems:[]});
     assert.equal(revision.facts["alcove.component-programs"].value.length,14,`${species}: real component programs must exist`);
     const admitted=tileHostContract.admit({revision,inquiryScope:"ALCOVE_INSERT_V1"});
     assert.equal(admitted.admission.result,tileHostContract.ADMISSION_RESULT.ADMITTED,`${species}: Store must own material/capability refusal`);
@@ -787,7 +787,7 @@ test("Alcove's actual definition with pilot spots switched off and full-width st
   const revision = publishedFunction("system-build-base-8d8a9dd.html", "alcoveRevision", {
     alcove: { pilotShelves: false },alcoveBoardSpecifications:specs,alcoveComponentPrograms:componentPrograms,
     alcoveDefinitionSignature: signature, ALCOVE_PROJECT_ID: "alcove",
-  })({ h: 72, w: 45.5, d: 11, n: 5, span: 44, material: "pine", pilotFeatures: [] });
+  })({ h: 72, w: 45.5, d: 11, n: 5, span: 44, material: "pine", pilotFeatures: [], problems: [] });
   const definitionFrom = publishedFunction("system-build-base-8d8a9dd.html", "alcoveDefinitionFrom", {
     ALCOVE_HARDWARE_DEMAND: { requirementId: "ALCOVE-PINS-AND-SCREWS", description: "pins + screws", qty: 1, selectionAuthority: "STORE_ZERO" },
   });
@@ -1297,7 +1297,15 @@ test("the published default Alcove, including through profiles and shelf-elevati
   const file = "system-build-base-8d8a9dd.html";
   const alcove = { material: "pine", pilotShelves: true, spotInsetIn: 1.5, H: [12, 24, 36, 45, 65, 68, 70] };
   const inputs: Record<string, {value: string}> = { "c-h": {value:"72"}, "c-w": {value:"45.5"}, "c-d": {value:"14"}, "c-n": {value:"5"} };
-  const snapshot = publishedFunction(file, "currentAlcoveSnapshot", { alcove, document: {getElementById:(id: string)=>inputs[id]} })();
+  const exactFields=[["c-h","x-h","unit height"],["c-w","x-w","unit width"],["c-d","x-d","unit depth"]];
+  const document={getElementById:(id: string)=>inputs[id]};
+  const exactEntryProblem=publishedFunction(file,"exactEntryProblem",{
+    document,alcoveExactDirty:new Set<string>(),parseHeight:publishedFunction(file,"parseHeight"),
+    round32:publishedFunction(file,"round32"),fmt32:publishedFunction(file,"fmt32",{round32:publishedFunction(file,"round32")})
+  });
+  const alcoveExactProblems=publishedFunction(file,"alcoveExactProblems",{ALCOVE_EXACT_FIELDS:exactFields,exactEntryProblem});
+  const snapshot = publishedFunction(file, "currentAlcoveSnapshot", {alcove,document,alcoveExactProblems})();
+  assert.deepEqual(snapshot.problems,[],"An untouched valid definition must be fully settled");
   const offers=[6,8,10].map(w=>({offered:true,species:"pine",form:"board",grade:"select",nominalT:1,nominalW:w,actualW:w===6?5.5:w===8?7.25:9.25}));
   const stock={species:"pine",status:"READY",offers,pin:"test-fixture"};
   const finish={mode:"ECONOMY",mixed:false,first:10,second:6};
