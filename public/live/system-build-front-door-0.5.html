@@ -171,6 +171,15 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
     );
 
     const allowed = ['User 1'];
+    // Returning User has one honest local-device destination: previously saved working copies.
+    const returningSaved = doc.querySelector('#returning button[data-coming="Phase 3"]');
+    if (returningSaved) {
+      returningSaved.disabled = false;
+      returningSaved.removeAttribute('aria-disabled');
+      returningSaved.removeAttribute('data-coming');
+      returningSaved.setAttribute('data-canonical-go','my-projects');
+      returningSaved.textContent = 'MY SAVED PROJECTS ON THIS DEVICE';
+    }
     const projectCatalog = {
       'alcove-capture': { key:'alcove', title:'Critical fit · Shelf insert', rootId:'alcove-idea' },
       'window-parts': { key:'plywood', title:'Playhouse arched window', rootId:'playhouse-idea' },
@@ -324,16 +333,13 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       const body = doc.getElementById('canonical-my-projects-body');
       if (!intro || !body) return;
       intro.textContent = activeUser.toUpperCase() + ' · previous / working projects';
-      if (activeUser === 'User 1') {
-        body.innerHTML = '<p class="dim">User 1’s current project list is the full project set shown on Home.</p>';
-        return;
-      }
       const items = savedByUser[activeUser] || [];
       if (!items.length) {
         body.innerHTML = '<p><b>' + activeUser.toUpperCase() + '</b> has no previous or saved private projects in this demonstration yet.</p><p class="dim">Opening a library project does not create one. Use HOME, inspect a bounded project, and save it affirmatively if you want it here.</p>';
         return;
       }
-      body.innerHTML = '<div class="canonical-saved-list">' + items.map(item => '<button class="canonical-saved-row" type="button" data-owned-project-id="' + item.id + '"><b>' + item.title + '</b><span>' + (item.changed ? 'Saved with your changes' : 'Saved from the bounded project as shown') + ' · based on library project</span></button>').join('') + '</div>';
+      const escape = value => String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      body.innerHTML = '<div class="canonical-saved-list">' + items.map(item => '<button class="canonical-saved-row" type="button" data-owned-project-id="' + escape(item.id) + '"><b>' + escape(item.title) + '</b><span>' + (item.changed ? 'Saved with your changes' : 'Saved from the bounded project as shown') + ' · based on library project · saved on this device</span></button>').join('') + '</div>';
     }
 
     function renderArchive() {
@@ -442,20 +448,33 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       const project = preview.project;
       const state = changed ? captureState() : publishedBaseline;
       const item = {
-        id: project.key + '-' + Date.now(),
+        id: project.key + '-' + win.crypto.randomUUID(),
         key: project.key,
         title: project.title,
         rootId: project.rootId,
         changed: !!changed,
         state
       };
-      if (!savedByUser[activeUser]) savedByUser[activeUser] = [];
-      savedByUser[activeUser].push(item);
-      persistSaved();
+      // Only announce success after storage accepts the full copy. A failed write stays on the current page.
+      const existing = savedByUser[activeUser] || [];
+      const candidate = { ...savedByUser, [activeUser]:[...existing,item] };
+      try { localStorage.setItem(savedKey,JSON.stringify(candidate)); }
+      catch (error) {
+        const bar = doc.querySelector('.canonical-contextbar');
+        if (bar) {
+          let problem=bar.querySelector('[data-save-error]');
+          if (!problem) { problem=doc.createElement('p');problem.dataset.saveError='';problem.setAttribute('role','alert');bar.append(problem); }
+          problem.textContent='SAVE FAILED ON THIS DEVICE · '+String(error?.message || 'local storage unavailable')+'. Your working copy remains open.';
+        }
+        return;
+      }
+      savedByUser = candidate;
       preview = null;
       restoreState(publishedBaseline);
       renderMyProjects();
       canonicalShow('my-projects', false);
+      const intro = doc.getElementById('canonical-my-projects-intro');
+      if (intro) intro.textContent = 'SAVED ON THIS DEVICE · '+item.title+' · select the saved copy below to reopen it. Local browser storage only; no account or cloud backup.';
     }
 
     function openOwnedProject(id) {
@@ -485,7 +504,6 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 
       requestedView = requestedId;
       let id = requestedId;
-      if (id === 'my-projects' && activeUser === 'User 1') id = 'projects';
       const next = doc.getElementById(id);
       if (!next) return;
       if (push && currentId && currentId !== id) navStack.push(currentId);
@@ -495,6 +513,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
       if (preview && id !== 'projects' && id !== 'my-projects') preview.visited.add(id);
       if (id === 'projects') keepHomeShared();
       if (recovery) recovery.hidden = entryPages.includes(id);
+      if (id === 'my-projects') renderMyProjects();
       try { win.scrollTo({top:0,behavior:'instant'}); } catch { win.scrollTo(0,0); }
       if (id.startsWith('alcove') && typeof win.syncAlcove === 'function') win.syncAlcove();
       if (id.startsWith('picnic') && typeof win.syncPicnic === 'function') win.syncPicnic();
