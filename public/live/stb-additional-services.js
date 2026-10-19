@@ -29,6 +29,7 @@ const css=[
 '.stb-as-host>.stb-as-trigger{font:600 10px/1.2 system-ui,sans-serif!important;min-height:22px!important;padding:3px 6px!important;white-space:nowrap!important}',
 '.stb-as-popup{position:fixed;z-index:2147483600;box-sizing:border-box;overflow:auto;padding:10px 12px;border:1px solid #aeb5ba;border-radius:9px;background:#fff;color:#272c30;box-shadow:0 10px 36px rgba(0,0,0,.2);font:11px/1.3 system-ui,sans-serif;text-align:left}',
 '.stb-as-popup[hidden]{display:none!important}',
+'.stb-as-exclusions{display:block;margin:9px 0;padding:9px 12px;border:1px solid #c49a56;border-radius:6px;background:#fff9ed;color:#352b1e;font:11px/1.45 system-ui,sans-serif;white-space:normal}',
 '.stb-as-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:0 0 7px;padding:0 0 6px;border-bottom:1px solid #ddd}',
 '.stb-as-top strong{font-size:12px}',
 '.stb-as-close{font:600 11px system-ui,sans-serif;cursor:pointer;background:#f7f7f7;border:1px solid #c8c8c8;border-radius:5px;padding:4px 8px;color:#333}',
@@ -42,6 +43,33 @@ const css=[
 '@media(max-width:390px){.stb-as-columns{column-count:1}}'
 ].join('\n');
 const selections=new Map();
+const labels=new Map(groups.flatMap(([,rows])=>rows));
+const callSelector=Object.freeze({
+ 'start-own':'.start-own-terms-host[data-terms-step="call"]',
+ 'alcove':'.alcove-terms-host[data-terms-step="call"]',
+ 'playhouse':'.s001-terms-host[data-terms-step="call"]',
+ 'window-seat':'#s-request [data-terms-step="call"]',
+ 'outdoor':'#s-call [data-terms-step="call"]'
+});
+// Separately retained planning requests, NOT priced manufacturing demand.
+// The exclusions appear immediately before every project's commercial decision.
+function showPlanningScope(doc,project){
+ const choices=[...selected(project)];
+ const names=choices.map(id=>id+' · '+labels.get(id));
+ for(const host of doc.querySelectorAll(callSelector[project])){
+  let note=host.previousElementSibling;
+  if(!note||note.dataset.stbAsExclusion!==project){
+   note=doc.createElement('section');note.dataset.stbAsExclusion=project;
+   note.setAttribute('role','note');note.className='stb-as-exclusions';
+   host.before(note);
+  }
+  const message=choices.length
+   ? 'SEPARATE PLANNING REQUESTS — NOT INCLUDED IN THIS OFFER. '+names.join('; ')+'. These items were not sent to the Store, priced, accepted by the Yard or assigned for completion. Accepting the manufacturing-only offer EXCLUDES every item above; arrange a separate evaluation or provider before treating them as part of the work.'
+   : 'ADDITIONAL SERVICES — SEPARATE PLANNING LIST. No items selected. The menu is not a Store quotation or an accepted scope of work.';
+  if(note.textContent!==message)note.textContent=message;
+ }
+}
+
 const key=project=>'stb-addl-svcs-review-v1:'+project;
 function selected(project){
  if(!selections.has(project)){
@@ -77,7 +105,7 @@ function mount(doc,p){
  close.textContent='Close ×';close.setAttribute('aria-label','Close additional services');top.append(title,close);panel.append(top);
  const columns=doc.createElement('div');columns.className='stb-as-columns';
  const choices=selected(p);
- const count=doc.createElement('span');count.textContent=choices.size+' selected · planning only';
+ const count=doc.createElement('span');count.textContent=choices.size+' selected · excluded from Store offer';
  for(const [heading,rows] of groups){
   const section=doc.createElement('section');section.className='stb-as-group';
   const h=doc.createElement('h4');h.textContent=heading;section.append(h);
@@ -89,14 +117,15 @@ function mount(doc,p){
    check.addEventListener('change',()=>{
     if(check.checked)choices.add(id);else choices.delete(id);
     try{root.sessionStorage.setItem(key(p),JSON.stringify([...choices]));}catch(_){}
-    count.textContent=choices.size+' selected · planning only';
+    count.textContent=choices.size+' selected · excluded from Store offer';
+    showPlanningScope(doc,p);
    });
   }
   columns.append(section);
  }
  panel.append(columns);
  const foot=doc.createElement('div');foot.className='stb-as-foot';
- const yard=doc.createElement('span');yard.textContent='Every yard may expand or condense this list.';
+ const yard=doc.createElement('span');yard.textContent='Separate planning list only: selections are NOT sent, priced or accepted by the Store. Review exclusions before acceptance.';
  foot.append(yard,count);panel.append(foot);
  host.append(toggle);
  if(p==='start-own'){
@@ -133,7 +162,10 @@ function visit(win,seen){
   new win.MutationObserver(schedule).observe(doc.documentElement,{childList:true,subtree:true});
   doc.addEventListener('load',schedule,true);
  }
- for(const p of ['start-own','alcove','window-seat','outdoor','playhouse'])mount(doc,p);
+ for(const p of ['start-own','alcove','window-seat','outdoor','playhouse']){
+  mount(doc,p);
+  if(doc.querySelector('[data-stb-as-project="'+p+'"]'))showPlanningScope(doc,p);
+ }
  for(const frame of doc.querySelectorAll('iframe'))try{if(frame.contentWindow)visit(frame.contentWindow,seen);}catch(_){}
 }
 function scan(){visit(root,new Set());}
