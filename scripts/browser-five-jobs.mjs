@@ -988,11 +988,12 @@ try {
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       const patternSlider=content.locator('#playhouse-machine input[data-ph-field="offsetXIn"]');
       await patternSlider.evaluate(el=>{el.value='7';el.dispatchEvent(new Event('input',{bubbles:true}))});
+      // The customer reads the refusal on the Store page, not in the hidden Store panel while on Bench.
+      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
       await content.locator('#s001-live-reasons').filter({hasText:'ROUTED_PROFILE_OUTSIDE_WORK_FIELD'}).waitFor({timeout:45000});
       assert.equal(await content.locator('#s001-live-answer').getAttribute('data-store-status'),'REFUSED');
       assert.equal(await content.locator('#s001-live-q').textContent(),'—','Refused geometry must not show a made-up price');
       assert.equal(await content.locator('#playhouse-review button[data-s001-needs-supportable]').isDisabled(),true);
-      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
       await content.locator('#playhouse-store button[data-canonical-go="playhouse-review"]').click();
       const review=await content.locator('#s001-review-features').textContent();
       for(const marker of ['CUT-LEFT','CUT-RIGHT','CUT-M1','PATTERN','7 in X'])
