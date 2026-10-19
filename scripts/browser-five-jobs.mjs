@@ -523,6 +523,15 @@ try {
       const liveCapability=await content.locator('#alcove-current-capability').textContent();
       assert.ok(liveCapability.includes(currentStatus),'Current capability must come from fresh Store answer');
       assert.match(await content.locator('#alcove-store-yard-answer').textContent(),/Historical reference|HISTORICAL EXAMPLE/);
+      const firstOffer=await content.locator('body').evaluate(async()=>{
+        const flow=window.STBTermsFlow.instance('alcove');
+        for(let n=0;n<120;n++){
+          const offer=flow.state().commercial?.events?.find(e=>e.eventType==='OfferIssued');
+          if(offer)return offer.payload.offerId;
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('ALCOVE_INITIAL_OFFER_MISSING');
+      });
       const serviceChoice=content.locator('#decisionRows .rowline').first().getByRole('button',{name:'Sanded 150'});
       await serviceChoice.click();
       const scopedOffer=await content.locator('body').evaluate(async()=>{
@@ -537,6 +546,7 @@ try {
         }
         throw Error('ALCOVE_SELECTED_SERVICE_MISSING_FROM_SELLER_OFFER');
       });
+      assert.notEqual(scopedOffer.offer.offerId,firstOffer,'An Alcove service change must retire the previous simulated offer');
       assert.equal(scopedOffer.scope.length,10,'All ten customer service selections must survive to offer scope');
       assert.equal(scopedOffer.offer.extras.filter(e=>e.kind.startsWith('alcove-choice-')).length,10,
         'Every Alcove choice must be separately recorded with its disposition');
@@ -981,8 +991,7 @@ try {
       const playhouse=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.terms());
       assert.equal(playhouse.commercial.physicalAuthority,false);
       assert.equal(playhouse.commercial.paymentAuthority,false);
-      // F4/F5: add the pattern and an extra crosscut through Intent, move the pattern
-      // outside the routed work field, and require the real Store refusal and exact REVIEW features.
+      // F5: review the same added pattern/crosscut revision actually priced by the Store.
       await content.getByRole('button',{name:'1 · Intent',exact:true}).click();
       await content.locator('#ph-add-select').selectOption('PATTERN');
       await content.locator('#ph-add-go').click();
@@ -990,20 +999,43 @@ try {
       await content.locator('#ph-add-go').click();
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       const patternSlider=content.locator('#playhouse-machine input[data-ph-field="offsetXIn"]');
+      const pricedReply=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='playhouse'
+        &&r.request().postDataJSON()?.payload?.definition?.features?.some(f=>f.featureId==='PATTERN'&&f.offsetXIn===2),{timeout:45000});
+      await patternSlider.evaluate(el=>{el.value='2';el.dispatchEvent(new Event('input',{bubbles:true}))});
+      const priced=await pricedReply;
+      const pricedBody=await priced.json();
+      assert.equal(pricedBody.rawEvaluation.status,'SUPPORTABLE','Pattern and manual third cut must be evaluated, not waved through');
+      assert.equal(pricedBody.rawEvaluation.freshEvaluation,true);
+      const sentDefinition=priced.request().postDataJSON().payload.definition;
+      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
+      await content.locator('#s001-live-q').filter({hasText:/\$[0-9]+/}).waitFor({timeout:45000});
+      await content.locator('#playhouse-store button[data-canonical-go="playhouse-review"]').click();
+      const reviewItems=await content.locator('#s001-review-features li').allTextContents();
+      assert.equal(reviewItems.length,sentDefinition.features.length,'REVIEW feature count must match the admitted Store definition');
+      for(const feature of sentDefinition.features)assert.ok(reviewItems.some(text=>text.includes(feature.featureId)), 'Missing Store-bound review feature '+feature.featureId);
+      assert.match(reviewItems.join(' '),/2 in X/,'REVIEW must identify actual pattern placement');
+      assert.match(await content.locator('#s001-review-sheet').textContent(),/STB-ZERO-PLY/);
+      assert.ok((await content.locator('#s001-review-version').textContent()).includes(pricedBody.requestId));
+      // F4: a new out-of-field revision receives a REAL, fresh geometry refusal without
+      // rawEvaluation.configurationVersion; it must never be relabeled as a transport-version error.
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      const refusedReply=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='playhouse'
+        &&r.request().postDataJSON()?.payload?.definition?.features?.some(f=>f.featureId==='PATTERN'&&f.offsetXIn===7),{timeout:45000});
       await patternSlider.evaluate(el=>{el.value='7';el.dispatchEvent(new Event('input',{bubbles:true}))});
-      // The customer reads the refusal on the Store page, not in the hidden Store panel while on Bench.
+      const refusedBody=await (await refusedReply).json();
+      assert.equal(refusedBody.rawEvaluation.status,'REFUSED');
+      assert.equal(refusedBody.rawEvaluation.freshEvaluation,true);
+      assert.equal(refusedBody.rawEvaluation.configurationVersion,undefined,'Real geometric refusals do not carry raw configurationVersion');
+      assert.ok(refusedBody.rawEvaluation.reasonCodes.includes('ROUTED_PROFILE_OUTSIDE_WORK_FIELD'));
+      assert.equal(refusedBody.rawEvaluation.totals,null,'Store refusal is not a Q');
       await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
       await content.locator('#s001-live-reasons').filter({hasText:'ROUTED_PROFILE_OUTSIDE_WORK_FIELD'}).waitFor({timeout:45000});
       assert.equal(await content.locator('#s001-live-answer').getAttribute('data-store-status'),'REFUSED');
       assert.equal(await content.locator('#s001-live-q').textContent(),'—','Refused geometry must not show a made-up price');
       assert.equal(await content.locator('#playhouse-review button[data-s001-needs-supportable]').isDisabled(),true);
-      await content.locator('#playhouse-store button[data-canonical-go="playhouse-review"]').click();
-      const review=await content.locator('#s001-review-features').textContent();
-      for(const marker of ['CUT-LEFT','CUT-RIGHT','CUT-M1','PATTERN','7 in X'])
-        assert.ok(review.includes(marker),'REVIEW omitted priced/requested feature '+marker);
-      assert.match(await content.locator('#s001-review-sheet').textContent(),/STB-ZERO-PLY/);
-      assert.match(await content.locator('#s001-review-version').textContent(),/Store request/);
-      console.log(JSON.stringify({ project:label, geometryRefusalPreserved:true,reviewIncludesAddedOps:true,liveStore:true }));
+      console.log(JSON.stringify({project:label,pricedReviewFeatureCount:reviewItems.length,geometryRefusalPreserved:true,rawRefusalUnversioned:true,liveStore:true}));
     }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
