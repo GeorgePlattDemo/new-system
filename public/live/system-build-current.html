@@ -1641,8 +1641,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
 
     // ALCOVE STORE CONTENT CONSERVATION RULE
-    // One customer-facing Store interaction means coordinated navigation, not reduced Store content.
-    // Existing Request, Yard, Terms, Recap, and Record content is moved intact to its new customer-facing home.
+    // The Request, Yard, and Terms reference examples remain available with clear source boundaries.
+    // Static Recap/Record examples stay in their original pages; the current closeout is rendered from
+    // its own event ledger, never from reference placeholders.
     function extractAlcoveLegacyMain(pageId, label) {
       const page = doc.getElementById(pageId);
       const main = page?.querySelector(':scope > .main');
@@ -1748,6 +1749,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       renderAlcoveChain();
       feedAlcoveTerms();
       renderAlcoveTerms();
+      renderAlcoveCloseout();
     }
 
     // ── Alcove version chain ──────────────────────────────────────────────
@@ -1871,6 +1873,46 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       doc.documentElement.dataset.alcoveTerms = alcoveTerms.state().stage;
       alcovePublish();
     }
+    // The owner record is projected only from events actually in this version's ledger.
+    // The historical sample Recap/Record pages are not a competing current account.
+    function renderAlcoveCloseout() {
+      const host = doc.getElementById('alcove-record-actual');
+      if (!host || !alcoveTerms) return;
+      const transaction = alcoveTerms.state();
+      const events = transaction.commercial?.events || [];
+      const custody = events.find(e => e.eventType === 'CustodyTransferred');
+      const closed = events.find(e => e.eventType === 'ProjectCloseoutRecorded');
+      const current = alcoveCurrentAnswer();
+      host.replaceChildren();
+      const add = (tag,label) => { const el=doc.createElement(tag);el.textContent=label;host.append(el);return el; };
+      add('h2','Current owner record · recorded events only');
+      add('p','Version: '+(transaction.version || 'NOT RECORDED')+
+        ' · Store request: '+(current?.requestId || 'NOT RECORDED')+
+        ' · Store receipt: '+(current?.evaluationReceipt?.receiptHash || 'NOT RECORDED'));
+      const status=add('p',custody
+        ? 'CUSTODY: SIMULATED HANDOFF RECORDED'+(closed ? ' · simulated closeout recorded' : ' · closeout not yet recorded')
+        : 'CUSTODY: NOT RECORDED · '+(transaction.stage || 'NO CURRENT TRANSACTION'));
+      status.dataset.alcoveCustodyStatus='';
+      if (custody) {
+        add('p','Handoff ID: '+(custody.payload?.handoffId || 'NOT RECORDED')+
+          ' · Recipient: '+(custody.payload?.recipientId || 'NOT RECORDED')+
+          ' · Recorded: '+(custody.recordedAt || 'NOT RECORDED'));
+      }
+      if (!events.length) {
+        add('p','No matching commercial event ledger recorded for this version. No acceptance, yard, or custody event is inferred.');
+        return;
+      }
+      const list=add('ol','');
+      list.dataset.alcoveActualEvents='';
+      for (const event of events) {
+        const row=doc.createElement('li');
+        row.textContent=event.eventType+' · '+(event.recordedAt || 'TIME NOT RECORDED')+
+          ' · hash '+(event.hash || 'NOT RECORDED')+
+          ' · '+(event.evidenceClass || 'EVIDENCE CLASS NOT RECORDED');
+        list.append(row);
+      }
+      add('p','SIMULATION ONLY. A recorded demo payment, yard outcome, handoff or closeout is not a real physical event. Unrecorded events remain unrecorded.');
+    }
     // In-page actions open the same steps the nav does, through the same gate (win.show).
     const ALCOVE_ACTION_TARGETS = Object.freeze({ change:'alcove-config', 'accept-page':'request', store:'store', yard:'yard', record:'record' });
     // Alcove's STB-TILE-HOST-0.1 message. Intent, the bench, The Store answers and Your call come from the contract's
@@ -1942,10 +1984,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const requestBlock = extractAlcoveLegacyMain('request','Full existing Store service and handoff choices');
       const yardAnswerBlock = extractAlcoveLegacyMain('yard','Full existing Yard response, substitution choices, and timing');
       const termsBlock = extractAlcoveLegacyMain('terms','Full existing commercial sequence and authority distinctions');
-      const recapBlock = extractAlcoveLegacyMain('recap','Full existing chronology / audit');
-      const recordBlock = extractAlcoveLegacyMain('record','Full existing owner record');
-
-      if (!requestBlock || !yardAnswerBlock || !termsBlock || !recapBlock || !recordBlock) return false;
+      if (!requestBlock || !yardAnswerBlock || !termsBlock) return false;
 
       const firstStep = storeMain.querySelector(':scope > .s');
       const storeOrder = doc.createElement('section');
@@ -2087,6 +2126,8 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         <h1>Handoff · record</h1>
         <p class="sub">Record the pickup to issue the full receipt: every event from sent to custody, each with its hash. Missing events stay missing.</p>
         <div class="alcove-terms-host" data-terms-step="record"></div>
+        <section id="alcove-record-actual" aria-live="polite"></section>
+        <p class="dim" data-alcove-reference-notice>Earlier static Recap and Record examples are reference templates, not the current owner's event history. This closeout uses the commercial event ledger for this version.</p>
         <div class="cards">
           <div class="card"><b>What Store / Yard does</b><span>Complete required work; inspect; label; group; package / crate if selected; stage; issue READY; release at pickup / delivery; record custody; reconcile material, remnants and exceptions; close its fulfillment record when those events actually exist.</span></div>
           <div class="card"><b>What the user does</b><span>Receive READY; pick up or receive delivery; verify handoff; take custody; retain the project / part record; later assemble, install or finish work that always remained owner work.</span></div>
@@ -2094,8 +2135,6 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           <div class="card"><b>What the user gets</b><span>The parts; labels / assembly information where included; selected remnants; the exact identified version; Store / production / handoff history; the owner-held record; and a basis for later replacement or reorder.</span></div>
         </div>
       `;
-      recordMain.append(recapBlock);
-      recordMain.append(recordBlock);
       const finalBoundary = doc.createElement('div');
       finalBoundary.className = 'band warn';
       finalBoundary.innerHTML = '<b>Current demonstration truth.</b> Payment and the yard are simulated. No physical outcome is claimed. A later event never backfills a missing earlier event.';
@@ -2253,7 +2292,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
     // One drawing, drawn on both pages with its own id prefix. It is the sheet on screen, the Store's centered field,
     // the opening the knobs describe, and the cuts the job asks for. The opening is a true circular segment.
     const s001SheetSvg = p => `
-            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Plywood sheet showing the current routed work field, the routed arched profile with tabs, the internal route, and the requested saw cuts">
+            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Customer-request schematic: plywood work field, arched opening and four illustrative requested tab markers. These markers are not the Store returned tab plan.">
               <rect id="${p}-sheet" x="8" y="8" width="944" height="464" rx="5" fill="#eee7da" stroke="#5d5041" stroke-width="4"/>
               <rect id="${p}-band-l" x="8" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
               <rect id="${p}-band-r" x="720" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
@@ -2274,11 +2313,11 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
             </svg>
             <div class="s001-v2-legend">
               <span><i class="s001-v2-key"></i> routed path</span>
-              <span><i class="s001-v2-key tabs"></i> retained tab material</span>
+              <span><i class="s001-v2-key tabs"></i> four requested tab markers · illustration only, NOT Store returned positions</span>
               <span><i class="s001-v2-key saw"></i> straight-cut request</span>
               <span><i class="s001-v2-key out"></i> outside current routed field</span>
             </div>
-            <p class="dim" style="margin:8px 0 0">The blue straight-cut lines are shown because User 1 requested them. The Store decides whether each requested operation is inside its current capability.</p>`;
+            <p class="dim" data-s001-tab-schematic style="margin:8px 0 0">REQUEST SCHEMATIC ONLY: Four illustrated tab markers show the customer's requested retention intent, not the Store's evaluated tab positions. The Store's actual returned plan and tab count appear in its answer below. Blue straight-cut lines are also requests; the Store alone determines supportability.</p>`;
 
     // The drawing for the geometry g (width, straight, rise) and the job's wood and tools.
     function s001Draw(p, g) {
@@ -2315,6 +2354,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         }).join('');
       }
       // The opening: a circular segment of the chord (width) and rise. A pattern moves it within the field.
+      // The four markers below are schematic customer requests only; Store tabPositionsIn is not drawn here.
       const pattern = s001PatternTool();
       const px = 10, fieldHeight = 360;
       const centerX = 480 + (pattern ? Number(pattern.offsetXIn) || 0 : 0) * px;
@@ -3815,7 +3855,14 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const ops = doc.getElementById('s001-live-operations');
       if (ops) ops.innerHTML = ok ? ev.operations.map(op => '<li>' + (S001_OP_TEXT[op.kind]?.(op) || op.kind) + '</li>').join('') : '';
       const kinds = ok ? ev.pieces.reduce((m,p) => (m[p.kind] = (m[p.kind]||0) + 1, m), {}) : {};
-      text('s001-live-pieces', ok ? `Returned: ${kinds.PANEL||0} end panels, ${kinds.FRAME||0} frame, ${kinds.RETAINED_CENTER_PIECE||0} center pieces on tabs.` : '');
+      const pieceLabels = {
+        PANEL:'end panel', FRAME:'frame', RETAINED_ROUTED_PIECE:'retained routed center'
+      };
+      text('s001-live-pieces', ok
+        ? 'Returned: ' + Object.entries(kinds).map(([kind,count]) =>
+          count + ' ' + (pieceLabels[kind] || kind.replaceAll('_',' ').toLowerCase()) +
+          (count === 1 ? '' : 's')).join(', ') + ' · ' + ev.pieces.length + ' pieces total (Store list).'
+        : '');
       const material = ev?.selectedStock?.[0] ? `${ev.selectedStock[0].storeSku} · ${ev.selectedStock[0].description || ''}` : '—';
       const tabs = ok ? (() => { const t = ev.parents?.find(p=>p.kind==='sheet')?.geometry.apertures[0]?.tabPositionsIn; return Array.isArray(t) ? `${t.length} modeled tabs · retention NOT MEASURED` : '—'; })() : '—';
       const receipt = ok ? String(a.receipt.receiptHash).slice(0,16) + '… · request ' + String(a.requestId).slice(0,8) : '—';
@@ -4394,6 +4441,16 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       'alcove-capture': 'alcove',
       'window-parts': 'playhouse'
     });
+    const SAVED_PROJECT_TO_JOURNEY = Object.freeze({
+      'plywood':'playhouse', 'alcove':'alcove', 'window-seat':'window-seat', 'picnic':'outdoor'
+    });
+    // Selecting an actual saved row is the same explicit project-entry boundary as selecting
+    // a public tile. Without it the reopened page cannot ask Store about its recovered sheet.
+    win.addEventListener('click', function(event) {
+      const saved = event.target.closest?.('#my-projects [data-owned-project-id][data-owned-project-key]');
+      if (!saved) return;
+      selectJourneyProject(SAVED_PROJECT_TO_JOURNEY[saved.dataset.ownedProjectKey] || null);
+    }, true);
 
     win.addEventListener('click', function(event) {
       const exitButton = event.target.closest?.('.recovery-nav button[data-job-exit="project-library"]');

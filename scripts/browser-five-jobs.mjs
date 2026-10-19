@@ -579,6 +579,21 @@ try {
       assert.ok(scopedOffer.offer.extras.some(e=>e.kind==='alcove-choice-01'&&e.disposition==='UNRESOLVED'));
       assert.match(await content.locator('#request [data-unaccepted-services]').textContent(),/Sanded 150/);
       await journey(content,'alcove','Alcove default');
+      // F11: custody and closeout are projected from actual, simulated commercial events.
+      const alcoveEvents=await content.locator('body').evaluate(()=>{
+        let owner=window;while(!owner.STBTermsFlow&&owner!==owner.parent)owner=owner.parent;
+        return owner.STBTermsFlow.instance('alcove').state().commercial.events;
+      });
+      assert.ok(alcoveEvents.some(e=>e.eventType==='CustodyTransferred'),'Custody must have a real simulated event');
+      assert.ok(alcoveEvents.some(e=>e.eventType==='ProjectCloseoutRecorded'),'Simulated closeout must be recorded');
+      assert.match(await content.locator('#record [data-alcove-custody-status]').innerText(),/SIMULATED HANDOFF RECORDED/);
+      const record=await content.locator('#record').innerText();
+      assert.ok(!record.includes('custody was not transferred')&&!record.includes('Custody transfer · not recorded'),
+        'Closeout cannot simultaneously claim custody was not transferred');
+      assert.ok(!record.includes('[version id]')&&!record.includes('[status')&&!record.includes('[date'),
+        'No static template placeholders may appear on the actual closeout');
+      assert.equal(await content.locator('#record [data-alcove-actual-events] li').count(),alcoveEvents.length,
+        'The owner record must display every actual ledger event, including custody');
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await content.locator('#alcove-config').waitFor({state:'visible'});
       const before = responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length;
@@ -989,6 +1004,24 @@ try {
       await quote.filter({ hasText: /\$[0-9]+/ }).waitFor({ state: 'visible', timeout: 45000 });
       assert.ok(responses.filter(r => r.path === '/api/store-zero/job' && r.status === 200).length > before,
         'Playhouse sheet definition received no current Store answer');
+      await Promise.all(responseReads);
+      const sheetAnswer=evaluations.filter(a=>a.projectId==='playhouse'&&a.rawEvaluation?.status==='SUPPORTABLE').at(-1);
+      const pieces=sheetAnswer.rawEvaluation.pieces;
+      assert.ok(pieces.some(p=>p.kind==='RETAINED_ROUTED_PIECE'),'The Store actually returned a retained center');
+      const kinds=Object.entries(pieces.reduce((counts,p)=>(counts[p.kind]=(counts[p.kind]||0)+1,counts),{}));
+      const piecesText=await content.locator('#s001-live-pieces').innerText();
+      assert.ok(piecesText.includes(pieces.length+' pieces total'),'Reported piece total must equal full Store piece list');
+      for(const [kind,count] of kinds){
+        assert.ok(piecesText.includes(count+' '),'Reported count missing for '+kind);
+        assert.ok(piecesText.includes(kind==='RETAINED_ROUTED_PIECE'?'retained routed center':kind==='PANEL'?'end panel':kind==='FRAME'?'frame':kind.replaceAll('_',' ').toLowerCase()),
+          'Reported piece kind missing: '+kind);
+      }
+      // F10: four drawn circles are explicitly illustrative customer requests, not the Store's tabs.
+      const tabPlan=sheetAnswer.rawEvaluation.parents.find(p=>p.kind==='sheet')?.geometry.apertures[0]?.tabPositionsIn;
+      assert.ok(Array.isArray(tabPlan),'A supported sheet must report the actual Store tab set');
+      assert.equal(await content.locator('#s001-tab-markers circle').count(),4,'Illustrative request still has four markers');
+      assert.match(await content.locator('#playhouse-machine [data-s001-tab-schematic]').innerText(),/not the Store.s evaluated tab positions/);
+      assert.match(await content.locator('#s001-live-tabs').innerText(),new RegExp('^'+tabPlan.length+' modeled tabs'));
       await journey(content,'playhouse','Playhouse default');
       assert.equal(await content.locator('#playhouse-result [data-s001-bind="status"]').textContent(),'SUPPORTABLE','Recap must show the actual matching Store status');
       assert.equal(await content.locator('#playhouse-record [data-s001-bind="status"]').textContent(),'SUPPORTABLE','The owner record must carry that same actual result');
@@ -1060,7 +1093,66 @@ try {
       assert.equal(await content.locator('#s001-live-answer').getAttribute('data-store-status'),'REFUSED');
       assert.equal(await content.locator('#s001-live-q').textContent(),'—','Refused geometry must not show a made-up price');
       assert.equal(await content.locator('#playhouse-review button[data-s001-needs-supportable]').isDisabled(),true);
-      console.log(JSON.stringify({project:label,pricedReviewFeatureCount:reviewItems.length,geometryRefusalPreserved:true,rawRefusalUnversioned:true,liveStore:true}));
+      // F12: save the actual edited, now-refused Playhouse definition as a working copy.
+      const save=content.locator('#playhouse-store [data-canonical-preview-action="save-changes"]');
+      await save.click();
+      await content.locator('#my-projects').waitFor({state:'visible'});
+      assert.match(await content.locator('#canonical-my-projects-intro').innerText(),/SAVED ON THIS DEVICE/);
+      let savedRow=content.locator('#my-projects [data-owned-project-id]');
+      assert.equal(await savedRow.count(),1,'The saved project must exist as an actual selectable copy');
+      await savedRow.click();
+      await content.locator('#playhouse-idea').waitFor({state:'visible'});
+      assert.match(await content.locator('#playhouse-idea .canonical-contextbar').innerText(),/MY PROJECT/);
+      const savedPattern=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.definition()?.features.find(f=>f.featureId==='PATTERN'));
+      assert.equal(savedPattern?.offsetXIn,7,'Opening the saved copy must restore the actual changed pattern');
+      // Preserve the browser observer's Store response bodies before navigating away.
+      // The saved out-of-field definition is itself re-evaluated and must be refused honestly.
+      await content.locator('body').evaluate(async()=>{
+        for(let attempt=0;attempt<300;attempt++){
+          if(window.STBPlayhouseLive.state().answer?.evaluation?.status==='REFUSED')return;
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Saved Playhouse copy did not receive its fresh geometric refusal before reload');
+      });
+      await Promise.all(responseReads);
+      // Return as an ordinary user, from the published landing door, after reloading the app.
+      await page.reload();
+      await content.locator('#landing').waitFor({state:'visible',timeout:30000});
+      await content.locator('#landing button[data-go="returning"]').click();
+      await content.locator('#returning button[data-canonical-go="my-projects"]').click();
+      await content.locator('#my-projects').waitFor({state:'visible'});
+      savedRow=content.locator('#my-projects [data-owned-project-id]');
+      assert.equal(await savedRow.count(),1,'A new browser page load must retain the same saved copy');
+      await savedRow.click();
+      await content.locator('#playhouse-idea').waitFor({state:'visible'});
+      // Restored tools are available immediately; the admitted sheet is resolved afresh by Store
+      // after the saved row explicitly reactivates its project's tile.
+      const reopened=await content.locator('body').evaluate(async()=>{
+        const job=window.STBPlayhouseLive.job();
+        const pattern=job.tools.find(t=>t.kind==='PATTERN');
+        if(pattern?.offsetXIn!==7)throw Error('Persisted Playhouse tools were not restored: '+JSON.stringify(job));
+        for(let attempt=0;attempt<300;attempt++){
+          const current=window.STBPlayhouseLive.definition();
+          const feature=current?.features.find(f=>f.featureId==='PATTERN');
+          if(feature)return {feature,sku:window.STBPlayhouseLive.job().sheet?.storeSku};
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Saved project not re-admitted after Store sheet lookup: '+
+          JSON.stringify({job:window.STBPlayhouseLive.job(),active:document.documentElement.dataset.activeJourneyProject}));
+      });
+      assert.equal(reopened.feature.offsetXIn,7,'Returning User must reopen the persisted actual definition');
+      assert.ok(reopened.sku,'Reopened sheet must be re-established by Store lookup');
+      await content.locator('body').evaluate(async()=>{
+        for(let attempt=0;attempt<300;attempt++){
+          if(window.STBPlayhouseLive.state().answer?.evaluation?.status==='REFUSED')return;
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Reopened Playhouse copy has not received its current Store refusal');
+      });
+      await Promise.all(responseReads);
+      console.log(JSON.stringify({project:label,pricedReviewFeatureCount:reviewItems.length,geometryRefusalPreserved:true,
+        rawRefusalUnversioned:true,returnPieces:pieces.length,retainedCenters:pieces.filter(p=>p.kind==='RETAINED_ROUTED_PIECE').length,
+        storeTabCount:tabPlan.length,illustratedRequestTabs:4,savedAndReopened:true,liveStore:true}));
     }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
