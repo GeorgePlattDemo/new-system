@@ -1641,8 +1641,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
 
     // ALCOVE STORE CONTENT CONSERVATION RULE
-    // One customer-facing Store interaction means coordinated navigation, not reduced Store content.
-    // Existing Request, Yard, Terms, Recap, and Record content is moved intact to its new customer-facing home.
+    // The Request, Yard, and Terms reference examples remain available with clear source boundaries.
+    // Static Recap/Record examples stay in their original pages; the current closeout is rendered from
+    // its own event ledger, never from reference placeholders.
     function extractAlcoveLegacyMain(pageId, label) {
       const page = doc.getElementById(pageId);
       const main = page?.querySelector(':scope > .main');
