@@ -1124,7 +1124,7 @@ try {
         for(let attempt=0;attempt<300;attempt++){
           const current=window.STBPlayhouseLive.definition();
           const feature=current?.features.find(f=>f.featureId==='PATTERN');
-          if(feature)return {feature,sku:job.sheet?.storeSku};
+          if(feature)return {feature,sku:window.STBPlayhouseLive.job().sheet?.storeSku};
           await new Promise(resolve=>setTimeout(resolve,100));
         }
         throw Error('Saved project not re-admitted after Store sheet lookup: '+
