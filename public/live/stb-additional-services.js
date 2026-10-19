@@ -164,7 +164,9 @@ function visit(win,seen){
  }
  for(const p of ['start-own','alcove','window-seat','outdoor','playhouse']){
   mount(doc,p);
-  if(doc.querySelector('[data-stb-as-project="'+p+'"]'))showPlanningScope(doc,p);
+  // The Start Your Own planning controls live in a child frame but its offer is hosted by the parent.
+  // Populate the exclusion beside the acceptance flow wherever that flow lives.
+  showPlanningScope(doc,p);
  }
  for(const frame of doc.querySelectorAll('iframe'))try{if(frame.contentWindow)visit(frame.contentWindow,seen);}catch(_){}
 }
