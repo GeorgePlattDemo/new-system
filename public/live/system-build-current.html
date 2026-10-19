@@ -1667,6 +1667,16 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const row = rows.find(r => r.querySelector('.rt')?.childNodes?.[0]?.textContent?.trim() === label);
       return row?.querySelector('.pill.on')?.textContent?.trim() || 'not selected';
     }
+    // Ten customer choices follow the commercial offer as unresolved requests, not Store pricing.
+    function alcoveScopeRequests() {
+      return [...doc.querySelectorAll('#decisionRows .rowline')].map((row, i) => ({
+        kind:'alcove-choice-'+String(i+1).padStart(2,'0'),
+        label:row.querySelector('.rt')?.childNodes?.[0]?.textContent?.trim() || 'Choice '+(i+1),
+        selection:row.querySelector('.pill.on')?.textContent?.trim() || 'NOT_SELECTED',
+        disposition:'UNRESOLVED',
+        assignment:'YARD_OR_CUSTOMER_DECISION_PENDING'
+      }));
+    }
 
 
     // ── Alcove · on the shared tile host ──────────────────────────────────────────────────────────
@@ -1783,7 +1793,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         + (history ? '<p class="chainstep">VERSION HISTORY</p><ul class="chainhistory">' + history + '</ul>' : '')
         + '</div>';
     }
-    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'alcove', title:'Alcove insert', demoCommerce:true }) : null;
+    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({
+      projectId:'alcove', title:'Alcove insert', demoCommerce:true, scopeRequests:alcoveScopeRequests
+    }) : null;
     window.STBTermsFlow?.installStyle(doc);
     // The answer inquire() returned for the revision the page last admitted, while nothing newer is being asked and
     // that revision is the one on the page now; otherwise null. Only isCurrentAnswer() decides: a blocked, failed,
@@ -1829,7 +1841,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       if (!alcoveTerms) return;
       doc.querySelectorAll('.alcove-terms-host').forEach(host => {
         const step = host.dataset.termsStep;
-        host.innerHTML = alcoveTerms.renderControls(step) + alcoveTerms.renderChain();
+        host.innerHTML = alcoveTerms.renderScope() + alcoveTerms.renderControls(step) + alcoveTerms.renderChain();
       });
       doc.documentElement.dataset.alcoveTerms = alcoveTerms.state().stage;
       alcovePublish();
