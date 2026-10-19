@@ -140,6 +140,11 @@ async function inspectNarrowJourneys(page,base){
     const panel=surface.getByRole('dialog',{name:'Additional services',exact:true});
     assert.equal(await panel.getByRole('checkbox').count(),62);
     const choice=panel.getByRole('checkbox').first();await choice.check();
+    // F6: every project's separate planning requests must appear as explicit exclusions
+    // beside its Your Call terms, even when the Bench lives in a child frame.
+    const exclusions=(job==='job1'?content:surface).locator('[data-stb-as-exclusion="'+(job==='job1'?'start-own':job)+'"]').first();
+    await exclusions.filter({hasText:'A01'}).waitFor({state:'attached',timeout:15000});
+    assert.match(await exclusions.textContent(),/NOT INCLUDED IN THIS OFFER/);
     await panel.getByRole('button',{name:'Close additional services',exact:true}).click();
     await services.click();assert.equal(await choice.isChecked(),true);
     await choice.uncheck();await panel.press('Escape');assert.equal(await panel.isVisible(),false);
@@ -512,6 +517,29 @@ try {
       const pine = (await price.innerText()).trim();
       await content.locator('#confirm-alcove-inline').click();
       await content.locator('#store').waitFor({state:'visible',timeout:45000});
+      // F7/F8: one current Store answer, not the historical yard example, governs every live status.
+      const currentStatus=await content.locator('body').evaluate(()=>window.STBAlcoveStoreAnswer.rawEvaluation.status);
+      await content.locator('#alcove-order-status').filter({hasText:currentStatus}).waitFor({timeout:15000});
+      const liveCapability=await content.locator('#alcove-current-capability').textContent();
+      assert.ok(liveCapability.includes(currentStatus),'Current capability must come from fresh Store answer');
+      assert.match(await content.locator('#alcove-store-yard-answer').textContent(),/Historical reference|HISTORICAL EXAMPLE/);
+      const serviceChoice=content.locator('#decisionRows .rowline').first().getByRole('button',{name:'Sanded 150'});
+      await serviceChoice.click();
+      const scopedOffer=await content.locator('body').evaluate(async()=>{
+        let host=window;while(!host.STBTermsFlow&&host!==host.parent)host=host.parent;
+        const flow=host.STBTermsFlow.instance('alcove');
+        for(let n=0;n<120;n++){
+          const state=flow.state();
+          const offer=state.commercial?.events?.find(e=>e.eventType==='OfferIssued');
+          if(offer?.payload?.extras?.some(e=>e.kind==='alcove-choice-01'&&e.selection==='Sanded 150'))
+            return {offer:offer.payload,scope:state.scopeRequests};
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('ALCOVE_SELECTED_SERVICE_MISSING_FROM_SELLER_OFFER');
+      });
+      assert.ok(scopedOffer.scope.some(e=>e.label==='Edge condition'&&e.selection==='Sanded 150'&&e.disposition==='UNRESOLVED'));
+      assert.ok(scopedOffer.offer.extras.some(e=>e.kind==='alcove-choice-01'&&e.disposition==='UNRESOLVED'));
+      assert.match(await content.locator('#request [data-unaccepted-services]').textContent(),/Sanded 150/);
       await journey(content,'alcove','Alcove default');
       await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
       await content.locator('#alcove-config').waitFor({state:'visible'});
@@ -950,7 +978,28 @@ try {
       const playhouse=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.terms());
       assert.equal(playhouse.commercial.physicalAuthority,false);
       assert.equal(playhouse.commercial.paymentAuthority,false);
-      console.log(JSON.stringify({ project: label, benchPrice: (await quote.innerText()).trim(), liveStore: true }));
+      // F4/F5: add the pattern and an extra crosscut through Intent, move the pattern
+      // outside the routed work field, and require the real Store refusal and exact REVIEW features.
+      await content.getByRole('button',{name:'1 · Intent',exact:true}).click();
+      await content.locator('#ph-add-select').selectOption('PATTERN');
+      await content.locator('#ph-add-go').click();
+      await content.locator('#ph-add-select').selectOption('MANUAL_CUT');
+      await content.locator('#ph-add-go').click();
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      const patternSlider=content.locator('#playhouse-machine input[data-ph-field="offsetXIn"]');
+      await patternSlider.evaluate(el=>{el.value='7';el.dispatchEvent(new Event('input',{bubbles:true}))});
+      await content.locator('#s001-live-reasons').filter({hasText:'ROUTED_PROFILE_OUTSIDE_WORK_FIELD'}).waitFor({timeout:45000});
+      assert.equal(await content.locator('#s001-live-answer').getAttribute('data-store-status'),'REFUSED');
+      assert.equal(await content.locator('#s001-live-q').textContent(),'—','Refused geometry must not show a made-up price');
+      assert.equal(await content.locator('#playhouse-review button[data-s001-needs-supportable]').isDisabled(),true);
+      await content.locator('#playhouse-machine button[data-canonical-go="playhouse-store"]').click();
+      await content.locator('#playhouse-store button[data-canonical-go="playhouse-review"]').click();
+      const review=await content.locator('#s001-review-features').textContent();
+      for(const marker of ['CUT-LEFT','CUT-RIGHT','CUT-M1','PATTERN','7 in X'])
+        assert.ok(review.includes(marker),'REVIEW omitted priced/requested feature '+marker);
+      assert.match(await content.locator('#s001-review-sheet').textContent(),/STB-ZERO-PLY/);
+      assert.match(await content.locator('#s001-review-version').textContent(),/Store request/);
+      console.log(JSON.stringify({ project:label, geometryRefusalPreserved:true,reviewIncludesAddedOps:true,liveStore:true }));
     }
     console.log(JSON.stringify({ project: label, clicked: destination, visiblePage: true }));
   }
