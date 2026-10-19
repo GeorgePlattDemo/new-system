@@ -1105,6 +1105,16 @@ try {
       assert.match(await content.locator('#playhouse-idea .canonical-contextbar').innerText(),/MY PROJECT/);
       const savedPattern=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.definition()?.features.find(f=>f.featureId==='PATTERN'));
       assert.equal(savedPattern?.offsetXIn,7,'Opening the saved copy must restore the actual changed pattern');
+      // Preserve the browser observer's Store response bodies before navigating away.
+      // The saved out-of-field definition is itself re-evaluated and must be refused honestly.
+      await content.locator('body').evaluate(async()=>{
+        for(let attempt=0;attempt<300;attempt++){
+          if(window.STBPlayhouseLive.state().answer?.evaluation?.status==='REFUSED')return;
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Saved Playhouse copy did not receive its fresh geometric refusal before reload');
+      });
+      await Promise.all(responseReads);
       // Return as an ordinary user, from the published landing door, after reloading the app.
       await page.reload();
       await content.locator('#landing').waitFor({state:'visible',timeout:30000});
@@ -1132,6 +1142,14 @@ try {
       });
       assert.equal(reopened.feature.offsetXIn,7,'Returning User must reopen the persisted actual definition');
       assert.ok(reopened.sku,'Reopened sheet must be re-established by Store lookup');
+      await content.locator('body').evaluate(async()=>{
+        for(let attempt=0;attempt<300;attempt++){
+          if(window.STBPlayhouseLive.state().answer?.evaluation?.status==='REFUSED')return;
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Reopened Playhouse copy has not received its current Store refusal');
+      });
+      await Promise.all(responseReads);
       console.log(JSON.stringify({project:label,pricedReviewFeatureCount:reviewItems.length,geometryRefusalPreserved:true,
         rawRefusalUnversioned:true,returnPieces:pieces.length,retainedCenters:pieces.filter(p=>p.kind==='RETAINED_ROUTED_PIECE').length,
         storeTabCount:tabPlan.length,illustratedRequestTabs:4,savedAndReopened:true,liveStore:true}));
