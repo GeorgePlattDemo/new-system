@@ -549,7 +549,74 @@ try {
       await content.locator('#confirm-alcove-inline').click();
       await content.locator('#store').waitFor({state:'visible',timeout:45000});
       await journey(content,'alcove','Alcove revised species');
-      console.log(JSON.stringify({ project: label, pine, poplar, freshStoreAnswer: true }));
+      // P1 #1: The real Store search contains cherry rows mentioning oak in their description.
+      // These rows must not prevent the oak material demand from reaching manufacturing evaluation.
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      await content.locator('#alcove-config').waitFor({state:'visible'});
+      const oakLookup = page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/offering'
+        &&r.request().postDataJSON()?.projectId==='alcove',{timeout:45000});
+      const oakEvaluation = page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='alcove',{timeout:45000});
+      await content.locator('#alcove-config button[data-material="oak"]').click();
+      const lookupBody = JSON.stringify(await (await oakLookup).json());
+      assert.ok(lookupBody.includes('"species":"cherry"')&&lookupBody.includes('"species":"oak"'),
+        'Oak discovery regression must exercise the real mixed-species Store search');
+      assert.equal((await oakEvaluation).status(),200,'Oak must reach the Store, whether supported or honestly refused');
+      await content.locator('#p-price').filter({hasNotText:/ASKING STORE ZERO|NOT SENT TO THE STORE/}).waitFor({timeout:45000});
+      const oakAdmission=await content.locator('body').evaluate(()=>window.STBAlcoveLive.admission());
+      assert.equal(oakAdmission.admission.result,'ADMITTED');
+      assert.equal(oakAdmission.request.facts['alcove.material'].species,'oak');
+      const oakState=await content.locator('body').evaluate(()=>window.STBAlcoveLive.state());
+      assert.equal(oakState.answer.authority,'CURRENT','Oak must show its actual returned answer');
+      // Restore a known stocked species so dimension regressions compare actual Store replies.
+      const pineEvaluation = page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='alcove',{timeout:45000});
+      await content.locator('#alcove-config button[data-material="pine"]').click();
+      assert.equal((await pineEvaluation).status(),200);
+      await price.filter({hasText:/\$[0-9]+/}).waitFor({timeout:45000});
+
+      // P1 #2: The user's unit height, not the highest shelf, controls the entered field.
+      const h=content.locator('#x-h');
+      const quoteRequests=()=>responses.filter(r=>r.path==='/api/store-zero/job'&&r.status===200).length;
+      const beforeConflict=quoteRequests();
+      await h.fill('60');
+      await h.press('Enter');
+      await content.locator('#p-price').filter({hasText:'NOT SENT TO THE STORE'}).waitFor({timeout:15000});
+      assert.equal(await h.inputValue(),'60');
+      assert.equal(await content.locator('#c-h').inputValue(),'60');
+      assert.ok((await content.locator('#alcove-dimension-feedback').innerText()).includes('65 in'));
+      assert.equal((await content.locator('body').evaluate(()=>window.STBAlcoveLive.revision()))
+        .facts['alcove.opening'].status,'UNRESOLVED');
+      assert.equal(quoteRequests(),beforeConflict,'Conflicting unit height must not reach the Store');
+      await content.locator('#confirm-alcove-inline').click();
+      assert.equal(await content.locator('#alcove-config').isVisible(),true,'Cannot confirm a conflicting height');
+      const correctedHeight=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='alcove',{timeout:45000});
+      await h.fill('68');await h.press('Enter');
+      assert.equal((await correctedHeight).status(),200,'Resolved height must reach Store evaluation');
+      await price.filter({hasText:/\$[0-9]+/}).waitFor({timeout:45000});
+
+      // P1 #3: malformed text and out-of-range numbers must remain visible and unadmitted.
+      const w=content.locator('#x-w'),originalWidth=await content.locator('#c-w').inputValue();
+      const beforeMalformed=quoteRequests();
+      await w.fill('40junk');await w.press('Enter');
+      await content.locator('#p-price').filter({hasText:'NOT SENT TO THE STORE'}).waitFor({timeout:15000});
+      assert.equal(await w.inputValue(),'40junk');
+      assert.equal(await content.locator('#c-w').inputValue(),originalWidth);
+      assert.equal(await w.getAttribute('aria-invalid'),'true');
+      assert.ok((await content.locator('#alcove-dimension-feedback').innerText()).includes('42–45 1/2'));
+      assert.equal(quoteRequests(),beforeMalformed,'Malformed exact width must not be submitted');
+      await w.fill('40');await w.press('Enter');
+      assert.equal(await w.inputValue(),'40','Out-of-range exact entry must not be clamped to 42');
+      assert.equal(await content.locator('#c-w').inputValue(),originalWidth);
+      const correctedWidth=page.waitForResponse(r=>new URL(r.url()).pathname==='/api/store-zero/job'
+        &&r.request().postDataJSON()?.projectId==='alcove',{timeout:45000});
+      await w.fill('42 1/2');await w.press('Enter');
+      assert.equal((await correctedWidth).status(),200,'Complete in-bounds fraction must reach the Store');
+      assert.equal(await content.locator('#c-w').inputValue(),'42.5');
+      assert.equal(await w.getAttribute('aria-invalid'),'false');
+      console.log(JSON.stringify({project:label,pine,poplar,oakLookupMixed:true,oakAdmitted:true,
+        heightConflictBlocked:true,invalidExactPreserved:true,fractionAccepted:true,freshStoreAnswer:true}));
     }
     if (label === 'Window Seat') {
       assert.ok((await content.locator('iframe#window-seat-frame').getAttribute('src')).includes('?v=public-conformance-20261017'),'The host must invalidate the previously cached Window Seat page');
