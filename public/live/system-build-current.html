@@ -3188,7 +3188,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         ? Number(estimate.cycle.T_job_min).toFixed(4)+' min · '+String(estimate.cycle.model || 'modeled')
         : 'NOT ESTABLISHED';
       if(authorityEl)authorityEl.textContent=estimate?.engine
-        ? estimate.engine.id+' · v'+estimate.engine.version+' · '+String(storeReference?.source?.storePin || storeReference?.authority?.economicsPin || 'unpinned').slice(0,12)+'…'
+        ? estimate.engine.id+' · '+String(storeReference?.source?.storePin || storeReference?.authority?.economicsPin || 'unpinned').slice(0,12)+'…'
         : 'NO CURRENT COMPLETE ECONOMICS MODEL ON THIS PROJECT ANSWER';
       if(economicsNote){
         economicsNote.innerHTML=complete

@@ -297,6 +297,10 @@ try {
     await Promise.all(responseReads);
     const answer=evaluations.filter(a=>a.projectId===projectId&&a.rawEvaluation?.status==='SUPPORTABLE'&&!a.candidateRevisionId?.includes('-wood-')&&!a.candidateRevisionId?.includes('-tier-')).at(-1);
     assert.ok(answer,label+': no real selected Store answer');
+    if(projectId==='start-own')assert.equal(
+      (await surface.locator('#proof-store-economics-authority').textContent()).trim(),
+      answer.storeAnswer.model.id+' · '+answer.storePin.slice(0,12)+'…',
+      label+': display the supplied model and Store revision without an invented version');
     const Q=answer.rawEvaluation.totals.Q;
     assert.ok((await accept.innerText()).includes('$'+Q.toFixed(2)),label+': offer differs from Store Q');
     const visibleChain=surface.locator('.stb-terms:visible');
