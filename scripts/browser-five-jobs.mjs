@@ -548,7 +548,8 @@ try {
       assert.ok(liveCapability.includes(currentStatus),'Current capability must come from fresh Store answer');
       assert.match(await content.locator('#alcove-store-yard-answer').textContent(),/Historical reference|HISTORICAL EXAMPLE/);
       const firstOffer=await content.locator('body').evaluate(async()=>{
-        const flow=window.STBTermsFlow.instance('alcove');
+        let host=window;while(!host.STBTermsFlow&&host!==host.parent)host=host.parent;
+        const flow=host.STBTermsFlow.instance('alcove');
         for(let n=0;n<120;n++){
           const offer=flow.state().commercial?.events?.find(e=>e.eventType==='OfferIssued');
           if(offer)return offer.payload.offerId;
