@@ -335,7 +335,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
         return;
       }
       const escape = value => String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-      body.innerHTML = '<div class="canonical-saved-list">' + items.map(item => '<button class="canonical-saved-row" type="button" data-owned-project-id="' + escape(item.id) + '"><b>' + escape(item.title) + '</b><span>' + (item.changed ? 'Saved with your changes' : 'Saved from the bounded project as shown') + ' · based on library project · saved on this device</span></button>').join('') + '</div>';
+      body.innerHTML = '<div class="canonical-saved-list">' + items.map(item => '<button class="canonical-saved-row" type="button" data-owned-project-id="' + escape(item.id) + '" data-owned-project-key="' + escape(item.key) + '"><b>' + escape(item.title) + '</b><span>' + (item.changed ? 'Saved with your changes' : 'Saved from the bounded project as shown') + ' · based on library project · saved on this device</span></button>').join('') + '</div>';
     }
 
     function renderArchive() {
