@@ -5,7 +5,7 @@
   const TERMS=Object.freeze({id:'STB-DEMO-TERMS',version:'1',sellerId:'store-zero-demo',sellerLocation:'Demo yard',currency:'USD',validHours:24,fulfillment:'PICKUP',notice:'Demo · no money moves or machines run.'});
   const copy=value=>JSON.parse(JSON.stringify(value));
   const id=kind=>'SIM-'+kind+'-'+root.crypto.randomUUID();
-  function create({body,read,append,isCurrent}){
+  function create({body,extraRequests = [],read,append,isCurrent}){
     const answer=body.rawEvaluation,receipt=body.evaluationReceipt||answer?.evaluationReceipt;
     const amount=answer?.totals?.Q;
     if(answer?.status!=='SUPPORTABLE'||answer.complete!==true||!answer.manifestCoverage||!receipt?.manifestHash||typeof amount!=='number'||!Number.isFinite(amount)||amount<0)throw Error('COMPLETE_STORE_MANIFEST_EVIDENCE_REQUIRED');
@@ -25,7 +25,7 @@
     async function prepareOffer(){
       if(latest('OfferIssued'))return;
       const until=new Date(Date.now()+TERMS.validHours*60*60*1000).toISOString();
-      await write('OfferIssued',{offerId:id('OFFER'),offerVersion:'1',sellerId:TERMS.sellerId,sellerLocation:TERMS.sellerLocation,currency:TERMS.currency,manufacturingQMinor:amountMinor,amountMinor,scope:'MANUFACTURING_MODEL_ONLY',termsId:TERMS.id,termsVersion:TERMS.version,validUntil:until,fulfillment:{mode:TERMS.fulfillment,timingBasis:'Store-modeled work; advance the yard simulation to READY',location:TERMS.sellerLocation},policy:copy(POLICY),extras:[{kind:'tax',disposition:'OUTSIDE_SCOPE'},{kind:'delivery',disposition:'OUTSIDE_SCOPE'},{kind:'additional-services',disposition:'OUTSIDE_SCOPE'}]});
+      await write('OfferIssued',{offerId:id('OFFER'),offerVersion:'1',sellerId:TERMS.sellerId,sellerLocation:TERMS.sellerLocation,currency:TERMS.currency,manufacturingQMinor:amountMinor,amountMinor,scope:'MANUFACTURING_MODEL_ONLY',termsId:TERMS.id,termsVersion:TERMS.version,validUntil:until,fulfillment:{mode:TERMS.fulfillment,timingBasis:'Store-modeled work; advance the yard simulation to READY',location:TERMS.sellerLocation},policy:copy(POLICY),extras:[{kind:'tax',disposition:'OUTSIDE_SCOPE'},{kind:'delivery',disposition:'OUTSIDE_SCOPE'},{kind:'additional-services',disposition:'OUTSIDE_SCOPE'},...copy(extraRequests)]});
     }
     async function checkout(){
       const offer=latest('OfferIssued'),decision=latest('CustomerDecisionRecorded');
