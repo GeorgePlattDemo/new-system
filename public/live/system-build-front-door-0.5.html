@@ -324,10 +324,6 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#faf9f7}
 
     const publishedBaseline = captureState();
 
-    function persistSaved() {
-      localStorage.setItem(savedKey, JSON.stringify(savedByUser));
-    }
-
     function renderMyProjects() {
       const intro = doc.getElementById('canonical-my-projects-intro');
       const body = doc.getElementById('canonical-my-projects-body');
