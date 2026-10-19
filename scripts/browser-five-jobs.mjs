@@ -1115,8 +1115,23 @@ try {
       assert.equal(await savedRow.count(),1,'A new browser page load must retain the same saved copy');
       await savedRow.click();
       await content.locator('#playhouse-idea').waitFor({state:'visible'});
-      const reopened=await content.locator('body').evaluate(()=>window.STBPlayhouseLive.definition()?.features.find(f=>f.featureId==='PATTERN'));
-      assert.equal(reopened?.offsetXIn,7,'Returning User must reopen the persisted actual definition');
+      // Restored tools are available immediately; the admitted sheet is resolved afresh by Store
+      // after the saved row explicitly reactivates its project's tile.
+      const reopened=await content.locator('body').evaluate(async()=>{
+        const job=window.STBPlayhouseLive.job();
+        const pattern=job.tools.find(t=>t.kind==='PATTERN');
+        if(pattern?.offsetXIn!==7)throw Error('Persisted Playhouse tools were not restored: '+JSON.stringify(job));
+        for(let attempt=0;attempt<300;attempt++){
+          const current=window.STBPlayhouseLive.definition();
+          const feature=current?.features.find(f=>f.featureId==='PATTERN');
+          if(feature)return {feature,sku:job.sheet?.storeSku};
+          await new Promise(resolve=>setTimeout(resolve,100));
+        }
+        throw Error('Saved project not re-admitted after Store sheet lookup: '+
+          JSON.stringify({job:window.STBPlayhouseLive.job(),active:document.documentElement.dataset.activeJourneyProject}));
+      });
+      assert.equal(reopened.feature.offsetXIn,7,'Returning User must reopen the persisted actual definition');
+      assert.ok(reopened.sku,'Reopened sheet must be re-established by Store lookup');
       console.log(JSON.stringify({project:label,pricedReviewFeatureCount:reviewItems.length,geometryRefusalPreserved:true,
         rawRefusalUnversioned:true,returnPieces:pieces.length,retainedCenters:pieces.filter(p=>p.kind==='RETAINED_ROUTED_PIECE').length,
         storeTabCount:tabPlan.length,illustratedRequestTabs:4,savedAndReopened:true,liveStore:true}));
