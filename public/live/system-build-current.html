@@ -2113,7 +2113,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
     reconcileAlcoveCommercialJourney();
     if (alcoveTerms) {
-      alcoveTerms.onChange(renderAlcoveTerms);
+      alcoveTerms.onChange(syncAlcoveCommercialSurface);
       doc.querySelectorAll('.alcove-terms-host').forEach(host => alcoveTerms.bind(host, (action, t) => {
         if (action === 'accept' && t.stage === 'QUEUED') originalShow.call(win, 'yard');
         else if (action === 'yard' && t.stage === 'READY') originalShow.call(win, 'record');
