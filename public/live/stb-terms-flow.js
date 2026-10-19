@@ -98,12 +98,18 @@
     }
   }
 
-  function create({ projectId, title, demoCommerce = false }){
+  function create({ projectId, title, demoCommerce = false, scopeRequests = null }){
     if (!projectId) throw new Error('TERMS_FLOW_PROJECT_REQUIRED');
     let chain = null;
     let invalidatedIdentity = null;
     const history = [];
     const listeners = new Set();
+    let scopeRevision = 0;
+    const requestedScope = () => {
+      const rows = typeof scopeRequests === 'function' ? scopeRequests() : [];
+      if (!Array.isArray(rows) || rows.some(row => !row.kind || !row.disposition || !row.selection)) throw Error('COMMERCIAL_SCOPE_REQUEST_INVALID');
+      return JSON.parse(JSON.stringify(rows));
+    };
     const notify = () => listeners.forEach(fn => { try { fn(state()); } catch (_) { /* a listener never breaks the flow */ } });
 
     function event(id){ return chain?.events.find(e => e.id === id) || null; }
@@ -128,8 +134,14 @@
       const incomingVersion = String(answer.version);
       const incomingRequestId = body.requestId || null;
       const incomingIdentity = incomingVersion + '|' + String(incomingRequestId || '');
+      const scope = requestedScope();
+      const scopeKey = canonical(scope);
       if (!chain && invalidatedIdentity === incomingIdentity) return state();
-      if (chain && chain.version === incomingVersion && chain.requestId === incomingRequestId) return state();
+      if (chain && chain.version === incomingVersion && chain.requestId === incomingRequestId &&
+          chain.scopeKey === scopeKey) return state();
+      // A changed commercial selection never inherits a previous seller offer or customer acceptance.
+      // The Store's evaluated manufacturing definition and its original receipt remain unchanged.
+      scopeRevision++;
       if (chain) history.push(chain);
       invalidatedIdentity = null;
       chain = {
@@ -138,7 +150,7 @@
         requestId: incomingRequestId,
         storePin: body.storePin || null,
         status: answer.status,
-        total: answer.total,
+        total: answer.total, scopeRequests:scope, scopeKey, scopeRevision,
         reasons: Array.isArray(answer.reasons) ? answer.reasons.slice() : [],
         orderId: null, paymentId: null, source:JSON.parse(JSON.stringify(body)), commercial:null, demo:null, recording:null, commercialError:null,
         events: [
@@ -163,20 +175,25 @@
         if(!root.STBCommercialSequence)throw new Error('COMMERCIAL_CONTRACT_NOT_LOADED');
         if(!receipt||answer.complete!==true||!answer.manifestCoverage)throw new Error('COMPLETE_STORE_MANIFEST_EVIDENCE_REQUIRED');
         const links={projectId,definitionId:String(answer.jobId),revisionId:String(answer.revision),manifestHash:receipt.manifestHash,requestId:current.requestId,receiptHash:receipt.receiptHash,storeRevision:current.storePin,modelHash:receipt.authority?.manufacturingModel?.hash,inputHash:answer.calculationIdentity?.inputHash,resultHash:answer.calculationIdentity?.resultHash};
-        current.commercial=root.STBCommercialSequence.create({streamId:projectId+'|'+current.version+'|'+current.requestId,links});
+        const streamId=projectId+'|'+current.version+'|'+current.requestId+(scopeRequests ? '|scope-'+current.scopeRevision : '');
+        current.commercial=root.STBCommercialSequence.create({streamId,links});
         const at=receipt.evaluatedAt;
-        await current.commercial.recordEvent({schema:root.STBCommercialSequence.schema,eventId:'answer:'+receipt.receiptHash,eventType:'StoreAnswerAttached',streamId:projectId+'|'+current.version+'|'+current.requestId,sequence:1,expectedPreviousSequence:0,causedByEventIds:[],idempotencyKey:'answer:'+receipt.receiptHash,occurredAt:at,recordedAt:at,actor:{partyId:'system',role:'system'},evidenceClass:'SIMULATED',authority:{sourceSystem:'store-zero',sourceRecordId:receipt.receiptHash,verificationRecordId:receipt.receiptHash,policyId:'PROTOTYPE-EVIDENCE-ONLY',policyVersion:'1'},links,payload:{status:answer.status,complete:answer.complete,manifestCoverageComplete:true}},0);
+        await current.commercial.recordEvent({schema:root.STBCommercialSequence.schema,eventId:'answer:'+receipt.receiptHash,eventType:'StoreAnswerAttached',streamId,sequence:1,expectedPreviousSequence:0,causedByEventIds:[],idempotencyKey:'answer:'+receipt.receiptHash,occurredAt:at,recordedAt:at,actor:{partyId:'system',role:'system'},evidenceClass:'SIMULATED',authority:{sourceSystem:'store-zero',sourceRecordId:receipt.receiptHash,verificationRecordId:receipt.receiptHash,policyId:'PROTOTYPE-EVIDENCE-ONLY',policyVersion:'1'},links,payload:{status:answer.status,complete:answer.complete,manifestCoverageComplete:true}},0);
         if(demoCommerce){
           if(!root.STBDemoCommerce)throw Error('DEMO_COMMERCIAL_SOURCE_NOT_LOADED');
           if(current.total!==answer.totals?.Q)throw Error('DEMO_STORE_AMOUNT_MISMATCH');
-          current.demo=root.STBDemoCommerce.create({body,read:()=>current.commercial.deriveTransactionState(),append:source=>appendCommercialEvent(current,source),isCurrent:()=>chain===current});
+          current.demo=root.STBDemoCommerce.create({body,extraRequests:current.scopeRequests,read:()=>current.commercial.deriveTransactionState(),append:source=>appendCommercialEvent(current,source),isCurrent:()=>chain===current});
           await current.demo.prepareOffer();
         }
         return current.commercial;
       })();
       return current.recording;
     }
-    function canAccept(){const offer=chain?.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');return !!chain&&chain.status==='SUPPORTABLE'&&!event('decision')&&!!offer&&Date.parse(offer.payload.validUntil)>=Date.now();}
+    function canAccept(){
+      const offer=chain?.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');
+      return !!chain&&chain.status==='SUPPORTABLE'&&!event('decision')&&!!offer
+        && chain.scopeKey===canonical(requestedScope())&&Date.parse(offer.payload.validUntil)>=Date.now();
+    }
     async function appendCommercialEvent(current,source){
       if(chain!==current)return state();
       const stored=await current.commercial.recordEvent(source,source.expectedPreviousSequence);
@@ -262,6 +279,7 @@
         flow: VERSION, projectId, stage: s,
         version: chain?.version || null, status: chain?.status || null, total: chain?.total ?? null,
         reasons: chain?.reasons || [],
+        scopeRequests:chain?.scopeRequests ? JSON.parse(JSON.stringify(chain.scopeRequests)) : [],
         canAccept: canAccept(),
         callOpen: s !== 'NO_ANSWER' && s !== 'REFUSED_BY_STORE',
         yardOpen: ['QUEUED','READY','HANDED_OFF'].includes(s),
@@ -301,6 +319,15 @@
       return '<section class="stb-terms" data-terms-stage="' + s + '"><h3 class="stb-terms-hd">RECEIPTS · ' + esc(chain?.title || projectId) + '</h3>' + rows + reasons + '</section>';
     }
 
+    function renderScope(){
+      if(!chain?.scopeRequests?.length)return '';
+      const offer=chain.commercial?.deriveTransactionState().events.find(e=>e.eventType==='OfferIssued');
+      return '<section class="stb-terms-scope" data-unaccepted-services><b>SELECTED SERVICES / HANDOFF CHOICES — NOT IN STORE Q</b>'
+        +'<p>These customer requests remain UNPRICED and UNACCEPTED. The simulated offer covers only the Store-evaluated manufacturing work. Acceptance does not authorize these extras; each needs an explicit subsequent yard evaluation or customer/third-party assignment.</p>'
+        +'<ul>'+chain.scopeRequests.map(row=>'<li><b>'+esc(row.label)+'</b>: '+esc(row.selection)+' · '+esc(row.disposition)+' · '+esc(row.assignment)+'</li>').join('')+'</ul>'
+        +(offer?'<small>Recorded on simulated offer '+esc(offer.payload.offerId)+' as individually unresolved extras.</small>':'<small>Offer for these choices not yet recorded.</small>')
+        +'</section>';
+    }
     function renderControls(step){
       const s = stage();
       if (step === 'call') {
@@ -337,6 +364,7 @@
         + '<div class="stb-terms-kv"><span>Version</span><b>' + esc(r.version) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Total (Store budgetary Q; simulated payment)</span><b>' + esc(money(r.total)) + ' · ' + esc(r.paymentId) + '</b></div>'
         + '<div class="stb-terms-kv"><span>Store</span><b>' + esc(String(r.storePin).slice(0,12)) + ' · request ' + esc(String(r.requestId).slice(0,8)) + '</b></div>'
+        + (chain.scopeRequests?.length ? '<div class="stb-terms-kv"><span>Services outside accepted manufacturing scope</span><b>'+chain.scopeRequests.map(row=>esc(row.label+': '+row.selection+' ('+row.disposition+')')).join('; ')+'</b></div>' : '')
         + r.events.map(e => '<div class="stb-terms-kv"><span>' + esc(EVENTS.find(d => d.id === e.id)?.label || e.id) + '</span><code>' + esc(e.hash || '—') + '</code></div>').join('')
         + '<p class="stb-terms-note">Demo receipt · tied to the version you approved.</p></section>';
     }
@@ -357,7 +385,7 @@
       });
     }
 
-    const flow = Object.freeze({ setAnswer, invalidate, recordCommercialEvent, accept, decline, runYard, pickup, acceptedPacket, state, renderChain, renderControls, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
+    const flow = Object.freeze({ setAnswer, invalidate, recordCommercialEvent, accept, decline, runYard, pickup, acceptedPacket, state, renderChain, renderControls, renderScope, renderReceipt, bind, onChange: fn => { listeners.add(fn); return () => listeners.delete(fn); } });
     INSTANCES.set(projectId, flow);
     return flow;
   }

@@ -1667,6 +1667,16 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const row = rows.find(r => r.querySelector('.rt')?.childNodes?.[0]?.textContent?.trim() === label);
       return row?.querySelector('.pill.on')?.textContent?.trim() || 'not selected';
     }
+    // Ten customer choices follow the commercial offer as unresolved requests, not Store pricing.
+    function alcoveScopeRequests() {
+      return [...doc.querySelectorAll('#decisionRows .rowline')].map((row, i) => ({
+        kind:'alcove-choice-'+String(i+1).padStart(2,'0'),
+        label:row.querySelector('.rt')?.childNodes?.[0]?.textContent?.trim() || 'Choice '+(i+1),
+        selection:row.querySelector('.pill.on')?.textContent?.trim() || 'NOT_SELECTED',
+        disposition:'UNRESOLVED',
+        assignment:'YARD_OR_CUSTOMER_DECISION_PENDING'
+      }));
+    }
 
 
     // ── Alcove · on the shared tile host ──────────────────────────────────────────────────────────
@@ -1710,6 +1720,31 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         const el = doc.getElementById(id);
         if (el) el.textContent = value;
       });
+      // Only the attributable response for the currently admitted definition governs live status.
+      const current = alcoveCurrentAnswer();
+      const raw = current?.rawEvaluation || null;
+      const status = raw?.status || current?.priceCompleteness?.status || 'NO_CURRENT_STORE_ANSWER';
+      const receiptHash = current?.evaluationReceipt?.receiptHash || null;
+      const q = current?.rawEstimate?.totals?.Q ?? raw?.estimate?.totals?.Q ?? null;
+      const hasQ = typeof q === 'number' && Number.isFinite(q);
+      const currentLabel = current ? status + ' · receipt ' + (receiptHash || 'NOT RECORDED') : 'NO MATCHING STORE ANSWER';
+      const reasonCodes = (raw?.reasonCodes || raw?.reasonRecords?.map(r => r.code) || []).join(', ');
+      const summary = !current ? 'No current Store answer for the identified Alcove definition. Nothing accepted or priced.' :
+        alcoveSupportable(current) ? 'Current Store: SUPPORTABLE manufacturing definition; budgetary Q ' + (hasQ ? '$'+q.toFixed(2) : 'NOT RETURNED') + '. Ten customer service choices are separate, unpriced and unaccepted. No physical execution is authorized.' :
+        'Current Store: '+status+'. '+(reasonCodes ? 'Reasons: '+reasonCodes+'. ' : '')+
+        (hasQ ? 'Budgetary scoped manufacturing Q $'+q.toFixed(2)+', not a complete-job acceptance.' : 'No complete Store Q.')+
+        ' Unresolved demands and extra services are not silently accepted.';
+      for(const [id,value] of Object.entries({
+        'alcove-order-status':currentLabel,
+        'alcove-accept-status':currentLabel,
+        'alcove-current-capability':summary,
+        'alcove-store-fulfillment-economics':summary+' Manufacturing economics belong to the Store reply; additional service/fulfillment charges have not been evaluated.',
+        'alcove-store-commercial-offer':alcoveTerms?.state()?.commercial?.events?.find(e=>e.eventType==='OfferIssued')?.payload?.offerId || 'NOT YET RECORDED'
+      })) { const el=doc.getElementById(id);if(el)el.textContent=value; }
+      const retainedYardStatus=doc.querySelector('#alcove-store-yard-answer .hdr > div:last-child span');
+      if(retainedYardStatus)retainedYardStatus.textContent='HISTORICAL EXAMPLE · ADJUSTMENT REQUIRED (NOT CURRENT)';
+      const legacyPrice=doc.querySelector('#alcove-store-commercial-sequence .hdr > div:nth-child(3) span');
+      if(legacyPrice)legacyPrice.textContent=hasQ&&current ? 'STORE MANUFACTURING Q $'+q.toFixed(2)+' · NOT SELLER OFFER' : 'NO CURRENT STORE MANUFACTURING Q';
       renderAlcoveChain();
       feedAlcoveTerms();
       renderAlcoveTerms();
@@ -1783,7 +1818,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         + (history ? '<p class="chainstep">VERSION HISTORY</p><ul class="chainhistory">' + history + '</ul>' : '')
         + '</div>';
     }
-    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'alcove', title:'Alcove insert', demoCommerce:true }) : null;
+    var alcoveTerms = window.STBTermsFlow ? window.STBTermsFlow.create({
+      projectId:'alcove', title:'Alcove insert', demoCommerce:true, scopeRequests:alcoveScopeRequests
+    }) : null;
     window.STBTermsFlow?.installStyle(doc);
     // The answer inquire() returned for the revision the page last admitted, while nothing newer is being asked and
     // that revision is the one on the page now; otherwise null. Only isCurrentAnswer() decides: a blocked, failed,
@@ -1829,7 +1866,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       if (!alcoveTerms) return;
       doc.querySelectorAll('.alcove-terms-host').forEach(host => {
         const step = host.dataset.termsStep;
-        host.innerHTML = alcoveTerms.renderControls(step) + alcoveTerms.renderChain();
+        host.innerHTML = alcoveTerms.renderScope() + alcoveTerms.renderControls(step) + alcoveTerms.renderChain();
       });
       doc.documentElement.dataset.alcoveTerms = alcoveTerms.state().stage;
       alcovePublish();
@@ -1926,7 +1963,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           <div><b>VERSION</b><span id="alcove-order-version">Version 1 · confirmed</span></div>
           <div><b>GEOMETRY</b><span id="alcove-order-geometry">—</span></div>
           <div><b>MATERIAL</b><span id="alcove-order-material">—</span></div>
-          <div><b>STATUS</b><span>REFERENCE STORE ANSWER</span></div>
+          <div><b>STATUS · CURRENT STORE RECEIPT</b><span id="alcove-order-status">AWAITING CURRENT STORE ANSWER</span></div>
         </div>
         <div class="cols">
           <div>
@@ -1942,7 +1979,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
             <div class="kv"><span>Cell recovery</span><span id="alcove-order-recovery">—</span></div>
           </div>
         </div>
-        <div class="band warn"><b>Current capability truth.</b> Material mapping, stated reference availability, declared service choices, and reference economics are shown. Fabrication remains unresolved wherever the current Alcove surface says it is unresolved. Disabled or unavailable work remains visible; it is not silently dropped. No silent substitution is allowed.</div>
+        <div class="band warn" id="alcove-current-capability">Awaiting this revision's Store receipt. No Store result is presumed.</div>
       `;
       firstStep?.before(storeOrder);
 
@@ -1954,13 +1991,13 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
       const yardWrap = doc.createElement('section');
       yardWrap.id = 'alcove-store-yard-answer';
-      yardWrap.innerHTML = '<h2>Store / Yard answer, material exceptions and substitution</h2><p class="sub">The full existing Yard response remains attached to the same Store interaction. Unsupported, unavailable or unresolved work stays visible with its reason.</p>';
+      yardWrap.innerHTML = '<h2>Historical reference · example Yard exception scenario</h2><p class="sub">The original reference scenario below is retained as an example, NOT the current Store reply. Current status and price appear above, bound to the received Store answer. Historical ADJUSTMENT REQUIRED is not a current refusal.</p>';
       yardWrap.append(yardAnswerBlock);
       firstStep?.before(yardWrap);
 
       const termsWrap = doc.createElement('section');
       termsWrap.id = 'alcove-store-commercial-sequence';
-      termsWrap.innerHTML = '<h2>Commercial sequence and timing basis</h2><p class="sub">The customer sees the timing consequence before any acceptance. Reference timing remains reference timing; no live ETA is invented.</p>';
+      termsWrap.innerHTML = '<h2>Commercial sequence and timing basis</h2><p class="sub">Legacy timeline is illustrative, not a current Store or seller disposition. Current Store Q and simulated seller offer status follow their own receipts. No live ETA is invented.</p>';
       termsWrap.append(termsBlock);
       firstStep?.before(termsWrap);
 
@@ -1978,7 +2015,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       returnedOffer.id = 'alcove-store-returned-offer';
       returnedOffer.innerHTML = `
         <h2>Complete returned Store answer</h2>
-        <p>Store has finished the answering work available to this reference surface. The confirmed definition is unchanged. Material and capability evidence remain visible. Processing / fulfillment economics stay unresolved until a current Alcove class-scoped model is published.</p>
+        <p id="alcove-store-fulfillment-economics">Awaiting the current Store's manufacturing status and Q. Fulfillment services are separately unresolved until a seller disposition exists.</p>
         <div class="cols">
           <div>
             <div class="kv"><span>Reference total</span><span id="alcove-store-return-price">—</span></div>
@@ -1987,7 +2024,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           </div>
           <div>
             <div class="kv"><span>Pickup / handoff recipient</span><span id="alcove-store-return-collector">—</span></div>
-            <div class="kv"><span>Commercial offer</span><span>NOT ESTABLISHED · ECONOMICS INCOMPLETE</span></div>
+            <div class="kv"><span>Simulated seller offer</span><span id="alcove-store-commercial-offer">NOT YET RECORDED</span></div>
             <div class="kv"><span>Settlement</span><span>NOT ESTABLISHED</span></div>
           </div>
         </div>
@@ -2002,7 +2039,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         <p class="sub">Accept and send exactly this version to the Store, decline it, or return to Configure for a new version.</p>
         <div class="hdr">
           <div><b>VERSION</b><span>Version 1 · confirmed</span></div>
-          <div><b>STORE ANSWER</b><span>LIVE · RETURNED</span></div>
+          <div><b>STORE ANSWER</b><span id="alcove-accept-status">NO MATCHING RECEIPT</span></div>
         </div>
         <h2>Returned Store answer</h2>
         <div class="cols">
@@ -2076,7 +2113,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
     reconcileAlcoveCommercialJourney();
     if (alcoveTerms) {
-      alcoveTerms.onChange(renderAlcoveTerms);
+      alcoveTerms.onChange(syncAlcoveCommercialSurface);
       doc.querySelectorAll('.alcove-terms-host').forEach(host => alcoveTerms.bind(host, (action, t) => {
         if (action === 'accept' && t.stage === 'QUEUED') originalShow.call(win, 'yard');
         else if (action === 'yard' && t.stage === 'READY') originalShow.call(win, 'record');
@@ -3633,13 +3670,19 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
     }
     var s001Terms = window.STBTermsFlow ? window.STBTermsFlow.create({ projectId:'playhouse', title:'Playhouse arched window', demoCommerce:true }) : null;
     window.STBTermsFlow?.installStyle(doc);
+    function s001EvaluationReasons(ev) {
+      if (Array.isArray(ev?.reasonRecords) && ev.reasonRecords.length) return ev.reasonRecords;
+      // Some freshly evaluated Store refusals carry the exact reason codes without prose records.
+      // Present those codes verbatim; do not manufacture an explanation or replace them with a transport error.
+      return Array.isArray(ev?.reasonCodes) ? ev.reasonCodes.map(code => ({ code })) : [];
+    }
     function s001FeedTerms() {
       if (!s001Terms) return;
       const a = s001CurrentAnswer();
       if (!a) { s001Terms.setAnswer(null); return; }
       const ev = a.evaluation;
       s001Terms.setAnswer({ version:a.version, status:ev.status, total:ev.totals?.Q ?? null,
-        reasons:(ev.reasonRecords || []).map(r => ({ code:r.code, text:r.explanation })), body:a.body, sentAt:a.sentAt });
+        reasons:s001EvaluationReasons(ev).map(r => ({ code:r.code, text:r.explanation || r.subject || '' })), body:a.body, sentAt:a.sentAt });
     }
     function s001RenderTerms() {
       if (!s001Terms) return;
@@ -3712,6 +3755,37 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       RIP:op => `Panel-saw full-length rip at ${fmt(op.yIn)} in · ±¼ in`,
       LABEL:() => 'Label every piece'
     };
+    // REVIEW is the exact definition bound to this Store answer, never a fixed legacy cut list.
+    function s001RenderReview() {
+      const a = s001CurrentAnswer();
+      const sheetNode = doc.getElementById('s001-review-sheet');
+      const featureNode = doc.getElementById('s001-review-features');
+      const versionNode = doc.getElementById('s001-review-version');
+      if (!sheetNode || !featureNode || !versionNode) return;
+      if (!a?.definition) {
+        sheetNode.textContent = 'Not yet evaluated for this revision';
+        featureNode.textContent = 'Awaiting a matching Store answer; no previous features reused.';
+        versionNode.textContent = 'No current Store receipt';
+        return;
+      }
+      const sheet = a.definition.sheet;
+      sheetNode.textContent = a.admittedSku + ' · ' + sheet.species + ' · ' + sheet.grade + ' · ' +
+        fmt(sheet.thicknessIn) + ' × ' + fmt(sheet.widthIn) + ' × ' + fmt(sheet.lengthIn) + ' in';
+      versionNode.textContent = a.version + ' · Store request ' + a.requestId;
+      featureNode.innerHTML = '<ol>' + a.definition.features.map(feature => {
+        let words;
+        if (feature.kind === 'ARCHED_APERTURE') words = 'arched aperture · ' + fmt(feature.widthIn) +
+          ' in wide · ' + fmt(feature.straightHeightIn) + ' in straight · ' + fmt(feature.riseIn) +
+          ' in rise · ' + feature.placement + ' · ' + feature.requestedTabCount + ' tabs';
+        else if (feature.kind === 'STRAIGHT_SPLIT') words = feature.line + ' · within ' + feature.within;
+        else if (feature.kind === 'CROSSCUT') words = 'crosscut · ' + fmt(feature.distanceIn) + ' in from ' + feature.fromEnd + ' end';
+        else if (feature.kind === 'RIP') words = 'rip · ' + fmt(feature.distanceIn) + ' in from ' + feature.fromEdge + ' edge';
+        else if (feature.kind === 'PATTERN') words = 'pattern within ' + feature.within +
+          ' · offset ' + fmt(feature.offsetXIn) + ' in X, ' + fmt(feature.offsetYIn) + ' in Y';
+        else words = feature.kind + ' · ' + JSON.stringify(feature);
+        return '<li><b>' + s001Esc(feature.featureId) + '</b> · ' + s001Esc(words) + '</li>';
+      }).join('') + '</ol>';
+    }
     function s001Render() {
       const a = s001Live.answer;
       const ev = a?.evaluation || null;
@@ -3734,7 +3808,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       if (reasons) reasons.innerHTML = blocked
         ? s001Live.blocking.map(b => '<li><b>' + b.owner + '</b> · ' + b.title + ' (' + b.condition + ')</li>').join('')
         : (!s001Live.asking && ev && ev.status !== 'SUPPORTABLE')
-        ? (ev.reasonRecords || []).map(r => '<li><b>' + r.code + '</b> · ' + (r.explanation || r.subject || r.code) + '</li>').join('')
+        ? s001EvaluationReasons(ev).map(r => '<li><b>' + s001Esc(r.code) + '</b> · ' + s001Esc(r.explanation || r.subject || r.code) + '</li>').join('')
         : '';
       const ok = !s001Live.asking && ev?.status === 'SUPPORTABLE';
       text('s001-live-summary', ok ? `${ev.pieces.length} pieces come back to User 1 · ${fmt(ev.time.T_MACHINE_min)} min modeled` : '');
@@ -3772,6 +3846,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       });
       doc.documentElement.dataset.playhouseStoreStatus = binds.status;
       s001RenderSummary();
+      s001RenderReview();
       s001FeedTerms();
       s001RenderTerms();
     }
@@ -3825,14 +3900,19 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           const evaluated = raw?.freshEvaluation === true;
           // The answer must be this project's answer for this exact version. An evaluation names the version it
           // evaluated; the Store's contract refusal names the revision the request carried.
-          const answeredVersion = evaluated ? raw?.configurationVersion : body.candidateRevisionId;
-          if (body.projectId !== S001_PROJECT_ID || body.requestType !== S001_REQUEST_TYPE || answeredVersion !== definition.configurationVersion) {
+          // The shared transport already checked the echoed request, project, scope, revision and Store receipt.
+          // A genuine fresh refusal need not repeat configurationVersion inside rawEvaluation.
+          // If the Store does repeat it, a conflicting value still invalidates the response.
+          if (body.projectId !== S001_PROJECT_ID || body.requestType !== S001_REQUEST_TYPE ||
+              body.candidateRevisionId !== definition.configurationVersion ||
+              (raw?.configurationVersion != null && raw.configurationVersion !== definition.configurationVersion)) {
             throw new Error('STORE_ANSWER_NOT_FOR_THIS_VERSION');
           }
           // The Store prices the wood this job chose, or says why it cannot. A different row is not this job's answer.
           if (evaluated && raw.status === "SUPPORTABLE" && raw.selectedStock?.[0]?.storeSku !== admittedSku) throw new Error('STORE_ANSWER_FOR_A_DIFFERENT_SHEET');
           const ev = evaluated ? raw : { ...raw, status:'REFUSED', notEvaluated:true, reasonRecords:s001ContractReasons(raw.reasonCodes, definition) };
           s001Live.answer = { evaluation:ev, receipt:body.evaluationReceipt, requestId:body.requestId, storePin:body.storePin, version:definition.configurationVersion, body, sentAt,
+            definition, admittedSku,
             authority:result.answer.authority, definitionRevisionId:result.answer.definitionRevisionId, inquiryScope:result.answer.inquiryScope };
           s001Live.asking = false;
           s001Render();
@@ -3874,7 +3954,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       } else if (!ev) {
         html += '<div class="state">No matching Store answer for this version yet.</div>';
       } else if (ev.status !== 'SUPPORTABLE') {
-        const reasons = (ev.reasonRecords || []).map(r => `<li><b>${s001Esc(r.code)}</b> · ${s001Esc(r.explanation)}</li>`).join('');
+        const reasons = s001EvaluationReasons(ev).map(r => `<li><b>${s001Esc(r.code)}</b> · ${s001Esc(r.explanation || r.subject || r.code)}</li>`).join('');
         html += `<div class="state no"><b>${s001Esc(ev.status)}</b>${ev.notEvaluated ? ' · the Store did not evaluate this version' : ''}<ul>${reasons}</ul>A refusal is an answer. No price is shown.</div>`;
       } else {
         html += `<table><tbody>
