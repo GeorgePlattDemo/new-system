@@ -2253,7 +2253,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
     // One drawing, drawn on both pages with its own id prefix. It is the sheet on screen, the Store's centered field,
     // the opening the knobs describe, and the cuts the job asks for. The opening is a true circular segment.
     const s001SheetSvg = p => `
-            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Plywood sheet showing the current routed work field, the routed arched profile with tabs, the internal route, and the requested saw cuts">
+            <svg class="s001-v2-sheet" viewBox="0 0 960 480" role="img" aria-label="Customer-request schematic: plywood work field, arched opening and four illustrative requested tab markers. These markers are not the Store returned tab plan.">
               <rect id="${p}-sheet" x="8" y="8" width="944" height="464" rx="5" fill="#eee7da" stroke="#5d5041" stroke-width="4"/>
               <rect id="${p}-band-l" x="8" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
               <rect id="${p}-band-r" x="720" y="8" width="232" height="464" fill="#b03734" opacity=".12"/>
@@ -2274,11 +2274,11 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
             </svg>
             <div class="s001-v2-legend">
               <span><i class="s001-v2-key"></i> routed path</span>
-              <span><i class="s001-v2-key tabs"></i> retained tab material</span>
+              <span><i class="s001-v2-key tabs"></i> four requested tab markers · illustration only, NOT Store returned positions</span>
               <span><i class="s001-v2-key saw"></i> straight-cut request</span>
               <span><i class="s001-v2-key out"></i> outside current routed field</span>
             </div>
-            <p class="dim" style="margin:8px 0 0">The blue straight-cut lines are shown because User 1 requested them. The Store decides whether each requested operation is inside its current capability.</p>`;
+            <p class="dim" data-s001-tab-schematic style="margin:8px 0 0">REQUEST SCHEMATIC ONLY: Four illustrated tab markers show the customer's requested retention intent, not the Store's evaluated tab positions. The Store's actual returned plan and tab count appear in its answer below. Blue straight-cut lines are also requests; the Store alone determines supportability.</p>`;
 
     // The drawing for the geometry g (width, straight, rise) and the job's wood and tools.
     function s001Draw(p, g) {
@@ -2315,6 +2315,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         }).join('');
       }
       // The opening: a circular segment of the chord (width) and rise. A pattern moves it within the field.
+      // The four markers below are schematic customer requests only; Store tabPositionsIn is not drawn here.
       const pattern = s001PatternTool();
       const px = 10, fieldHeight = 360;
       const centerX = 480 + (pattern ? Number(pattern.offsetXIn) || 0 : 0) * px;
@@ -3815,7 +3816,14 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const ops = doc.getElementById('s001-live-operations');
       if (ops) ops.innerHTML = ok ? ev.operations.map(op => '<li>' + (S001_OP_TEXT[op.kind]?.(op) || op.kind) + '</li>').join('') : '';
       const kinds = ok ? ev.pieces.reduce((m,p) => (m[p.kind] = (m[p.kind]||0) + 1, m), {}) : {};
-      text('s001-live-pieces', ok ? `Returned: ${kinds.PANEL||0} end panels, ${kinds.FRAME||0} frame, ${kinds.RETAINED_CENTER_PIECE||0} center pieces on tabs.` : '');
+      const pieceLabels = {
+        PANEL:'end panel', FRAME:'frame', RETAINED_ROUTED_PIECE:'retained routed center'
+      };
+      text('s001-live-pieces', ok
+        ? 'Returned: ' + Object.entries(kinds).map(([kind,count]) =>
+          count + ' ' + (pieceLabels[kind] || kind.replaceAll('_',' ').toLowerCase()) +
+          (count === 1 ? '' : 's')).join(', ') + ' · ' + ev.pieces.length + ' pieces total (Store list).'
+        : '');
       const material = ev?.selectedStock?.[0] ? `${ev.selectedStock[0].storeSku} · ${ev.selectedStock[0].description || ''}` : '—';
       const tabs = ok ? (() => { const t = ev.parents?.find(p=>p.kind==='sheet')?.geometry.apertures[0]?.tabPositionsIn; return Array.isArray(t) ? `${t.length} modeled tabs · retention NOT MEASURED` : '—'; })() : '—';
       const receipt = ok ? String(a.receipt.receiptHash).slice(0,16) + '… · request ' + String(a.requestId).slice(0,8) : '—';
