@@ -1748,6 +1748,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       renderAlcoveChain();
       feedAlcoveTerms();
       renderAlcoveTerms();
+      renderAlcoveCloseout();
     }
 
     // ── Alcove version chain ──────────────────────────────────────────────
@@ -1871,6 +1872,46 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       doc.documentElement.dataset.alcoveTerms = alcoveTerms.state().stage;
       alcovePublish();
     }
+    // The owner record is projected only from events actually in this version's ledger.
+    // The historical sample Recap/Record pages are not a competing current account.
+    function renderAlcoveCloseout() {
+      const host = doc.getElementById('alcove-record-actual');
+      if (!host || !alcoveTerms) return;
+      const transaction = alcoveTerms.state();
+      const events = transaction.commercial?.events || [];
+      const custody = events.find(e => e.eventType === 'CustodyTransferred');
+      const closed = events.find(e => e.eventType === 'ProjectCloseoutRecorded');
+      const current = alcoveCurrentAnswer();
+      host.replaceChildren();
+      const add = (tag,label) => { const el=doc.createElement(tag);el.textContent=label;host.append(el);return el; };
+      add('h2','Current owner record · recorded events only');
+      add('p','Version: '+(transaction.version || 'NOT RECORDED')+
+        ' · Store request: '+(current?.requestId || 'NOT RECORDED')+
+        ' · Store receipt: '+(current?.evaluationReceipt?.receiptHash || 'NOT RECORDED'));
+      const status=add('p',custody
+        ? 'CUSTODY: SIMULATED HANDOFF RECORDED'+(closed ? ' · simulated closeout recorded' : ' · closeout not yet recorded')
+        : 'CUSTODY: NOT RECORDED · '+(transaction.stage || 'NO CURRENT TRANSACTION'));
+      status.dataset.alcoveCustodyStatus='';
+      if (custody) {
+        add('p','Handoff ID: '+(custody.payload?.handoffId || 'NOT RECORDED')+
+          ' · Recipient: '+(custody.payload?.recipientId || 'NOT RECORDED')+
+          ' · Recorded: '+(custody.recordedAt || 'NOT RECORDED'));
+      }
+      if (!events.length) {
+        add('p','No matching commercial event ledger recorded for this version. No acceptance, yard, or custody event is inferred.');
+        return;
+      }
+      const list=add('ol','');
+      list.dataset.alcoveActualEvents='';
+      for (const event of events) {
+        const row=doc.createElement('li');
+        row.textContent=event.eventType+' · '+(event.recordedAt || 'TIME NOT RECORDED')+
+          ' · hash '+(event.hash || 'NOT RECORDED')+
+          ' · '+(event.evidenceClass || 'EVIDENCE CLASS NOT RECORDED');
+        list.append(row);
+      }
+      add('p','SIMULATION ONLY. A recorded demo payment, yard outcome, handoff or closeout is not a real physical event. Unrecorded events remain unrecorded.');
+    }
     // In-page actions open the same steps the nav does, through the same gate (win.show).
     const ALCOVE_ACTION_TARGETS = Object.freeze({ change:'alcove-config', 'accept-page':'request', store:'store', yard:'yard', record:'record' });
     // Alcove's STB-TILE-HOST-0.1 message. Intent, the bench, The Store answers and Your call come from the contract's
@@ -1942,10 +1983,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       const requestBlock = extractAlcoveLegacyMain('request','Full existing Store service and handoff choices');
       const yardAnswerBlock = extractAlcoveLegacyMain('yard','Full existing Yard response, substitution choices, and timing');
       const termsBlock = extractAlcoveLegacyMain('terms','Full existing commercial sequence and authority distinctions');
-      const recapBlock = extractAlcoveLegacyMain('recap','Full existing chronology / audit');
-      const recordBlock = extractAlcoveLegacyMain('record','Full existing owner record');
-
-      if (!requestBlock || !yardAnswerBlock || !termsBlock || !recapBlock || !recordBlock) return false;
+      if (!requestBlock || !yardAnswerBlock || !termsBlock) return false;
 
       const firstStep = storeMain.querySelector(':scope > .s');
       const storeOrder = doc.createElement('section');
@@ -2087,6 +2125,8 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         <h1>Handoff · record</h1>
         <p class="sub">Record the pickup to issue the full receipt: every event from sent to custody, each with its hash. Missing events stay missing.</p>
         <div class="alcove-terms-host" data-terms-step="record"></div>
+        <section id="alcove-record-actual" aria-live="polite"></section>
+        <p class="dim" data-alcove-reference-notice>Earlier static Recap and Record examples are reference templates, not the current owner's event history. This closeout uses the commercial event ledger for this version.</p>
         <div class="cards">
           <div class="card"><b>What Store / Yard does</b><span>Complete required work; inspect; label; group; package / crate if selected; stage; issue READY; release at pickup / delivery; record custody; reconcile material, remnants and exceptions; close its fulfillment record when those events actually exist.</span></div>
           <div class="card"><b>What the user does</b><span>Receive READY; pick up or receive delivery; verify handoff; take custody; retain the project / part record; later assemble, install or finish work that always remained owner work.</span></div>
@@ -2094,8 +2134,6 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           <div class="card"><b>What the user gets</b><span>The parts; labels / assembly information where included; selected remnants; the exact identified version; Store / production / handoff history; the owner-held record; and a basis for later replacement or reorder.</span></div>
         </div>
       `;
-      recordMain.append(recapBlock);
-      recordMain.append(recordBlock);
       const finalBoundary = doc.createElement('div');
       finalBoundary.className = 'band warn';
       finalBoundary.innerHTML = '<b>Current demonstration truth.</b> Payment and the yard are simulated. No physical outcome is claimed. A later event never backfills a missing earlier event.';
