@@ -4441,6 +4441,16 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       'alcove-capture': 'alcove',
       'window-parts': 'playhouse'
     });
+    const SAVED_PROJECT_TO_JOURNEY = Object.freeze({
+      'plywood':'playhouse', 'alcove':'alcove', 'window-seat':'window-seat', 'picnic':'outdoor'
+    });
+    // Selecting an actual saved row is the same explicit project-entry boundary as selecting
+    // a public tile. Without it the reopened page cannot ask Store about its recovered sheet.
+    win.addEventListener('click', function(event) {
+      const saved = event.target.closest?.('#my-projects [data-owned-project-id][data-owned-project-key]');
+      if (!saved) return;
+      selectJourneyProject(SAVED_PROJECT_TO_JOURNEY[saved.dataset.ownedProjectKey] || null);
+    }, true);
 
     win.addEventListener('click', function(event) {
       const exitButton = event.target.closest?.('.recovery-nav button[data-job-exit="project-library"]');
