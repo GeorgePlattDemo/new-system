@@ -537,6 +537,9 @@ try {
         }
         throw Error('ALCOVE_SELECTED_SERVICE_MISSING_FROM_SELLER_OFFER');
       });
+      assert.equal(scopedOffer.scope.length,10,'All ten customer service selections must survive to offer scope');
+      assert.equal(scopedOffer.offer.extras.filter(e=>e.kind.startsWith('alcove-choice-')).length,10,
+        'Every Alcove choice must be separately recorded with its disposition');
       assert.ok(scopedOffer.scope.some(e=>e.label==='Edge condition'&&e.selection==='Sanded 150'&&e.disposition==='UNRESOLVED'));
       assert.ok(scopedOffer.offer.extras.some(e=>e.kind==='alcove-choice-01'&&e.disposition==='UNRESOLVED'));
       assert.match(await content.locator('#request [data-unaccepted-services]').textContent(),/Sanded 150/);
