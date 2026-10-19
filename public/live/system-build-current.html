@@ -1720,6 +1720,31 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         const el = doc.getElementById(id);
         if (el) el.textContent = value;
       });
+      // Only the attributable response for the currently admitted definition governs live status.
+      const current = alcoveCurrentAnswer();
+      const raw = current?.rawEvaluation || null;
+      const status = raw?.status || current?.priceCompleteness?.status || 'NO_CURRENT_STORE_ANSWER';
+      const receiptHash = current?.evaluationReceipt?.receiptHash || null;
+      const q = current?.rawEstimate?.totals?.Q ?? raw?.estimate?.totals?.Q ?? null;
+      const hasQ = typeof q === 'number' && Number.isFinite(q);
+      const currentLabel = current ? status + ' · receipt ' + (receiptHash || 'NOT RECORDED') : 'NO MATCHING STORE ANSWER';
+      const reasonCodes = (raw?.reasonCodes || raw?.reasonRecords?.map(r => r.code) || []).join(', ');
+      const summary = !current ? 'No current Store answer for the identified Alcove definition. Nothing accepted or priced.' :
+        alcoveSupportable(current) ? 'Current Store: SUPPORTABLE manufacturing definition; budgetary Q ' + (hasQ ? '$'+q.toFixed(2) : 'NOT RETURNED') + '. Ten customer service choices are separate, unpriced and unaccepted. No physical execution is authorized.' :
+        'Current Store: '+status+'. '+(reasonCodes ? 'Reasons: '+reasonCodes+'. ' : '')+
+        (hasQ ? 'Budgetary scoped manufacturing Q $'+q.toFixed(2)+', not a complete-job acceptance.' : 'No complete Store Q.')+
+        ' Unresolved demands and extra services are not silently accepted.';
+      for(const [id,value] of Object.entries({
+        'alcove-order-status':currentLabel,
+        'alcove-accept-status':currentLabel,
+        'alcove-current-capability':summary,
+        'alcove-store-fulfillment-economics':summary+' Manufacturing economics belong to the Store reply; additional service/fulfillment charges have not been evaluated.',
+        'alcove-store-commercial-offer':alcoveTerms?.state()?.commercial?.events?.find(e=>e.eventType==='OfferIssued')?.payload?.offerId || 'NOT YET RECORDED'
+      })) { const el=doc.getElementById(id);if(el)el.textContent=value; }
+      const retainedYardStatus=doc.querySelector('#alcove-store-yard-answer .hdr > div:last-child span');
+      if(retainedYardStatus)retainedYardStatus.textContent='HISTORICAL EXAMPLE · ADJUSTMENT REQUIRED (NOT CURRENT)';
+      const legacyPrice=doc.querySelector('#alcove-store-commercial-sequence .hdr > div:nth-child(3) span');
+      if(legacyPrice)legacyPrice.textContent=hasQ&&current ? 'STORE MANUFACTURING Q $'+q.toFixed(2)+' · NOT SELLER OFFER' : 'NO CURRENT STORE MANUFACTURING Q';
       renderAlcoveChain();
       feedAlcoveTerms();
       renderAlcoveTerms();
@@ -1938,7 +1963,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           <div><b>VERSION</b><span id="alcove-order-version">Version 1 · confirmed</span></div>
           <div><b>GEOMETRY</b><span id="alcove-order-geometry">—</span></div>
           <div><b>MATERIAL</b><span id="alcove-order-material">—</span></div>
-          <div><b>STATUS</b><span>REFERENCE STORE ANSWER</span></div>
+          <div><b>STATUS · CURRENT STORE RECEIPT</b><span id="alcove-order-status">AWAITING CURRENT STORE ANSWER</span></div>
         </div>
         <div class="cols">
           <div>
@@ -1954,7 +1979,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
             <div class="kv"><span>Cell recovery</span><span id="alcove-order-recovery">—</span></div>
           </div>
         </div>
-        <div class="band warn"><b>Current capability truth.</b> Material mapping, stated reference availability, declared service choices, and reference economics are shown. Fabrication remains unresolved wherever the current Alcove surface says it is unresolved. Disabled or unavailable work remains visible; it is not silently dropped. No silent substitution is allowed.</div>
+        <div class="band warn" id="alcove-current-capability">Awaiting this revision's Store receipt. No Store result is presumed.</div>
       `;
       firstStep?.before(storeOrder);
 
@@ -1966,13 +1991,13 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
 
       const yardWrap = doc.createElement('section');
       yardWrap.id = 'alcove-store-yard-answer';
-      yardWrap.innerHTML = '<h2>Store / Yard answer, material exceptions and substitution</h2><p class="sub">The full existing Yard response remains attached to the same Store interaction. Unsupported, unavailable or unresolved work stays visible with its reason.</p>';
+      yardWrap.innerHTML = '<h2>Historical reference · example Yard exception scenario</h2><p class="sub">The original reference scenario below is retained as an example, NOT the current Store reply. Current status and price appear above, bound to the received Store answer. Historical ADJUSTMENT REQUIRED is not a current refusal.</p>';
       yardWrap.append(yardAnswerBlock);
       firstStep?.before(yardWrap);
 
       const termsWrap = doc.createElement('section');
       termsWrap.id = 'alcove-store-commercial-sequence';
-      termsWrap.innerHTML = '<h2>Commercial sequence and timing basis</h2><p class="sub">The customer sees the timing consequence before any acceptance. Reference timing remains reference timing; no live ETA is invented.</p>';
+      termsWrap.innerHTML = '<h2>Commercial sequence and timing basis</h2><p class="sub">Legacy timeline is illustrative, not a current Store or seller disposition. Current Store Q and simulated seller offer status follow their own receipts. No live ETA is invented.</p>';
       termsWrap.append(termsBlock);
       firstStep?.before(termsWrap);
 
@@ -1990,7 +2015,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
       returnedOffer.id = 'alcove-store-returned-offer';
       returnedOffer.innerHTML = `
         <h2>Complete returned Store answer</h2>
-        <p>Store has finished the answering work available to this reference surface. The confirmed definition is unchanged. Material and capability evidence remain visible. Processing / fulfillment economics stay unresolved until a current Alcove class-scoped model is published.</p>
+        <p id="alcove-store-fulfillment-economics">Awaiting the current Store's manufacturing status and Q. Fulfillment services are separately unresolved until a seller disposition exists.</p>
         <div class="cols">
           <div>
             <div class="kv"><span>Reference total</span><span id="alcove-store-return-price">—</span></div>
@@ -1999,7 +2024,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
           </div>
           <div>
             <div class="kv"><span>Pickup / handoff recipient</span><span id="alcove-store-return-collector">—</span></div>
-            <div class="kv"><span>Commercial offer</span><span>NOT ESTABLISHED · ECONOMICS INCOMPLETE</span></div>
+            <div class="kv"><span>Simulated seller offer</span><span id="alcove-store-commercial-offer">NOT YET RECORDED</span></div>
             <div class="kv"><span>Settlement</span><span>NOT ESTABLISHED</span></div>
           </div>
         </div>
@@ -2014,7 +2039,7 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
         <p class="sub">Accept and send exactly this version to the Store, decline it, or return to Configure for a new version.</p>
         <div class="hdr">
           <div><b>VERSION</b><span>Version 1 · confirmed</span></div>
-          <div><b>STORE ANSWER</b><span>LIVE · RETURNED</span></div>
+          <div><b>STORE ANSWER</b><span id="alcove-accept-status">NO MATCHING RECEIPT</span></div>
         </div>
         <h2>Returned Store answer</h2>
         <div class="cols">
