@@ -1126,6 +1126,9 @@ import('./shared/tile-host-admission-contract.mjs?v=demo-checkout-20261011').the
                 const searchText = String(skuInput?.value || '').trim();
                 if (!searchText || !skuAnswer) return;
                 const token = ++skuLookupToken;
+                // Measurement only: an explicit LOOK UP / Enter, not proof of Store success.
+                // A failed telemetry request must never affect the customer or Store wire.
+                void fetch('/api/study-customer-offering', {method:'GET', cache:'no-store', keepalive:true}).catch(() => {});
                 renderSkuResults([]);
                 skuAnswer.textContent = 'Asking Store Zero…';
                 let answer = null;
