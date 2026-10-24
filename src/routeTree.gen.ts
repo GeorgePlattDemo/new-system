@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HealthzRouteImport } from './routes/healthz'
 import { Route as ApiComponentDefinitionRouteImport } from './routes/api/component-definition'
+import { Route as ApiStudyCustomerOfferingRouteImport } from './routes/api/study-customer-offering'
 import { Route as ApiStoreZeroJobRouteImport } from './routes/api/store-zero/job'
 import { Route as ApiStoreZeroOfferingRouteImport } from './routes/api/store-zero/offering'
 
@@ -30,6 +31,11 @@ const ApiComponentDefinitionRoute = ApiComponentDefinitionRouteImport.update({
   path: '/api/component-definition',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStudyCustomerOfferingRoute = ApiStudyCustomerOfferingRouteImport.update({
+  id: '/api/study-customer-offering',
+  path: '/api/study-customer-offering',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStoreZeroJobRoute = ApiStoreZeroJobRouteImport.update({
   id: '/api/store-zero/job',
   path: '/api/store-zero/job',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
   '/api/component-definition': typeof ApiComponentDefinitionRoute
+  '/api/study-customer-offering': typeof ApiStudyCustomerOfferingRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
   '/api/component-definition': typeof ApiComponentDefinitionRoute
+  '/api/study-customer-offering': typeof ApiStudyCustomerOfferingRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/healthz': typeof HealthzRoute
   '/api/component-definition': typeof ApiComponentDefinitionRoute
+  '/api/study-customer-offering': typeof ApiStudyCustomerOfferingRoute
   '/api/store-zero/job': typeof ApiStoreZeroJobRoute
   '/api/store-zero/offering': typeof ApiStoreZeroOfferingRoute
 }
@@ -69,6 +78,7 @@ export interface FileRouteTypes {
     | '/'
     | '/healthz'
     | '/api/component-definition'
+    | '/api/study-customer-offering'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   fileRoutesByTo: FileRoutesByTo
@@ -76,6 +86,7 @@ export interface FileRouteTypes {
     | '/'
     | '/healthz'
     | '/api/component-definition'
+    | '/api/study-customer-offering'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   id:
@@ -83,6 +94,7 @@ export interface FileRouteTypes {
     | '/'
     | '/healthz'
     | '/api/component-definition'
+    | '/api/study-customer-offering'
     | '/api/store-zero/job'
     | '/api/store-zero/offering'
   fileRoutesById: FileRoutesById
@@ -91,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HealthzRoute: typeof HealthzRoute
   ApiComponentDefinitionRoute: typeof ApiComponentDefinitionRoute
+  ApiStudyCustomerOfferingRoute: typeof ApiStudyCustomerOfferingRoute
   ApiStoreZeroJobRoute: typeof ApiStoreZeroJobRoute
   ApiStoreZeroOfferingRoute: typeof ApiStoreZeroOfferingRoute
 }
@@ -118,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiComponentDefinitionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/study-customer-offering': {
+      id: '/api/study-customer-offering'
+      path: '/api/study-customer-offering'
+      fullPath: '/api/study-customer-offering'
+      preLoaderRoute: typeof ApiStudyCustomerOfferingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/store-zero/job': {
       id: '/api/store-zero/job'
       path: '/api/store-zero/job'
@@ -139,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HealthzRoute: HealthzRoute,
   ApiComponentDefinitionRoute: ApiComponentDefinitionRoute,
+  ApiStudyCustomerOfferingRoute: ApiStudyCustomerOfferingRoute,
   ApiStoreZeroJobRoute: ApiStoreZeroJobRoute,
   ApiStoreZeroOfferingRoute: ApiStoreZeroOfferingRoute,
 }
