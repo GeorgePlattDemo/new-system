@@ -390,8 +390,14 @@ try {
         assert.ok(rows[i].includes(parents[i].partIds.length+' cut parts from '+parents[i].boards),label+': kit reports wrong part quantity');
       }
       await surface.locator('#record-body details summary').click();
-      const fullRecord=await surface.locator('#record-body').innerText();
-      for(const parent of parents)for(const partId of parent.partIds)assert.ok(fullRecord.includes(partId),label+': part lost its parent link '+partId);
+      const lineage=await surface.locator('#record-body details .kv').evaluateAll(nodes=>nodes.map(node=>({
+        feature:node.firstElementChild?.textContent||'', runs:node.lastElementChild?.textContent||''
+      })));
+      for(const parent of parents)for(const partId of parent.partIds){
+        const last=partId.lastIndexOf('-'),featureId=partId.slice(0,last),run=partId.slice(last+1);
+        assert.ok(lineage.some(row=>row.feature.startsWith(featureId+' · ')&&row.runs.includes(run+' ← '+parent.parentId)),
+          label+': part lost its parent link '+partId);
+      }
     }
     const receipt=surface.locator('[data-terms-receipt]:visible');
     await receipt.waitFor({timeout:15000});
