@@ -389,6 +389,7 @@ try {
         assert.ok(rows[i].includes(parents[i].storeSku),label+': wrong poplar or other Store item in kit');
         assert.ok(rows[i].includes(parents[i].partIds.length+' cut parts from '+parents[i].boards),label+': kit reports wrong part quantity');
       }
+      await surface.locator('#record-body details summary').click();
       const fullRecord=await surface.locator('#record-body').innerText();
       for(const parent of parents)for(const partId of parent.partIds)assert.ok(fullRecord.includes(partId),label+': part lost its parent link '+partId);
     }
