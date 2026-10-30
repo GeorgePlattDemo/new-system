@@ -363,6 +363,16 @@ try {
     await nav.getByRole('button',{name:stages[3],exact:true}).click();
     assert.equal(await surface.locator('[data-terms-action="accept"]:visible').count(),0,'Revisiting Your call must not create a second checkout');
     await nav.getByRole('button',{name:stages[4],exact:true}).click();
+    if(projectId==='window-seat'){
+      const parents=answer.storeAnswer.parents.filter(p=>p.kind==='board');
+      const rows=await surface.locator('#yard-body tbody tr').allTextContents();
+      assert.ok(parents.length>0,label+': Store supplied no parent boards');
+      assert.equal(rows.length,parents.length,label+': parent-board cut list omitted a Store parent');
+      for(let i=0;i<parents.length;i++){
+        assert.ok(rows[i].includes(parents[i].parentId),label+': wrong parent in cut list');
+        for(const partId of parents[i].partIds)assert.ok(rows[i].includes(partId),label+': missing cut part '+partId);
+      }
+    }
     await yard.click();
     const pickup=surface.locator('[data-terms-action="pickup"]:visible');
     await pickup.waitFor({timeout:15000});
@@ -371,6 +381,17 @@ try {
     assert.equal(await surface.locator('[data-terms-action="yard"]:visible').count(),0,'A ready job must not run twice');
     await nav.getByRole('button',{name:stages[5],exact:true}).click();
     await pickup.click();
+    if(projectId==='window-seat'){
+      const parents=answer.storeAnswer.parents.filter(p=>p.kind==='board');
+      const rows=await surface.locator('#record-body > .box').first().locator('tbody tr').allTextContents();
+      assert.ok(rows.length>=parents.length,label+': kit omitted Store parents');
+      for(let i=0;i<parents.length;i++){
+        assert.ok(rows[i].includes(parents[i].storeSku),label+': wrong poplar or other Store item in kit');
+        assert.ok(rows[i].includes(parents[i].partIds.length+' cut parts from '+parents[i].boards),label+': kit reports wrong part quantity');
+      }
+      const fullRecord=await surface.locator('#record-body').innerText();
+      for(const parent of parents)for(const partId of parent.partIds)assert.ok(fullRecord.includes(partId),label+': part lost its parent link '+partId);
+    }
     const receipt=surface.locator('[data-terms-receipt]:visible');
     await receipt.waitFor({timeout:15000});
     const receiptText=await receipt.innerText();
@@ -752,6 +773,10 @@ try {
       assert.notEqual(poplar.evaluationReceipt.demandHash,pine.evaluationReceipt.demandHash);
       const poplarPrice=(await money.innerText()).trim();
       assert.ok(poplarPrice.includes(new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(poplar.rawEvaluation.Q)));
+      await seat.locator('#btn-ask').click();
+      await journey(seat,'window-seat','Window Seat poplar');
+      await content.getByRole('button',{name:'2 · The bench',exact:true}).click();
+      await seat.locator('#s-bench').waitFor({state:'visible'});
       await seat.locator('#bench-species [data-material="oak"]').click();
       const shortage = await waitAnswer();
       assert.equal(shortage.rawEvaluation.status,'UNAVAILABLE');
@@ -1186,7 +1211,7 @@ try {
   console.log(JSON.stringify({ fiveProjectsMounted: true, storePin: config.storePin,
     configRequests: configRequests.length, extendedSeatConfigReads, extendedOutdoorConfigReads, storeResponses: responses }));
   assert.deepEqual(project1Specimens.map(s=>s.lengthIn),[16,18,18]);
-  assert.deepEqual(Object.fromEntries(['start-own','alcove','window-seat','outdoor','playhouse'].map(id=>[id,publishedJobs.filter(r=>r.projectId===id).length])),{'start-own':3,alcove:2,'window-seat':2,outdoor:2,playhouse:2});
+  assert.deepEqual(Object.fromEntries(['start-own','alcove','window-seat','outdoor','playhouse'].map(id=>[id,publishedJobs.filter(r=>r.projectId===id).length])),{'start-own':3,alcove:2,'window-seat':3,outdoor:2,playhouse:2});
   for(const id of ['start-own','alcove','window-seat','outdoor','playhouse']){
     const jobs=publishedJobs.filter(r=>r.projectId===id);
     // Master §3 distinguishes owner revisions from reusable manufacturing configuration labels.
