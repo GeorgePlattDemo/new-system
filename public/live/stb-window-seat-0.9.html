@@ -1535,13 +1535,32 @@ function renderCall(){
 }
 
 /* ═════ PAGE 6 · WE CUT IT ═════ */
+/* Read Store's actual parent/part records. Missing evidence must not become a zero-part kit. */
+function storeParentBoardRecords(view){
+  if(!view || !Array.isArray(view.pk) || !view.pk.length) return null;
+  const boards=view.pk.map(parent=>{
+    if(parent.kind!=='board' || typeof parent.parentId!=='string' || !parent.parentId ||
+      typeof parent.storeSku!=='string' || !parent.storeSku || !(parent.stockLengthIn>0) ||
+      !Array.isArray(parent.partIds) || !parent.partIds.length ||
+      !Array.isArray(parent.components) || parent.partIds.length!==parent.components.length ||
+      parent.components.some((part,i)=>part?.partId!==parent.partIds[i] || !(part.nominalFinishedLengthIn>0))) return null;
+    return {boardId:parent.parentId,storeSku:parent.storeSku,stockLengthIn:parent.stockLengthIn,
+      partsInCutOrder:parent.components.map(part=>({partId:part.partId,lengthIn:part.nominalFinishedLengthIn}))};
+  });
+  if(boards.some(board=>board===null)) return null;
+  const covered=boards.flatMap(board=>board.partsInCutOrder.map(part=>part.partId)).sort();
+  const expected=view.ev?.manifestCoverage?.boardPartIds;
+  if(!Array.isArray(expected) || covered.length!==expected.length || covered.some((partId,i)=>partId!==expected[i])) return null;
+  return boards;
+}
 function renderYard(){
   const st=TERMS.state(),v=storeView();
   if(!st.yardOpen||!v){$('yard-sub').textContent='Nothing is in the yard yet. This page opens after you accept the simulated offer.';$('yard-body').innerHTML='';return}
   $('yard-sub').textContent='Window seat, revision '+S.answer.rev+' · '+woodName(P.wood)+' · order '+st.orderId;
-  const boards=v.pk.flatMap(p=>(p.cutPlan||[]).map(bd=>({...bd,line:lineLabel(p.packageId)})));
+  const boards=storeParentBoardRecords(v);
+  if(!boards){$('yard-body').textContent='The Store did not supply a complete parent-to-part record for this revision. No cut list is claimed.';return}
   $('yard-body').innerHTML='<div class="box"><h4>CUT LIST, BOARD BY BOARD: THE STORE’S PLAN</h4><div class="bd scroll-x"><table class="pt"><thead><tr><th>Board</th><th>Line</th><th>Store item</th><th>Parts, in cut order</th><th>Back to you</th></tr></thead><tbody>'
-    +boards.map(bd=>'<tr><td class="id">'+esc(bd.boardId)+'</td><td>'+bd.line+'</td><td>'+esc(bd.storeSku)+' ('+bd.stockLengthIn+' in)</td><td>'+(bd.partsInCutOrder||[]).map(p=>esc(p.partId)+' '+fmt(p.lengthIn)+'"').join(' → ')+'</td><td>'+(bd.stubIn!=null?fmt(bd.stubIn)+'" stub':(bd.offcutIn!=null?fmt(bd.offcutIn)+'" offcut':'—'))+'</td></tr>').join('')
+    +boards.map((bd,i)=>'<tr><td class="id">'+esc(bd.boardId)+'</td><td>'+lineLabel(v.pk[i].packageId)+'</td><td>'+esc(bd.storeSku)+' ('+bd.stockLengthIn+' in)</td><td>'+bd.partsInCutOrder.map(p=>esc(p.partId)+' '+fmt(p.lengthIn)+'"').join(' → ')+'</td><td>—</td></tr>').join('')
     +'</tbody></table><p class="small dim" style="margin:8px 0 0">'+Math.round(v.minutes)+' min on the machine'+(v.spots?' · '+v.spots+' spots':'')+' · machine work '+money(v.t.machine_service)+'. Nothing is re-planned here. SIMULATED: no machine runs, and Cycle Start stays with the person at the cell.</p></div></div>';
 }
 
@@ -1550,9 +1569,11 @@ function renderRecord(def){
   const st=TERMS.state(),v=storeView();
   if(!st.recordOpen||!v){$('record-sub').textContent='Nothing to pick up yet. This page opens once the parts are cut and ready.';$('record-body').innerHTML='';return}
   $('record-sub').textContent='Window seat, revision '+S.answer.rev+' · '+woodName(P.wood)+' · '+money(v.estimate);
-  const where={};v.pk.forEach(p=>(p.cutPlan||[]).forEach(bd=>(bd.partsInCutOrder||[]).forEach(x=>{where[x.partId]=bd.boardId})));
+  const boards=storeParentBoardRecords(v);
+  if(!boards){$('record-body').textContent='The Store did not supply a complete parent-to-part record for this revision. No finished kit is claimed.';return}
+  const where={};boards.forEach(parent=>parent.partsInCutOrder.forEach(part=>{where[part.partId]=parent.boardId}));
   const stubs=v.pk.reduce((n,p)=>n+(p.stubs||[]).length,0);
-  const kit=v.pk.map(p=>{const parts=(p.cutPlan||[]).reduce((n,bd)=>n+(bd.partsInCutOrder||[]).length,0);return '<tr><td>'+lineLabel(p.packageId)+'</td><td>'+parts+' cut parts from '+p.boards+' × '+esc(p.storeSku)+'</td><td>'+parts+'</td></tr>'});
+  const kit=boards.map((parent,i)=>{const parts=parent.partsInCutOrder.length,p=v.pk[i];return '<tr><td>'+lineLabel(p.packageId)+'</td><td>'+parts+' cut parts from '+p.boards+' × '+esc(parent.storeSku)+'</td><td>'+parts+'</td></tr>'});
   if(stubs)kit.push('<tr><td>Stubs</td><td>Returned with your kit</td><td>'+stubs+'</td></tr>');
   v.it.forEach(i=>kit.push('<tr><td>'+lineLabel(i.lineId)+'</td><td>'+esc(i.description||i.storeSku)+'</td><td>'+(i.packages||i.qty)+'</td></tr>'));
   $('record-body').innerHTML='<div class="box"><h4>YOUR KIT</h4><div class="bd scroll-x"><table class="pt"><thead><tr><th>What</th><th>Details</th><th>Qty</th></tr></thead><tbody>'+kit.join('')+'</tbody></table></div></div>'
